@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- AssemblyTitle needs to be set in .targets which is imported after .csproj -->
+    <AssemblyTitle>$(AssemblyName) ($(TargetFramework))</AssemblyTitle>
+  </PropertyGroup>
+
+</Project>

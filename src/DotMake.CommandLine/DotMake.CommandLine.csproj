@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- NuGet Package Information (common ones are in Directory.Build.props) -->
+    <!-- Description is used for assembly and NuGet metadata -->
+    <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
+    <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="*.DotSettings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 
+      https://github.com/dotnet/roslyn/issues/55229 
+      https://stackoverflow.com/a/69193922
+    -->
+    <!-- Ensure that the source generator is built together with this project -->
+    <ProjectReference Include="..\$(MSBuildProjectName).SourceGeneration\$(MSBuildProjectName).SourceGeneration.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <!-- Package the generator in the analyzer directory of the nuget package -->
+    <None Include="..\$(MSBuildProjectName).SourceGeneration\$(OutputPath)\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+</Project>
