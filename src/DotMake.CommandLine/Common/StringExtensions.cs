@@ -14,6 +14,10 @@ namespace DotMake.CommandLine
 		/// <summary>
 		/// Strips specific suffixes from the string.
 		/// </summary>
+		/// <param name="value">A string instance.</param>
+		/// <param name="suffixes">Suffix strings to remove.</param>
+		/// <param name="ignoreCase">Whether to ignore case.</param>
+		/// <returns>A new <see cref="string" /> instance.</returns>
 		public static string StripSuffixes(this string value, IEnumerable<string> suffixes, bool ignoreCase = true)
 		{
 			if (string.IsNullOrEmpty(value))
@@ -40,6 +44,9 @@ namespace DotMake.CommandLine
 		/// <summary>
 		/// Converts the string to a specific case.
 		/// </summary>
+		/// <param name="value">A string instance.</param>
+		/// <param name="casingConvention">The casing convention to convert to.</param>
+		/// <returns>A new <see cref="string" /> instance.</returns>
 		public static string ToCase(this string value, DotMakeCliCasingConvention casingConvention)
 		{
 			if (string.IsNullOrWhiteSpace(value))
@@ -93,6 +100,9 @@ namespace DotMake.CommandLine
 		/// <summary>
 		/// Adds a specific prefix to the string.
 		/// </summary>
+		/// <param name="alias">A string instance.</param>
+		/// <param name="prefixConvention">The prefix convention to use.</param>
+		/// <returns>A new <see cref="string" /> instance.</returns>
 		public static string AddPrefix(this string alias, DotMakeCliPrefixConvention prefixConvention)
 		{
 			var prefixLength = alias.GetPrefixLength();
@@ -115,6 +125,8 @@ namespace DotMake.CommandLine
 		/// <summary>
 		/// Removes prefixes (-, --, /) from the string.
 		/// </summary>
+		/// <param name="alias">A string instance.</param>
+		/// <returns>A new <see cref="string" /> instance.</returns>
 		public static string RemovePrefix(this string alias)
 		{
 			var prefixLength = alias.GetPrefixLength();
@@ -149,6 +161,8 @@ namespace DotMake.CommandLine
 		/// <summary>
 		/// Gets a stable hash code (int). 
 		/// </summary>
+		/// <param name="source">A string instance.</param>
+		/// <returns>A <see cref="int" /> hash value.</returns>
 		public static int GetStableHashCode32(this string source)
 		{
 			var span = source.AsSpan();
@@ -176,6 +190,8 @@ namespace DotMake.CommandLine
 		/// <summary>
 		/// Gets a stable int hash code as string.
 		/// </summary>
+		/// <param name="source">A string instance.</param>
+		/// <returns>A base32 encoded <see cref="string" /> hash value.</returns>
 		public static string GetStableStringHashCode32(this string source)
 		{
 			var hashCode = source.GetStableHashCode32();

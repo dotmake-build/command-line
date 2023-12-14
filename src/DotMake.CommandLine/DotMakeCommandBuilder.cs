@@ -107,6 +107,7 @@ namespace DotMake.CommandLine
 		/// Gets the command builder registered for the definition class.
 		/// </summary>
 		/// <typeparam name="TDefinition">The definition class.</typeparam>
+		/// <returns>The registered <see cref="DotMakeCommandBuilder" /> instance.</returns>
 		public static DotMakeCommandBuilder Get<TDefinition>()
 		{
 			var definitionType = typeof(TDefinition);
@@ -118,6 +119,7 @@ namespace DotMake.CommandLine
 		/// Gets the command builder registered for the definition class.
 		/// </summary>
 		/// <param name="definitionType">The type of the definition class.</param>
+		/// <returns>The registered <see cref="DotMakeCommandBuilder" /> instance.</returns>
 		public static DotMakeCommandBuilder Get(Type definitionType)
 		{
 			if (!RegisteredDefinitionTypes.TryGetValue(definitionType, out var commandBuilder))
@@ -128,7 +130,7 @@ namespace DotMake.CommandLine
 		}
 
 		/// <summary>
-		/// Registers a command builder as an nested/external child so that it can be found by the parent definition class.
+		/// Registers a command builder as a nested/external child so that it can be found by the parent definition class.
 		/// </summary>
 		/// <param name="childCommandBuilder">The nested/external child command builder.</param>
 		/// <typeparam name="TParentDefinition">The parent definition class.</typeparam>
@@ -140,7 +142,7 @@ namespace DotMake.CommandLine
 		}
 
 		/// <summary>
-		/// Registers a command builder as an nested/external child so that it can be found by the parent definition class.
+		/// Registers a command builder as a nested/external child so that it can be found by the parent definition class.
 		/// </summary>
 		/// <param name="parentDefinitionType">The type of the parent definition class.</param>
 		/// <param name="childCommandBuilder">The nested/external child command builder.</param>
@@ -153,9 +155,10 @@ namespace DotMake.CommandLine
 		}
 
 		/// <summary>
-		/// Gets the command builders that are nested/external children of a parent definition.
+		/// Gets the command builders that are registered as nested/external children of a parent definition.
 		/// </summary>
 		/// <typeparam name="TParentDefinition">The parent definition class.</typeparam>
+		/// <returns>An enumerable whose elements are the <see cref="DotMakeCommandBuilder" /> instances registered as nested/external children.</returns>
 		public static IEnumerable<DotMakeCommandBuilder> GetChildren<TParentDefinition>()
 		{
 			var parentDefinitionType = typeof(TParentDefinition);
@@ -164,9 +167,10 @@ namespace DotMake.CommandLine
 		}
 
 		/// <summary>
-		/// Gets the command builders that are nested/external children of a parent definition.
+		/// Gets the command builders that are registered as nested/external children of a parent definition.
 		/// </summary>
 		/// <param name="parentDefinitionType">The type of the parent definition class.</param>
+		/// <returns>An enumerable whose elements are the <see cref="DotMakeCommandBuilder" /> instances registered as nested/external children.</returns>
 		public static IEnumerable<DotMakeCommandBuilder> GetChildren(Type parentDefinitionType)
 		{
 			if (parentDefinitionType == null 

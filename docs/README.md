@@ -1,5 +1,6 @@
-# DotMake Command-Line
 ![DotMake Command-Line Logo](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/logo-wide.png "DotMake Command-Line Logo")
+
+# DotMake Command-Line
 
 Declarative syntax for [System.CommandLine](https://github.com/dotnet/command-line-api) via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.
 
@@ -73,7 +74,7 @@ catch (Exception e)
 	Console.WriteLine(@"Exception in main: {0}", e.Message);
 }
 ```
-System.CommandLine, by default overtakes your exceptions that are thrown in command handlers (even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows the exceptions to pass through. However if you wish, you can easily use an exception handler by using `configureBuilder`delegate parameter iike this:
+System.CommandLine, by default overtakes your exceptions that are thrown in command handlers (even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows the exceptions to pass through. However if you wish, you can easily use an exception handler by using `configureBuilder` delegate parameter like this:
 ```c#
 DotMakeCli.Run<RootCliCommand>(args, builder => 
 	builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
@@ -101,7 +102,7 @@ DotMakeCli.Run<RootCliCommand>(args, builder =>
     ```c#
     async Task<int> RunAsync()
     ```
-  Optionally the method signature can have a System.CommandLine.Invocation.InvocationContext parameter:
+  Optionally the method signature can have a System.CommandLine.Invocation.InvocationContext parameter in case you need to access it:
   
   - 
     ```c#

@@ -1,16 +1,20 @@
 <Project>
 
   <PropertyGroup>
+    <!-- https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generateassemblyinfo -->
     <VersionPrefix>1.0.0</VersionPrefix>
     <Product>DotMake Command-Line</Product>
     <Company>DotMake</Company>
     <!-- Copyright is also used for NuGet metadata -->
-    <Copyright>Copyright © 2023-2024 DotMake</Copyright>
+    <CopyrightYears>2023</CopyrightYears>
+    <CopyrightYears Condition="'$([System.DateTime]::Now.Year)' > 2023">2023-$([System.DateTime]::Now.Year)</CopyrightYears>
+    <Copyright>Copyright © $(CopyrightYears) $(Company)</Copyright>
     <!-- Embed .pdb to .dll so it's automatically available in NuGet package -->
     <DebugType>Embedded</DebugType>
     <RepositoryRootPath>$(ProjectDir)..\..\</RepositoryRootPath>
 
     <!-- NuGet Package Information -->
+    <!-- https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
     <Authors>dotmake</Authors>
     <PackageProjectUrl>https://dotmake.build</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dotmake-build/command-line</RepositoryUrl>
@@ -20,7 +24,8 @@
     <PackageOutputPath>$(RepositoryRootPath)publish</PackageOutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Include default NuGet package custom files in projects except sandcastle help file builder projects -->
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.shfbproj'">
     <None Include="$(RepositoryRootPath)images\logo128.png" Pack="true" PackagePath="/icon.png" Visible="false" />
     <None Include="$(RepositoryRootPath)docs\README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>

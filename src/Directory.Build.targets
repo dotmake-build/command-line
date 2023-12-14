@@ -5,4 +5,20 @@
     <AssemblyTitle>$(AssemblyName) ($(TargetFramework))</AssemblyTitle>
   </PropertyGroup>
 
+  <!--
+    We don't want SourceRevisionId appended to InformationalVersion mainly because shfb uses this attribute in assembly 
+    for api docs (which is ugly) so we save SourceRevisionId as AssemblyMetadata instead.
+    By the way using the default way below, does not work because it disables sourcelink all together? 
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    SourceRevisionId comes empty in that case.
+    -->
+  <Target Name="SetCutomAssemblyMetadata" AfterTargets="InitializeSourceControlInformation" BeforeTargets="GetAssemblyAttributes">
+    <ItemGroup>
+      <AssemblyMetadata Include="RepositoryCommit" Value="$(SourceRevisionId)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <!--Reset it to the original value -->
+      <InformationalVersion>$(Version)</InformationalVersion>
+    </PropertyGroup>
+  </Target>
 </Project>
