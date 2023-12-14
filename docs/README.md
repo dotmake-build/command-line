@@ -81,9 +81,9 @@ DotMakeCli.Run<RootCliCommand>(args, builder =>
 );
 ```
 ### Summary
-- Mark the class with `DotMakeCliCommand` attribute to make it a CLI command.
-- Mark a property with `DotMakeCliOption` attribute to make it a CLI option.
-- Mark a property with `DotMakeCliArgument` attribute to make it a CLI argument.
+- Mark the class with `DotMakeCliCommand` attribute to make it a CLI command (see [DotMakeCliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliCommandAttribute.htm) docs for more info).
+- Mark a property with `DotMakeCliOption` attribute to make it a CLI option (see [DotMakeCliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliOptionAttribute.htm) docs for more info).
+- Mark a property with `DotMakeCliArgument` attribute to make it a CLI argument (see [DotMakeCliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliArgumentAttribute.htm) docs for more info).
 - Add a method with name `Run` or `RunAsync` to make it the handler for the CLI command. The method can have one of the following signatures: 
   
   - 
@@ -114,7 +114,7 @@ DotMakeCli.Run<RootCliCommand>(args, builder =>
     ```
 
   The signatures which return int value, sets the ExitCode of the app.
-- Call `DotMakeCli.Run<>` or`DotMakeCli.RunAsync<>` method with your class name to run your CLI app.
+- Call `DotMakeCli.Run<>` or`DotMakeCli.RunAsync<>` method with your class name to run your CLI app (see [DotMakeCli](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCli.htm) docs for more info).
 
 ---
 When the command handler is run, the properties for CLI options and arguments will be already populated 
@@ -384,7 +384,7 @@ The class that `DotMakeCliCommand` attribute is applied to,
 - will be a root command if the class is not a nested class and `Parent`property is not set.
 - will be a sub command if the class is a nested class or `Parent` property is set.
 
-The properties for `DotMakeCliCommand` attribute:
+The properties for `DotMakeCliCommand` attribute (see [DotMakeCliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliCommandAttribute.htm) docs for more info):
 - Name
 - Description
 - Aliases
@@ -419,7 +419,7 @@ Both POSIX and Windows prefix conventions are supported. When you configure an o
 ---
 When manually setting a name (overriding target property's name), you should specify the option name including the prefix (e.g. `--option`, `-option` or `/option`)
 
-The properties for `DotMakeCliOption` attribute:
+The properties for `DotMakeCliOption` attribute (see [DotMakeCliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliOptionAttribute.htm) docs for more info):
 - Name
 - Description
 - Aliases
@@ -473,7 +473,7 @@ Quiet
 ```
 
 ---
-The properties for `DotMakeCliArgument` attribute:
+The properties for `DotMakeCliArgument` attribute (see [DotMakeCliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliArgumentAttribute.htm) docs for more info):
 - Name
 - Description
 - HelpName
@@ -482,4 +482,5 @@ The properties for `DotMakeCliArgument` attribute:
 - AllowedValues
 
 ## Additional documentation
+- [DotMake Command-Line API docs](https://dotmake.build/api/)
 - [Command-line syntax overview for System.CommandLine](https://learn.microsoft.com/en-us/dotnet/standard/commandline/syntax)

@@ -18,7 +18,7 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Core/.NET Standard/.NET 5.0+</FrameworkVersion>
-    <OutputPath>..\..\docs\HtmlHelp\</OutputPath>
+    <OutputPath>..\..\docs\api\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <HelpFileFormat>Website</HelpFileFormat>
@@ -59,7 +59,7 @@
       <Argument Key="ResizableTocColumn" Value="False" />
       <Argument Key="CollapsibleSections" Value="True" />
       <Argument Key="LogoFile" Value="logo128.png" />
-      <Argument Key="LogoHeight" Value="" />
+      <Argument Key="LogoHeight" Value="64" />
       <Argument Key="LogoWidth" Value="" />
       <Argument Key="LogoAltText" Value="" />
       <Argument Key="LogoPlacement" Value="Left" />

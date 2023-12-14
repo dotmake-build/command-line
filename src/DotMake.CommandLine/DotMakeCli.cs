@@ -67,14 +67,22 @@ namespace DotMake.CommandLine
 			return commandLineBuilder;
 		}
 
+		/*
+		Note about documentation, VS intellisense wants
+			/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
+		but SHFB wants (for some reason VS is confused for second parameter, repeats the first one's contents)
+			/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
+		This happens probably the method is generic?
+		*/
+
 		/// <summary>
 		/// Parses a command line string value and runs the handler for the indicated command.
 		/// </summary>
 		/// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
 		/// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
 		/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-		/// <param name="configureBuilder"></param>
-		/// <param name="useBuilderDefaults"></param>
+		/// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
+		/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
 		/// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
 		/// <returns>The exit code for the invocation.</returns>
 		public static int Run<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
@@ -90,8 +98,8 @@ namespace DotMake.CommandLine
 		/// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
 		/// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
 		/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-		/// <param name="configureBuilder"></param>
-		/// <param name="useBuilderDefaults"></param>
+		/// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
+		/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
 		/// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
 		/// <returns>The exit code for the invocation.</returns>
 		public static int Run<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
@@ -107,8 +115,8 @@ namespace DotMake.CommandLine
 		/// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
 		/// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
 		/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-		/// <param name="configureBuilder"></param>
-		/// <param name="useBuilderDefaults"></param>
+		/// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
+		/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
 		/// <param name="console">A console to which output can be written. By default, <see cref="System.Console" /> is used.</param>
 		/// <returns>The exit code for the invocation.</returns>
 		public static async Task<int> RunAsync<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
@@ -124,8 +132,8 @@ namespace DotMake.CommandLine
 		/// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
 		/// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
 		/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-		/// <param name="configureBuilder"></param>
-		/// <param name="useBuilderDefaults"></param>
+		/// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
+		/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
 		/// <param name="console">A console to which output can be written. By default, <see cref="System.Console" /> is used.</param>
 		/// <returns>The exit code for the invocation.</returns>
 		public static async Task<int> RunAsync<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
@@ -141,8 +149,8 @@ namespace DotMake.CommandLine
 		/// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
 		/// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
 		/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-		/// <param name="configureBuilder"></param>
-		/// <param name="useBuilderDefaults"></param>
+		/// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
+		/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
 		/// <returns>A <see cref="ParseResult" /> providing details about the parse operation.</returns>
 		public static ParseResult Parse<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true)
 		{
@@ -157,8 +165,8 @@ namespace DotMake.CommandLine
 		/// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
 		/// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
 		/// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-		/// <param name="configureBuilder"></param>
-		/// <param name="useBuilderDefaults"></param>
+		/// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
+		/// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
 		/// <returns>A <see cref="ParseResult" /> providing details about the parse operation.</returns>
 		public static ParseResult Parse<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true)
 		{
