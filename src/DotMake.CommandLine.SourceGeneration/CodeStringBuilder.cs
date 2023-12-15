@@ -1,59 +1,62 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
-	public class CodeStringBuilder
-	{
-		private readonly StringBuilder sb = new StringBuilder();
+    public class CodeStringBuilder
+    {
+        private const int IndentSize = 4;
+        private const char Space = ' ';
 
-		private int IndentLevel { get; set; }
+        private readonly StringBuilder sb = new StringBuilder();
 
-		public void Append(string value) => sb.Append(value);
+        private int IndentLevel { get; set; }
 
-		public void AppendIndent() => sb.Append(new string('\t', IndentLevel));
-		
-		public void AppendLine(string line) => sb.Append(new string('\t', IndentLevel)).AppendLine(line);
-		
-		public void AppendLine() => sb.AppendLine();
-		
-		public IDisposable BeginBlock(string line = null, string afterBlock = null)
-		{
-			if (line != null)
-				AppendLine(line);
+        public void Append(string value) => sb.Append(value);
 
-			sb.Append(new string('\t', IndentLevel)).AppendLine("{");
-			IndentLevel += 1;
-			return new BlockTracker(this, afterBlock);
-		}
+        public void AppendIndent() => sb.Append(new string(Space, IndentLevel));
 
-		public void EndBlock(string afterBlock = null)
-		{
-			IndentLevel -= 1;
-			sb.Append(new string('\t', IndentLevel)).AppendLine(string.IsNullOrEmpty(afterBlock) ? "}" : "}" + afterBlock);
-		}
+        public void AppendLine(string line) => sb.Append(new string(Space, IndentLevel)).AppendLine(line);
 
-		public void StartLine() => sb.Append(new string('\t', IndentLevel));
+        public void AppendLine() => sb.AppendLine();
 
-		public void EndLine() => sb.AppendLine();
+        public IDisposable BeginBlock(string line = null, string afterBlock = null)
+        {
+            if (line != null)
+                AppendLine(line);
 
-		public override string ToString() => sb.ToString();
+            sb.Append(new string(Space, IndentLevel)).AppendLine("{");
+            IndentLevel += IndentSize;
+            return new BlockTracker(this, afterBlock);
+        }
 
-		private class BlockTracker : IDisposable
-		{
-			private readonly CodeStringBuilder parent;
-			private readonly string afterBlock;
+        public void EndBlock(string afterBlock = null)
+        {
+            IndentLevel -= IndentSize;
+            sb.Append(new string(Space, IndentLevel)).AppendLine(string.IsNullOrEmpty(afterBlock) ? "}" : "}" + afterBlock);
+        }
 
-			public BlockTracker(CodeStringBuilder parent, string afterBlock)
-			{
-				this.parent = parent;
-				this.afterBlock = afterBlock;
-			}
+        public void StartLine() => sb.Append(new string(Space, IndentLevel));
 
-			public void Dispose()
-			{
-				parent.EndBlock(afterBlock);
-			}
-		}
-	}
+        public void EndLine() => sb.AppendLine();
+
+        public override string ToString() => sb.ToString();
+
+        private class BlockTracker : IDisposable
+        {
+            private readonly CodeStringBuilder parent;
+            private readonly string afterBlock;
+
+            public BlockTracker(CodeStringBuilder parent, string afterBlock)
+            {
+                this.parent = parent;
+                this.afterBlock = afterBlock;
+            }
+
+            public void Dispose()
+            {
+                parent.EndBlock(afterBlock);
+            }
+        }
+    }
 }

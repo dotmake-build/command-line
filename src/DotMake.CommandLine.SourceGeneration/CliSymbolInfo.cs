@@ -1,80 +1,80 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
-	//Important: IEquatable.Equals is required for Roslyn cache to work
-	//WithComparer also may not work?
-	//https://github.com/dotnet/roslyn/issues/66324
-	//More about Equatable:
-	//https://github.com/dotnet/roslyn/issues/68070
-	public class CliSymbolInfo : IEquatable<CliSymbolInfo>
-	{
-		public CliSymbolInfo(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
-		{
-			Symbol = symbol;
-			//SyntaxNode seems to include applied attribute (changes reflected)
-			SyntaxNode = syntaxNode ?? symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
-			SemanticModel = semanticModel;
-		}
+    //Important: IEquatable.Equals is required for Roslyn cache to work
+    //WithComparer also may not work?
+    //https://github.com/dotnet/roslyn/issues/66324
+    //More about Equatable:
+    //https://github.com/dotnet/roslyn/issues/68070
+    public class CliSymbolInfo : IEquatable<CliSymbolInfo>
+    {
+        public CliSymbolInfo(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
+        {
+            Symbol = symbol;
+            //SyntaxNode seems to include applied attribute (changes reflected)
+            SyntaxNode = syntaxNode ?? symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+            SemanticModel = semanticModel;
+        }
 
-		public ISymbol Symbol { get; }
+        public ISymbol Symbol { get; }
 
-		public SyntaxNode SyntaxNode { get; }
+        public SyntaxNode SyntaxNode { get; }
 
-		public SemanticModel SemanticModel { get; }
+        public SemanticModel SemanticModel { get; }
 
-		public List<Diagnostic> Diagnostics { get; } = new List<Diagnostic>();
+        public List<Diagnostic> Diagnostics { get; } = new List<Diagnostic>();
 
-		public bool HasProblem { get; private set; }
+        public bool HasProblem { get; private set; }
 
-		public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, params object[] messageArgs)
-		{
-			AddDiagnostic(diagnosticDescriptor, Symbol, true, messageArgs);
-		}
+        public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, params object[] messageArgs)
+        {
+            AddDiagnostic(diagnosticDescriptor, Symbol, true, messageArgs);
+        }
 
-		public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, ISymbol targetSymbol, params object[] messageArgs)
-		{
-			AddDiagnostic(diagnosticDescriptor, targetSymbol, true, messageArgs);
-		}
+        public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, ISymbol targetSymbol, params object[] messageArgs)
+        {
+            AddDiagnostic(diagnosticDescriptor, targetSymbol, true, messageArgs);
+        }
 
-		public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, bool markAsProblem, params object[] messageArgs)
-		{
-			AddDiagnostic(diagnosticDescriptor, Symbol, markAsProblem, messageArgs);
-		}
+        public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, bool markAsProblem, params object[] messageArgs)
+        {
+            AddDiagnostic(diagnosticDescriptor, Symbol, markAsProblem, messageArgs);
+        }
 
-		public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, ISymbol targetSymbol, bool markAsProblem, params object[] messageArgs)
-		{
-			//Note targetSymbol should be Symbol or always point to a symbol in same SyntaxTree (same file)
-			//otherwise ReportDiagnostic with outdated Location (bound to a SyntaxTree) crashes other analyzers/features in VS
+        public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, ISymbol targetSymbol, bool markAsProblem, params object[] messageArgs)
+        {
+            //Note targetSymbol should be Symbol or always point to a symbol in same SyntaxTree (same file)
+            //otherwise ReportDiagnostic with outdated Location (bound to a SyntaxTree) crashes other analyzers/features in VS
 
-			messageArgs = new[]
-			{
-				targetSymbol.Name
-			}.Concat(messageArgs).ToArray();
+            messageArgs = new[]
+            {
+                targetSymbol.Name
+            }.Concat(messageArgs).ToArray();
 
-			if (markAsProblem
-				&& (diagnosticDescriptor.DefaultSeverity == DiagnosticSeverity.Error
-					|| diagnosticDescriptor.DefaultSeverity == DiagnosticSeverity.Warning))
-				HasProblem = true;
-			
-			var diagnostic = Diagnostic.Create(
-				diagnosticDescriptor,
-				targetSymbol.Locations.FirstOrDefault(),
-				messageArgs);
-			
-			Diagnostics.Add(diagnostic);
-		}
+            if (markAsProblem
+                && (diagnosticDescriptor.DefaultSeverity == DiagnosticSeverity.Error
+                    || diagnosticDescriptor.DefaultSeverity == DiagnosticSeverity.Warning))
+                HasProblem = true;
 
-		public virtual void ReportDiagnostics(SourceProductionContext sourceProductionContext)
-		{
-			foreach (var diagnostic in Diagnostics)
-				sourceProductionContext.ReportDiagnosticSafe(diagnostic);
-		}
+            var diagnostic = Diagnostic.Create(
+                diagnosticDescriptor,
+                targetSymbol.Locations.FirstOrDefault(),
+                messageArgs);
 
-		/*
+            Diagnostics.Add(diagnostic);
+        }
+
+        public virtual void ReportDiagnostics(SourceProductionContext sourceProductionContext)
+        {
+            foreach (var diagnostic in Diagnostics)
+                sourceProductionContext.ReportDiagnosticSafe(diagnostic);
+        }
+
+        /*
 		Notes:
 		If we use SyntaxNode.IsEquivalentTo(topLevel: true) alone, it works good for caching (we can ignore whitespace 
 		and nodes inside method bodies, in classes), but SyntaxNode (and Symbol, SemanticModel) seems to no longer refer 
@@ -98,17 +98,17 @@ namespace DotMake.CommandLine.SourceGeneration
 		- we see duplicate diagnostics in the error list?
 		So it's better to stick to reference equality for SyntaxNode.
 		*/
-		public bool Equals(CliSymbolInfo other)
-		{
-			return (SyntaxNode == other?.SyntaxNode);
-			//return SyntaxNode.IsEquivalentTo(other?.SyntaxNode, true);
-		}
+        public bool Equals(CliSymbolInfo other)
+        {
+            return (SyntaxNode == other?.SyntaxNode);
+            //return SyntaxNode.IsEquivalentTo(other?.SyntaxNode, true);
+        }
 
-		//Override Object.GetHashCode, just in case
-		//Unfortunately, Roslyn cache does not call GetHashCode but only Equals (inside NodeStateTable<T>.TryModifyEntry)
-		public override int GetHashCode()
-		{
-			return SyntaxNode?.GetHashCode() ?? 0;
-		}
-	}
+        //Override Object.GetHashCode, just in case
+        //Unfortunately, Roslyn cache does not call GetHashCode but only Equals (inside NodeStateTable<T>.TryModifyEntry)
+        public override int GetHashCode()
+        {
+            return SyntaxNode?.GetHashCode() ?? 0;
+        }
+    }
 }

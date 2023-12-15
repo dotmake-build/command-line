@@ -2,9 +2,9 @@
 
 # DotMake Command-Line
 
-Declarative syntax for [System.CommandLine](https://github.com/dotnet/command-line-api) via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments. Supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained) an [AOT compilation](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows#limitations-of-native-aot-deployment) !
-
 System.CommandLine is a very good parser but you need a lot of boilerplate code to get going and the API is hard to discover. This becomes complicated to newcomers and also you would have a lot of ugly code in your `Program.cs` to maintain. What if you had an easy class-based layer combined with a good parser?
+
+DotMake.CommandLine is a library which provides declarative syntax for [System.CommandLine](https://github.com/dotnet/command-line-api) via attributes for easy, fast, strongly-typed (no reflection) usage. The library includes includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments. Supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained) and [AOT compilation](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows#limitations-of-native-aot-deployment) !
 
 [![Nuget](https://img.shields.io/nuget/v/DotMake.CommandLine?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/DotMake.CommandLine)
 
@@ -38,19 +38,19 @@ using DotMake.CommandLine;
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
 {
-	[CliOption(Description = "Description for Option1")]
-	public string Option1 { get; set; } = "DefaultForOption1";
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
  
-	[CliArgument(Description = "Description for Argument1")]
-	public string Argument1 { get; set; } = "DefaultForArgument1";
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
  
-	public void Run()
-	{
-		Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-		Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-		Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-		Console.WriteLine();
-	}
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
 }
 ```
 In Program.cs, add this single line:
@@ -67,17 +67,17 @@ To handle exceptions, you just use a try-catch block:
 ```c#
 try
 {
-	Cli.Run<RootCliCommand>(args);
+    Cli.Run<RootCliCommand>(args);
 }
 catch (Exception e)
 {
-	Console.WriteLine(@"Exception in main: {0}", e.Message);
+    Console.WriteLine(@"Exception in main: {0}", e.Message);
 }
 ```
 System.CommandLine, by default overtakes your exceptions that are thrown in command handlers (even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows the exceptions to pass through. However if you wish, you can easily use an exception handler by using `configureBuilder` delegate parameter like this:
 ```c#
 Cli.Run<RootCliCommand>(args, builder => 
-	builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
+    builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
 );
 ```
 ### Summary
@@ -116,7 +116,8 @@ Cli.Run<RootCliCommand>(args, builder =>
   The signatures which return int value, sets the ExitCode of the app.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 
----
+## Model binding
+
 When the command handler is run, the properties for CLI options and arguments will be already populated 
 and bound from values passed in the command-line. If no matching value is passed, the property will have its default value.
 
@@ -148,7 +149,8 @@ Value for Option1 property is 'NewValueForOption1'
 Value for Argument1 property is 'NewValueForArgument1'
 ```
 
----
+## Help output
+
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
 Description:
@@ -169,13 +171,13 @@ Note, how command/option/argument names, descriptions and default values are aut
 
 By default,  command/option/argument names are generated as follows;
 - First the following suffixes are stripped out from class and property names:
-	- For commands:
-	  "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
-	- For options: 
-	 "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
-	- For arguments: 
-	"RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
-	
+    - For commands:
+      "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
+    - For options: 
+     "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
+    - For arguments: 
+    "RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
+    
 - Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
   - `CliNameCasingConvention.None`
   - `CliNameCasingConvention.LowerCase`
@@ -200,26 +202,26 @@ using System;
 using DotMake.CommandLine;
  
 [CliCommand(
-	Description = "A cli command with snake_case name casing and forward slash prefix conventions",
-	NameCasingConvention = CliNameCasingConvention.SnakeCase,
-	NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
-	ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+    Description = "A cli command with snake_case name casing and forward slash prefix conventions",
+    NameCasingConvention = CliNameCasingConvention.SnakeCase,
+    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
 )]
 public class RootCliCommand
 {
-	[CliOption(Description = "Description for Option1")]
-	public string Option1 { get; set; } = "DefaultForOption1";
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
  
-	[CliArgument(Description = "Description for Argument1")]
-	public string Argument1 { get; set; } = "DefaultForArgument1";
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
  
-	public void Run()
-	{
-		Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-		Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-		Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-		Console.WriteLine();
-	}
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
 }
 ```
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
@@ -263,55 +265,55 @@ Defining sub-commands in DotMake.Commandline is very easy. We simply use nested 
 [CliCommand(Description = "A root cli command with nested children")]
 public class WithNestedChildrenCliCommand
 {
-	[CliOption(Description = "Description for Option1")]
-	public string Option1 { get; set; } = "DefaultForOption1";
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
  
-	[CliArgument(Description = "Description for Argument1")]
-	public string Argument1 { get; set; } = "DefaultForArgument1";
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
  
-	public void Run()
-	{
-		Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-		Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-		Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-		Console.WriteLine();
-	}
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
  
-	[CliCommand(Description = "A nested level 1 sub-command")]
-	public class Level1SubCliCommand
-	{
-		[CliOption(Description = "Description for Option1")]
-		public string Option1 { get; set; } = "DefaultForOption1";
+    [CliCommand(Description = "A nested level 1 sub-command")]
+    public class Level1SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
  
-		[CliArgument(Description = "Description for Argument1")]
-		public string Argument1 { get; set; } = "DefaultForArgument1";
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; } = "DefaultForArgument1";
  
-		public void Run()
-		{
-			Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-			Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-			Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-			Console.WriteLine();
-		}
+        public void Run()
+        {
+            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+            Console.WriteLine();
+        }
  
-		[CliCommand(Description = "A nested level 2 sub-command")]
-		public class Level2SubCliCommand
-		{
-			[CliOption(Description = "Description for Option1")]
-			public string Option1 { get; set; } = "DefaultForOption1";
+        [CliCommand(Description = "A nested level 2 sub-command")]
+        public class Level2SubCliCommand
+        {
+            [CliOption(Description = "Description for Option1")]
+            public string Option1 { get; set; } = "DefaultForOption1";
  
-			[CliArgument(Description = "Description for Argument1")]
-			public string Argument1 { get; set; } = "DefaultForArgument1";
+            [CliArgument(Description = "Description for Argument1")]
+            public string Argument1 { get; set; } = "DefaultForArgument1";
  
-			public void Run()
-			{
-				Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-				Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-				Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-				Console.WriteLine();
-			}
-		}
-	}
+            public void Run()
+            {
+                Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+                Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+                Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+                Console.WriteLine();
+            }
+        }
+    }
 }
 ```
 Just make sure you apply `CliCommand` attribute to the nested classes as well.
@@ -322,25 +324,25 @@ Another way to create hierarchy between commands, especially if you want to use 
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
 {
-	[CliOption(Description = "Description for Option1")]
-	public string Option1 { get; set; } = "DefaultForOption1";
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
  
-	[CliArgument(Description = "Description for Argument1")]
-	public string Argument1 { get; set; } = "DefaultForArgument1";
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
  
-	public void Run()
-	{
-		Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-		Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-		Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-		Console.WriteLine();
-	}
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
 }
 
 [CliCommand(
-	Name = "Level1External",
-	Description = "An external level 1 sub-command",
-	Parent = typeof(RootCliCommand)
+    Name = "Level1External",
+    Description = "An external level 1 sub-command",
+    Parent = typeof(RootCliCommand)
 )]
 public class ExternalLevel1SubCliCommand
 {

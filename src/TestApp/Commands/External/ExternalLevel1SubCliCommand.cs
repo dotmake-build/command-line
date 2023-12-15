@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
 {
     [CliCommand(
-	    Name = "Level1External",
-		Description = "An external level 1 sub-command",
+        Name = "Level1External",
+        Description = "An external level 1 sub-command",
         Parent = typeof(RootWithExternalChildrenCliCommand)
     )]
     public class ExternalLevel1SubCliCommand

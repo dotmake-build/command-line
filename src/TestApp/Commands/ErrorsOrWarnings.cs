@@ -1,4 +1,4 @@
-﻿//#define ErrorsOrWarnings
+//#define ErrorsOrWarnings
 using DotMake.CommandLine;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;

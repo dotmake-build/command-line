@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
@@ -8,83 +8,83 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
-	[Generator]
-	public class CliCommandGenerator : IIncrementalGenerator
-	{
-		private static readonly Type Type = typeof(CliCommandGenerator);
-		private static readonly string Version = Type.Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
-		private static readonly string RoslynVersion = typeof(IIncrementalGenerator).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
-		private static readonly Dictionary<string, int> GenerationCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-		
-		public void Initialize(IncrementalGeneratorInitializationContext initializationContext)
-		{
-			var cliCommandInfos = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
-				CliCommandInfo.AttributeFullName,
-				(syntaxNode, cancellationToken) => syntaxNode is ClassDeclarationSyntax
-															//skip nested classes as they will handled by the parent classes
-															&& !(syntaxNode.Parent is TypeDeclarationSyntax),
-				(attributeSyntaxContext, cancellationToken) => new CliCommandInfo(attributeSyntaxContext)
-			);
+    [Generator]
+    public class CliCommandGenerator : IIncrementalGenerator
+    {
+        private static readonly Type Type = typeof(CliCommandGenerator);
+        private static readonly string Version = Type.Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+        private static readonly string RoslynVersion = typeof(IIncrementalGenerator).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+        private static readonly Dictionary<string, int> GenerationCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-			initializationContext.RegisterSourceOutput(cliCommandInfos, GenerateSourceCode);
-		}
+        public void Initialize(IncrementalGeneratorInitializationContext initializationContext)
+        {
+            var cliCommandInfos = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
+                CliCommandInfo.AttributeFullName,
+                (syntaxNode, cancellationToken) => syntaxNode is ClassDeclarationSyntax
+                                                            //skip nested classes as they will handled by the parent classes
+                                                            && !(syntaxNode.Parent is TypeDeclarationSyntax),
+                (attributeSyntaxContext, cancellationToken) => new CliCommandInfo(attributeSyntaxContext)
+            );
 
-		private static void GenerateSourceCode(SourceProductionContext sourceProductionContext, CliCommandInfo cliCommandInfo)
-		{
-			try
-			{
-				//Console.Beep(1000, 200); // For testing, how many times the generator is hit
+            initializationContext.RegisterSourceOutput(cliCommandInfos, GenerateSourceCode);
+        }
 
-				if (cliCommandInfo.SemanticModel.Compilation.Language != LanguageNames.CSharp)
-				{
-					sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguage, Location.None));
-					return;
-				}
-				if (cliCommandInfo.SyntaxNode.SyntaxTree.Options is CSharpParseOptions options && options.LanguageVersion < LanguageVersion.CSharp7_3)
-				{
-					sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguageVersion, Location.None));
-					return;
-				}
+        private static void GenerateSourceCode(SourceProductionContext sourceProductionContext, CliCommandInfo cliCommandInfo)
+        {
+            try
+            {
+                //Console.Beep(1000, 200); // For testing, how many times the generator is hit
 
-				cliCommandInfo.ReportDiagnostics(sourceProductionContext);
+                if (cliCommandInfo.SemanticModel.Compilation.Language != LanguageNames.CSharp)
+                {
+                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguage, Location.None));
+                    return;
+                }
+                if (cliCommandInfo.SyntaxNode.SyntaxTree.Options is CSharpParseOptions options && options.LanguageVersion < LanguageVersion.CSharp7_3)
+                {
+                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguageVersion, Location.None));
+                    return;
+                }
 
-				if (cliCommandInfo.HasProblem)
-					return;
+                cliCommandInfo.ReportDiagnostics(sourceProductionContext);
 
-				if (GenerationCounts.TryGetValue(cliCommandInfo.GeneratedClassFullName, out var generationCount))
-					GenerationCounts[cliCommandInfo.GeneratedClassFullName] = ++generationCount;
-				else
-					GenerationCounts.Add(cliCommandInfo.GeneratedClassFullName, ++generationCount);
+                if (cliCommandInfo.HasProblem)
+                    return;
 
-				var sb = new CodeStringBuilder();
-				sb.AppendLine("// <auto-generated />");
-				sb.AppendLine($"// Generated by {Type.Namespace} v{Version}");
-				sb.AppendLine($"// Roslyn (Microsoft.CodeAnalysis) v{RoslynVersion}");
-				sb.AppendLine($"// Generation: {generationCount}");
-				//add time only for debug as it causes unnecessary changes in source control in TestApp with EmitCompilerGeneratedFiles
-				//sb.AppendLine($"// Time: {DateTime.Now:o}, Generation: {generationCount}");
-				sb.AppendLine();
+                if (GenerationCounts.TryGetValue(cliCommandInfo.GeneratedClassFullName, out var generationCount))
+                    GenerationCounts[cliCommandInfo.GeneratedClassFullName] = ++generationCount;
+                else
+                    GenerationCounts.Add(cliCommandInfo.GeneratedClassFullName, ++generationCount);
 
-				cliCommandInfo.AppendCSharpDefineString(sb, true);
+                var sb = new CodeStringBuilder();
+                sb.AppendLine("// <auto-generated />");
+                sb.AppendLine($"// Generated by {Type.Namespace} v{Version}");
+                sb.AppendLine($"// Roslyn (Microsoft.CodeAnalysis) v{RoslynVersion}");
+                sb.AppendLine($"// Generation: {generationCount}");
+                //add time only for debug as it causes unnecessary changes in source control in TestApp with EmitCompilerGeneratedFiles
+                //sb.AppendLine($"// Time: {DateTime.Now:o}, Generation: {generationCount}");
+                sb.AppendLine();
 
-				var generatedClassSourceCode = sb.ToString();
+                cliCommandInfo.AppendCSharpDefineString(sb, true);
 
-				//We need to use a stable hash to have a unique and short hintName.
-				//Counting generated file names is not reliable, seems to sometimes run in parallel.
-				//Using class full name can still collide because AddSource uses OrdinalIgnoreCase,
-				//e.g. Namespace.Class1 and Namespace.class1 would collide
-				//https://github.com/dotnet/roslyn/issues/48833
-				var generatedFileName = $"{cliCommandInfo.GeneratedClassName}-{cliCommandInfo.GeneratedClassFullName.GetStableStringHashCode32()}.g.cs";
+                var generatedClassSourceCode = sb.ToString();
 
-				sourceProductionContext.AddSource(generatedFileName, generatedClassSourceCode);
-			}
-			catch (Exception exception)
-			{
-				var diagnosticDescriptor = DiagnosticDescriptors.Create(exception);
-				var diagnostic = Diagnostic.Create(diagnosticDescriptor, cliCommandInfo.Symbol.Locations.FirstOrDefault());
+                //We need to use a stable hash to have a unique and short hintName.
+                //Counting generated file names is not reliable, seems to sometimes run in parallel.
+                //Using class full name can still collide because AddSource uses OrdinalIgnoreCase,
+                //e.g. Namespace.Class1 and Namespace.class1 would collide
+                //https://github.com/dotnet/roslyn/issues/48833
+                var generatedFileName = $"{cliCommandInfo.GeneratedClassName}-{cliCommandInfo.GeneratedClassFullName.GetStableStringHashCode32()}.g.cs";
 
-				sourceProductionContext.ReportDiagnosticSafe(diagnostic);
-			}
-		}
-	}
+                sourceProductionContext.AddSource(generatedFileName, generatedClassSourceCode);
+            }
+            catch (Exception exception)
+            {
+                var diagnosticDescriptor = DiagnosticDescriptors.Create(exception);
+                var diagnostic = Diagnostic.Create(diagnosticDescriptor, cliCommandInfo.Symbol.Locations.FirstOrDefault());
+
+                sourceProductionContext.ReportDiagnosticSafe(diagnostic);
+            }
+        }
+    }
 }

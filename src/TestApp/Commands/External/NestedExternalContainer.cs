@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
@@ -6,8 +6,8 @@ namespace TestApp.Commands.External
     public class NestedExternalContainer
     {
         [CliCommand(
-	        Description = "A nested level 2 sub-command inside a non-command class (currently this is ignored)",
-			Parent = typeof(RootWithExternalChildrenCliCommand)
+            Description = "A nested level 2 sub-command inside a non-command class (currently this is ignored)",
+            Parent = typeof(RootWithExternalChildrenCliCommand)
         )]
         public class NestedLevel2SubCliCommand
         {
