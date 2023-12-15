@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>627a4c8d-514b-402e-b056-4b633341a17b</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>DotMake.CommandLine</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliArgumentArity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliArgumentAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliCasingConvention.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliCommandAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliOptionAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliPrefixConvention.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringExtensions.cs" />
+  </ItemGroup>
+</Project>

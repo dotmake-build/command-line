@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.SourceG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestNugetApp", "TestNugetApp\TestNugetApp.csproj", "{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DotMake.CommandLine.Shared", "DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.shproj", "{627A4C8D-514B-402E-B056-4B633341A17B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +41,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E95AA45-4B82-4FED-B08B-AAC1962B9574}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems*{4b069137-2252-415c-9f2c-37be08f316bb}*SharedItemsImports = 5
+		DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems*{627a4c8d-514b-402e-b056-4b633341a17b}*SharedItemsImports = 13
+		DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems*{dfd28e3b-497e-4dd2-84b0-26b7179cca31}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

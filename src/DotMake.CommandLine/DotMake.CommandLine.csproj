@@ -10,9 +10,7 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="*.DotSettings" />
-  </ItemGroup>
+  <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
@@ -29,6 +27,10 @@
     </ProjectReference>
     <!-- Package the generator in the analyzer directory of the nuget package -->
     <None Include="..\$(MSBuildProjectName).SourceGeneration\$(OutputPath)\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="*.DotSettings" />
   </ItemGroup>
 
 </Project>

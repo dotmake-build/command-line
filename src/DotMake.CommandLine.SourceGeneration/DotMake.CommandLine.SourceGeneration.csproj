@@ -11,9 +11,7 @@
     <Description>Incremental source generator for DotMake.CommandLine.</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\DotMake.CommandLine\Common\**\*.cs" Link="Common\%(RecursiveDir)\%(FileName)%(Extension)" />
-  </ItemGroup>
+  <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
     <!-- 

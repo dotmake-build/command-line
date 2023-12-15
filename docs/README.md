@@ -165,7 +165,7 @@ Options:
   -v, --version              Show version information
   -?, -h, --help             Show help and usage information
 ```
-Note, how command/option/argument names, descriptions and default value are automatically populated.
+Note, how command/option/argument names, descriptions and default values are automatically populated.
 
 By default,  command/option/argument names are generated as follows;
 - First the following suffixes are stripped out from class and property names:

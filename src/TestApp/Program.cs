@@ -9,9 +9,9 @@ using TestApp.Commands.PrefixConvention;
 try
 {
 	//Using DotMakeCli.Run:
-	DotMakeCli.Run<RootWithExternalChildrenCliCommand>(args);
+	//DotMakeCli.Run<RootWithExternalChildrenCliCommand>(args);
 	//DotMakeCli.Run<RootWithNestedChildrenCliCommand>(args);
-	//DotMakeCli.Run<RootCliCommand>(args);
+	DotMakeCli.Run<RootCliCommand>(args);
 	//DotMakeCli.Run<ForwardSlashCliCommand>(args);
 
 	//Using DotMakeCli.RunAsync:
