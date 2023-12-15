@@ -482,3 +482,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# custom includes
+!PublishTrimmed.pubxml
+!PublishAot.pubxml
