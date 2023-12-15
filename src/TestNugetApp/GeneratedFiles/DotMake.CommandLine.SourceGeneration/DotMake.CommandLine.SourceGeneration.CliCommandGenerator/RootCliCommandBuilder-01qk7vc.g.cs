@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands
 {
-	public class RootCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class RootCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public RootCliCommandBuilder()
 		{

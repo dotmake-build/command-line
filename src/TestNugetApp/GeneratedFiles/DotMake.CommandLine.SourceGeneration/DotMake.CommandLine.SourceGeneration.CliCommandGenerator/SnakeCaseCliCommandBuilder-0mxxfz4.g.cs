@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.CasingConvention
 {
-	public class SnakeCaseCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class SnakeCaseCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public SnakeCaseCliCommandBuilder()
 		{

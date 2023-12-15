@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands
 {
-	public class AsyncIntReturnCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class AsyncIntReturnCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public AsyncIntReturnCliCommandBuilder()
 		{

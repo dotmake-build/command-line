@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.PrefixConvention
 {
-	public class SingleHyphenCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class SingleHyphenCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public SingleHyphenCliCommandBuilder()
 		{

@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.CasingConvention
 {
-	public class UpperCaseCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class UpperCaseCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public UpperCaseCliCommandBuilder()
 		{

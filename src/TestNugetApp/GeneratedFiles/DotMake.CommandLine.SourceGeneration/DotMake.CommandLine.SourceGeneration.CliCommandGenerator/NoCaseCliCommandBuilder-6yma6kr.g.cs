@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.CasingConvention
 {
-	public class NoCaseCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class NoCaseCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public NoCaseCliCommandBuilder()
 		{

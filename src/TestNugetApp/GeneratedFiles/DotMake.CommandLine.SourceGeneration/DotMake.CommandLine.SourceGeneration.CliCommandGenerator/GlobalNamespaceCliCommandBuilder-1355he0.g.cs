@@ -3,7 +3,7 @@
 // Roslyn (Microsoft.CodeAnalysis) v4.800.23.57201
 // Generation: 1
 
-public class GlobalNamespaceCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+public class GlobalNamespaceCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 {
 	public GlobalNamespaceCliCommandBuilder()
 	{

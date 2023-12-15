@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.External
 {
-	public class ExternalLevel1SubCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class ExternalLevel1SubCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public ExternalLevel1SubCliCommandBuilder()
 		{
@@ -77,7 +77,7 @@ namespace TestApp.Commands.External
 			commandBuilder.Register();
 		}
 
-		public class Level2SubCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+		public class Level2SubCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 		{
 			public Level2SubCliCommandBuilder()
 			{

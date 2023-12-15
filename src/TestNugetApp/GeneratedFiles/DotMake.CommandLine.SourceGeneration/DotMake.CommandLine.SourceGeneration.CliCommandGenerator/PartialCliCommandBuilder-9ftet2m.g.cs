@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands
 {
-	public class PartialCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class PartialCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public PartialCliCommandBuilder()
 		{

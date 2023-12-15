@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.PrefixConvention
 {
-	public class ForwardSlashCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class ForwardSlashCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public ForwardSlashCliCommandBuilder()
 		{

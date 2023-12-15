@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands.CasingConvention
 {
-	public class CamelCaseCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class CamelCaseCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public CamelCaseCliCommandBuilder()
 		{

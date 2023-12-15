@@ -5,7 +5,7 @@
 
 namespace TestApp.Commands
 {
-	public class RootWithNestedChildrenCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+	public class RootWithNestedChildrenCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 	{
 		public RootWithNestedChildrenCliCommandBuilder()
 		{
@@ -77,7 +77,7 @@ namespace TestApp.Commands
 			commandBuilder.Register();
 		}
 
-		public class Level1SubCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+		public class Level1SubCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 		{
 			public Level1SubCliCommandBuilder()
 			{
@@ -149,7 +149,7 @@ namespace TestApp.Commands
 				commandBuilder.Register();
 			}
 
-			public class Level2SubCliCommandBuilder : DotMake.CommandLine.CommandBuilder
+			public class Level2SubCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
 			{
 				public Level2SubCliCommandBuilder()
 				{
