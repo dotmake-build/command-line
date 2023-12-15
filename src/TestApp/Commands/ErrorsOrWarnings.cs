@@ -7,31 +7,31 @@ namespace TestApp.Commands
 {
 #if ErrorsOrWarnings
 
-	[DotMakeCliCommand( Description = "Warning: Non public/internal class will be ignored")]
+	[CliCommand(Description = "Warning: Non public/internal class will be ignored")]
 	private class NonPublicCliCommand
 	{
 
 	}
 
-	[DotMakeCliCommand( Description = "Warning: Static class will be ignored")]
+	[CliCommand(Description = "Warning: Static class will be ignored")]
 	public static class StaticCliCommand
 	{
 
 	}
 
-	[DotMakeCliCommand(Description = "Error: Class cannot be abstract")]
+	[CliCommand(Description = "Error: Class cannot be abstract")]
 	public abstract class AbstractCliCommand
 	{
 
 	}
 
-	[DotMakeCliCommand(Description = "Error: Class cannot be generic")]
+	[CliCommand(Description = "Error: Class cannot be generic")]
 	public  class GenericCliCommand<T>
 	{
 
 	}
 
-	[DotMakeCliCommand(Description = "Error: Class must have a public constructor")]
+	[CliCommand(Description = "Error: Class must have a public constructor")]
 	public class NoPublicConstructorCliCommand
 	{
 		private NoPublicConstructorCliCommand()
@@ -40,7 +40,7 @@ namespace TestApp.Commands
 		}
 	}
 
-	[DotMakeCliCommand(Description = "Error: Class must have a default (parameter-less) constructor")]
+	[CliCommand(Description = "Error: Class must have a default (parameter-less) constructor")]
 	public class NoDefaultConstructorCliCommand
 	{
 		public NoDefaultConstructorCliCommand(string value)
@@ -49,7 +49,7 @@ namespace TestApp.Commands
 		}
 	}
 
-	[DotMakeCliCommand(
+	[CliCommand(
 		Description = "Error: Circular parent dependency involving the classes",
 		Parent = typeof(CircularSelfCliCommand)
 	)]
@@ -58,7 +58,7 @@ namespace TestApp.Commands
 
 	}
 
-	[DotMakeCliCommand(
+	[CliCommand(
 		Description = "Error: Circular parent dependency involving the classes",
 		Parent = typeof(Circular2CliCommand)
 	)]
@@ -67,7 +67,7 @@ namespace TestApp.Commands
 
 	}
 
-	[DotMakeCliCommand(
+	[CliCommand(
 		Description = "Error: Circular parent dependency involving the classes",
 		Parent = typeof(Circular1CliCommand)
 	)]
@@ -81,7 +81,7 @@ namespace TestApp.Commands
 
 	}
 
-	[DotMakeCliCommand(
+	[CliCommand(
 		Description = "Error: Parent class does not have the attribute",
 		Parent = typeof(NoAttributeCliCommand)
 	)]
@@ -90,13 +90,13 @@ namespace TestApp.Commands
 
 	}
 
-	[DotMakeCliCommand(Description = "Warning: No Run or RunAsync method, handler will be ignored")]
+	[CliCommand(Description = "Warning: No Run or RunAsync method, handler will be ignored")]
 	public class NoHandlerCliCommand
 	{
 
 	}
 
-	[DotMakeCliCommand(Description = "Warning: Non public/internal, static and generic Run or RunAsync method, handler will be ignored")]
+	[CliCommand(Description = "Warning: Non public/internal, static and generic Run or RunAsync method, handler will be ignored")]
 	public class NoPublicNonStaticHandlerCliCommand
 	{
 		private void Run2()
@@ -121,13 +121,13 @@ namespace TestApp.Commands
 		}
 	}
 
-	[DotMakeCliCommand(Description = "Warning: Non public/internal properties will be ignored")]
+	[CliCommand(Description = "Warning: Non public/internal properties will be ignored")]
 	public class NonPublicPropsCliCommand
 	{
-		[DotMakeCliOption]
+		[CliOption]
 		private string Option1 { get; set; }
 
-		[DotMakeCliArgument]
+		[CliArgument]
 		protected string Argument1 { get; set; }
 
 		public void Run()
@@ -136,19 +136,19 @@ namespace TestApp.Commands
 		}
 	}
 
-	[DotMakeCliCommand(Description = "Error: Properties with non public/internal getter/setter will be ignored")]
+	[CliCommand(Description = "Error: Properties with non public/internal getter/setter will be ignored")]
 	public class NonPublicGetterOrSetterCliCommand
 	{
-		[DotMakeCliOption]
+		[CliOption]
 		public string Option1 { get; }
 
-		[DotMakeCliOption]
+		[CliOption]
 		public string Option2 { get; private set; }
 
-		[DotMakeCliArgument]
+		[CliArgument]
 		public string Argument1 { get; }
 
-		[DotMakeCliArgument]
+		[CliArgument]
 		public string Argument2 { get; protected set; }
 
 		public void Run()

@@ -9,12 +9,12 @@
     <Import_RootNamespace>DotMake.CommandLine</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliArgumentArity.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliArgumentAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliCasingConvention.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliCommandAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliOptionAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DotMakeCliPrefixConvention.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliArgumentArity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliArgumentAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNameCasingConvention.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliCommandAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliOptionAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNamePrefixConvention.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StringExtensions.cs" />
   </ItemGroup>
 </Project>

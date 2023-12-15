@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotMake.CommandLine" Version="1.0.0" />
+    <PackageReference Include="DotMake.CommandLine" Version="$(Version)" />
     <Compile Include="..\TestApp\**\*.cs" />
     <Compile Remove="..\TestApp\bin\**\*" />
     <Compile Remove="..\TestApp\obj\**\*" />

@@ -35,13 +35,13 @@ Create a simple class like this:
 using System;
 using DotMake.CommandLine;
 
-[DotMakeCliCommand(Description = "A root cli command")]
+[CliCommand(Description = "A root cli command")]
 public class RootCliCommand
 {
-	[DotMakeCliOption(Description = "Description for Option1")]
+	[CliOption(Description = "Description for Option1")]
 	public string Option1 { get; set; } = "DefaultForOption1";
  
-	[DotMakeCliArgument(Description = "Description for Argument1")]
+	[CliArgument(Description = "Description for Argument1")]
 	public string Argument1 { get; set; } = "DefaultForArgument1";
  
 	public void Run()
@@ -55,19 +55,19 @@ public class RootCliCommand
 ```
 In Program.cs, add this single line:
 ```c#
-DotMakeCli.Run<RootCliCommand>(args);
+Cli.Run<RootCliCommand>(args);
 ```
-And that's it! You now have a fully working command-line app. You just specify the name of your class which represents your root command to `DotMakeCli.Run<>` method and everything is wired.
+And that's it! You now have a fully working command-line app. You just specify the name of your class which represents your root command to `Cli.Run<>` method and everything is wired.
 
 If you want to go async, just use this:
 ```c#
-await DotMakeCli.RunAsync<RootCliCommand>(args);
+await Cli.RunAsync<RootCliCommand>(args);
 ```
 To handle exceptions, you just use a try-catch block:
 ```c#
 try
 {
-	DotMakeCli.Run<RootCliCommand>(args);
+	Cli.Run<RootCliCommand>(args);
 }
 catch (Exception e)
 {
@@ -76,14 +76,14 @@ catch (Exception e)
 ```
 System.CommandLine, by default overtakes your exceptions that are thrown in command handlers (even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows the exceptions to pass through. However if you wish, you can easily use an exception handler by using `configureBuilder` delegate parameter like this:
 ```c#
-DotMakeCli.Run<RootCliCommand>(args, builder => 
+Cli.Run<RootCliCommand>(args, builder => 
 	builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
 );
 ```
 ### Summary
-- Mark the class with `DotMakeCliCommand` attribute to make it a CLI command (see [DotMakeCliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliCommandAttribute.htm) docs for more info).
-- Mark a property with `DotMakeCliOption` attribute to make it a CLI option (see [DotMakeCliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliOptionAttribute.htm) docs for more info).
-- Mark a property with `DotMakeCliArgument` attribute to make it a CLI argument (see [DotMakeCliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliArgumentAttribute.htm) docs for more info).
+- Mark the class with `CliCommand` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+- Mark a property with `CliOption` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+- Mark a property with `CliArgument` attribute to make it a CLI argument (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
 - Add a method with name `Run` or `RunAsync` to make it the handler for the CLI command. The method can have one of the following signatures: 
   
   - 
@@ -114,7 +114,7 @@ DotMakeCli.Run<RootCliCommand>(args, builder =>
     ```
 
   The signatures which return int value, sets the ExitCode of the app.
-- Call `DotMakeCli.Run<>` or`DotMakeCli.RunAsync<>` method with your class name to run your CLI app (see [DotMakeCli](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCli.htm) docs for more info).
+- Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 
 ---
 When the command handler is run, the properties for CLI options and arguments will be already populated 
@@ -176,22 +176,22 @@ By default,  command/option/argument names are generated as follows;
 	- For arguments: 
 	"RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
 	
-- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `DotMakeCliCommand` attribute to one of the following values:
-  - `DotMakeCliCasingConvention.None`
-  - `DotMakeCliCasingConvention.LowerCase`
-  - `DotMakeCliCasingConvention.UpperCase`
-  - `DotMakeCliCasingConvention.TitleCase`
-  - `DotMakeCliCasingConvention.PascalCase`
-  - `DotMakeCliCasingConvention.CamelCase`
-  - `DotMakeCliCasingConvention.KebabCase`
-  - `DotMakeCliCasingConvention.SnakeCase`
+- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
+  - `CliNameCasingConvention.None`
+  - `CliNameCasingConvention.LowerCase`
+  - `CliNameCasingConvention.UpperCase`
+  - `CliNameCasingConvention.TitleCase`
+  - `CliNameCasingConvention.PascalCase`
+  - `CliNameCasingConvention.CamelCase`
+  - `CliNameCasingConvention.KebabCase`
+  - `CliNameCasingConvention.SnakeCase`
   
-- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `DotMakeCliCommand` attribute to one of the following values:
-  - `DotMakeCliPrefixConvention.SingleHyphen`
-  - `DotMakeCliPrefixConvention.DoubleHyphen`
-  - `DotMakeCliPrefixConvention.ForwardSlash`
+- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `CliCommand` attribute to one of the following values:
+  - `CliNamePrefixConvention.SingleHyphen`
+  - `CliNamePrefixConvention.DoubleHyphen`
+  - `CliNamePrefixConvention.ForwardSlash`
   
-- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `DotMakeCliCommand` attribute.
+- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `CliCommand` attribute.
 
 ---
 For example, change the name casing and prefix convention:
@@ -199,18 +199,18 @@ For example, change the name casing and prefix convention:
 using System;
 using DotMake.CommandLine;
  
-[DotMakeCliCommand(
+[CliCommand(
 	Description = "A cli command with snake_case name casing and forward slash prefix conventions",
-	NameCasingConvention = DotMakeCliCasingConvention.SnakeCase,
-	NamePrefixConvention = DotMakeCliPrefixConvention.ForwardSlash,
-	ShortFormPrefixConvention = DotMakeCliPrefixConvention.ForwardSlash
+	NameCasingConvention = CliNameCasingConvention.SnakeCase,
+	NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+	ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
 )]
 public class RootCliCommand
 {
-	[DotMakeCliOption(Description = "Description for Option1")]
+	[CliOption(Description = "Description for Option1")]
 	public string Option1 { get; set; } = "DefaultForOption1";
  
-	[DotMakeCliArgument(Description = "Description for Argument1")]
+	[CliArgument(Description = "Description for Argument1")]
 	public string Argument1 { get; set; } = "DefaultForArgument1";
  
 	public void Run()
@@ -260,13 +260,13 @@ Subcommands can have their own subcommands. In `dotnet tool install`, `install` 
 ---
 Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy:
 ```c#
-[DotMakeCliCommand(Description = "A root cli command with nested children")]
+[CliCommand(Description = "A root cli command with nested children")]
 public class WithNestedChildrenCliCommand
 {
-	[DotMakeCliOption(Description = "Description for Option1")]
+	[CliOption(Description = "Description for Option1")]
 	public string Option1 { get; set; } = "DefaultForOption1";
  
-	[DotMakeCliArgument(Description = "Description for Argument1")]
+	[CliArgument(Description = "Description for Argument1")]
 	public string Argument1 { get; set; } = "DefaultForArgument1";
  
 	public void Run()
@@ -277,13 +277,13 @@ public class WithNestedChildrenCliCommand
 		Console.WriteLine();
 	}
  
-	[DotMakeCliCommand(Description = "A nested level 1 sub-command")]
+	[CliCommand(Description = "A nested level 1 sub-command")]
 	public class Level1SubCliCommand
 	{
-		[DotMakeCliOption(Description = "Description for Option1")]
+		[CliOption(Description = "Description for Option1")]
 		public string Option1 { get; set; } = "DefaultForOption1";
  
-		[DotMakeCliArgument(Description = "Description for Argument1")]
+		[CliArgument(Description = "Description for Argument1")]
 		public string Argument1 { get; set; } = "DefaultForArgument1";
  
 		public void Run()
@@ -294,13 +294,13 @@ public class WithNestedChildrenCliCommand
 			Console.WriteLine();
 		}
  
-		[DotMakeCliCommand(Description = "A nested level 2 sub-command")]
+		[CliCommand(Description = "A nested level 2 sub-command")]
 		public class Level2SubCliCommand
 		{
-			[DotMakeCliOption(Description = "Description for Option1")]
+			[CliOption(Description = "Description for Option1")]
 			public string Option1 { get; set; } = "DefaultForOption1";
  
-			[DotMakeCliArgument(Description = "Description for Argument1")]
+			[CliArgument(Description = "Description for Argument1")]
 			public string Argument1 { get; set; } = "DefaultForArgument1";
  
 			public void Run()
@@ -314,18 +314,18 @@ public class WithNestedChildrenCliCommand
 	}
 }
 ```
-Just make sure you apply `DotMakeCliCommand` attribute to the nested classes as well.
+Just make sure you apply `CliCommand` attribute to the nested classes as well.
 Command hierarchy in above example is: **WithNestedChildrenCliCommand** -> **Level1SubCliCommand** -> **Level2SubCliCommand**
 
-Another way to create hierarchy between commands, especially if you want to use standalone classes, is to use `Parent` property of `DotMakeCliCommand` attribute to specify `typeof` parent class:
+Another way to create hierarchy between commands, especially if you want to use standalone classes, is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
 ```c#
-[DotMakeCliCommand(Description = "A root cli command")]
+[CliCommand(Description = "A root cli command")]
 public class RootCliCommand
 {
-	[DotMakeCliOption(Description = "Description for Option1")]
+	[CliOption(Description = "Description for Option1")]
 	public string Option1 { get; set; } = "DefaultForOption1";
  
-	[DotMakeCliArgument(Description = "Description for Argument1")]
+	[CliArgument(Description = "Description for Argument1")]
 	public string Argument1 { get; set; } = "DefaultForArgument1";
  
 	public void Run()
@@ -337,17 +337,17 @@ public class RootCliCommand
 	}
 }
 
-[DotMakeCliCommand(
+[CliCommand(
 	Name = "Level1External",
 	Description = "An external level 1 sub-command",
 	Parent = typeof(RootCliCommand)
 )]
 public class ExternalLevel1SubCliCommand
 {
-    [DotMakeCliOption(Description = "Description for Option1")]
+    [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
 
-    [DotMakeCliArgument(Description = "Description for Argument1")]
+    [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; } = "DefaultForArgument1";
 
     public void Run()
@@ -358,13 +358,13 @@ public class ExternalLevel1SubCliCommand
         Console.WriteLine();
     }
 
-    [DotMakeCliCommand(Description = "A nested level 2 sub-command")]
+    [CliCommand(Description = "A nested level 2 sub-command")]
     public class Level2SubCliCommand
     {
-        [DotMakeCliOption(Description = "Description for Option1")]
+        [CliOption(Description = "Description for Option1")]
         public string Option1 { get; set; } = "DefaultForOption1";
 
-        [DotMakeCliArgument(Description = "Description for Argument1")]
+        [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; } = "DefaultForArgument1";
 
         public void Run()
@@ -380,11 +380,11 @@ public class ExternalLevel1SubCliCommand
 Command hierarchy in above example is: **RootCliCommand** -> **ExternalLevel1SubCliCommand** -> **Level2SubCliCommand**
 
 ---
-The class that `DotMakeCliCommand` attribute is applied to,
+The class that `CliCommand` attribute is applied to,
 - will be a root command if the class is not a nested class and `Parent`property is not set.
 - will be a sub command if the class is a nested class or `Parent` property is set.
 
-The properties for `DotMakeCliCommand` attribute (see [DotMakeCliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliCommandAttribute.htm) docs for more info):
+The properties for `CliCommand` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
 - Name
 - Description
 - Aliases
@@ -419,7 +419,7 @@ Both POSIX and Windows prefix conventions are supported. When you configure an o
 ---
 When manually setting a name (overriding target property's name), you should specify the option name including the prefix (e.g. `--option`, `-option` or `/option`)
 
-The properties for `DotMakeCliOption` attribute (see [DotMakeCliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliOptionAttribute.htm) docs for more info):
+The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
 - Name
 - Description
 - Aliases
@@ -473,7 +473,7 @@ Quiet
 ```
 
 ---
-The properties for `DotMakeCliArgument` attribute (see [DotMakeCliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_DotMakeCliArgumentAttribute.htm) docs for more info):
+The properties for `CliArgument` attribute (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
 - Name
 - Description
 - HelpName

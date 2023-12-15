@@ -17,7 +17,7 @@ namespace DotMake.CommandLine
 		/// <param name="shortFormAutoGenerate">A value which indicates whether short form aliases are added for the option.</param>
 		/// <returns>The same instance of <see cref="CommandLineBuilder" />.</returns>
 		public static CommandLineBuilder UseVersionOption(this CommandLineBuilder commandLineBuilder,
-			DotMakeCliPrefixConvention namePrefixConvention, DotMakeCliPrefixConvention shortFormPrefixConvention, bool shortFormAutoGenerate)
+			CliNamePrefixConvention namePrefixConvention, CliNamePrefixConvention shortFormPrefixConvention, bool shortFormAutoGenerate)
 		{
 			var aliases = new List<string>
 			{
@@ -44,7 +44,7 @@ namespace DotMake.CommandLine
 		/// <param name="namePrefixConvention">The prefix convention to use for the option name.</param>
 		/// <returns>The same instance of <see cref="CommandLineBuilder" />.</returns>
 		public static CommandLineBuilder UseHelp(this CommandLineBuilder commandLineBuilder,
-			DotMakeCliPrefixConvention namePrefixConvention)
+			CliNamePrefixConvention namePrefixConvention)
 		{
 			var aliases = new []
 			{

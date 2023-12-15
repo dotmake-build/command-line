@@ -6,10 +6,10 @@ namespace DotMake.CommandLine.SourceGeneration
 {
 	public class CliCommandSettings
 	{
-		private static readonly DotMakeCliCommandAttribute Defaults = DotMakeCliCommandAttribute.Default;
-		private DotMakeCliCasingConvention? nameCasingConvention;
-		private DotMakeCliPrefixConvention? namePrefixConvention ;
-		private DotMakeCliPrefixConvention? shortFormPrefixConvention;
+		private static readonly CliCommandAttribute Defaults = CliCommandAttribute.Default;
+		private CliNameCasingConvention? nameCasingConvention;
+		private CliNamePrefixConvention? namePrefixConvention ;
+		private CliNamePrefixConvention? shortFormPrefixConvention;
 		private bool? shortFormAutoGenerate;
 
 		public CliCommandSettings(INamedTypeSymbol symbol)
@@ -27,19 +27,19 @@ namespace DotMake.CommandLine.SourceGeneration
 
 		public bool IsParentContaining => (ParentSymbol != null && ParentSymbol.Equals(Symbol.ContainingType, SymbolEqualityComparer.Default));
 
-		public DotMakeCliCasingConvention NameCasingConvention
+		public CliNameCasingConvention NameCasingConvention
 		{
 			get => nameCasingConvention ?? ParentSettings?.NameCasingConvention ?? Defaults.NameCasingConvention;
 			private set => nameCasingConvention = value;
 		}
 
-		public DotMakeCliPrefixConvention NamePrefixConvention
+		public CliNamePrefixConvention NamePrefixConvention
 		{
 			get => namePrefixConvention ?? ParentSettings?.NamePrefixConvention ?? Defaults.NamePrefixConvention;
 			private set => namePrefixConvention = value;
 		}
 
-		public DotMakeCliPrefixConvention ShortFormPrefixConvention
+		public CliNamePrefixConvention ShortFormPrefixConvention
 		{
 			get => shortFormPrefixConvention ?? ParentSettings?.ShortFormPrefixConvention ?? Defaults.ShortFormPrefixConvention;
 			private set => shortFormPrefixConvention = value;
@@ -89,22 +89,22 @@ namespace DotMake.CommandLine.SourceGeneration
 
 				switch (name)
 				{
-					case nameof(DotMakeCliCommandAttribute.Parent):
+					case nameof(CliCommandAttribute.Parent):
 						settings.ParentSymbol = (INamedTypeSymbol)typedConstant.Value;
 						break;
-					case nameof(DotMakeCliCommandAttribute.NameCasingConvention):
+					case nameof(CliCommandAttribute.NameCasingConvention):
 						if (typedConstant.Value != null) //Used only for casting warning
-							settings.NameCasingConvention = (DotMakeCliCasingConvention)typedConstant.Value;
+							settings.NameCasingConvention = (CliNameCasingConvention)typedConstant.Value;
 						break;
-					case nameof(DotMakeCliCommandAttribute.NamePrefixConvention):
+					case nameof(CliCommandAttribute.NamePrefixConvention):
 						if (typedConstant.Value != null)
-							settings.NamePrefixConvention = (DotMakeCliPrefixConvention)typedConstant.Value;
+							settings.NamePrefixConvention = (CliNamePrefixConvention)typedConstant.Value;
 						break;
-					case nameof(DotMakeCliCommandAttribute.ShortFormPrefixConvention):
+					case nameof(CliCommandAttribute.ShortFormPrefixConvention):
 						if (typedConstant.Value != null)
-							settings.ShortFormPrefixConvention = (DotMakeCliPrefixConvention)typedConstant.Value;
+							settings.ShortFormPrefixConvention = (CliNamePrefixConvention)typedConstant.Value;
 						break;
-					case nameof(DotMakeCliCommandAttribute.ShortFormAutoGenerate):
+					case nameof(CliCommandAttribute.ShortFormAutoGenerate):
 						if (typedConstant.Value != null)
 							settings.ShortFormAutoGenerate = (bool)typedConstant.Value;
 						break;

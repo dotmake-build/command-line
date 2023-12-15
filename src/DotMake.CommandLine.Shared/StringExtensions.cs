@@ -45,30 +45,30 @@ namespace DotMake.CommandLine
 		/// Converts the string to a specific case.
 		/// </summary>
 		/// <param name="value">A string instance.</param>
-		/// <param name="casingConvention">The casing convention to convert to.</param>
+		/// <param name="nameCasingConvention">The name casing convention to convert to.</param>
 		/// <returns>A new <see cref="string" /> instance.</returns>
-		public static string ToCase(this string value, DotMakeCliCasingConvention casingConvention)
+		public static string ToCase(this string value, CliNameCasingConvention nameCasingConvention)
 		{
 			if (string.IsNullOrWhiteSpace(value))
 				return value;
 
-			switch (casingConvention)
+			switch (nameCasingConvention)
 			{
-				case DotMakeCliCasingConvention.LowerCase:
+				case CliNameCasingConvention.LowerCase:
 					return value.ToLowerInvariant();
-				case DotMakeCliCasingConvention.UpperCase:
+				case CliNameCasingConvention.UpperCase:
 					return value.ToUpperInvariant();
-				case DotMakeCliCasingConvention.TitleCase:
+				case CliNameCasingConvention.TitleCase:
 					return string.Concat(
 						SplitWordsRegex.Split(value)
 							.Select(word => word.ToLowerInvariant().ToTitleCase())
 					);
-				case DotMakeCliCasingConvention.PascalCase:
+				case CliNameCasingConvention.PascalCase:
 					return string.Concat(
 						SplitWordsRegex.Split(value.Trim())
 							.Select(word => Regex.Replace(word.ToLowerInvariant().ToTitleCase(), @"\s+", ""))
 					);
-				case DotMakeCliCasingConvention.CamelCase:
+				case CliNameCasingConvention.CamelCase:
 					return string.Concat(
 						SplitWordsRegex.Split(value.Trim())
 							.Select((word, index) =>
@@ -77,12 +77,12 @@ namespace DotMake.CommandLine
 								return Regex.Replace(word, @"\s+", "");
 							})
 					);
-				case DotMakeCliCasingConvention.KebabCase:
+				case CliNameCasingConvention.KebabCase:
 					return string.Join("-",
 						SplitWordsRegex.Split(value.Trim())
 							.Select(word => Regex.Replace(word.ToLowerInvariant(), @"\s+", "-"))
 					);
-				case DotMakeCliCasingConvention.SnakeCase:
+				case CliNameCasingConvention.SnakeCase:
 					return string.Join("_",
 						SplitWordsRegex.Split(value.Trim())
 							.Select(word => Regex.Replace(word.ToLowerInvariant(), @"\s+", "_"))
@@ -101,23 +101,23 @@ namespace DotMake.CommandLine
 		/// Adds a specific prefix to the string.
 		/// </summary>
 		/// <param name="alias">A string instance.</param>
-		/// <param name="prefixConvention">The prefix convention to use.</param>
+		/// <param name="namePrefixConvention">The prefix convention to use.</param>
 		/// <returns>A new <see cref="string" /> instance.</returns>
-		public static string AddPrefix(this string alias, DotMakeCliPrefixConvention prefixConvention)
+		public static string AddPrefix(this string alias, CliNamePrefixConvention namePrefixConvention)
 		{
 			var prefixLength = alias.GetPrefixLength();
 
 			if (prefixLength > 0) //Has prefix
 				return alias;
 
-			switch (prefixConvention)
+			switch (namePrefixConvention)
 			{
-				case DotMakeCliPrefixConvention.SingleHyphen:
+				case CliNamePrefixConvention.SingleHyphen:
 					return "-" + alias;
 				default:
-				case DotMakeCliPrefixConvention.DoubleHyphen:
+				case CliNamePrefixConvention.DoubleHyphen:
 					return "--" + alias;
-				case DotMakeCliPrefixConvention.ForwardSlash:
+				case CliNamePrefixConvention.ForwardSlash:
 					return "/" + alias;
 			}
 		}

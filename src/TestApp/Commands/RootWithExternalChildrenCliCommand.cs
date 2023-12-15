@@ -3,16 +3,16 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
-	[DotMakeCliCommand(
+	[CliCommand(
 		Description = "A root cli command with external children and one nested child and testing settings inheritance",
 		Aliases = new[] { "rootCmdAlias" }
 	)]
 	public class RootWithExternalChildrenCliCommand
 	{
-		[DotMakeCliOption(Description = "Description for Option1", Aliases = new[] { "opt1Alias" })]
+		[CliOption(Description = "Description for Option1", Aliases = new[] { "opt1Alias" })]
 		public string Option1 { get; set; } = "DefaultForOption1";
 
-		[DotMakeCliOption(
+		[CliOption(
 			Description = "Description for Option2", 
 			Aliases = new[] { "globalOpt2Alias" }, 
 			Global = true,
@@ -20,7 +20,7 @@ namespace TestApp.Commands
 		)]
 		public string Option2 { get; set; } = "DefaultForOption1";
 
-		[DotMakeCliArgument(Description = "Description for Argument1")]
+		[CliArgument(Description = "Description for Argument1")]
 		public string Argument1 { get; set; } = "DefaultForArgument1";
 
 		public int Run()
@@ -33,18 +33,18 @@ namespace TestApp.Commands
 			return 0;
 		}
 
-		[DotMakeCliCommand(
+		[CliCommand(
 			Description = "A nested level 1 sub-command with custom settings, throws test exception",
-			NameCasingConvention = DotMakeCliCasingConvention.SnakeCase,
-			NamePrefixConvention = DotMakeCliPrefixConvention.ForwardSlash,
-			ShortFormPrefixConvention = DotMakeCliPrefixConvention.ForwardSlash
+			NameCasingConvention = CliNameCasingConvention.SnakeCase,
+			NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+			ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
 		)]
 		public class Level1SubCliCommand
 		{
-			[DotMakeCliOption(Description = "Description for Option1")]
+			[CliOption(Description = "Description for Option1")]
 			public string Option1 { get; set; } = "DefaultForOption1";
 
-			[DotMakeCliArgument(Description = "Description for Argument1")]
+			[CliArgument(Description = "Description for Argument1")]
 			public string Argument1 { get; set; } = "DefaultForArgument1";
 
 			public void Run()

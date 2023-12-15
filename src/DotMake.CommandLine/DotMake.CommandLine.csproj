@@ -8,6 +8,12 @@
     <!-- Description is used for assembly and NuGet metadata -->
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
+    <PackageReleaseNotes>
+      - Dropped DotMake prefix from all classes to follow the .NET naming conventions. 
+        Namespace should be sufficient to prevent future conflicts.
+        So the attribute names are now CliCommandAttribute, CliOptionAttribute, CliArgumentAttribute 
+        and main parse/run class name is now Cli.
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />

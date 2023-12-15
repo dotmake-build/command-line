@@ -9,10 +9,10 @@ namespace DotMake.CommandLine.SourceGeneration
 {
 	public class CliArgumentInfo : CliSymbolInfo, IEquatable<CliArgumentInfo>
 	{
-		public static readonly string AttributeFullName = typeof(DotMakeCliArgumentAttribute).FullName;
-		public const string AttributeNameProperty = nameof(DotMakeCliArgumentAttribute.Name);
-		public const string AttributeArityProperty = nameof(DotMakeCliArgumentAttribute.Arity);
-		public const string AttributeAllowedValuesProperty = nameof(DotMakeCliArgumentAttribute.AllowedValues);
+		public static readonly string AttributeFullName = typeof(CliArgumentAttribute).FullName;
+		public const string AttributeNameProperty = nameof(CliArgumentAttribute.Name);
+		public const string AttributeArityProperty = nameof(CliArgumentAttribute.Arity);
+		public const string AttributeAllowedValuesProperty = nameof(CliArgumentAttribute.AllowedValues);
 		public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
 		public const string ArgumentClassName = "Argument";
 		public const string ArgumentClassNamespace = "System.CommandLine";
@@ -20,7 +20,7 @@ namespace DotMake.CommandLine.SourceGeneration
 		public const string DiagnosticName = "CLI argument";
 		public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
 		{
-			{ nameof(DotMakeCliArgumentAttribute.Hidden), "IsHidden"}
+			{ nameof(CliArgumentAttribute.Hidden), "IsHidden"}
 		};
 
 		public CliArgumentInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)

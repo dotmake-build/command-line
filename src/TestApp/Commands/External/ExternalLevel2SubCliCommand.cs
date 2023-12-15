@@ -3,21 +3,21 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
 {
-	[DotMakeCliCommand(
+	[CliCommand(
 		Name = "Level2External",
 		Description = "An external level 2 sub-command",
 		Parent = typeof(RootWithExternalChildrenCliCommand.Level1SubCliCommand),
-		NameCasingConvention = DotMakeCliCasingConvention.SnakeCase,
-		NamePrefixConvention = DotMakeCliPrefixConvention.ForwardSlash,
-		ShortFormPrefixConvention = DotMakeCliPrefixConvention.ForwardSlash,
+		NameCasingConvention = CliNameCasingConvention.SnakeCase,
+		NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+		ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash,
 		Aliases = new[] { "external2Alias" }
 	)]
 	public class ExternalLevel2SubCliCommand
 	{
-		[DotMakeCliOption(Description = "Description for Option1")]
+		[CliOption(Description = "Description for Option1")]
 		public string Option1 { get; set; } = "DefaultForOption1";
 
-		[DotMakeCliArgument(Description = "Description for Argument1")]
+		[CliArgument(Description = "Description for Argument1")]
 		public string Argument1 { get; set; } = "DefaultForArgument1";
 
 		public void Run()
@@ -28,13 +28,13 @@ namespace TestApp.Commands.External
 			Console.WriteLine();
 		}
 
-		[DotMakeCliCommand(Description = "A nested level 3 sub-command")]
+		[CliCommand(Description = "A nested level 3 sub-command")]
 		public class Level3SubCliCommand
 		{
-			[DotMakeCliOption(Description = "Description for Option1")]
+			[CliOption(Description = "Description for Option1")]
 			public string Option1 { get; set; } = "DefaultForOption1";
 
-			[DotMakeCliArgument(Description = "Description for Argument1")]
+			[CliArgument(Description = "Description for Argument1")]
 			public string Argument1 { get; set; } = "DefaultForArgument1";
 
 			public void Run()

@@ -9,21 +9,21 @@ namespace DotMake.CommandLine.SourceGeneration
 {
 	public class CliOptionInfo : CliSymbolInfo, IEquatable<CliOptionInfo>
 	{
-		public static readonly string AttributeFullName = typeof(DotMakeCliOptionAttribute).FullName;
-		public const string AttributeNameProperty = nameof(DotMakeCliOptionAttribute.Name);
-		public const string AttributeAliasesProperty = nameof(DotMakeCliOptionAttribute.Aliases);
-		public const string AttributeGlobalProperty = nameof(DotMakeCliOptionAttribute.Global);
-		public const string AttributeArityProperty = nameof(DotMakeCliOptionAttribute.Arity);
-		public const string AttributeAllowedValuesProperty = nameof(DotMakeCliOptionAttribute.AllowedValues);
+		public static readonly string AttributeFullName = typeof(CliOptionAttribute).FullName;
+		public const string AttributeNameProperty = nameof(CliOptionAttribute.Name);
+		public const string AttributeAliasesProperty = nameof(CliOptionAttribute.Aliases);
+		public const string AttributeGlobalProperty = nameof(CliOptionAttribute.Global);
+		public const string AttributeArityProperty = nameof(CliOptionAttribute.Arity);
+		public const string AttributeAllowedValuesProperty = nameof(CliOptionAttribute.AllowedValues);
 		public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Option").Append("Option").ToArray();
 		public const string OptionClassName = "Option";
 		public const string OptionClassNamespace = "System.CommandLine";
 		public const string DiagnosticName = "CLI option";
 		public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
 		{
-			{ nameof(DotMakeCliOptionAttribute.HelpName), "ArgumentHelpName"},
-			{ nameof(DotMakeCliOptionAttribute.Hidden), "IsHidden"},
-			{ nameof(DotMakeCliOptionAttribute.Required), "IsRequired"}
+			{ nameof(CliOptionAttribute.HelpName), "ArgumentHelpName"},
+			{ nameof(CliOptionAttribute.Hidden), "IsHidden"},
+			{ nameof(CliOptionAttribute.Required), "IsRequired"}
 		};
 
 		public CliOptionInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)

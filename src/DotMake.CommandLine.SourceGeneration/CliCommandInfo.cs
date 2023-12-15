@@ -8,18 +8,19 @@ namespace DotMake.CommandLine.SourceGeneration
 {
 	public class CliCommandInfo : CliSymbolInfo, IEquatable<CliCommandInfo>
 	{
-		public static readonly string AttributeFullName = typeof(DotMakeCliCommandAttribute).FullName;
-		public const string AttributeNameProperty = nameof(DotMakeCliCommandAttribute.Name);
-		public const string AttributeAliasesProperty = nameof(DotMakeCliCommandAttribute.Aliases);
+		public static readonly string AttributeFullName = typeof(CliCommandAttribute).FullName;
+		public const string AttributeNameProperty = nameof(CliCommandAttribute.Name);
+		public const string AttributeAliasesProperty = nameof(CliCommandAttribute.Aliases);
 		public static readonly string[] Suffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
 		public const string RootCommandClassName = "RootCommand";
 		public const string CommandClassName = "Command";
 		public const string CommandClassNamespace = "System.CommandLine";
 		public const string DiagnosticName = "CLI command";
 		public const string GeneratedClassSuffix = "Builder";
+		public static readonly string CommandBuilderFullName = "DotMake.CommandLine.CliCommandBuilder";
 		public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
 		{
-			{ nameof(DotMakeCliCommandAttribute.Hidden), "IsHidden"}
+			{ nameof(CliCommandAttribute.Hidden), "IsHidden"}
 		};
 
 		public CliCommandInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
@@ -158,7 +159,7 @@ namespace DotMake.CommandLine.SourceGeneration
 					if (circularParent != null)
 						AddDiagnostic(DiagnosticDescriptors.ErrorClassCircularDependency, circularParent.Symbol.Name);
 					else if (Settings.ParentSettings == null)
-						AddDiagnostic(DiagnosticDescriptors.ErrorParentClassHasNotAttribute, DiagnosticName, nameof(DotMakeCliCommandAttribute));
+						AddDiagnostic(DiagnosticDescriptors.ErrorParentClassHasNotAttribute, DiagnosticName, nameof(CliCommandAttribute));
 				}
 			}
 		}
@@ -190,9 +191,9 @@ namespace DotMake.CommandLine.SourceGeneration
 				addNamespaceBlock = false;
 
 			using (addNamespaceBlock ? sb.BeginBlock($"namespace {GeneratedClassNamespace}") : null)
-			using (sb.BeginBlock($"public class {GeneratedClassName} : DotMake.CommandLine.DotMakeCommandBuilder"))
+			using (sb.BeginBlock($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
 			{
-				var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(DotMakeCliCasingConvention.CamelCase);
+				var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(CliNameCasingConvention.CamelCase);
 				var commandClass = $"{CommandClassNamespace}.{(IsRoot ? RootCommandClassName : CommandClassName)}";
 				var definitionClass = Symbol.ToDisplayString();
 				var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToDisplayString();
@@ -203,9 +204,9 @@ namespace DotMake.CommandLine.SourceGeneration
 					sb.AppendLine($"DefinitionType = typeof({definitionClass});");
 					sb.AppendLine($"ParentDefinitionType = {parentDefinitionType};");
 
-					sb.AppendLine($"NameCasingConvention = DotMake.CommandLine.DotMakeCliCasingConvention.{Settings.NameCasingConvention};");
-					sb.AppendLine($"NamePrefixConvention = DotMake.CommandLine.DotMakeCliPrefixConvention.{Settings.NamePrefixConvention};");
-					sb.AppendLine($"ShortFormPrefixConvention = DotMake.CommandLine.DotMakeCliPrefixConvention.{Settings.ShortFormPrefixConvention};");
+					sb.AppendLine($"NameCasingConvention = {EnumUtil<CliNameCasingConvention>.ToFullName(Settings.NameCasingConvention)};");
+					sb.AppendLine($"NamePrefixConvention = {EnumUtil<CliNamePrefixConvention>.ToFullName(Settings.NamePrefixConvention)};");
+					sb.AppendLine($"ShortFormPrefixConvention = {EnumUtil<CliNamePrefixConvention>.ToFullName(Settings.ShortFormPrefixConvention)};");
 					sb.AppendLine($"ShortFormAutoGenerate = {Settings.ShortFormAutoGenerate.ToString().ToLowerInvariant()};");
 
 				}
