@@ -78,7 +78,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 : Symbol.Name.StripSuffixes(Suffixes).ToCase(Parent.Settings.NameCasingConvention);
 
             sb.AppendLine($"// Argument for '{Symbol.Name}' property");
-            using (sb.BeginBlock($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type}>(\"{argumentName}\")", ";"))
+            using (sb.AppendBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type}>(\"{argumentName}\")", ";"))
             {
                 foreach (var kvp in AttributeArguments)
                 {

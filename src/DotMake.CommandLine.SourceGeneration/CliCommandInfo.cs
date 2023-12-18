@@ -190,8 +190,8 @@ namespace DotMake.CommandLine.SourceGeneration
             if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
 
-            using (addNamespaceBlock ? sb.BeginBlock($"namespace {GeneratedClassNamespace}") : null)
-            using (sb.BeginBlock($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
+            using (addNamespaceBlock ? sb.AppendBlockStart($"namespace {GeneratedClassNamespace}") : null)
+            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
                 var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(CliNameCasingConvention.CamelCase);
                 var commandClass = $"{CommandClassNamespace}.{(IsRoot ? RootCommandClassName : CommandClassName)}";
@@ -199,7 +199,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToDisplayString();
                 var parentDefinitionType = (parentDefinitionClass != null) ? $"typeof({parentDefinitionClass})" : "null";
 
-                using (sb.BeginBlock($"public {GeneratedClassName}()"))
+                using (sb.AppendBlockStart($"public {GeneratedClassName}()"))
                 {
                     sb.AppendLine($"DefinitionType = typeof({definitionClass});");
                     sb.AppendLine($"ParentDefinitionType = {parentDefinitionType};");
@@ -212,7 +212,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
                 sb.AppendLine();
 
-                using (sb.BeginBlock($"public override {commandClass} Build()"))
+                using (sb.AppendBlockStart($"public override {commandClass} Build()"))
                 {
                     AppendCSharpCreateString(sb, varCommand);
 
@@ -246,7 +246,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
                     sb.AppendLine();
                     sb.AppendLine("// Add nested or external registered children");
-                    using (sb.BeginBlock("foreach (var child in Children)"))
+                    using (sb.AppendBlockStart("foreach (var child in Children)"))
                     {
                         sb.AppendLine($"{varCommand}.Add(child.Build());");
                     }
@@ -254,7 +254,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     sb.AppendLine();
                     var varInvocationContext = "context";
                     var asyncKeyword = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync) ? "async " : "";
-                    using (sb.BeginBlock($"{CommandClassNamespace}.Handler.SetHandler({varCommand}, {asyncKeyword}{varInvocationContext} =>", ");"))
+                    using (sb.AppendBlockStart($"{CommandClassNamespace}.Handler.SetHandler({varCommand}, {asyncKeyword}{varInvocationContext} =>", ");"))
                     {
                         var varTargetClass = "targetClass";
 
@@ -282,7 +282,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         sb.AppendLine("//  Call the command handler");
                         if (handlerWithoutProblem != null)
                         {
-                            sb.AppendIndent();
+                            sb.AppendLineStart();
                             if (handlerWithoutProblem.ReturnsValue)
                                 sb.Append($"{varInvocationContext}.ExitCode = ");
                             if (handlerWithoutProblem.IsAsync)
@@ -290,7 +290,7 @@ namespace DotMake.CommandLine.SourceGeneration
                             sb.Append($"{varTargetClass}.");
                             handlerWithoutProblem.AppendCSharpCallString(sb, varInvocationContext);
                             sb.Append(";");
-                            sb.AppendLine();
+                            sb.AppendLineEnd();
                         }
                     }
 
@@ -300,7 +300,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 sb.AppendLine();
                 sb.AppendLine("[System.Runtime.CompilerServices.ModuleInitializerAttribute]");
-                using (sb.BeginBlock("public static void Initialize()"))
+                using (sb.AppendBlockStart("public static void Initialize()"))
                 {
                     var varCommandBuilder = "commandBuilder";
                     sb.AppendLine($"var {varCommandBuilder} = new {GeneratedClassFullName}();");
@@ -334,7 +334,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
             if (IsRoot)
             {
-                block = sb.BeginBlock($"var {varName} = new {commandClass}()", ";");
+                block = sb.AppendBlockStart($"var {varName} = new {commandClass}()", ";");
                 if (commandName != null)
                     sb.AppendLine($"{AttributeNameProperty} = \"{commandName}\",");
             }
@@ -343,7 +343,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (commandName == null)
                     commandName = Symbol.Name.StripSuffixes(Suffixes).ToCase(Settings.NameCasingConvention);
 
-                block = sb.BeginBlock($"var {varName} = new {commandClass}(\"{commandName}\")", ";");
+                block = sb.AppendBlockStart($"var {varName} = new {commandClass}(\"{commandName}\")", ";");
             }
 
             foreach (var kvp in AttributeArguments)

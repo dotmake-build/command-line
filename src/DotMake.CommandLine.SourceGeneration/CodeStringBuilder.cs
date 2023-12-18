@@ -14,31 +14,42 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void Append(string value) => sb.Append(value);
 
-        public void AppendIndent() => sb.Append(new string(Space, IndentLevel));
+        private void AppendIndent()
+        {
+            for (var i = 0; i < (IndentLevel * IndentSize); i++)
+                sb.Append(Space);
+        }
 
-        public void AppendLine(string line) => sb.Append(new string(Space, IndentLevel)).AppendLine(line);
+        public void AppendLine(string line)
+        {
+            AppendIndent();
+            sb.AppendLine(line);
+        }
 
         public void AppendLine() => sb.AppendLine();
 
-        public IDisposable BeginBlock(string line = null, string afterBlock = null)
+        public void AppendLineStart() => AppendIndent();
+
+        public void AppendLineEnd() => sb.AppendLine();
+
+        public IDisposable AppendBlockStart(string line = null, string afterBlock = null)
         {
             if (line != null)
                 AppendLine(line);
 
-            sb.Append(new string(Space, IndentLevel)).AppendLine("{");
-            IndentLevel += IndentSize;
+            AppendLine("{");
+
+            IndentLevel++;
+
             return new BlockTracker(this, afterBlock);
         }
 
-        public void EndBlock(string afterBlock = null)
+        public void AppendBlockEnd(string afterBlock = null)
         {
-            IndentLevel -= IndentSize;
-            sb.Append(new string(Space, IndentLevel)).AppendLine(string.IsNullOrEmpty(afterBlock) ? "}" : "}" + afterBlock);
+            IndentLevel--;
+
+            AppendLine(string.IsNullOrEmpty(afterBlock) ? "}" : "}" + afterBlock);
         }
-
-        public void StartLine() => sb.Append(new string(Space, IndentLevel));
-
-        public void EndLine() => sb.AppendLine();
 
         public override string ToString() => sb.ToString();
 
@@ -55,7 +66,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
             public void Dispose()
             {
-                parent.EndBlock(afterBlock);
+                parent.AppendBlockEnd(afterBlock);
             }
         }
     }

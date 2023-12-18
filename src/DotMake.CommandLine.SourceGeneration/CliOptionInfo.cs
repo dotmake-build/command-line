@@ -89,7 +89,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     .AddPrefix(Parent.Settings.NamePrefixConvention);
 
             sb.AppendLine($"// Option for '{Symbol.Name}' property");
-            using (sb.BeginBlock($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type}>(\"{optionName}\")", ";"))
+            using (sb.AppendBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type}>(\"{optionName}\")", ";"))
             {
                 foreach (var kvp in AttributeArguments)
                 {
