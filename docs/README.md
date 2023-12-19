@@ -166,7 +166,7 @@ Value for Argument1 property is 'NewValueForArgument1'
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
 DotMake Command-Line TestApp v1.4.0
-Copyright © 2023 DotMake
+Copyright Â© 2023 DotMake
 
 A root cli command
 
