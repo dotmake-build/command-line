@@ -67,7 +67,7 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="commandLineBuilder">A command line builder.</param>
         /// <param name="encoding">The output encoding to use.</param>
-        /// <returns></returns>
+        /// <returns>The same instance of <see cref="CommandLineBuilder" />.</returns>
         public static CommandLineBuilder UseOutputEncoding(this CommandLineBuilder commandLineBuilder, Encoding encoding)
         {
             return commandLineBuilder.AddMiddleware(

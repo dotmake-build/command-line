@@ -68,6 +68,7 @@ namespace DotMake.CommandLine
         /// Creates a new instance of the definition class and binds/populates the properties from the parse result.
         /// </summary>
         /// <param name="parseResult">A parse result describing the outcome of the parse operation.</param>
+        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
         public object Bind(ParseResult parseResult)
         {
             if (BindFunc == null)

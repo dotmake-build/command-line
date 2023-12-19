@@ -42,6 +42,8 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Gets the default sections to be written for command line help.
         /// </summary>
+        /// <param name="helpContext">The help context.</param>
+        /// <returns>An enumerable whose elements are the <see cref="HelpSectionDelegate"/> instances which writes a section.</returns>
         public virtual IEnumerable<HelpSectionDelegate> GetLayout(HelpContext helpContext)
         {
             yield return WriteSynopsisSection;
@@ -92,6 +94,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's synopsis.
         /// </summary>
+        /// <param name="helpContext">The help context.</param>
         public virtual void WriteSynopsisSection(HelpContext helpContext)
         {
             helpContext.Output.Write(ExecutableInfo.Product);
@@ -126,6 +129,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's usage.
         /// </summary>
+        /// <param name="helpContext">The help context.</param>
         public virtual void WriteCommandUsageSection(HelpContext helpContext)
         {
             var usage = string.Join(" ", GetUsageParts(helpContext.Command).Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -137,9 +141,10 @@ namespace DotMake.CommandLine
             );
         }
 
-        ///  <summary>
+        /// <summary>
         /// Writes a help section describing a command's arguments.
-        ///  </summary>
+        /// </summary>
+        /// <param name="helpContext">The help context.</param>
         public virtual void WriteCommandArgumentsSection(HelpContext helpContext)
         {
             var commandArguments = GetCommandArgumentRows(helpContext.Command, helpContext).ToArray();
@@ -160,9 +165,10 @@ namespace DotMake.CommandLine
             WriteColumns(commandArguments, helpContext);
         }
 
-        ///  <summary>
+        /// <summary>
         /// Writes a help section describing a command's options.
-        ///  </summary>
+        /// </summary>
+        /// <param name="helpContext">The help context.</param>
         public virtual void WriteOptionsSection(HelpContext helpContext)
         {
             // by making this logic more complex, we were able to get some nice perf wins elsewhere
@@ -216,9 +222,10 @@ namespace DotMake.CommandLine
             WriteColumns(options, helpContext);
         }
 
-        ///  <summary>
+        /// <summary>
         /// Writes a help section describing a command's subcommands.
-        ///  </summary>
+        /// </summary>
+        /// <param name="helpContext">The help context.</param>
         public virtual void WriteSubcommandsSection(HelpContext helpContext)
         {
             var subcommands = helpContext.Command.Subcommands
@@ -236,10 +243,11 @@ namespace DotMake.CommandLine
 
             WriteColumns(subcommands, helpContext);
         }
-        
-        ///  <summary>
+
+        /// <summary>
         /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
-        ///  </summary>
+        /// </summary>
+        /// <param name="helpContext">The help context.</param>
         public virtual void WriteAdditionalArgumentsSection(HelpContext helpContext)
         {
             WasSectionSkippedSetter.Invoke(helpContext, new object[] { false });
@@ -255,7 +263,6 @@ namespace DotMake.CommandLine
                 helpContext.Output
             );
         }
-
 
         private void WriteHeading(string heading, string description, TextWriter writer)
         {
