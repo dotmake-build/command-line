@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
+using System.Text;
 
 namespace DotMake.CommandLine
 {
@@ -9,7 +11,7 @@ namespace DotMake.CommandLine
     public static class CommandLineBuilderExtensions
     {
         /// <summary>
-        /// Enables the use of a option (defaulting to the alias <c>--version</c>) which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// Enables the use of the version option (defaulting to the alias <c>--version</c>) which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         /// <param name="commandLineBuilder">A command line builder.</param>
         /// <param name="namePrefixConvention">The prefix convention to use for the option name.</param>
@@ -58,6 +60,20 @@ namespace DotMake.CommandLine
             };
 
             return commandLineBuilder.UseHelp(aliases);
+        }
+
+        /// <summary>
+        /// Configures the application to use a specific console output encoding.
+        /// </summary>
+        /// <param name="commandLineBuilder">A command line builder.</param>
+        /// <param name="encoding">The output encoding to use.</param>
+        /// <returns></returns>
+        public static CommandLineBuilder UseOutputEncoding(this CommandLineBuilder commandLineBuilder, Encoding encoding)
+        {
+            return commandLineBuilder.AddMiddleware(
+                invocationContext => invocationContext.Console.SetOutputEncoding(encoding),
+                MiddlewareOrder.Configuration
+            );
         }
     }
 }

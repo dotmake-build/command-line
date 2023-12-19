@@ -1,4 +1,5 @@
 using System;
+using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using DotMake.CommandLine;
@@ -24,14 +25,26 @@ try
 	);
 	*/
 
+    //Using Cli.Parse:
+    /*
+    var rootCliCommand = Cli.Parse<RootCliCommand>(args);
+    var rootCliCommand = Cli.Parse<RootCliCommand>(args, out var parseResult);
+    if (parseResult.Errors.Count > 0)
+    {
+
+    }
+    Console.WriteLine($@"Value for {nameof(rootCliCommand.Option1)} property is '{rootCliCommand.Option1}'");
+    Console.WriteLine($@"Value for {nameof(rootCliCommand.Argument1)} property is '{rootCliCommand.Argument1}'");
+    Console.WriteLine();
+    */
     //Using Cli.GetBuilder:
     /*
-	var parser = Cli.GetBuilder<RootWithChildrenCliCommand>()
-		.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
-		.Build();
+    var parser = Cli.GetBuilder<RootWithChildrenCliCommand>()
+        .UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
+        .Build();
 
-	parser.Invoke(args);
-	*/
+    parser.Invoke(args);
+    */
 }
 catch (Exception e)
 {

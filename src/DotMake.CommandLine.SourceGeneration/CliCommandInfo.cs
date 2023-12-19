@@ -252,9 +252,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     }
 
                     sb.AppendLine();
-                    var varInvocationContext = "context";
-                    var asyncKeyword = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync) ? "async " : "";
-                    using (sb.AppendBlockStart($"{CommandClassNamespace}.Handler.SetHandler({varCommand}, {asyncKeyword}{varInvocationContext} =>", ");"))
+                    using (sb.AppendBlockStart($"BindFunc = (parseResult) =>", ";"))
                     {
                         var varTargetClass = "targetClass";
 
@@ -266,7 +264,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             var cliOptionInfo = childOptionsWithoutProblem[index];
                             var varOption = $"option{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = {varInvocationContext}.ParseResult.GetValueForOption({varOption});");
+                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = parseResult.GetValueForOption({varOption});");
                         }
 
                         sb.AppendLine();
@@ -275,10 +273,23 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             var cliArgumentInfo = childArgumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = {varInvocationContext}.ParseResult.GetValueForArgument({varArgument});");
+                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = parseResult.GetValueForArgument({varArgument});");
                         }
 
                         sb.AppendLine();
+                        sb.AppendLine($"return {varTargetClass};");
+                    }
+
+                    sb.AppendLine();
+                    var varInvocationContext = "context";
+                    var asyncKeyword = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync) ? "async " : "";
+                    using (sb.AppendBlockStart($"{CommandClassNamespace}.Handler.SetHandler({varCommand}, {asyncKeyword}{varInvocationContext} =>", ");"))
+                    {
+                        var varTargetClass = "targetClass";
+
+                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) BindFunc({varInvocationContext}.ParseResult);");
+                        sb.AppendLine();
+
                         sb.AppendLine("//  Call the command handler");
                         if (handlerWithoutProblem != null)
                         {

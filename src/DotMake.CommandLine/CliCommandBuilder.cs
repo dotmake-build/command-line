@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace DotMake.CommandLine
@@ -10,6 +11,11 @@ namespace DotMake.CommandLine
     /// </summary>
     public abstract class CliCommandBuilder
     {
+        /// <summary>
+        /// A delegate which is set by the source generator to be called from <see cref="Bind"/> method.
+        /// </summary>
+        protected Func<ParseResult, object> BindFunc;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CliCommandBuilder" /> class.
         /// </summary>
@@ -59,12 +65,24 @@ namespace DotMake.CommandLine
         public abstract Command Build();
 
         /// <summary>
+        /// Creates a new instance of the definition class and binds/populates the properties from the parse result.
+        /// </summary>
+        /// <param name="parseResult">A parse result describing the outcome of the parse operation.</param>
+        public object Bind(ParseResult parseResult)
+        {
+            if (BindFunc == null)
+                throw new Exception("Ensure Build method is called first.");
+
+            return BindFunc(parseResult);
+        }
+
+        /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
         /// </summary>
         public IEnumerable<CliCommandBuilder> Children => GetChildren(DefinitionType);
 
         /// <summary>
-        /// Registers this command builder so that it can be found by the definition class
+        /// Registers this command builder so that it can be found by the definition class,
         /// and it can be found by the parent definition class if it's a nested/external child.
         /// </summary>
         public void Register()

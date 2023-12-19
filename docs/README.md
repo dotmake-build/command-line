@@ -80,6 +80,18 @@ Cli.Run<RootCliCommand>(args, builder =>
     builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
 );
 ```
+If you need to simply parse the command-line arguments without invocation, use this:
+```c#
+var rootCliCommand = Cli.Parse<RootCliCommand>(args);
+```
+If you need to examine the parse result, such as errors:
+```c#
+var rootCliCommand = Cli.Parse<RootCliCommand>(args, out var parseResult);
+if (parseResult.Errors.Count > 0)
+{
+
+}
+```
 ### Summary
 - Mark the class with `CliCommand` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
 - Mark a property with `CliOption` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
@@ -153,8 +165,10 @@ Value for Argument1 property is 'NewValueForArgument1'
 
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-Description:
-  A root cli command
+DotMake Command-Line TestApp v1.4.0
+Copyright © 2023 DotMake
+
+A root cli command
 
 Usage:
   TestApp [<argument-1>] [options]

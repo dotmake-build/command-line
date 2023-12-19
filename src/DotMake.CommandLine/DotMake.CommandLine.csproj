@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
@@ -9,10 +9,18 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Dropped DotMake prefix from all classes to follow the .NET naming conventions. 
-        Namespace should be sufficient to prevent future conflicts.
-        So the attribute names are now CliCommandAttribute, CliOptionAttribute, CliArgumentAttribute 
-        and main parse/run class name is now Cli.
+      - Added CliHelpBuilder which allows overriding HelpBuilder easier and adds color support (argument and option names
+        in first column will be white for more readability).
+        Additional info will be printed when the app is run:
+        The first line will be product name (from AssemblyProductAttribute or AssemblyName)
+        and version (from AssemblyInformationalVersionAttribute, AssemblyFileVersionAttribute or AssemblyVersionAttribute).
+        Second line will be copyright (from AssemblyCopyrightAttribute).
+        Removed "Description" heading, description will be directly printed for root commands and name in white, semi-colon
+        and then description will be printed for sub-commands.
+      - Added OutputEncoding middleware for the console (by default Encoding.UTF8 is used, this is especially required to
+        print the copyright symbol).
+      - Cli.Parse methods will now return an instance of the definition class whose properties were bound/populated from
+        the parse result. Optional signatures will allow access to parseResult with an out parameter.
     </PackageReleaseNotes>
   </PropertyGroup>
 
