@@ -22,6 +22,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>$(RepositoryRootPath)publish</PackageOutputPath>
+    <PackageOutputPath Condition="'$(Configuration)' != 'Release'">$(PackageOutputPath)\$(Configuration)</PackageOutputPath>
   </PropertyGroup>
 
   <!-- Include default NuGet package custom files in projects except sandcastle help file builder projects -->
