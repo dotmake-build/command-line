@@ -160,6 +160,35 @@ Handler for 'TestApp.Commands.RootCliCommand' is run:
 Value for Option1 property is 'NewValueForOption1'
 Value for Argument1 property is 'NewValueForArgument1'
 ```
+---
+### Supported types
+Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
+```c#
+[CliCommand]
+public class WriteFileCommand
+{
+    [CliArgument]
+    public FileInfo InputFile { get; set; };
+
+    [CliOption]
+    public List<string> Lines { get; set; };
+}
+```
+The following types for properties is supported:
+* Booleans (flags) - If `true` or `false` is passed for an option having a `bool` argument, it is parsed and bound as expected.
+  But an option whose argument type is `bool` doesn't require an argument to be specified.
+  The presence of the option token on the command line, with no argument following it, results in a value of `true`.
+* Enums - The values are bound by name, and the binding is case insensitive
+* Arrays and lists (any IEnumerable type)
+* FileSystemInfo, FileInfo, DirectoryInfo
+* Primitive CLR types:
+  
+  * `int`, `long`, `short`, `uint`, `ulong`, `ushort`
+  * `double`, `float`, `decimal`
+  * `byte`, `sbyte`
+  * `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`
+  * `Guid`
+  * `Uri`, `IPAddress`, `IPEndPoint`
 
 ## Help output
 
