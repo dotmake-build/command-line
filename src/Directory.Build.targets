@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- AssemblyTitle needs to be set in .targets which is imported after .csproj -->
-    <AssemblyTitle>$(AssemblyName) ($(TargetFramework))</AssemblyTitle>
+    <AssemblyTitle Condition="'$(OutputType)' != 'Exe'">$(AssemblyName) ($(TargetFramework))</AssemblyTitle>
   </PropertyGroup>
 
   <!--

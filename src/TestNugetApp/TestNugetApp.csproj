@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Product>DotMake Command-Line TestNugetApp</Product>
     <!-- 
       EmitCompilerGeneratedFiles is useful for debugging, it doesn't work for live editing (VS continues to run the cached 

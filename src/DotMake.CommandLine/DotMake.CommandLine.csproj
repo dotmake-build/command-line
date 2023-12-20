@@ -4,6 +4,16 @@
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+    <!--
+      IsTrimmable to enable trim warnings
+      https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming?pivots=dotnet-6-0#enable-project-specific-trimming    
+
+      IsAotCompatible to enable trim warnings (also enables IsTrimmable but it's only for net.8.0)
+      https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net8plus%2Cwindows#aot-compatibility-analyzers
+    -->
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+
     <!-- NuGet Package Information (common ones are in Directory.Build.props) -->
     <!-- Description is used for assembly and NuGet metadata -->
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
