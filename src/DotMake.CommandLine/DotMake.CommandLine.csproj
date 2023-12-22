@@ -19,18 +19,9 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added CliHelpBuilder which allows overriding HelpBuilder easier and adds color support (argument and option names
-        in first column will be white for more readability).
-        Additional info will be printed when the app is run:
-        The first line will be product name (from AssemblyProductAttribute or AssemblyName)
-        and version (from AssemblyInformationalVersionAttribute, AssemblyFileVersionAttribute or AssemblyVersionAttribute).
-        Second line will be copyright (from AssemblyCopyrightAttribute).
-        Removed "Description" heading, description will be directly printed for root commands and name in white, semi-colon
-        and then description will be printed for sub-commands.
-      - Added OutputEncoding middleware for the console (by default Encoding.UTF8 is used, this is especially required to
-        print the copyright symbol).
-      - Cli.Parse methods will now return an instance of the definition class whose properties were bound/populated from
-        the parse result. Optional signatures will allow access to parseResult with an out parameter.
+      - Added: For a CLI option or argument, any type with a public constructor or a static `Parse` method with a string parameter
+        can be now be used. These types can be bound/parsed automatically even if they are wrapped with `Enumerable` or `Nullable`
+        type (note that as of current version, custom class support when using AOT compilation is not stable but trimming works)
     </PackageReleaseNotes>
   </PropertyGroup>
 

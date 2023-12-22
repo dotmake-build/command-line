@@ -180,15 +180,117 @@ The following types for properties is supported:
   The presence of the option token on the command line, with no argument following it, results in a value of `true`.
 * Enums - The values are bound by name, and the binding is case insensitive
 * Arrays and lists (any IEnumerable type)
-* FileSystemInfo, FileInfo, DirectoryInfo
-* Primitive CLR types:
+* Common CLR types:
   
+  * `string`, `bool`
+  * `FileSystemInfo`, `FileInfo`, `DirectoryInfo`
   * `int`, `long`, `short`, `uint`, `ulong`, `ushort`
   * `double`, `float`, `decimal`
   * `byte`, `sbyte`
-  * `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`
+  * `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `TimeSpan`
   * `Guid`
   * `Uri`, `IPAddress`, `IPEndPoint`
+
+* Any type with a public constructor or a static `Parse` method with a string parameter - These types can be bound/parsed 
+  automatically even if they are wrapped with `Enumerable` or `Nullable` type (note that as of current version, custom class
+  support when using AOT compilation is not stable but trimming works)
+    ```c#
+    [CliCommand]
+    public class ArgumentConverterCliCommand
+    {
+        [CliOption]
+        public ClassWithConstructor Opt { get; set; }
+
+        [CliOption]
+        public ClassWithConstructor[] OptArray { get; set; }
+
+        [CliOption]
+        public CustomStruct? OptNullable { get; set; }
+
+        [CliOption]
+        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; }
+
+        [CliOption]
+        public List<ClassWithConstructor> OptList { get; set; }
+
+        [CliArgument]
+        public IEnumerable<Sub.ClassWithParser> Arg { get; set; }
+
+        public void Run()
+        {
+            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+            
+            foreach (var property in GetType().GetProperties())
+            {
+                var value = property.GetValue(this);
+                if (value is IEnumerable enumerable)
+                    value = string.Join(", ",
+                        enumerable
+                        .Cast<object>()
+                        .Select(s => s.ToString())
+                    );
+
+                Console.WriteLine($@"Value for {property.Name} property is '{value}'");
+
+            }
+            
+            Console.WriteLine();
+        }
+    }
+
+    public class ClassWithConstructor
+    {
+        private readonly string value;
+
+        public ClassWithConstructor(string value)
+        {
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return value;
+        }
+    }
+
+    public struct CustomStruct
+    {
+        private readonly string value;
+
+        public CustomStruct(string value)
+        {
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return value;
+        }
+    }
+
+    namespace Sub
+    {
+        public class ClassWithParser
+        {
+            private readonly string value;
+
+            private ClassWithParser(string value)
+            {
+                this.value = value;
+            }
+
+            public override string ToString()
+            {
+                return value;
+            }
+
+            public static ClassWithParser Parse(string value)
+            {
+                return new ClassWithParser(value);
+            }
+        }
+    }
+    ```
 
 ## Help output
 

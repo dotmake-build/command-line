@@ -150,6 +150,9 @@
   <data name="PropertyNotPublicNonStatic" xml:space="preserve">
     <value>The property '{0}' will not generate a {1} (ignored) because it is not a public/internal and non-static property.</value>
   </data>
+  <data name="PropertyTypeIsNotBindable" xml:space="preserve">
+    <value>The property '{0}' has custom type '{2}' (other than supported CLR types) so it should have a public constructor or a static 'Parse' method with a string parameter, so that it can be bound/parsed as a {1} .</value>
+  </data>
   <data name="UnsupportedLanguage" xml:space="preserve">
     <value>Source generation currently supports only C# language in the consuming project.</value>
   </data>

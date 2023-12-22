@@ -160,6 +160,15 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The property &apos;{0}&apos; has custom type &apos;{2}&apos; (other than supported CLR types) so it should have a public constructor or a static &apos;Parse&apos; method with a string parameter, so that it can be bound/parsed as a {1} ..
+        /// </summary>
+        internal static string PropertyTypeIsNotBindable {
+            get {
+                return ResourceManager.GetString("PropertyTypeIsNotBindable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source generation currently supports only C# language in the consuming project..
         /// </summary>
         internal static string UnsupportedLanguage {

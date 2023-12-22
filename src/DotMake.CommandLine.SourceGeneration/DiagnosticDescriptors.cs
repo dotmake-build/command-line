@@ -41,12 +41,16 @@ namespace DotMake.CommandLine.SourceGeneration
         public static readonly DiagnosticDescriptor ErrorPropertyHasNotPublicSetter =
             Create(DiagnosticSeverity.Error, 32, null, Resources.PropertyHasNotPublicSetter);
 
+        public static readonly DiagnosticDescriptor WarningPropertyTypeIsNotBindable =
+            Create(DiagnosticSeverity.Warning, 33, null, Resources.PropertyTypeIsNotBindable);
 
+        
         public static readonly DiagnosticDescriptor WarningMethodNotPublicNonStatic =
             Create(DiagnosticSeverity.Warning, 40, null, Resources.MethodNotPublicNonStatic);
 
         public static readonly DiagnosticDescriptor ErrorMethodNotNonGeneric =
             Create(DiagnosticSeverity.Error, 41, null, Resources.MethodNotNonGeneric);
+
 
         public static DiagnosticDescriptor Create(DiagnosticSeverity severity, int code, string title, string messageFormat)
         {

@@ -70,7 +70,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 .TakeWhile(s => s.IsParentContaining)
                 .Reverse()
                 .Select((s, i) =>
-                    ((i == 0) ? s.ParentSymbol.ToDisplayString() : s.ParentSymbol.Name) + classSuffix);
+                    ((i == 0) ? s.ParentSymbol.ToReferenceString() : s.ParentSymbol.Name) + classSuffix);
 
             return string.Join(".", parentTree);
         }
@@ -129,14 +129,14 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 INamedTypeSymbol currentParentSymbol;
                 var parentAttributeData = currentSymbol.ContainingType?.GetAttributes()
-                    .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == CliCommandInfo.AttributeFullName);
+                    .FirstOrDefault(a => a.AttributeClass?.ToCompareString() == CliCommandInfo.AttributeFullName);
                 if (parentAttributeData != null)
                     currentParentSymbol = currentSymbol.ContainingType;
                 else
                 {
                     currentParentSymbol = currentSettings.ParentSymbol;
                     parentAttributeData = currentParentSymbol?.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == CliCommandInfo.AttributeFullName);
+                        .FirstOrDefault(a => a.AttributeClass?.ToCompareString() == CliCommandInfo.AttributeFullName);
                 }
 
                 if (parentAttributeData == null) //if currentParentSymbol does not have the attribute, parentSettings will be null.

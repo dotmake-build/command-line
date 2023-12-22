@@ -32,6 +32,10 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = (IPropertySymbol)symbol;
             Parent = parent;
 
+            TypeNeedingConverter = CliArgumentInfo.FindTypeIfNeedsConverter(Symbol.Type);
+            if (TypeNeedingConverter != null)
+                Converter = CliArgumentInfo.FindConverter(TypeNeedingConverter);
+
             Analyze();
 
             if (HasProblem)
@@ -63,6 +67,10 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool Global { get; }
 
+        public ITypeSymbol TypeNeedingConverter { get; }
+
+        public IMethodSymbol Converter { get; }
+
         private void Analyze()
         {
             if ((Symbol.DeclaredAccessibility != Accessibility.Public && Symbol.DeclaredAccessibility != Accessibility.Internal)
@@ -77,6 +85,9 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (Symbol.SetMethod == null
                     || (Symbol.SetMethod.DeclaredAccessibility != Accessibility.Public && Symbol.SetMethod.DeclaredAccessibility != Accessibility.Internal))
                     AddDiagnostic(DiagnosticDescriptors.ErrorPropertyHasNotPublicSetter, DiagnosticName);
+
+                if (TypeNeedingConverter != null && Converter == null)
+                    AddDiagnostic(DiagnosticDescriptors.WarningPropertyTypeIsNotBindable, DiagnosticName, TypeNeedingConverter);
             }
         }
 
@@ -125,7 +136,11 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 shortForm = shortForm[0].ToString()
                     .AddPrefix(Parent.Settings.ShortFormPrefixConvention);
-                sb.AppendLine($"{varName}.AddAlias(\"{shortForm}\");");
+                if (!Parent.UsedAliases.Contains(shortForm))
+                {
+                    sb.AppendLine($"{varName}.AddAlias(\"{shortForm}\");");
+                    Parent.UsedAliases.Add(shortForm);
+                }
             }
 
             if (AttributeArguments.TryGetValue(AttributeAliasesProperty, out var aliasesTypedConstant)
@@ -133,8 +148,21 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 foreach (var aliasTypedConstant in aliasesTypedConstant.Values)
                 {
-                    sb.AppendLine($"{varName}.AddAlias({aliasTypedConstant.ToCSharpString()});");
+                    var alias = aliasTypedConstant.Value?.ToString();
+                    if (!Parent.UsedAliases.Contains(alias))
+                    {
+                        sb.AppendLine($"{varName}.AddAlias(\"{alias}\");");
+                        Parent.UsedAliases.Add(alias);
+                    }
                 }
+            }
+
+            if (Converter != null)
+            {
+                if (Converter.Name == ".ctor")
+                    sb.AppendLine($"RegisterArgumentConverter(input => new {Converter.ContainingType.ToReferenceString()}(input));");
+                else
+                    sb.AppendLine($"RegisterArgumentConverter(input => {Converter.ToReferenceString()}(input));");
             }
         }
 

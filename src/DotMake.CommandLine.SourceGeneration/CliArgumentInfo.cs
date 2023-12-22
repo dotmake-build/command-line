@@ -22,12 +22,52 @@ namespace DotMake.CommandLine.SourceGeneration
         {
             { nameof(CliArgumentAttribute.Hidden), "IsHidden"}
         };
+        public static readonly HashSet<string> SupportedConverters = new HashSet<string>
+        {
+            "System.String",
+            "System.Boolean",
+
+            "System.IO.FileSystemInfo",
+            "System.IO.FileInfo",
+            "System.IO.DirectoryInfo",
+
+            "System.Int32",
+            "System.Int64",
+            "System.Int16",
+            "System.UInt32",
+            "System.UInt64",
+            "System.UInt16",
+
+            "System.Double",
+            "System.Single",
+            "System.Decimal",
+
+            "System.Byte",
+            "System.SByte",
+
+            "System.DateTime",
+            "System.DateTimeOffset",
+            "System.DateOnly",
+            "System.TimeOnly",
+            "System.TimeSpan",
+
+            "System.Guid",
+
+            "System.Uri",
+            "System.Net.IPAddress",
+            "System.Net.IPEndPoint"
+        };
+
 
         public CliArgumentInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
          : base(symbol, syntaxNode, semanticModel)
         {
             Symbol = (IPropertySymbol)symbol;
             Parent = parent;
+
+            TypeNeedingConverter = FindTypeIfNeedsConverter(Symbol.Type);
+            if (TypeNeedingConverter != null)
+                Converter = FindConverter(TypeNeedingConverter);
 
             Analyze();
 
@@ -53,6 +93,10 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public CliCommandInfo Parent { get; }
 
+        public ITypeSymbol TypeNeedingConverter { get; }
+
+        public IMethodSymbol Converter { get; }
+
         private void Analyze()
         {
             if ((Symbol.DeclaredAccessibility != Accessibility.Public && Symbol.DeclaredAccessibility != Accessibility.Internal)
@@ -67,6 +111,9 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (Symbol.SetMethod == null
                     || (Symbol.SetMethod.DeclaredAccessibility != Accessibility.Public && Symbol.SetMethod.DeclaredAccessibility != Accessibility.Internal))
                     AddDiagnostic(DiagnosticDescriptors.ErrorPropertyHasNotPublicSetter, DiagnosticName);
+
+                if (TypeNeedingConverter != null && Converter == null)
+                    AddDiagnostic(DiagnosticDescriptors.WarningPropertyTypeIsNotBindable, DiagnosticName, TypeNeedingConverter);
             }
         }
 
@@ -78,7 +125,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 : Symbol.Name.StripSuffixes(Suffixes).ToCase(Parent.Settings.NameCasingConvention);
 
             sb.AppendLine($"// Argument for '{Symbol.Name}' property");
-            using (sb.AppendBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type}>(\"{argumentName}\")", ";"))
+            using (sb.AppendBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type.ToReferenceString()}>(\"{argumentName}\")", ";"))
             {
                 foreach (var kvp in AttributeArguments)
                 {
@@ -106,11 +153,68 @@ namespace DotMake.CommandLine.SourceGeneration
                 sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
             sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
+
+            if (Converter != null)
+            {
+                if (Converter.Name == ".ctor")
+                    sb.AppendLine($"RegisterArgumentConverter(input => new {Converter.ContainingType.ToReferenceString()}(input));");
+                else
+                    sb.AppendLine($"RegisterArgumentConverter(input => {Converter.ToReferenceString()}(input));");
+            }
         }
 
         public bool Equals(CliArgumentInfo other)
         {
             return base.Equals(other);
+        }
+
+        public static ITypeSymbol FindTypeIfNeedsConverter(ITypeSymbol type)
+        {
+            // note we want System.String and not string so use MetadataName instead of ToDisplayString or ToReferenceString
+            while (!SupportedConverters.Contains(type.ToCompareString()))
+            {
+                var itemType = type.GetTypeIfNullable();
+                if (itemType != null)
+                    type = itemType;
+                
+                itemType = type.GetElementTypeIfEnumerable();
+                if (itemType != null)
+                {
+                    type = itemType;
+                    continue;
+                }
+                
+                return type;
+            }
+
+            return null;
+        }
+
+        public static IMethodSymbol FindConverter(ITypeSymbol type)
+        {
+            // INamedTypeSymbol: Represents a type other than an array, a pointer, a type parameter.
+            if (!(type is INamedTypeSymbol namedType))
+                return null;
+            
+            var method = namedType.InstanceConstructors.FirstOrDefault(c =>
+                (c.DeclaredAccessibility == Accessibility.Public)
+                && c.Parameters.Length > 0
+                && c.Parameters[0].Type.SpecialType == SpecialType.System_String
+                && c.Parameters.Skip(1).All(p => p.IsOptional)
+            );
+
+            if (method == null)
+                method = (IMethodSymbol)namedType.GetMembers().FirstOrDefault(s =>
+                    s is IMethodSymbol m
+                    && (m.DeclaredAccessibility == Accessibility.Public)
+                    && m.IsStatic && m.Name == "Parse"
+                    && m.Parameters.Length > 0
+                    && m.Parameters[0].Type.SpecialType == SpecialType.System_String
+                    && m.Parameters.Skip(1).All(p => p.IsOptional
+                    && m.ReturnType.Equals(namedType, SymbolEqualityComparer.Default))
+                );
+
+            return method;
         }
     }
 }

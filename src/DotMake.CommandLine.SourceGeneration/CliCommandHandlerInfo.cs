@@ -19,10 +19,10 @@ namespace DotMake.CommandLine.SourceGeneration
             if (symbol.IsAsync)
             {
                 IsAsync = true;
-                ReturnsVoid = (symbol.ReturnType.ToDisplayString() == TaskFullName);
+                ReturnsVoid = (symbol.ReturnType.ToCompareString() == TaskFullName);
                 ReturnsValue = (symbol.ReturnType is INamedTypeSymbol namedTypeSymbol)
                                && namedTypeSymbol.IsGenericType
-                               && namedTypeSymbol.BaseType?.ToDisplayString() == TaskFullName
+                               && namedTypeSymbol.BaseType?.ToCompareString() == TaskFullName
                                && (namedTypeSymbol.TypeArguments.FirstOrDefault().SpecialType == SpecialType.System_Int32);
             }
             else
@@ -33,7 +33,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
             HasNoParameter = (symbol.Parameters.Length == 0);
             HasInvocationContextParameter = (symbol.Parameters.Length == 1)
-                                            && (symbol.Parameters[0].Type.ToDisplayString() == InvocationContextFullName);
+                                            && (symbol.Parameters[0].Type.ToCompareString() == InvocationContextFullName);
 
             HasCorrectSignature = (ReturnsVoid || ReturnsValue) && (HasNoParameter || HasInvocationContextParameter);
 

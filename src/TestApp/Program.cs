@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
@@ -14,16 +15,17 @@ try
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);
     //Cli.Run<RootCliCommand>(args);
     //Cli.Run<ForwardSlashCliCommand>(args);
+    //Cli.Run<ArgumentConverterCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithChildrenCliCommand>(args);
 
     //Using configureBuilder to use an exception handler:
     /*
-	Cli.Run<RootWithChildrenCliCommand>(args, builder => 
-		builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
-	);
-	*/
+    Cli.Run<RootWithChildrenCliCommand>(args, builder =>
+        builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
+    );
+    */
 
     //Using Cli.Parse:
     /*

@@ -22,6 +22,7 @@ namespace DotMake.CommandLine.SourceGeneration
         {
             { nameof(CliCommandAttribute.Hidden), "IsHidden"}
         };
+        public readonly HashSet<string> UsedAliases = new HashSet<string>(StringComparer.Ordinal);
 
         public CliCommandInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
             : base(symbol, syntaxNode, semanticModel)
@@ -49,7 +50,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 ? Settings.GetContainingTypeFullName(GeneratedClassSuffix)
                 : (symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace)
                     ? string.Empty
-                    : symbol.ContainingNamespace.ToDisplayString();
+                    : symbol.ContainingNamespace.ToReferenceString();
             GeneratedClassFullName = string.IsNullOrEmpty(GeneratedClassNamespace)
                 ? GeneratedClassName
                 : GeneratedClassNamespace + "." + GeneratedClassName;
@@ -65,7 +66,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 {
                     foreach (var memberAttributeData in member.GetAttributes())
                     {
-                        var attributeFullName = memberAttributeData.AttributeClass?.ToDisplayString();
+                        var attributeFullName = memberAttributeData.AttributeClass?.ToCompareString();
 
                         if (attributeFullName == CliOptionInfo.AttributeFullName)
                             childOptions.Add(new CliOptionInfo(member, null, memberAttributeData, SemanticModel, this));
@@ -93,7 +94,7 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 foreach (var memberAttributeData in nestedType.GetAttributes())
                 {
-                    if (memberAttributeData.AttributeClass?.ToDisplayString() == AttributeFullName)
+                    if (memberAttributeData.AttributeClass?.ToCompareString() == AttributeFullName)
                         childCommands.Add(new CliCommandInfo(nestedType, null, memberAttributeData, SemanticModel, this));
                 }
             }
@@ -195,8 +196,8 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(CliNameCasingConvention.CamelCase);
                 var commandClass = $"{CommandClassNamespace}.{(IsRoot ? RootCommandClassName : CommandClassName)}";
-                var definitionClass = Symbol.ToDisplayString();
-                var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToDisplayString();
+                var definitionClass = Symbol.ToReferenceString();
+                var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToReferenceString();
                 var parentDefinitionType = (parentDefinitionClass != null) ? $"typeof({parentDefinitionClass})" : "null";
 
                 using (sb.AppendBlockStart($"public {GeneratedClassName}()"))
@@ -374,12 +375,18 @@ namespace DotMake.CommandLine.SourceGeneration
             }
             block.Dispose();
 
+            UsedAliases.Clear(); //Reset
             if (AttributeArguments.TryGetValue(AttributeAliasesProperty, out var aliasesTypedConstant)
                 && !aliasesTypedConstant.IsNull)
             {
                 foreach (var aliasTypedConstant in aliasesTypedConstant.Values)
                 {
-                    sb.AppendLine($"{varName}.AddAlias({aliasTypedConstant.ToCSharpString()});");
+                    var alias = aliasTypedConstant.Value?.ToString();
+                    if (!UsedAliases.Contains(alias))
+                    {
+                        sb.AppendLine($"{varName}.AddAlias(\"{alias}\");");
+                        UsedAliases.Add(alias);
+                    }
                 }
             }
         }
