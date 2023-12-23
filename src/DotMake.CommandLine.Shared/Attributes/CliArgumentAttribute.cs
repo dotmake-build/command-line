@@ -55,6 +55,16 @@ namespace DotMake.CommandLine
         public bool Hidden { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the argument is required when its parent command is invoked.
+        /// Default is <see langword="true" /> for arguments.
+        /// <para>
+        /// When an argument is required and its parent command is invoked without it,
+        /// an error message is displayed and the command handler isn't called.
+        /// </para>
+        /// </summary>
+        public bool Required { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the arity of the argument. The arity refers to the number of values that can be passed on the command line.
         /// <para>In most cases setting argument arity is not necessary as it is automatically determined based on the argument type:</para>
         /// <list type="bullet">
@@ -71,5 +81,7 @@ namespace DotMake.CommandLine
         /// <para>Note that if the argument type is an enum, values are automatically added.</para>
         /// </summary>
         public string[] AllowedValues { get; set; }
+
+        internal static CliArgumentAttribute Default { get; } = new CliArgumentAttribute();
     }
 }

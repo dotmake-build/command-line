@@ -13,6 +13,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public const string AttributeNameProperty = nameof(CliOptionAttribute.Name);
         public const string AttributeAliasesProperty = nameof(CliOptionAttribute.Aliases);
         public const string AttributeGlobalProperty = nameof(CliOptionAttribute.Global);
+        public const string AttributeRequiredProperty = nameof(CliOptionAttribute.Required);
         public const string AttributeArityProperty = nameof(CliOptionAttribute.Arity);
         public const string AttributeAllowedValuesProperty = nameof(CliOptionAttribute.AllowedValues);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Option").Append("Option").ToArray();
@@ -47,6 +48,9 @@ namespace DotMake.CommandLine.SourceGeneration
             if (AttributeArguments.TryGetValue(AttributeGlobalProperty, out var globalTypedConstant)
                 && globalTypedConstant.Value != null)
                 Global = (bool)globalTypedConstant.Value;
+            if (AttributeArguments.TryGetValue(AttributeRequiredProperty, out var requiredTypedConstant)
+                && requiredTypedConstant.Value != null)
+                Required = (bool)requiredTypedConstant.Value;
         }
 
         public CliOptionInfo(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -66,6 +70,8 @@ namespace DotMake.CommandLine.SourceGeneration
         public CliCommandInfo Parent { get; }
 
         public bool Global { get; }
+
+        public bool Required { get; }
 
         public ITypeSymbol TypeNeedingConverter { get; }
 
@@ -129,7 +135,8 @@ namespace DotMake.CommandLine.SourceGeneration
                 && !allowedValuesTypedConstant.IsNull)
                 sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
-            sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
+            if (!Required)
+                sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
 
             var shortForm = optionName.RemovePrefix();
             if (Parent.Settings.ShortFormAutoGenerate && shortForm.Length >= 2)

@@ -25,8 +25,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
                 memberOptions: SymbolDisplayMemberOptions.IncludeContainingType,
                 miscellaneousOptions:
-                SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
-                SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+                SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
 
         /// <summary>
         /// Converts the symbol to a string representation, which is suitable for calling the symbol in code.

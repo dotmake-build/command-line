@@ -11,11 +11,12 @@ using TestApp.Commands.PrefixConvention;
 try
 {
     //Using Cli.Run:
-    Cli.Run<RootWithExternalChildrenCliCommand>(args);
+    Cli.Run<RootCliCommand>(args);
+    //Cli.Run<RootWithExternalChildrenCliCommand>(args);
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);
-    //Cli.Run<RootCliCommand>(args);
     //Cli.Run<ForwardSlashCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
+    //Cli.Run<NullableReferenceCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithChildrenCliCommand>(args);

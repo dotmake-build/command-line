@@ -11,6 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliArgumentAttribute).FullName;
         public const string AttributeNameProperty = nameof(CliArgumentAttribute.Name);
+        public const string AttributeRequiredProperty = nameof(CliArgumentAttribute.Required);
         public const string AttributeArityProperty = nameof(CliArgumentAttribute.Arity);
         public const string AttributeAllowedValuesProperty = nameof(CliArgumentAttribute.AllowedValues);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
@@ -20,7 +21,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public const string DiagnosticName = "CLI argument";
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
         {
-            { nameof(CliArgumentAttribute.Hidden), "IsHidden"}
+            { nameof(CliArgumentAttribute.Hidden), "IsHidden"},
         };
         public static readonly HashSet<string> SupportedConverters = new HashSet<string>
         {
@@ -76,6 +77,10 @@ namespace DotMake.CommandLine.SourceGeneration
 
             AttributeArguments = attributeData.NamedArguments.Where(pair => !pair.Value.IsNull)
                 .ToImmutableDictionary(pair => pair.Key, pair => pair.Value);
+
+            if (AttributeArguments.TryGetValue(AttributeRequiredProperty, out var requiredTypedConstant)
+                && requiredTypedConstant.Value != null)
+                Required = (bool)requiredTypedConstant.Value;
         }
 
         public CliArgumentInfo(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -92,6 +97,8 @@ namespace DotMake.CommandLine.SourceGeneration
         public ImmutableDictionary<string, TypedConstant> AttributeArguments { get; }
 
         public CliCommandInfo Parent { get; }
+
+        public bool Required { get; } = CliArgumentAttribute.Default.Required;
 
         public ITypeSymbol TypeNeedingConverter { get; }
 
@@ -133,6 +140,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     {
                         case AttributeNameProperty:
                         case AttributeAllowedValuesProperty:
+                        case AttributeRequiredProperty:
                             continue;
                         case AttributeArityProperty:
                             var arity = kvp.Value.ToCSharpString().Split('.').Last();
@@ -152,7 +160,8 @@ namespace DotMake.CommandLine.SourceGeneration
                 && !allowedValuesTypedConstant.IsNull)
                 sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
-            sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
+            if (!Required)
+                sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
 
             if (Converter != null)
             {

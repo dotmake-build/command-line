@@ -77,7 +77,7 @@ namespace DotMake.CommandLine
         /// if set to <see langword="true" /> and an extra command or argument is provided, validation will fail.
         /// <para>Default is <see langword="true" />.</para>
         /// </summary>
-        public bool TreatUnmatchedTokensAsErrors { get; set; }
+        public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the character casing convention to use for automatically generated command, option and argument names.
@@ -110,10 +110,6 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool ShortFormAutoGenerate { get; set; } = true;
 
-        /// <summary>
-        /// Gets the default instance of <see cref="CliCommandAttribute" />.
-        /// </summary>
-        /// <value>The default instance of <see cref="CliCommandAttribute" />.</value>
-        public static CliCommandAttribute Default { get; } = new CliCommandAttribute();
+        internal static CliCommandAttribute Default { get; } = new CliCommandAttribute();
     }
 }

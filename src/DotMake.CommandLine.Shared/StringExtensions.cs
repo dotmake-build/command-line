@@ -158,6 +158,25 @@ namespace DotMake.CommandLine
             return 0;
         }
 
+        internal static (string Prefix, string Alias) SplitPrefix(this string rawAlias)
+        {
+            if (rawAlias[0] == '/')
+            {
+                return ("/", rawAlias.Substring(1));
+            }
+            else if (rawAlias[0] == '-')
+            {
+                if (rawAlias.Length > 1 && rawAlias[1] == '-')
+                {
+                    return ("--", rawAlias.Substring(2));
+                }
+
+                return ("-", rawAlias.Substring(1));
+            }
+
+            return (null, rawAlias);
+        }
+
         /// <summary>
         /// Gets a stable hash code (int). 
         /// </summary>

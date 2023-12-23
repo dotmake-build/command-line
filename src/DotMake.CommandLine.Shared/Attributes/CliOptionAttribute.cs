@@ -74,13 +74,10 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets a value indicating whether the option is required when its parent command is invoked.
+        /// Default is <see langword="false" /> for options.
         /// <para>
         /// When an option is required and its parent command is invoked without it,
         /// an error message is displayed and the command handler isn't called.
-        /// </para>
-        /// <para>
-        /// If a required option has a default value, the option doesn't have to be specified on the command line.
-        /// In that case, the default value provides the required option value.
         /// </para>
         /// </summary>
         public bool Required { get; set; }
@@ -121,5 +118,7 @@ namespace DotMake.CommandLine
         /// </para>
         /// </summary>
         public bool AllowMultipleArgumentsPerToken { get; set; }
+
+        internal static CliOptionAttribute Default { get; } = new CliOptionAttribute();
     }
 }

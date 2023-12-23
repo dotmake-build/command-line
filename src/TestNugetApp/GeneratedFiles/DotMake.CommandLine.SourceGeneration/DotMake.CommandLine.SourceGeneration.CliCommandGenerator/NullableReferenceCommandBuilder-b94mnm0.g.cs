@@ -3,44 +3,44 @@
 // Roslyn (Microsoft.CodeAnalysis) v4.800.23.57201
 // Generation: 1
 
-namespace TestApp.Commands.PrefixConvention
+namespace TestApp.Commands
 {
-    public class SingleHyphenCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
+    public class NullableReferenceCommandBuilder : DotMake.CommandLine.CliCommandBuilder
     {
-        public SingleHyphenCliCommandBuilder()
+        public NullableReferenceCommandBuilder()
         {
-            DefinitionType = typeof(TestApp.Commands.PrefixConvention.SingleHyphenCliCommand);
+            DefinitionType = typeof(TestApp.Commands.NullableReferenceCommand);
             ParentDefinitionType = null;
             NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
-            NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
+            NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
             ShortFormPrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
             ShortFormAutoGenerate = true;
         }
 
         public override System.CommandLine.RootCommand Build()
         {
-            // Command for 'SingleHyphenCliCommand' class
+            // Command for 'NullableReferenceCommand' class
             var rootCommand = new System.CommandLine.RootCommand()
             {
-                Description = "A cli command with single hyphen prefix convention",
             };
 
-            var defaultClass = new TestApp.Commands.PrefixConvention.SingleHyphenCliCommand();
+            var defaultClass = new TestApp.Commands.NullableReferenceCommand();
 
-            // Option for 'Option1' property
-            var option0 = new System.CommandLine.Option<string>("-option-1")
+            // Option for 'Display' property
+            var option0 = new System.CommandLine.Option<string?>("--display")
             {
-                Description = "Description for Option1",
+                Description = "Description for Display",
+                IsRequired = true,
             };
-            option0.SetDefaultValue(defaultClass.Option1);
-            option0.AddAlias("-o");
+            System.CommandLine.OptionExtensions.FromAmong(option0, new[] {"Big", "Small"});
+            option0.AddAlias("-d");
             rootCommand.Add(option0);
 
-            // Argument for 'Argument1' property
-            var argument0 = new System.CommandLine.Argument<string>("argument-1")
+            // Argument for 'Arg' property
+            var argument0 = new System.CommandLine.Argument<string[]>("arg")
             {
-                Description = "Description for Argument1",
             };
+            argument0.SetDefaultValue(defaultClass.Arg);
             rootCommand.Add(argument0);
 
             // Add nested or external registered children
@@ -51,23 +51,23 @@ namespace TestApp.Commands.PrefixConvention
 
             BindFunc = (parseResult) =>
             {
-                var targetClass = new TestApp.Commands.PrefixConvention.SingleHyphenCliCommand();
+                var targetClass = new TestApp.Commands.NullableReferenceCommand();
 
                 //  Set the parsed or default values for the options
-                targetClass.Option1 = parseResult.GetValueForOption(option0);
+                targetClass.Display = parseResult.GetValueForOption(option0);
 
                 //  Set the parsed or default values for the arguments
-                targetClass.Argument1 = parseResult.GetValueForArgument(argument0);
+                targetClass.Arg = parseResult.GetValueForArgument(argument0);
 
                 return targetClass;
             };
 
             System.CommandLine.Handler.SetHandler(rootCommand, context =>
             {
-                var targetClass = (TestApp.Commands.PrefixConvention.SingleHyphenCliCommand) BindFunc(context.ParseResult);
+                var targetClass = (TestApp.Commands.NullableReferenceCommand) BindFunc(context.ParseResult);
 
                 //  Call the command handler
-                targetClass.Run();
+                targetClass.Run(context);
             });
 
             return rootCommand;
@@ -76,7 +76,7 @@ namespace TestApp.Commands.PrefixConvention
         [System.Runtime.CompilerServices.ModuleInitializerAttribute]
         public static void Initialize()
         {
-            var commandBuilder = new TestApp.Commands.PrefixConvention.SingleHyphenCliCommandBuilder();
+            var commandBuilder = new TestApp.Commands.NullableReferenceCommandBuilder();
 
             // Register this command builder so that it can be found by the definition class
             // and it can be found by the parent definition class if it's a nested/external child.
