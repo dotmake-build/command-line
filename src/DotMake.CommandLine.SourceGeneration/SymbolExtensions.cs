@@ -14,8 +14,8 @@ namespace DotMake.CommandLine.SourceGeneration
                 memberOptions: SymbolDisplayMemberOptions.IncludeContainingType,
                 miscellaneousOptions:
                     SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
-                    SymbolDisplayMiscellaneousOptions.UseSpecialTypes |
-                    SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+                    SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
+                    //SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 
         private static readonly SymbolDisplayFormat CompareFormat =
             new SymbolDisplayFormat(

@@ -192,8 +192,7 @@ The following types for properties is supported:
   * `Uri`, `IPAddress`, `IPEndPoint`
 
 * Any type with a public constructor or a static `Parse` method with a string parameter - These types can be bound/parsed 
-  automatically even if they are wrapped with `Enumerable` or `Nullable` type (note that as of current version, custom class
-  support when using AOT compilation is not stable but trimming works)
+  automatically even if they are wrapped with `Enumerable` or `Nullable` type.
     ```c#
     [CliCommand]
     public class ArgumentConverterCliCommand
@@ -625,6 +624,7 @@ The properties for `CliArgument` attribute (see [CliArgumentAttribute](https://d
 - Description
 - HelpName
 - Hidden
+- Required
 - Arity
 - AllowedValues
 

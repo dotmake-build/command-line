@@ -19,12 +19,7 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Changed behaviour: Added Required property to CliArgumentAttribute, default is true for arguments.
-        Default is false for options (already had Required property). Whether you specify a default value for a property will
-        no longer effect the requirement of the argument or option. By contrast, when you set Required to true, the default value
-        of the property will be ignored.
-      - Beautified help output: Moved [required] label to description (second column), prevented display of empty [] default values.
-        For wrong inputs, only errors will be shown and not the complete help output below.
+      - Optimized custom type parsing for CLI options/arguments feature added in v1.5.0. It's now fully compatible (stable) with AOT compilation !
     </PackageReleaseNotes>
   </PropertyGroup>
 

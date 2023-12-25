@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -132,7 +133,19 @@ namespace DotMake.CommandLine.SourceGeneration
                 : Symbol.Name.StripSuffixes(Suffixes).ToCase(Parent.Settings.NameCasingConvention);
 
             sb.AppendLine($"// Argument for '{Symbol.Name}' property");
-            using (sb.AppendBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type.ToReferenceString()}>(\"{argumentName}\")", ";"))
+            using (sb.AppendParamsBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type.ToReferenceString()}>"))
+            {
+                sb.AppendLine($"\"{argumentName}\"");
+                if (Converter != null)
+                {
+                    var parseArgument = $", GetParseArgument<{Symbol.Type.ToReferenceString()}, {Converter.ContainingType.ToReferenceString()}>";
+                    if (Converter.Name == ".ctor")
+                        sb.AppendLine($"{parseArgument}(input => new {Converter.ContainingType.ToReferenceString()}(input))");
+                    else
+                        sb.AppendLine($"{parseArgument}(input => {Converter.ToReferenceString()}(input))");
+                }
+            }
+            using (sb.AppendBlockStart(null, ";"))
             {
                 foreach (var kvp in AttributeArguments)
                 {
@@ -162,14 +175,6 @@ namespace DotMake.CommandLine.SourceGeneration
 
             if (!Required)
                 sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
-
-            if (Converter != null)
-            {
-                if (Converter.Name == ".ctor")
-                    sb.AppendLine($"RegisterArgumentConverter(input => new {Converter.ContainingType.ToReferenceString()}(input));");
-                else
-                    sb.AppendLine($"RegisterArgumentConverter(input => {Converter.ToReferenceString()}(input));");
-            }
         }
 
         public bool Equals(CliArgumentInfo other)
@@ -179,14 +184,20 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public static ITypeSymbol FindTypeIfNeedsConverter(ITypeSymbol type)
         {
-            // note we want System.String and not string so use MetadataName instead of ToDisplayString or ToReferenceString
-            while (!SupportedConverters.Contains(type.ToCompareString()))
+            while (true)
             {
-                var itemType = type.GetTypeIfNullable();
-                if (itemType != null)
-                    type = itemType;
-                
-                itemType = type.GetElementTypeIfEnumerable();
+                // note we want System.String and not string so use MetadataName instead of ToDisplayString or ToReferenceString
+                if (type.TypeKind == TypeKind.Enum || SupportedConverters.Contains(type.ToCompareString()))
+                    return null;
+
+                var underlyingType = type.GetTypeIfNullable();
+                if (underlyingType != null)
+                {
+                    type = underlyingType;
+                    continue;
+                }
+
+                var itemType = type.GetElementTypeIfEnumerable();
                 if (itemType != null)
                 {
                     type = itemType;
@@ -195,8 +206,6 @@ namespace DotMake.CommandLine.SourceGeneration
                 
                 return type;
             }
-
-            return null;
         }
 
         public static IMethodSymbol FindConverter(ITypeSymbol type)

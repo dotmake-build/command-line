@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <!-- https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generateassemblyinfo -->
-    <VersionPrefix>1.5.2</VersionPrefix>
+    <LangVersion>10.0</LangVersion>
+    <VersionPrefix>1.5.4</VersionPrefix>
     <Product>DotMake Command-Line</Product>
     <Company>DotMake</Company>
     <!-- Copyright is also used for NuGet metadata -->

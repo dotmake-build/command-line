@@ -32,23 +32,33 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void AppendLineEnd() => sb.AppendLine();
 
-        public IDisposable AppendBlockStart(string line = null, string afterBlock = null)
+        public IDisposable AppendBlockStart(string line, string startBlock, string endBlock, string afterBlock)
         {
             if (line != null)
                 AppendLine(line);
 
-            AppendLine("{");
+            AppendLine(startBlock);
 
             IndentLevel++;
 
-            return new BlockTracker(this, afterBlock);
+            return new BlockTracker(this, endBlock, afterBlock);
         }
 
-        public void AppendBlockEnd(string afterBlock = null)
+        public IDisposable AppendBlockStart(string line = null, string afterBlock = null)
+        {
+            return AppendBlockStart(line, "{", "}", afterBlock);
+        }
+
+        public IDisposable AppendParamsBlockStart(string line = null, string afterBlock = null)
+        {
+            return AppendBlockStart(line, "(", ")", afterBlock);
+        }
+
+        public void AppendBlockEnd(string endBlock, string afterBlock = null)
         {
             IndentLevel--;
 
-            AppendLine(string.IsNullOrEmpty(afterBlock) ? "}" : "}" + afterBlock);
+            AppendLine(string.IsNullOrEmpty(afterBlock) ? endBlock : endBlock + afterBlock);
         }
 
         public override string ToString() => sb.ToString();
@@ -56,17 +66,19 @@ namespace DotMake.CommandLine.SourceGeneration
         private class BlockTracker : IDisposable
         {
             private readonly CodeStringBuilder parent;
+            private readonly string endBlock;
             private readonly string afterBlock;
 
-            public BlockTracker(CodeStringBuilder parent, string afterBlock)
+            public BlockTracker(CodeStringBuilder parent, string endBlock, string afterBlock)
             {
                 this.parent = parent;
+                this.endBlock = endBlock;
                 this.afterBlock = afterBlock;
             }
 
             public void Dispose()
             {
-                parent.AppendBlockEnd(afterBlock);
+                parent.AppendBlockEnd(endBlock, afterBlock);
             }
         }
     }

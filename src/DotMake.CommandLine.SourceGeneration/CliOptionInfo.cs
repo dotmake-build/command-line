@@ -106,7 +106,19 @@ namespace DotMake.CommandLine.SourceGeneration
                     .AddPrefix(Parent.Settings.NamePrefixConvention);
 
             sb.AppendLine($"// Option for '{Symbol.Name}' property");
-            using (sb.AppendBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type}>(\"{optionName}\")", ";"))
+            using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type.ToReferenceString()}>"))
+            {
+                sb.AppendLine($"\"{optionName}\"");
+                if (Converter != null)
+                {
+                    var parseArgument = $", GetParseArgument<{Symbol.Type.ToReferenceString()}, {Converter.ContainingType.ToReferenceString()}>";
+                    if (Converter.Name == ".ctor")
+                        sb.AppendLine($"{parseArgument}(input => new {Converter.ContainingType.ToReferenceString()}(input))");
+                    else
+                        sb.AppendLine($"{parseArgument}(input => {Converter.ToReferenceString()}(input))");
+                }
+            }
+            using (sb.AppendBlockStart(null, ";"))
             {
                 foreach (var kvp in AttributeArguments)
                 {
@@ -162,14 +174,6 @@ namespace DotMake.CommandLine.SourceGeneration
                         Parent.UsedAliases.Add(alias);
                     }
                 }
-            }
-
-            if (Converter != null)
-            {
-                if (Converter.Name == ".ctor")
-                    sb.AppendLine($"RegisterArgumentConverter(input => new {Converter.ContainingType.ToReferenceString()}(input));");
-                else
-                    sb.AppendLine($"RegisterArgumentConverter(input => {Converter.ToReferenceString()}(input));");
             }
         }
 

@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DotMake.CommandLine
 {
@@ -206,81 +204,52 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Registers a converter for an argument type.
+        /// Gets a parse argument method for an argument type.
         /// <para>
         /// This is mainly used for adding support for binding custom types which have a public constructor or a static <c>Parse</c> method with a string parameter.
         /// </para>
         /// </summary>
-        /// <param name="convertFromString">A delegate which creates an instance of argument type from a string.</param>
-        /// <typeparam name="TArgument">The type of the argument.</typeparam>
-        public static void RegisterArgumentConverter<TArgument>(Func<string, TArgument> convertFromString)
+        /// <param name="convertFromString">A delegate which creates an instance of custom type (argument type or inner type) from a string.</param>
+        /// <typeparam name="TArgument">The argument type</typeparam>
+        /// <typeparam name="TCustom">The custom type, this can be argument type or inner type of it e.g. if argument type is IEnumerable&lt;T&gt;, custom type will be T.</typeparam>
+        public static ParseArgument<TArgument> GetParseArgument<TArgument, TCustom>(Func<string, TCustom> convertFromString)
         {
-            var argumentType = typeof(TArgument);
+            var customType = typeof(TCustom);
 
-
-            if (registeredArgumentConverters == null) //first time
+            if (!ArgumentConverter.StringConverters.ContainsKey(customType))
             {
-#pragma warning disable IL2026
-                // Ignore warning as we know ArgumentConverter is used internally, so it should not be trimmed
-                var argumentConverter = typeof(Command).Assembly.GetType("System.CommandLine.Binding.ArgumentConverter");
-#pragma warning restore IL2026
-
-                if (argumentConverter != null)
+                bool TryConvertString(string input, out object value)
                 {
-#pragma warning disable IL2059
-                    //run static ctor just in case (there seems to be inconsistent behaviour for readonly static field init)
-                    RuntimeHelpers.RunClassConstructor(argumentConverter.TypeHandle);
-#pragma warning restore IL2059
-
-#pragma warning disable IL2075
-                    //Dirty hack, works with trimming but not with aot (will figure out a better way later)
-                    var field = argumentConverter
-                        .GetField("_stringConverters", BindingFlags.NonPublic | BindingFlags.Static);
-#pragma warning restore IL2075
-
-                    /*
-                    Console.WriteLine("static members");
-                    foreach (var member in argumentConverter.GetMembers(BindingFlags.NonPublic | BindingFlags.Static))
+                    try
                     {
-                        Console.WriteLine($"{member.Name} {member.MemberType}");
+                        value = convertFromString(input);
+                        return true;
                     }
-                    */
-
-                    registeredArgumentConverters = field
-                        ?.GetValue(null) as IDictionary;
+                    catch
+                    {
+                        value = null;
+                        return false;
+                    }
                 }
 
-                if (registeredArgumentConverters == null)
-                    return;
-
-                //internal delegate type (get from dictionary's value type)
-                tryConvertStringInternalType = registeredArgumentConverters.GetType().GetGenericArguments()[1];
+                ArgumentConverter.StringConverters.Add(customType, TryConvertString);
             }
 
-            if (registeredArgumentConverters.Contains(argumentType))
-                return;
-
-            TryConvertString tryConvertString = (string input, out object value) =>
+            return (result) =>
             {
-                try
+                var tryConvertArgument = ArgumentConverter.GetConverter(result.Argument);
+
+                if (tryConvertArgument == null)
                 {
-                    value = convertFromString(input);
-                    return true;
+                    result.ErrorMessage = $"No argument converter found for type '{result.Argument.ValueType}'";
+                    return default; // Ignored.
                 }
-                catch
-                {
-                    value = null;
-                    return false;
-                }
+
+                tryConvertArgument(result, out var value);
+
+                return (TArgument)value;
             };
-
-            var convertedDelegate = Delegate.CreateDelegate(tryConvertStringInternalType, tryConvertString.Target, tryConvertString.Method);
-
-            registeredArgumentConverters.Add(argumentType, convertedDelegate);
         }
-        private static IDictionary registeredArgumentConverters;
-        private static Type tryConvertStringInternalType;
-        private delegate bool TryConvertString(string token, out object value);
 
         #endregion
     }

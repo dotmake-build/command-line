@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using DotMake.CommandLine;
 
@@ -12,7 +13,7 @@ namespace TestApp.Commands
         [CliOption]
         public ClassWithConstructor Opt { get; set; }
 
-        [CliOption]
+        [CliOption(AllowMultipleArgumentsPerToken = true)]
         public ClassWithConstructor[] OptArray { get; set; }
 
         [CliOption]
@@ -23,6 +24,9 @@ namespace TestApp.Commands
 
         [CliOption]
         public List<ClassWithConstructor> OptList { get; set; }
+
+        [CliOption(AllowMultipleArgumentsPerToken = true)]
+        public FileAccess[] OptEnumArray { get; set; }
 
         /*
         [CliOption]
@@ -36,21 +40,27 @@ namespace TestApp.Commands
         {
             Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
             
-            foreach (var property in GetType().GetProperties())
-            {
-                var value = property.GetValue(this);
-                if (value is IEnumerable enumerable)
-                    value = string.Join(", ",
-                        enumerable
-                        .Cast<object>()
-                        .Select(s => s.ToString())
-                    );
-
-                Console.WriteLine($@"Value for {property.Name} property is '{value}'");
-
-            }
+            Console.WriteLine($@"Value for {nameof(Opt)} property is '{GetAllValues(Opt)}'");
+            Console.WriteLine($@"Value for {nameof(OptArray)} property is '{GetAllValues(OptArray)}'");
+            Console.WriteLine($@"Value for {nameof(OptNullable)} property is '{GetAllValues(OptNullable)}'");
+            Console.WriteLine($@"Value for {nameof(OptEnumerable)} property is '{GetAllValues(OptEnumerable)}'");
+            Console.WriteLine($@"Value for {nameof(OptList)} property is '{GetAllValues(OptList)}'");
+            Console.WriteLine($@"Value for {nameof(OptEnumArray)} property is '{GetAllValues(OptEnumArray)}'");
+            Console.WriteLine($@"Value for {nameof(Arg)} property is '{GetAllValues(Arg)}'");
             
             Console.WriteLine();
+        }
+
+        private string GetAllValues(object value)
+        {
+            if (value is IEnumerable enumerable)
+                return string.Join("|",
+                    enumerable
+                        .Cast<object>()
+                        .Select(s => s?.ToString())
+                );
+
+            return value?.ToString();
         }
     }
 

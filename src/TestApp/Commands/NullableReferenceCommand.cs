@@ -16,7 +16,7 @@ namespace TestApp.Commands
         public string? Display { get; set; } //= "test";
 
         [CliArgument(Required = false)]
-        public string[] Arg { get; set; } //= new[] { "1", "2" };
+        public string[]? Arg { get; set; } //= new[] { "1", "2" };
 
         public void Run(InvocationContext context)
         {
