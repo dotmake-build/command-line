@@ -265,7 +265,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             var cliOptionInfo = childOptionsWithoutProblem[index];
                             var varOption = $"option{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = parseResult.GetValueForOption({varOption});");
+                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = GetValueForOption(parseResult, {varOption});");
                         }
 
                         sb.AppendLine();
@@ -274,7 +274,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             var cliArgumentInfo = childArgumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = parseResult.GetValueForArgument({varArgument});");
+                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument(parseResult, {varArgument});");
                         }
 
                         sb.AppendLine();

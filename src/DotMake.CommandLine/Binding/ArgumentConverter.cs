@@ -1,16 +1,21 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 #nullable enable
-// ReSharper disable CheckNamespace
 
+using System;
 using System.Collections.Generic;
+using System.CommandLine;
 using System.CommandLine.Parsing;
-using static System.CommandLine.Binding.ArgumentConversionResult;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
+using static DotMake.CommandLine.Binding.ArgumentConversionResult;
 
-namespace System.CommandLine.Binding
+namespace DotMake.CommandLine.Binding
 {
     internal static partial class ArgumentConverter
     {
+        internal static Dictionary<Type, Func<Array, object>> CollectionConverters = new Dictionary<Type, Func<Array, object>>();
+
         internal static ArgumentConversionResult ConvertObject(
             Argument argument,
             Type type,
@@ -83,9 +88,8 @@ namespace System.CommandLine.Binding
             LocalizationResources localizationResources,
             ArgumentResult? argumentResult = null)
         {
-            var itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
-            var values = CreateEnumerable(type, itemType, tokens.Count);
-            var isArray = values is Array;
+            var itemType = type.GetElementTypeIfEnumerable(typeof(string)) ?? typeof(string);
+            var values = Array.CreateInstance(itemType, tokens.Count); //typed array
 
             for (var i = 0; i < tokens.Count; i++)
             {
@@ -93,34 +97,28 @@ namespace System.CommandLine.Binding
 
                 var result = ConvertToken(argument, itemType, token, localizationResources);
 
-                switch (result.Result)
+                if (result.Result == ArgumentConversionResultType.Successful)
                 {
-                    case ArgumentConversionResultType.Successful:
-                        if (isArray)
-                        {
-                            values[i] = result.Value;
-                        }
-                        else
-                        {
-                            values.Add(result.Value);
-                        }
+                    values.SetValue(result.Value, i);
+                }
+                else
+                {
+                    // failures
+                    if (argumentResult is { Parent: CommandResult })
+                    {
+                        argumentResult.OnlyTake(i);
 
-                        break;
+                        //i = tokens.Count;
+                    }
 
-                    default: // failures
-                        if (argumentResult is { Parent: CommandResult })
-                        {
-                            argumentResult.OnlyTake(i);
-
-                            i = tokens.Count;
-                            break;
-                        }
-
-                        return result;
+                    return result;
                 }
             }
 
-            return Success(argument, values);
+            if (CollectionConverters.TryGetValue(type, out var convertFromArray))
+                return Success(argument, convertFromArray(values));
+
+            return Failure(argument, type, string.Join("|", tokens), localizationResources);
         }
 
         internal static TryConvertArgument? GetConverter(Argument argument)
@@ -152,25 +150,13 @@ namespace System.CommandLine.Binding
 
         private static bool CanBeBoundFromScalarValue(this Type type)
         {
-            while (true)
-            {
-                if (type.IsEnum || StringConverters.ContainsKey(type))
-                    return true;
+            if (type.IsEnum || StringConverters.ContainsKey(type))
+                return true;
 
-                if (type.TryGetNullableType(out var underlyingType))
-                {
-                    type = underlyingType;
-                    continue;
-                }
+            if (CollectionConverters.ContainsKey(type))
+                return true;
 
-                if (type.GetElementTypeIfEnumerable() is { } itemType)
-                {
-                    type = itemType;
-                    continue;
-                }
-
-                return false;
-            }
+            return false;
         }
 
         private static ArgumentConversionResult Failure(
@@ -206,5 +192,35 @@ namespace System.CommandLine.Binding
             value = result.Value;
             return result.Result == ArgumentConversionResultType.Successful;
         }
+
+        internal static object? GetDefaultValue(Type type)
+        {
+            if (type.IsNullable())
+            {
+                return null;
+            }
+
+            try
+            {
+                var itemType = type.GetElementTypeIfEnumerable(typeof(string));
+                if (itemType != null
+                    && CollectionConverters.TryGetValue(type, out var convertFromArray))
+                    return convertFromArray(Array.CreateInstance(itemType, 0));
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (type.IsValueType)
+                return CreateDefaultValueType(type);
+
+            return null;
+        }
+
+        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2067:UnrecognizedReflectionPattern",
+            Justification = $"{nameof(CreateDefaultValueType)} is only called on a ValueType. You can always create an instance of a ValueType.")]
+        private static object CreateDefaultValueType(Type type) =>
+            FormatterServices.GetUninitializedObject(type);
     }
 }

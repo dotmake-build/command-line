@@ -44,7 +44,10 @@ namespace DotMake.CommandLine.SourceGeneration
         public static readonly DiagnosticDescriptor WarningPropertyTypeIsNotBindable =
             Create(DiagnosticSeverity.Warning, 33, null, Resources.PropertyTypeIsNotBindable);
 
-        
+        public static readonly DiagnosticDescriptor WarningPropertyTypeEnumerableIsNotBindable =
+            Create(DiagnosticSeverity.Warning, 34, null, Resources.PropertyTypeEnumerableIsNotBindable);
+
+
         public static readonly DiagnosticDescriptor WarningMethodNotPublicNonStatic =
             Create(DiagnosticSeverity.Warning, 40, null, Resources.MethodNotPublicNonStatic);
 

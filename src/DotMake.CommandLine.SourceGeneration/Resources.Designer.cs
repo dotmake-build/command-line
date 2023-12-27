@@ -160,7 +160,16 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The property &apos;{0}&apos; has custom type &apos;{2}&apos; (other than supported CLR types) so it should have a public constructor or a static &apos;Parse&apos; method with a string parameter, so that it can be bound/parsed as a {1} ..
+        ///   Looks up a localized string similar to The property &apos;{0}&apos; has custom enumerable type &apos;{2}&apos; (other than supported CLR types) so it should have a a public constructor with a IEnumerable&lt;T&gt; or IList&lt;T&gt; parameter (other parameters, if any, should be optional), so that it can be bound/parsed as a {1} ..
+        /// </summary>
+        internal static string PropertyTypeEnumerableIsNotBindable {
+            get {
+                return ResourceManager.GetString("PropertyTypeEnumerableIsNotBindable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The property &apos;{0}&apos; has custom type &apos;{2}&apos; (other than supported CLR types) so it should have a public constructor or a static &apos;Parse&apos; method with a string parameter (other parameters, if any, should be optional), so that it can be bound/parsed as a {1} ..
         /// </summary>
         internal static string PropertyTypeIsNotBindable {
             get {

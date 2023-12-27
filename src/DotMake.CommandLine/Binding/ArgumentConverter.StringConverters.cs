@@ -1,13 +1,13 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 #nullable enable
-// ReSharper disable CheckNamespace
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
-namespace System.CommandLine.Binding;
+namespace DotMake.CommandLine.Binding;
 
 internal static partial class ArgumentConverter
 {

@@ -42,7 +42,7 @@ public class RootCliCommand
     public string Option1 { get; set; } = "DefaultForOption1";
  
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; } = "DefaultForArgument1";
+    public string Argument1 { get; set; }
  
     public void Run()
     {
@@ -139,12 +139,41 @@ When you run the app via
 
 You see this result:
 ```console
+Required argument missing for command: 'TestApp'.
+```
+This is because a `CliArgument` decorated property is required by default (`CliArgument.Required` property's default value is `true`).
+A `CliArgument` is a parameter for the command itself (for the root command - the exe in this case), that's why it's required by default.
+
+If you want to make a `CliArgument` optional, set `CliArgument.Required` property to `false` and set a default value for the decorated property.
+In that case, the default value for the decorated property will be used when the user does not specify the argument on the command line.
+```c#
+[CliArgument(Required = false)]
+public string Argument1 { get; set; } = "DefaultForArgument1";
+```
+---
+When you run,
+```console
+TestApp.exe NewValueForArgument1
+```
+or (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application):
+```console
+dotnet run -- NewValueForArgument1
+```
+You see this result:
+```console
 Handler for 'TestApp.Commands.RootCliCommand' is run:
 Value for Option1 property is 'DefaultForOption1'
-Value for Argument1 property is 'DefaultForArgument1'
+Value for Argument1 property is 'NewValueForArgument1'
 ```
-As we set default values for properties in the class, the option and the argument were already populated (even when the user did not pass any values).
+This is because a `CliOption` decorated property is not required by default (`CliOption.Required` property's default value is `false`).
+A `CliOption` is optional, as the name implies, for the command itself (for the root command - the exe in this case), that's why it's not required by default.
 
+If you want to make a `CliOption` required, set `CliArgument.Required` property to `true`.
+In that case, the default value for the decorated property will be ignored (if exists) and the user has to specify the option on the command line.
+```c#
+[CliOption(Required = true)]
+public string Option1 { get; set; }
+```
 ---
 When you run,
 ```console
@@ -179,7 +208,6 @@ The following types for properties is supported:
   But an option whose argument type is `bool` doesn't require an argument to be specified.
   The presence of the option token on the command line, with no argument following it, results in a value of `true`.
 * Enums - The values are bound by name, and the binding is case insensitive
-* Arrays and lists (any IEnumerable type)
 * Common CLR types:
   
   * `string`, `bool`
@@ -191,7 +219,37 @@ The following types for properties is supported:
   * `Guid`
   * `Uri`, `IPAddress`, `IPEndPoint`
 
-* Any type with a public constructor or a static `Parse` method with a string parameter - These types can be bound/parsed 
+* Arrays, lists, collections - any type that implements `IEnumerable<T>` and has a public constructor with a `IEnumerable<T>` or `IList<T>` parameter (other parameters, if any, should be optional).
+  If type is generic `IEnumerable<T>`, `IList<T>`, `ICollection<T>` interfaces itself, array `T[]` will be used.
+  If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `object[]` will be used.
+    ```c#
+    [CliCommand]
+    public class EnumerableCliCommand
+    {
+        [CliOption]
+        public IEnumerable<int> OptEnumerable { get; set; }
+
+        [CliOption]
+        public List<string> OptList { get; set; }
+
+        [CliOption(AllowMultipleArgumentsPerToken = true)]
+        public FileAccess[] OptEnumArray { get; set; }
+
+        [CliOption]
+        public Collection<string> OptCollection { get; set; }
+
+        [CliOption]
+        public HashSet<string> OptHashSet { get; set; }
+
+        [CliOption]
+        public Queue<FileInfo> OptQueue { get; set; }
+
+        [CliArgument]
+        public IList ArgIList { get; set; }
+    }
+    ```
+
+* Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any, should be optional) - These types can be bound/parsed 
   automatically even if they are wrapped with `Enumerable` or `Nullable` type.
     ```c#
     [CliCommand]
@@ -200,7 +258,7 @@ The following types for properties is supported:
         [CliOption]
         public ClassWithConstructor Opt { get; set; }
 
-        [CliOption]
+        [CliOption(AllowMultipleArgumentsPerToken = true)]
         public ClassWithConstructor[] OptArray { get; set; }
 
         [CliOption]
@@ -212,29 +270,11 @@ The following types for properties is supported:
         [CliOption]
         public List<ClassWithConstructor> OptList { get; set; }
 
+        [CliOption]
+        public CustomList<ClassWithConstructor> OptCustomList { get; set; }
+
         [CliArgument]
         public IEnumerable<Sub.ClassWithParser> Arg { get; set; }
-
-        public void Run()
-        {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            
-            foreach (var property in GetType().GetProperties())
-            {
-                var value = property.GetValue(this);
-                if (value is IEnumerable enumerable)
-                    value = string.Join(", ",
-                        enumerable
-                        .Cast<object>()
-                        .Select(s => s.ToString())
-                    );
-
-                Console.WriteLine($@"Value for {property.Name} property is '{value}'");
-
-            }
-            
-            Console.WriteLine();
-        }
     }
 
     public class ClassWithConstructor
@@ -251,7 +291,7 @@ The following types for properties is supported:
             return value;
         }
     }
-
+    
     public struct CustomStruct
     {
         private readonly string value;
@@ -271,22 +311,30 @@ The following types for properties is supported:
     {
         public class ClassWithParser
         {
-            private readonly string value;
-
-            private ClassWithParser(string value)
-            {
-                this.value = value;
-            }
+            public string Value { get; set; }
 
             public override string ToString()
             {
-                return value;
+                return Value;
             }
 
             public static ClassWithParser Parse(string value)
             {
-                return new ClassWithParser(value);
+                var instance = new ClassWithParser
+                {
+                    Value = value
+                };
+                return instance;
             }
+        }
+    }
+
+    public class CustomList<T> : List<T>
+    {
+        public CustomList(IEnumerable<T> items)
+            : base(items)
+        {
+
         }
     }
     ```
@@ -295,16 +343,16 @@ The following types for properties is supported:
 
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.4.0
+DotMake Command-Line TestApp v1.5.4
 Copyright © 2023 DotMake
 
 A root cli command
 
 Usage:
-  TestApp [<argument-1>] [options]
+  TestApp <argument-1> [options]
 
 Arguments:
-  <argument-1>  Description for Argument1 [default: DefaultForArgument1]
+  <argument-1>  Description for Argument1 [required]
 
 Options:
   -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
@@ -351,13 +399,13 @@ using DotMake.CommandLine;
     NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
     ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
 )]
-public class RootCliCommand
+public class RootSnakeSlashCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
  
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; } = "DefaultForArgument1";
+    public string Argument1 { get; set; }
  
     public void Run()
     {
@@ -370,14 +418,16 @@ public class RootCliCommand
 ```
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-Description:
-  A cli command with snake_case name casing and forward slash prefix conventions
+DotMake Command-Line TestApp v1.5.4
+Copyright © 2023 DotMake
+
+A cli command with snake_case name casing and forward slash prefix conventions
 
 Usage:
-  TestApp [<argument_1>] [options]
+  TestApp <argument_1> [options]
 
 Arguments:
-  <argument_1>  Description for Argument1 [default: DefaultForArgument1]
+  <argument_1>  Description for Argument1 [required]
 
 Options:
   /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
@@ -413,7 +463,7 @@ public class WithNestedChildrenCliCommand
     public string Option1 { get; set; } = "DefaultForOption1";
  
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; } = "DefaultForArgument1";
+    public string Argument1 { get; set; }
  
     public void Run()
     {
@@ -430,7 +480,7 @@ public class WithNestedChildrenCliCommand
         public string Option1 { get; set; } = "DefaultForOption1";
  
         [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; } = "DefaultForArgument1";
+        public string Argument1 { get; set; }
  
         public void Run()
         {
@@ -447,7 +497,7 @@ public class WithNestedChildrenCliCommand
             public string Option1 { get; set; } = "DefaultForOption1";
  
             [CliArgument(Description = "Description for Argument1")]
-            public string Argument1 { get; set; } = "DefaultForArgument1";
+            public string Argument1 { get; set; }
  
             public void Run()
             {
@@ -472,7 +522,7 @@ public class RootCliCommand
     public string Option1 { get; set; } = "DefaultForOption1";
  
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; } = "DefaultForArgument1";
+    public string Argument1 { get; set; }
  
     public void Run()
     {
@@ -494,7 +544,7 @@ public class ExternalLevel1SubCliCommand
     public string Option1 { get; set; } = "DefaultForOption1";
 
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; } = "DefaultForArgument1";
+    public string Argument1 { get; set; }
 
     public void Run()
     {
@@ -511,7 +561,7 @@ public class ExternalLevel1SubCliCommand
         public string Option1 { get; set; } = "DefaultForOption1";
 
         [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; } = "DefaultForArgument1";
+        public string Argument1 { get; set; }
 
         public void Run()
         {

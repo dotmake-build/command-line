@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Linq;
+using DotMake.CommandLine.Binding;
 
 namespace DotMake.CommandLine
 {
@@ -204,16 +204,72 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Gets a parse argument method for an argument type.
+        /// Gets a parse argument method for an argument type, if it's a collection type.
         /// <para>
-        /// This is mainly used for adding support for binding custom types which have a public constructor or a static <c>Parse</c> method with a string parameter.
+        /// This is mainly used for adding support for all <see cref="IEnumerable{T}"/> compatible types which have
+        /// a public constructor with a <see cref="IEnumerable{T}"/> or <see cref="IList{T}"/> parameter (other parameters, if any, should be optional).
         /// </para>
         /// </summary>
-        /// <param name="convertFromString">A delegate which creates an instance of custom type (argument type or inner type) from a string.</param>
-        /// <typeparam name="TArgument">The argument type</typeparam>
-        /// <typeparam name="TCustom">The custom type, this can be argument type or inner type of it e.g. if argument type is IEnumerable&lt;T&gt;, custom type will be T.</typeparam>
-        public static ParseArgument<TArgument> GetParseArgument<TArgument, TCustom>(Func<string, TCustom> convertFromString)
+        /// <param name="convertFromArray">A delegate which creates an instance of collection type from an array.</param>
+        /// <param name="convertFromString">A delegate which creates an instance of item type from a string.</param>
+        /// <typeparam name="TCollection">The collection type, the argument type itself.</typeparam>
+        /// <typeparam name="TItem">The item type, e.g. if argument type is IEnumerable&lt;T&gt;, item type will be T.</typeparam>
+        /// <returns>A <see cref="ParseArgument{T}"/> delegate which can be passed to an option or argument.</returns>
+        public static ParseArgument<TCollection> GetParseArgument<TCollection, TItem>(Func<Array, object> convertFromArray, Func<string, TItem> convertFromString = null)
         {
+            RegisterCollectionConverter<TCollection>(convertFromArray);
+            RegisterStringConverter(convertFromString);
+
+            return GetParseArgument<TCollection>();
+        }
+
+
+        /// <summary>
+        /// Gets a parse argument method for an argument type.
+        /// <para>
+        /// This is mainly used for adding support for binding custom types which have a public constructor
+        /// or a static <c>Parse</c> method with a string parameter (other parameters, if any, should be optional).
+        /// </para>
+        /// </summary>
+        /// <param name="convertFromString">A delegate which creates an instance of custom type from a string.</param>
+        /// <typeparam name="TArgument">The argument type.</typeparam>
+        /// <returns>A <see cref="ParseArgument{T}"/> delegate which can be passed to an option or argument.</returns>
+        public static ParseArgument<TArgument> GetParseArgument<TArgument>(Func<string, TArgument> convertFromString = null)
+        {
+            RegisterStringConverter(convertFromString);
+
+            return (result) =>
+            {
+                var tryConvertArgument = ArgumentConverter.GetConverter(result.Argument);
+
+                if (tryConvertArgument == null)
+                {
+                    result.ErrorMessage = $"No argument converter found for type '{result.Argument.ValueType}'";
+                    return default; // Ignored.
+                }
+
+                tryConvertArgument(result, out var value);
+
+                return (TArgument)value;
+            };
+        }
+
+        private static void RegisterCollectionConverter<TCollection>(Func<Array, object> convertFromArray)
+        {
+            if (convertFromArray == null)
+                return;
+
+            var collectionType = typeof(TCollection);
+
+            if (!ArgumentConverter.CollectionConverters.ContainsKey(collectionType))
+                ArgumentConverter.CollectionConverters.Add(collectionType, convertFromArray);
+        }
+
+        private static void RegisterStringConverter<TCustom>(Func<string, TCustom> convertFromString)
+        {
+            if (convertFromString == null)
+                return;
+
             var customType = typeof(TCustom);
 
             if (!ArgumentConverter.StringConverters.ContainsKey(customType))
@@ -234,21 +290,54 @@ namespace DotMake.CommandLine
 
                 ArgumentConverter.StringConverters.Add(customType, TryConvertString);
             }
+        }
 
-            return (result) =>
+        /// <summary>
+        /// Gets the parsed or default value for the specified option.
+        /// <para>
+        /// Extended version for DotMake CLI which can bind custom classes,
+        /// does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
+        /// </para>
+        /// </summary>
+        /// <param name="parseResult">The parse result.</param>
+        /// <param name="option">The option for which to get a value.</param>
+        /// <typeparam name="T">The option type.</typeparam>
+        /// <returns>The parsed value or a configured default.</returns>
+        public static T GetValueForOption<T>(ParseResult parseResult, Option<T> option)
+        {
+            var result = parseResult.FindResultFor(option);
+            if (result != null)
             {
-                var tryConvertArgument = ArgumentConverter.GetConverter(result.Argument);
+                var value = result.GetValueOrDefault<T>();
+                if (value != null)
+                    return value;
+            }
 
-                if (tryConvertArgument == null)
-                {
-                    result.ErrorMessage = $"No argument converter found for type '{result.Argument.ValueType}'";
-                    return default; // Ignored.
-                }
+            return (T)ArgumentConverter.GetDefaultValue(typeof(T));
+        }
 
-                tryConvertArgument(result, out var value);
+        /// <summary>
+        /// Gets the parsed or default value for the specified argument.
+        /// <para>
+        /// Extended version for DotMake CLI which can bind custom classes,
+        /// does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
+        /// </para>
+        /// </summary>
+        /// <param name="parseResult">The parse result.</param>
+        /// <param name="argument">The argument for which to get a value.</param>
+        /// <typeparam name="T">The argument type.</typeparam>
+        /// <returns>The parsed value or a configured default.</returns>
+        public static T GetValueForArgument<T>(ParseResult parseResult, Argument<T> argument)
+        {
+            var result = parseResult.FindResultFor(argument);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<T>();
+                if (value != null)
+                    return value;
+            }
 
-                return (TArgument)value;
-            };
+            return (T)ArgumentConverter.GetDefaultValue(typeof(T));
         }
 
         #endregion

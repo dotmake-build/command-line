@@ -4,7 +4,7 @@
             Provides methods for parsing command line input and running an indicated command.
             </td></tr><tr><td><a href="T_DotMake_CommandLine_CliArgumentAttribute.htm">CliArgumentAttribute</a></td><td>
             Specifies a class property that represents an argument which is a value that can be passed on the command line to a command or an option.
-            <p><b>Arguments:</b> An argument is a value passed to an option or a command. The following examples show an argument for the <span class="code">verbosity</span> option and an argument for the <span class="code">build</span> command.
+            <p>Note that arguments are required by default, see <a href="P_DotMake_CommandLine_CliArgumentAttribute_Required.htm">Required</a> property for details.</p><p><b>Arguments:</b> An argument is a value passed to an option or a command. The following examples show an argument for the <span class="code">verbosity</span> option and an argument for the <span class="code">build</span> command.
             <div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">dotnet tool update dotnet-suggest --verbosity quiet --global
                                               ^---^</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">dotnet build myapp.csproj
              ^----------^</code></pre></div></div>
@@ -26,7 +26,7 @@
             <a href="T_DotMake_CommandLine_CliHelpBuilder.htm">CliHelpBuilder</a> solves this problem by providing overridable methods, and it also adds color support.
             </p></td></tr><tr><td><a href="T_DotMake_CommandLine_CliOptionAttribute.htm">CliOptionAttribute</a></td><td>
             Specifies a class property that represents an option which is a named parameter and a value for that parameter, that is used on the command line.
-            <p><b>Options:</b> An option is a named parameter that can be passed to a command. The POSIX convention is to prefix the option name with two hyphens (<span class="code">--</span>).
+            <p>Note that options are not required by default (optional as the name implies), see <a href="P_DotMake_CommandLine_CliOptionAttribute_Required.htm">Required</a> property for details.</p><p><b>Options:</b> An option is a named parameter that can be passed to a command. The POSIX convention is to prefix the option name with two hyphens (<span class="code">--</span>).
             The following example shows two options:
             <div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">dotnet tool update dotnet-suggest --verbosity quiet --global
                                   ^---------^       ^------^</code></pre></div></div>

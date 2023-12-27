@@ -4,6 +4,7 @@ namespace DotMake.CommandLine
 {
     /// <summary>
     /// Specifies a class property that represents an argument which is a value that can be passed on the command line to a command or an option.
+    /// <para>Note that arguments are required by default, see <see cref="Required"/> property for details.</para>
     /// <para>
     /// <b>Arguments:</b> An argument is a value passed to an option or a command. The following examples show an argument for the <c>verbosity</c> option and an argument for the <c>build</c> command.
     /// <code>
@@ -60,6 +61,11 @@ namespace DotMake.CommandLine
         /// <para>
         /// When an argument is required and its parent command is invoked without it,
         /// an error message is displayed and the command handler isn't called.
+        /// </para>
+        /// <para>
+        /// If you want to make a CliArgument optional, set this property to <see langword="false"/> and set a default value
+        /// for the decorated property.In that case, the default value for the decorated property will be used when the user
+        /// does not specify the argument on the command line.
         /// </para>
         /// </summary>
         public bool Required { get; set; } = true;

@@ -13,7 +13,7 @@ namespace TestApp.Commands
     public partial class PartialCliCommand
     {
         [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; } = "DefaultForArgument1";
+        public string Argument1 { get; set; }
 
         public void Run()
         {

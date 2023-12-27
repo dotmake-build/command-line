@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,42 +23,6 @@ namespace DotMake.CommandLine.SourceGeneration
         {
             { nameof(CliArgumentAttribute.Hidden), "IsHidden"},
         };
-        public static readonly HashSet<string> SupportedConverters = new HashSet<string>
-        {
-            "System.String",
-            "System.Boolean",
-
-            "System.IO.FileSystemInfo",
-            "System.IO.FileInfo",
-            "System.IO.DirectoryInfo",
-
-            "System.Int32",
-            "System.Int64",
-            "System.Int16",
-            "System.UInt32",
-            "System.UInt64",
-            "System.UInt16",
-
-            "System.Double",
-            "System.Single",
-            "System.Decimal",
-
-            "System.Byte",
-            "System.SByte",
-
-            "System.DateTime",
-            "System.DateTimeOffset",
-            "System.DateOnly",
-            "System.TimeOnly",
-            "System.TimeSpan",
-
-            "System.Guid",
-
-            "System.Uri",
-            "System.Net.IPAddress",
-            "System.Net.IPEndPoint"
-        };
-
 
         public CliArgumentInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
          : base(symbol, syntaxNode, semanticModel)
@@ -67,9 +30,7 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = (IPropertySymbol)symbol;
             Parent = parent;
 
-            TypeNeedingConverter = FindTypeIfNeedsConverter(Symbol.Type);
-            if (TypeNeedingConverter != null)
-                Converter = FindConverter(TypeNeedingConverter);
+            ParseInfo = new CliArgumentParseInfo(Symbol, syntaxNode, semanticModel, this);
 
             Analyze();
 
@@ -101,9 +62,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool Required { get; } = CliArgumentAttribute.Default.Required;
 
-        public ITypeSymbol TypeNeedingConverter { get; }
-
-        public IMethodSymbol Converter { get; }
+        public CliArgumentParseInfo ParseInfo { get; set; }
 
         private void Analyze()
         {
@@ -119,12 +78,16 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (Symbol.SetMethod == null
                     || (Symbol.SetMethod.DeclaredAccessibility != Accessibility.Public && Symbol.SetMethod.DeclaredAccessibility != Accessibility.Internal))
                     AddDiagnostic(DiagnosticDescriptors.ErrorPropertyHasNotPublicSetter, DiagnosticName);
-
-                if (TypeNeedingConverter != null && Converter == null)
-                    AddDiagnostic(DiagnosticDescriptors.WarningPropertyTypeIsNotBindable, DiagnosticName, TypeNeedingConverter);
             }
         }
 
+        public override void ReportDiagnostics(SourceProductionContext sourceProductionContext)
+        {
+            base.ReportDiagnostics(sourceProductionContext); //self
+
+            ParseInfo.ReportDiagnostics(sourceProductionContext);
+        }
+        
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultValue)
         {
             var argumentName = AttributeArguments.TryGetValue(AttributeNameProperty, out var nameTypedConstant)
@@ -135,15 +98,8 @@ namespace DotMake.CommandLine.SourceGeneration
             sb.AppendLine($"// Argument for '{Symbol.Name}' property");
             using (sb.AppendParamsBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"\"{argumentName}\"");
-                if (Converter != null)
-                {
-                    var parseArgument = $", GetParseArgument<{Symbol.Type.ToReferenceString()}, {Converter.ContainingType.ToReferenceString()}>";
-                    if (Converter.Name == ".ctor")
-                        sb.AppendLine($"{parseArgument}(input => new {Converter.ContainingType.ToReferenceString()}(input))");
-                    else
-                        sb.AppendLine($"{parseArgument}(input => {Converter.ToReferenceString()}(input))");
-                }
+                sb.AppendLine($"\"{argumentName}\",");
+                ParseInfo.AppendCSharpCallString(sb);
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -175,6 +131,13 @@ namespace DotMake.CommandLine.SourceGeneration
 
             if (!Required)
                 sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
+
+            //In ArgumentArity.Default, Arity is set to ZeroOrMore for IEnumerable if parent is command,
+            //but we want to enforce OneOrMore so that Required is consistent
+            if (Required
+                && ParseInfo.ItemType != null //if it's a collection type
+                && !AttributeArguments.ContainsKey(AttributeArityProperty))
+                sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
         }
 
         public bool Equals(CliArgumentInfo other)
@@ -182,57 +145,5 @@ namespace DotMake.CommandLine.SourceGeneration
             return base.Equals(other);
         }
 
-        public static ITypeSymbol FindTypeIfNeedsConverter(ITypeSymbol type)
-        {
-            while (true)
-            {
-                // note we want System.String and not string so use MetadataName instead of ToDisplayString or ToReferenceString
-                if (type.TypeKind == TypeKind.Enum || SupportedConverters.Contains(type.ToCompareString()))
-                    return null;
-
-                var underlyingType = type.GetTypeIfNullable();
-                if (underlyingType != null)
-                {
-                    type = underlyingType;
-                    continue;
-                }
-
-                var itemType = type.GetElementTypeIfEnumerable();
-                if (itemType != null)
-                {
-                    type = itemType;
-                    continue;
-                }
-                
-                return type;
-            }
-        }
-
-        public static IMethodSymbol FindConverter(ITypeSymbol type)
-        {
-            // INamedTypeSymbol: Represents a type other than an array, a pointer, a type parameter.
-            if (!(type is INamedTypeSymbol namedType))
-                return null;
-            
-            var method = namedType.InstanceConstructors.FirstOrDefault(c =>
-                (c.DeclaredAccessibility == Accessibility.Public)
-                && c.Parameters.Length > 0
-                && c.Parameters[0].Type.SpecialType == SpecialType.System_String
-                && c.Parameters.Skip(1).All(p => p.IsOptional)
-            );
-
-            if (method == null)
-                method = (IMethodSymbol)namedType.GetMembers().FirstOrDefault(s =>
-                    s is IMethodSymbol m
-                    && (m.DeclaredAccessibility == Accessibility.Public)
-                    && m.IsStatic && m.Name == "Parse"
-                    && m.Parameters.Length > 0
-                    && m.Parameters[0].Type.SpecialType == SpecialType.System_String
-                    && m.Parameters.Skip(1).All(p => p.IsOptional
-                    && m.ReturnType.Equals(namedType, SymbolEqualityComparer.Default))
-                );
-
-            return method;
-        }
     }
 }

@@ -19,7 +19,11 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Optimized custom type parsing for CLI options/arguments feature added in v1.5.0. It's now fully compatible (stable) with AOT compilation !
+      - Optimized enumerable/collection type parsing for CLI options/arguments. It's now fully compatible (stable) with AOT compilation !
+      Arrays, lists, collections - any type that implements `IEnumerable&lt;T&gt;` and has a public constructor with a `IEnumerable&lt;T&gt;`
+        or `IList&lt;T&gt;` parameter (other parameters, if any, should be optional).
+      If type is generic `IEnumerable&lt;T&gt;`, `IList&lt;T&gt;`, `ICollection&lt;T&gt;` interfaces itself, array `T[]` will be used.
+      If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `object[]` will be used.
     </PackageReleaseNotes>
   </PropertyGroup>
 

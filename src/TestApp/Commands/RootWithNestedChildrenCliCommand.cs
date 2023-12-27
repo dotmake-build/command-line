@@ -10,7 +10,7 @@ namespace TestApp.Commands
         public string Option1 { get; set; } = "DefaultForOption1";
 
         [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; } = "DefaultForArgument1";
+        public string Argument1 { get; set; }
 
         public void Run()
         {
@@ -27,7 +27,7 @@ namespace TestApp.Commands
             public string Option1 { get; set; } = "DefaultForOption1";
 
             [CliArgument(Description = "Description for Argument1")]
-            public string Argument1 { get; set; } = "DefaultForArgument1";
+            public string Argument1 { get; set; }
 
             public void Run()
             {
@@ -44,7 +44,7 @@ namespace TestApp.Commands
                 public string Option1 { get; set; } = "DefaultForOption1";
 
                 [CliArgument(Description = "Description for Argument1")]
-                public string Argument1 { get; set; } = "DefaultForArgument1";
+                public string Argument1 { get; set; }
 
                 public void Run()
                 {

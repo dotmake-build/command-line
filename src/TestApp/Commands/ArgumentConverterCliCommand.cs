@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using DotMake.CommandLine;
 
@@ -25,13 +24,8 @@ namespace TestApp.Commands
         [CliOption]
         public List<ClassWithConstructor> OptList { get; set; }
 
-        [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public FileAccess[] OptEnumArray { get; set; }
-
-        /*
         [CliOption]
         public CustomList<ClassWithConstructor> OptCustomList { get; set; }
-        */
 
         [CliArgument]
         public IEnumerable<Sub.ClassWithParser> Arg { get; set; }
@@ -45,22 +39,31 @@ namespace TestApp.Commands
             Console.WriteLine($@"Value for {nameof(OptNullable)} property is '{GetAllValues(OptNullable)}'");
             Console.WriteLine($@"Value for {nameof(OptEnumerable)} property is '{GetAllValues(OptEnumerable)}'");
             Console.WriteLine($@"Value for {nameof(OptList)} property is '{GetAllValues(OptList)}'");
-            Console.WriteLine($@"Value for {nameof(OptEnumArray)} property is '{GetAllValues(OptEnumArray)}'");
+            Console.WriteLine($@"Value for {nameof(OptCustomList)} property is '{GetAllValues(OptCustomList)}'");
             Console.WriteLine($@"Value for {nameof(Arg)} property is '{GetAllValues(Arg)}'");
             
             Console.WriteLine();
         }
 
-        private string GetAllValues(object value)
+        private static string GetAllValues(object value)
         {
             if (value is IEnumerable enumerable)
-                return string.Join("|",
-                    enumerable
-                        .Cast<object>()
-                        .Select(s => s?.ToString())
-                );
+            {
+                var items = enumerable.Cast<object>().ToArray();
+                if (items.Length == 0)
+                    return "<empty>";
+                return string.Join("|", items.Select(GetValue));
+            }
 
-            return value?.ToString();
+            return GetValue(value);
+        }
+
+        private static string GetValue(object value)
+        {
+            if (value == null)
+                return "<null>";
+
+            return value.ToString();
         }
     }
 
@@ -78,14 +81,7 @@ namespace TestApp.Commands
             return value;
         }
     }
-
-    /*
-    public class CustomList<T> : List<T>
-    {
-
-    }
-    */
-
+    
     public struct CustomStruct
     {
         private readonly string value;
@@ -105,22 +101,30 @@ namespace TestApp.Commands
     {
         public class ClassWithParser
         {
-            private readonly string value;
-
-            private ClassWithParser(string value)
-            {
-                this.value = value;
-            }
+            public string Value { get; set; }
 
             public override string ToString()
             {
-                return value;
+                return Value;
             }
 
             public static ClassWithParser Parse(string value)
             {
-                return new ClassWithParser(value);
+                var instance = new ClassWithParser
+                {
+                    Value = value
+                };
+                return instance;
             }
+        }
+    }
+
+    public class CustomList<T> : List<T>
+    {
+        public CustomList(IEnumerable<T> items)
+            : base(items)
+        {
+
         }
     }
 }

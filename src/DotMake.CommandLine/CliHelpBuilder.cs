@@ -56,23 +56,24 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
-        public override void Write(HelpContext context)
+        /// <param name="helpContext">The help context.</param>
+        public override void Write(HelpContext helpContext)
         {
-            if (context is null)
+            if (helpContext is null)
             {
-                throw new ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(helpContext));
             }
 
-            if (context.Command.IsHidden || context.ParseResult.Errors.Count > 0)
+            if (helpContext.Command.IsHidden || helpContext.ParseResult.Errors.Count > 0)
             {
                 return;
             }
 
-            var writeSections = GetLayout(context).ToArray();
+            var writeSections = GetLayout(helpContext).ToArray();
             foreach (var writeSection in writeSections)
             {
-                if (writeSection(context))
-                    context.Output.WriteLine();
+                if (writeSection(helpContext))
+                    helpContext.Output.WriteLine();
             }
         }
 
@@ -80,6 +81,7 @@ namespace DotMake.CommandLine
         /// Writes a help section describing a command's synopsis.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
+        /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteSynopsisSection(HelpContext helpContext)
         {
             helpContext.Output.Write(ExecutableInfo.Product);
@@ -122,6 +124,7 @@ namespace DotMake.CommandLine
         /// Writes a help section describing a command's usage.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
+        /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteCommandUsageSection(HelpContext helpContext)
         {
             var usage = string.Join(" ", GetUsageParts(helpContext.Command).Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -139,6 +142,7 @@ namespace DotMake.CommandLine
         /// Writes a help section describing a command's arguments.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
+        /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteCommandArgumentsSection(HelpContext helpContext)
         {
             var commandArguments = GetCommandArgumentRows(helpContext.Command, helpContext).ToArray();
@@ -161,6 +165,7 @@ namespace DotMake.CommandLine
         /// Writes a help section describing a command's options.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
+        /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteCommandOptionsSection(HelpContext helpContext)
         {
             // by making this logic more complex, we were able to get some nice perf wins elsewhere
@@ -216,6 +221,7 @@ namespace DotMake.CommandLine
         /// Writes a help section describing a command's subcommands.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
+        /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteSubcommandsSection(HelpContext helpContext)
         {
             var subcommands = helpContext.Command.Subcommands
@@ -236,6 +242,7 @@ namespace DotMake.CommandLine
         /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
+        /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteAdditionalArgumentsSection(HelpContext helpContext)
         {
             if (helpContext.Command.TreatUnmatchedTokensAsErrors)

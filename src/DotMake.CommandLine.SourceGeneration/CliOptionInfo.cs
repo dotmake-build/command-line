@@ -33,9 +33,7 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = (IPropertySymbol)symbol;
             Parent = parent;
 
-            TypeNeedingConverter = CliArgumentInfo.FindTypeIfNeedsConverter(Symbol.Type);
-            if (TypeNeedingConverter != null)
-                Converter = CliArgumentInfo.FindConverter(TypeNeedingConverter);
+            ParseInfo = new CliArgumentParseInfo(Symbol, syntaxNode, semanticModel, this);
 
             Analyze();
 
@@ -73,9 +71,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool Required { get; }
 
-        public ITypeSymbol TypeNeedingConverter { get; }
-
-        public IMethodSymbol Converter { get; }
+        public CliArgumentParseInfo ParseInfo { get; set; }
 
         private void Analyze()
         {
@@ -91,10 +87,14 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (Symbol.SetMethod == null
                     || (Symbol.SetMethod.DeclaredAccessibility != Accessibility.Public && Symbol.SetMethod.DeclaredAccessibility != Accessibility.Internal))
                     AddDiagnostic(DiagnosticDescriptors.ErrorPropertyHasNotPublicSetter, DiagnosticName);
-
-                if (TypeNeedingConverter != null && Converter == null)
-                    AddDiagnostic(DiagnosticDescriptors.WarningPropertyTypeIsNotBindable, DiagnosticName, TypeNeedingConverter);
             }
+        }
+
+        public override void ReportDiagnostics(SourceProductionContext sourceProductionContext)
+        {
+            base.ReportDiagnostics(sourceProductionContext); //self
+
+            ParseInfo.ReportDiagnostics(sourceProductionContext);
         }
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultValue)
@@ -108,15 +108,8 @@ namespace DotMake.CommandLine.SourceGeneration
             sb.AppendLine($"// Option for '{Symbol.Name}' property");
             using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"\"{optionName}\"");
-                if (Converter != null)
-                {
-                    var parseArgument = $", GetParseArgument<{Symbol.Type.ToReferenceString()}, {Converter.ContainingType.ToReferenceString()}>";
-                    if (Converter.Name == ".ctor")
-                        sb.AppendLine($"{parseArgument}(input => new {Converter.ContainingType.ToReferenceString()}(input))");
-                    else
-                        sb.AppendLine($"{parseArgument}(input => {Converter.ToReferenceString()}(input))");
-                }
+                sb.AppendLine($"\"{optionName}\",");
+                ParseInfo.AppendCSharpCallString(sb);
             }
             using (sb.AppendBlockStart(null, ";"))
             {
