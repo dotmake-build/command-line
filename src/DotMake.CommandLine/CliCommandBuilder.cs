@@ -259,7 +259,7 @@ namespace DotMake.CommandLine
             if (convertFromArray == null)
                 return;
 
-            var collectionType = typeof(TCollection);
+            var collectionType = typeof(TCollection).GetNullableUnderlyingTypeOrSelf();
 
             if (!ArgumentConverter.CollectionConverters.ContainsKey(collectionType))
                 ArgumentConverter.CollectionConverters.Add(collectionType, convertFromArray);
@@ -270,7 +270,7 @@ namespace DotMake.CommandLine
             if (convertFromString == null)
                 return;
 
-            var customType = typeof(TCustom);
+            var customType = typeof(TCustom).GetNullableUnderlyingTypeOrSelf();
 
             if (!ArgumentConverter.StringConverters.ContainsKey(customType))
             {

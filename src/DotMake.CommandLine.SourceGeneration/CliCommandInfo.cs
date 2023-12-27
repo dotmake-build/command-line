@@ -195,7 +195,6 @@ namespace DotMake.CommandLine.SourceGeneration
             using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
                 var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(CliNameCasingConvention.CamelCase);
-                var commandClass = $"{CommandClassNamespace}.{(IsRoot ? RootCommandClassName : CommandClassName)}";
                 var definitionClass = Symbol.ToReferenceString();
                 var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToReferenceString();
                 var parentDefinitionType = (parentDefinitionClass != null) ? $"typeof({parentDefinitionClass})" : "null";
@@ -213,7 +212,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
                 sb.AppendLine();
 
-                using (sb.AppendBlockStart($"public override {commandClass} Build()"))
+                using (sb.AppendBlockStart($"public override {CommandClassNamespace}.{CommandClassName} Build()"))
                 {
                     AppendCSharpCreateString(sb, varCommand);
 

@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <Product>DotMake Command-Line TestNet472App</Product>
+    <!-- 
+      EmitCompilerGeneratedFiles is useful for debugging, it doesn't work for live editing (VS continues to run the cached 
+      source generator, needs restart as it uses VBCSCompiler.exe for Roslyn analyzers/generators) but when project is 
+      explicitly built (probably VS runs msbuild externally in that case), the latest source generator DLL is used to 
+      generate files (the in-memory generated files in Analyzers node is still not updated but at least we have files on disk).
+      CompilerGeneratedFilesOutputPath defaults to obj\Debug\net6.0\generated but we set a folder inside project to easily
+      examine the files, however we exclude the files from Compile below (and add to None) to prevent class conflict errors.
+      We also use CleanSourceGeneratedFiles target below to clean all generated files before build so that we don't have 
+      outdated files (e.g. for renamed classes).
+    -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>GeneratedFiles</CompilerGeneratedFilesOutputPath>
+
+    <!--
+      Use PublishTrimmed.pubxml profile when publishing to test "Trim self-contained deployment", results will be in bin\Publish\trimmed
+      https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained
+    -->
+    <!--<PublishTrimmed>true</PublishTrimmed>-->
+
+    <!--
+      Use PublishAot.pubxml profile when publishing to test "Native AOT deployment", results will be in bin\Publish\aot
+      https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows#limitations-of-native-aot-deployment
+      
+      Note that for AOT, you need to make sure to install the "Desktop development with C++" workload from
+      Visual Studio 2022 installer. Without it you may see errors like error : Platform linker not found 
+    -->
+    <!--<PublishAot>true</PublishAot>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotMake.CommandLine" Version="$(Version)" />
+    <Compile Include="..\TestApp\**\*.cs" />
+    <Compile Remove="..\TestApp\bin\**\*" />
+    <Compile Remove="..\TestApp\obj\**\*" />
+    <Compile Remove="..\TestApp\GeneratedFiles\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="GeneratedFiles\**\*.cs" />
+    <None Include="GeneratedFiles\**\*.cs" />
+  </ItemGroup>
+
+  <Target Name="CleanSourceGeneratedFiles" BeforeTargets="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn)">
+    <RemoveDir Directories="GeneratedFiles" />
+  </Target>
+
+</Project>

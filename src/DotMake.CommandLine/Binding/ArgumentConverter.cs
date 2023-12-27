@@ -41,12 +41,9 @@ namespace DotMake.CommandLine.Binding
             Token token,
             LocalizationResources localizationResources)
         {
-            var value = token.Value;
+            type = type.GetNullableUnderlyingTypeOrSelf();
 
-            if (type.TryGetNullableType(out var nullableType))
-            {
-                return ConvertToken(argument, nullableType, token, localizationResources);
-            }
+            var value = token.Value;
 
             if (StringConverters.TryGetValue(type, out var tryConvert))
             {
@@ -88,6 +85,8 @@ namespace DotMake.CommandLine.Binding
             LocalizationResources localizationResources,
             ArgumentResult? argumentResult = null)
         {
+            type = type.GetNullableUnderlyingTypeOrSelf();
+
             var itemType = type.GetElementTypeIfEnumerable(typeof(string)) ?? typeof(string);
             var values = Array.CreateInstance(itemType, tokens.Count); //typed array
 
@@ -125,19 +124,12 @@ namespace DotMake.CommandLine.Binding
         {
             if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
             {
-                if (argument.ValueType.TryGetNullableType(out var nullableType) &&
-                    StringConverters.TryGetValue(nullableType, out var convertNullable))
-                {
-                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
-                }
+                var type = argument.ValueType.GetNullableUnderlyingTypeOrSelf();
 
-                if (StringConverters.TryGetValue(argument.ValueType, out var convert1))
+                if (StringConverters.TryGetValue(type, out var tryConvertString))
                 {
-                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert1, out value);
+                    return (ArgumentResult result, out object? value) => tryConvertString(result.Tokens[result.Tokens.Count - 1].Value, out value);
                 }
-
-                static bool ConvertSingleString(ArgumentResult result, TryConvertString convert, out object? value) =>
-                    convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
             }
 
             if (argument.ValueType.CanBeBoundFromScalarValue())
@@ -150,6 +142,8 @@ namespace DotMake.CommandLine.Binding
 
         private static bool CanBeBoundFromScalarValue(this Type type)
         {
+            type = type.GetNullableUnderlyingTypeOrSelf();
+
             if (type.IsEnum || StringConverters.ContainsKey(type))
                 return true;
 

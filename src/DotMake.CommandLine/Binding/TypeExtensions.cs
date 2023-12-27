@@ -18,8 +18,7 @@ namespace DotMake.CommandLine.Binding
         internal static Type? GetElementTypeIfEnumerable(this Type type, Type? nonGenericElementType)
         {
             //not common but just in case if it's wrapped in Nullable<T> (struct IEnumerable<T> ?)
-            if (type.TryGetNullableType(out var underlyingType))
-                return underlyingType.GetElementTypeIfEnumerable(nonGenericElementType);
+            type = type.GetNullableUnderlyingTypeOrSelf();
 
             if (type.IsArray)
                 return type.GetElementType();
@@ -49,12 +48,10 @@ namespace DotMake.CommandLine.Binding
 
         internal static bool IsNullable(this Type t) => Nullable.GetUnderlyingType(t) is not null;
 
-        internal static bool TryGetNullableType(
-            this Type type,
-            [NotNullWhen(true)] out Type? nullableType)
+
+        internal static Type GetNullableUnderlyingTypeOrSelf(this Type type)
         {
-            nullableType = Nullable.GetUnderlyingType(type);
-            return nullableType is not null;
+            return Nullable.GetUnderlyingType(type) ?? type;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace TestApp.Commands
         public FileAccess[] OptEnumArray { get; set; }
 
         [CliOption]
-        public Collection<string> OptCollection { get; set; }
+        public Collection<int?> OptCollection { get; set; }
 
         [CliOption]
         public HashSet<string> OptHashSet { get; set; }

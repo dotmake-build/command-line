@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
@@ -21,12 +22,23 @@ namespace DotMake.CommandLine.SourceGeneration
             var cliCommandInfos = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
                 CliCommandInfo.AttributeFullName,
                 (syntaxNode, cancellationToken) => syntaxNode is ClassDeclarationSyntax
-                                                            //skip nested classes as they will handled by the parent classes
+                                                            //skip nested classes as they will be handled by the parent classes
                                                             && !(syntaxNode.Parent is TypeDeclarationSyntax),
                 (attributeSyntaxContext, cancellationToken) => new CliCommandInfo(attributeSyntaxContext)
             );
 
+            initializationContext.RegisterPostInitializationOutput(GenerateDefinitions);
             initializationContext.RegisterSourceOutput(cliCommandInfos, GenerateSourceCode);
+        }
+
+        private static void GenerateDefinitions(IncrementalGeneratorPostInitializationContext postInitializationContext)
+        {
+            //For supporting ModuleInitializerAttribute in projects before net5.0 (net472, netstandard2.0)
+            using (var resourceStream = Type.Assembly.GetManifestResourceStream($"{Type.Namespace}.Embedded.ModuleInitializerAttribute.cs"))
+            {
+                if (resourceStream != null)
+                    postInitializationContext.AddSource("ModuleInitializerAttribute.g.cs", SourceText.From(resourceStream, canBeEmbedded: true));
+            }
         }
 
         private static void GenerateSourceCode(SourceProductionContext sourceProductionContext, CliCommandInfo cliCommandInfo)
