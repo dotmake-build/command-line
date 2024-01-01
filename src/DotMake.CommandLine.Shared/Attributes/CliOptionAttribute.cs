@@ -4,7 +4,10 @@ namespace DotMake.CommandLine
 {
     /// <summary>
     /// Specifies a class property that represents an option which is a named parameter and a value for that parameter, that is used on the command line.
-    /// <para>Note that options are not required by default (optional as the name implies), see <see cref="Required"/> property for details.</para>
+    /// <para>
+    /// Note that an option is required if the decorated property does not have a default value (set via a property initializer),
+    /// see <see cref="Required"/> property for details.
+    /// </para>
     /// <para>
     /// <b>Options:</b> An option is a named parameter that can be passed to a command. The POSIX convention is to prefix the option name with two hyphens (<c>--</c>).
     /// The following example shows two options:
@@ -75,15 +78,20 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets a value indicating whether the option is required when its parent command is invoked.
-        /// Default is <see langword="false" /> for options.
+        /// Default is auto-detected.
         /// <para>
-        /// When an option is required and its parent command is invoked without it,
-        /// an error message is displayed and the command handler isn't called.
+        /// If the decorated property has a default value (set via a property initializer), the option is detected as "not required".
+        /// If the decorated property does not have a default value, the option is detected as "required".
         /// </para>
         /// <para>
-        /// If you want to make a CliOption required, set this property to <see langword="true"/>. In that case,
-        /// the default value for the decorated property will be ignored (if exists) and the user has to specify
-        /// the option on the command line.
+        /// If you want to force an option to be required, set this property to <see langword="true"/>. In that case,
+        /// the default value for the decorated property will be ignored (if exists).
+        /// If you want to force an option to be not required, set this property to <see langword="false"/>.
+        /// </para>
+        /// <para>
+        /// When an option is required, the option has to be specified on the command line and if its parent command is invoked
+        /// without it, an error message is displayed and the command handler isn't called.
+        /// When an option is not required, the option doesn't have to be specified on the command line, the default value provides the option value.
         /// </para>
         /// </summary>
         public bool Required { get; set; }

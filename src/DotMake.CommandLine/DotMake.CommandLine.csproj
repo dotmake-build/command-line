@@ -19,7 +19,13 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Fixed net472 and netstandard2.0 support. ModuleInitializerAttribute will be generated for legacy projects (missing before net5.0).
+      - Made required behaviour for `CliArgument` and `CliOption` more sensible:
+        If the decorated property has a default value (set via a property initializer), the argument/option is detected as "not required".
+        If the decorated property does not have a default value, the argument/option is detected as "required".
+
+        If you want to force an argument/option to be required, set this property to `true`. In that case,
+        the default value for the decorated property will be ignored (if exists).
+        If you want to force an argument/option to be not required, set this property to `false`.
     </PackageReleaseNotes>
   </PropertyGroup>
 

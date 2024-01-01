@@ -4,7 +4,10 @@ namespace DotMake.CommandLine
 {
     /// <summary>
     /// Specifies a class property that represents an argument which is a value that can be passed on the command line to a command or an option.
-    /// <para>Note that arguments are required by default, see <see cref="Required"/> property for details.</para>
+    /// <para>
+    /// Note that an argument is required if the decorated property does not have a default value (set via a property initializer),
+    /// see <see cref="Required"/> property for details.
+    /// </para>
     /// <para>
     /// <b>Arguments:</b> An argument is a value passed to an option or a command. The following examples show an argument for the <c>verbosity</c> option and an argument for the <c>build</c> command.
     /// <code>
@@ -57,18 +60,23 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets a value indicating whether the argument is required when its parent command is invoked.
-        /// Default is <see langword="true" /> for arguments.
+        /// Default is auto-detected.
         /// <para>
-        /// When an argument is required and its parent command is invoked without it,
-        /// an error message is displayed and the command handler isn't called.
+        /// If the decorated property has a default value (set via a property initializer), the argument is detected as "not required".
+        /// If the decorated property does not have a default value, the argument is detected as "required".
         /// </para>
         /// <para>
-        /// If you want to make a CliArgument optional, set this property to <see langword="false"/> and set a default value
-        /// for the decorated property.In that case, the default value for the decorated property will be used when the user
-        /// does not specify the argument on the command line.
+        /// If you want to force an argument to be required, set this property to <see langword="true"/>. In that case,
+        /// the default value for the decorated property will be ignored (if exists).
+        /// If you want to force an argument to be not required, set this property to <see langword="false"/>.
+        /// </para>
+        /// <para>
+        /// When an argument is required, the argument has to be specified on the command line and if its parent command is invoked
+        /// without it, an error message is displayed and the command handler isn't called.
+        /// When an argument is not required, the argument doesn't have to be specified on the command line, the default value provides the argument value.
         /// </para>
         /// </summary>
-        public bool Required { get; set; } = true;
+        public bool Required { get; set; }
 
         /// <summary>
         /// Gets or sets the arity of the argument. The arity refers to the number of values that can be passed on the command line.

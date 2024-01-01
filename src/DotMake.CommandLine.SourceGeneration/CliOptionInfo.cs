@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
@@ -23,8 +24,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
         {
             { nameof(CliOptionAttribute.HelpName), "ArgumentHelpName"},
-            { nameof(CliOptionAttribute.Hidden), "IsHidden"},
-            { nameof(CliOptionAttribute.Required), "IsRequired"}
+            { nameof(CliOptionAttribute.Hidden), "IsHidden"}
         };
 
         public CliOptionInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
@@ -49,6 +49,9 @@ namespace DotMake.CommandLine.SourceGeneration
             if (AttributeArguments.TryGetValue(AttributeRequiredProperty, out var requiredTypedConstant)
                 && requiredTypedConstant.Value != null)
                 Required = (bool)requiredTypedConstant.Value;
+            else
+                Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax
+                            && propertyDeclarationSyntax.Initializer == null);
         }
 
         public CliOptionInfo(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -121,6 +124,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         case AttributeAliasesProperty:
                         case AttributeGlobalProperty:
                         case AttributeAllowedValuesProperty:
+                        case AttributeRequiredProperty:
                             continue;
                         case AttributeArityProperty:
                             var arity = kvp.Value.ToCSharpString().Split('.').Last();
@@ -134,6 +138,8 @@ namespace DotMake.CommandLine.SourceGeneration
                             break;
                     }
                 }
+
+                sb.AppendLine($"IsRequired = {Required.ToString().ToLowerInvariant()},");
             }
 
             if (AttributeArguments.TryGetValue(AttributeAllowedValuesProperty, out var allowedValuesTypedConstant)

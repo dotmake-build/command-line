@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
@@ -43,6 +44,9 @@ namespace DotMake.CommandLine.SourceGeneration
             if (AttributeArguments.TryGetValue(AttributeRequiredProperty, out var requiredTypedConstant)
                 && requiredTypedConstant.Value != null)
                 Required = (bool)requiredTypedConstant.Value;
+            else
+                Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax
+                            && propertyDeclarationSyntax.Initializer == null);
         }
 
         public CliArgumentInfo(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -60,7 +64,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public CliCommandInfo Parent { get; }
 
-        public bool Required { get; } = CliArgumentAttribute.Default.Required;
+        public bool Required { get; }
 
         public CliArgumentParseInfo ParseInfo { get; set; }
 

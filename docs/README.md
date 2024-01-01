@@ -141,15 +141,21 @@ You see this result:
 ```console
 Required argument missing for command: 'TestApp'.
 ```
-This is because a `CliArgument` decorated property is required by default (`CliArgument.Required` property's default value is `true`).
-A `CliArgument` is a parameter for the command itself (for the root command - the exe in this case), that's why it's required by default.
+This is because a `CliArgument` or `CliOption` decorated property is required if the decorated property does not have a 
+default value (set via a property initializer) or if it's not forced via attribute property `Required`.
 
-If you want to make a `CliArgument` optional, set `CliArgument.Required` property to `false` and set a default value for the decorated property.
-In that case, the default value for the decorated property will be used when the user does not specify the argument on the command line.
+If you want to make a `CliArgument` or `CliOption` optional (not required), set a default value for the decorated property:
 ```c#
-[CliArgument(Required = false)]
+[CliArgument]
 public string Argument1 { get; set; } = "DefaultForArgument1";
 ```
+or set `Required` property to `false`, to force it:
+```c#
+[CliArgument(Required = false)]
+public string Argument1 { get; set; }
+```
+In that case, the default value for the decorated property will be used when the user does not specify the argument on the command line.
+
 ---
 When you run,
 ```console
@@ -165,15 +171,21 @@ Handler for 'TestApp.Commands.RootCliCommand' is run:
 Value for Option1 property is 'DefaultForOption1'
 Value for Argument1 property is 'NewValueForArgument1'
 ```
-This is because a `CliOption` decorated property is not required by default (`CliOption.Required` property's default value is `false`).
-A `CliOption` is optional, as the name implies, for the command itself (for the root command - the exe in this case), that's why it's not required by default.
+This is because a `CliArgument` or `CliOption` decorated property is not required if the decorated property has a 
+default value (set via a property initializer) or if it's not forced via attribute property `Required`.
 
-If you want to make a `CliOption` required, set `CliArgument.Required` property to `true`.
-In that case, the default value for the decorated property will be ignored (if exists) and the user has to specify the option on the command line.
+If you want to make a `CliArgument` or `CliOption` required, remove the default value for the decorated property:
 ```c#
-[CliOption(Required = true)]
+[CliOption]
 public string Option1 { get; set; }
 ```
+or set `Required` property to `true`, to force it:
+```c#
+[CliOption(Required = true)]
+public string Option1 { get; set; } = "DefaultForOption1";
+```
+In that case, the default value for the decorated property will be ignored (if exists) and the user has to specify the option on the command line.
+
 ---
 When you run,
 ```console
