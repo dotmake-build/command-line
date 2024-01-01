@@ -20,15 +20,19 @@
             Then the name will be converted to kebab-case, for example:
             <ul><li>If property name is <span class="code">Output</span> or <span class="code">OutputArgument</span> or <span class="code">OutputCliArgument</span> -&gt; argument name will be <span class="code">output</span></li><li>If property name is <span class="code">ProjectPath</span> or <span class="code">ProjectPathArgument</span> or <span class="code">ProjectPathCliArgument</span> -&gt; argument name will be <span class="code">project-path</span></li></ul></p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliArgumentAttribute_Required.htm">Required</a></td><td>
             Gets or sets a value indicating whether the argument is required when its parent command is invoked.
-            Default is <span class="keyword"><span id="LST1D2266DB_0" data-languageSpecificText="vb=True|nu=true"></span></span> for arguments.
+            Default is auto-detected.
             <p>
-            When an argument is required and its parent command is invoked without it,
-            an error message is displayed and the command handler isn't called.
+            If the decorated property has a default value (set via a property initializer), the argument is detected as "not required".
+            If the decorated property does not have a default value, the argument is detected as "required".
             </p><p>
-            If you want to make a CliArgument optional, set this property to <span class="keyword"><span id="LST1D2266DB_1" data-languageSpecificText="vb=False|nu=false"></span></span> and set a default value
-            for the decorated property.In that case, the default value for the decorated property will be used when the user
-            does not specify the argument on the command line.
-            </p></td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="T_DotMake_CommandLine_CliArgumentAttribute.htm">CliArgumentAttribute Class</a></div><div><a href="N_DotMake_CommandLine.htm">DotMake.CommandLine Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Properties</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div class="column"><p>Copyright © 2023 DotMake</p> 
+            If you want to force an argument to be required, set this property to <span class="keyword"><span id="LST1D2266DB_0" data-languageSpecificText="vb=True|nu=true"></span></span>. In that case,
+            the default value for the decorated property will be ignored (if exists).
+            If you want to force an argument to be not required, set this property to <span class="keyword"><span id="LST1D2266DB_1" data-languageSpecificText="vb=False|nu=false"></span></span>.
+            </p><p>
+            When an argument is required, the argument has to be specified on the command line and if its parent command is invoked
+            without it, an error message is displayed and the command handler isn't called.
+            When an argument is not required, the argument doesn't have to be specified on the command line, the default value provides the argument value.
+            </p></td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="T_DotMake_CommandLine_CliArgumentAttribute.htm">CliArgumentAttribute Class</a></div><div><a href="N_DotMake_CommandLine.htm">DotMake.CommandLine Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Properties</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div class="column"><p>Copyright © 2023-2024 DotMake</p> 
 				</div><div class="column"> 
 				</div></div></footer></div><script>$(function(){
 SetDefaultLanguage("cs");
