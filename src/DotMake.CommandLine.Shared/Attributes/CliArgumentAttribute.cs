@@ -4,6 +4,10 @@ namespace DotMake.CommandLine
 {
     /// <summary>
     /// Specifies a class property that represents an argument which is a value that can be passed on the command line to a command or an option.
+    /// <code>
+    /// [CliArgument]
+    /// public string SomeCliArgument { get; set; }
+    /// </code>
     /// <para>
     /// Note that an argument is required if the decorated property does not have a default value (set via a property initializer),
     /// see <see cref="Required"/> property for details.
@@ -35,6 +39,7 @@ namespace DotMake.CommandLine
         ///     <item>If property name is <c>ProjectPath</c> or <c>ProjectPathArgument</c> or <c>ProjectPathCliArgument</c> -> argument name will be <c>project-path</c></item>
         /// </list>
         /// </para>
+        /// <para>Default convention can be changed via parent command's <see cref="CliCommandAttribute.NameCasingConvention"/> property.</para>
         /// </summary>
         public string Name { get; set; }
 
@@ -80,11 +85,11 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets the arity of the argument. The arity refers to the number of values that can be passed on the command line.
-        /// <para>In most cases setting argument arity is not necessary as it is automatically determined based on the argument type:</para>
+        /// <para>In most cases setting argument arity is not necessary as it is automatically determined based on the argument type (the decorated property's type):</para>
         /// <list type="bullet">
-        ///		<item>Boolean -> ArgumentArity.ZeroOrOne</item>
-        ///		<item>Collection types -> ArgumentArity.ZeroOrMore</item>
-        ///		<item>Everything else -> ArgumentArity.ExactlyOne</item>
+        ///     <item>Boolean -> ArgumentArity.ZeroOrOne</item>
+        ///     <item>Collection types -> ArgumentArity.ZeroOrMore</item>
+        ///     <item>Everything else -> ArgumentArity.ExactlyOne</item>
         /// </list>
         /// </summary>
         public CliArgumentArity Arity { get; set; }

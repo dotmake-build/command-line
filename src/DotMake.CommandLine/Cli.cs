@@ -10,6 +10,16 @@ namespace DotMake.CommandLine
     /// <summary>
     /// Provides methods for parsing command line input and running an indicated command.
     /// </summary>
+    /// <example>
+    ///     <inheritdoc cref="CliCommandAttribute" path="/example/code[@id='gettingStarted']" />
+    ///     <code>
+    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsync" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+    ///     </code>
+    ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunExceptions" language="cs" />
+    /// </example>
     public static class Cli
     {
         /// <summary>
@@ -91,6 +101,10 @@ namespace DotMake.CommandLine
         /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
         /// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunString" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
+        /// </example>
         public static int Run<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
             var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
@@ -108,6 +122,10 @@ namespace DotMake.CommandLine
         /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
         /// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRun" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+        /// </example>
         public static int Run<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
             var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
@@ -125,6 +143,10 @@ namespace DotMake.CommandLine
         /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
         /// <param name="console">A console to which output can be written. By default, <see cref="System.Console" /> is used.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncString" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
+        /// </example>
         public static async Task<int> RunAsync<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
             var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
@@ -142,6 +164,10 @@ namespace DotMake.CommandLine
         /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
         /// <param name="console">A console to which output can be written. By default, <see cref="System.Console" /> is used.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsync" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+        /// </example>
         public static async Task<int> RunAsync<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
             var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
@@ -156,6 +182,9 @@ namespace DotMake.CommandLine
         /// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
         /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
+        /// </example>
         public static TDefinition Parse<TDefinition>(string commandLine, out ParseResult parseResult)
         {
             var commandBuilder = CliCommandBuilder.Get<TDefinition>();
@@ -172,6 +201,9 @@ namespace DotMake.CommandLine
         /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
         /// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseString" language="cs" />
+        /// </example>
         public static TDefinition Parse<TDefinition>(string commandLine)
         {
             return Parse<TDefinition>(commandLine, out _);
@@ -184,6 +216,9 @@ namespace DotMake.CommandLine
         /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        /// </example>
         public static TDefinition Parse<TDefinition>(string[] args, out ParseResult parseResult)
         {
             var commandBuilder = CliCommandBuilder.Get<TDefinition>();
@@ -200,6 +235,9 @@ namespace DotMake.CommandLine
         /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
         /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParse" language="cs" />
+        /// </example>
         public static TDefinition Parse<TDefinition>(string[] args)
         {
             return Parse<TDefinition>(args, out _);

@@ -74,6 +74,17 @@
       <Argument Key="BaseSourceCodeUrl" Value="" />
       <Argument Key="RequestExampleUrl" Value="" />
     </TransformComponentArguments>
+    <ComponentConfigurations>
+      <ComponentConfig id="Code Block Component" enabled="True">
+        <component id="Code Block Component">
+  <basePath value="{@HtmlEncProjectFolder}" />
+  <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+  <allowMissingSource value="false" />
+  <removeRegionMarkers value="false" />
+  <colorizer syntaxFile="{@CoreComponentsFolder}Colorizer\highlight.xml" styleFile="{@CoreComponentsFolder}Colorizer\highlight.xsl" stylesheet="{@CoreComponentsFolder}Colorizer\highlight.css" scriptFile="{@CoreComponentsFolder}Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+</component>
+      </ComponentConfig>
+    </ComponentConfigurations>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

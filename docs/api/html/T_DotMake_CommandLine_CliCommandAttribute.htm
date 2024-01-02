@@ -1,13 +1,394 @@
-﻿<!DOCTYPE html ><html lang="en-US"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="shortcut icon" href="../icons/favicon.ico" /><link rel="stylesheet" href="../css/bulma.css" /><link rel="stylesheet" href="../css/font-awesome.min.css" /><link rel="stylesheet" href="../css/presentationStyle.css" /><link rel="stylesheet" href="../css/vs.min.css" /><script src="../scripts/jquery-3.5.1.min.js"></script><script src="../scripts/clipboard.min.js"></script><script src="../scripts/highlight.min.js"></script><script src="../scripts/presentationStyle.js"></script><title>CliCommandAttribute Class</title><meta name="Title" content="CliCommandAttribute" /><meta name="Help.Id" content="T:DotMake.CommandLine.CliCommandAttribute" /><meta name="Help.ContentType" content="Reference" /><meta name="container" content="DotMake.CommandLine" /><meta name="guid" content="T_DotMake_CommandLine_CliCommandAttribute" /><meta name="Description" content="Specifies a class that represents a command which is a specific action that the command line application performs. The class that this attribute is applied to, will be a root command if the class is not a nested class and property is not set." /><meta name="tocFile" content="../toc/IDAA.xml" /></head><body><div class="fixedLayout"><div id="Header" class="fixedHeader"><div class="pageHeader level mb-0 py-2 px-4"><div id="TitleContainer" class="level-left"><div class="level-item"><img style="height: 64px;" src="../icons/logo128.png" /></div><div id="DocumentationTitle" class="level-item">DotMake Command-Line Documentation</div></div><div id="LangFilterSearchContainer" class="level-right"><div class="level-item"><div class="dropdown is-hoverable"><div class="dropdown-trigger"><button class="button" aria-haspopup="true" aria-controls="dropdown-menu"><span id="CurrentLanguage"></span><span class="icon is-small"><i class="fa fa-angle-down" aria-hidden="true"></i></span></button></div><div class="dropdown-menu" role="menu"><div id="LanguageSelections" class="dropdown-content"><a class="dropdown-item languageFilterItem" data-languageId="cs">C#</a></div></div></div></div><div class="level-item"><form id="SearchForm" action="#" onsubmit="TransferToSearchPage(); return false;"><div class="field"><div class="control has-icons-left"><input id="SearchTerms" class="input" type="text" maxlength="200" placeholder="Search" /><span class="icon is-small is-left"><i class="fa fa-search"></i></span><button id="SearchButton" type="submit" class="is-hidden"></button></div></div></form></div></div></div></div><div class="fixedContent"><nav class="breadcrumb my-1 px-2 border-bottom" role="navigation"><ul id="TopicBreadcrumbs" /></nav><div id="ContentContainer" class="columns pl-5 pr-5 fixedContent"><div id="ShowHideTOCColumn" class="column is-hidden-tablet"><a id="ShowHideTOC">Show/Hide TOC</a></div><div id="TOCColumn" class="column is-hidden-mobile"><nav class="toc"><ul id="TableOfContents" class="toc-menu" /></nav></div><div id="Resizer" class="is-hidden"></div><div id="TopicContent" class="column content is-7"><h1>Cli<wbr />Command<wbr />Attribute Class</h1><div class="summary">
+﻿<!DOCTYPE html ><html lang="en-US"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="shortcut icon" href="../icons/favicon.ico" /><link rel="stylesheet" href="../css/bulma.css" /><link rel="stylesheet" href="../css/font-awesome.min.css" /><link rel="stylesheet" href="../css/presentationStyle.css" /><link rel="stylesheet" href="../css/vs.min.css" /><script src="../scripts/jquery-3.5.1.min.js"></script><script src="../scripts/clipboard.min.js"></script><script src="../scripts/highlight.min.js"></script><script src="../scripts/presentationStyle.js"></script><title>CliCommandAttribute Class</title><meta name="Title" content="CliCommandAttribute" /><meta name="Help.Id" content="T:DotMake.CommandLine.CliCommandAttribute" /><meta name="Help.ContentType" content="Reference" /><meta name="container" content="DotMake.CommandLine" /><meta name="guid" content="T_DotMake_CommandLine_CliCommandAttribute" /><meta name="Description" content="Specifies a class that represents a command which is a specific action that the command line application performs." /><meta name="tocFile" content="../toc/IDAA.xml" /></head><body><div class="fixedLayout"><div id="Header" class="fixedHeader"><div class="pageHeader level mb-0 py-2 px-4"><div id="TitleContainer" class="level-left"><div class="level-item"><img style="height: 64px;" src="../icons/logo128.png" /></div><div id="DocumentationTitle" class="level-item">DotMake Command-Line Documentation</div></div><div id="LangFilterSearchContainer" class="level-right"><div class="level-item"><div class="dropdown is-hoverable"><div class="dropdown-trigger"><button class="button" aria-haspopup="true" aria-controls="dropdown-menu"><span id="CurrentLanguage"></span><span class="icon is-small"><i class="fa fa-angle-down" aria-hidden="true"></i></span></button></div><div class="dropdown-menu" role="menu"><div id="LanguageSelections" class="dropdown-content"><a class="dropdown-item languageFilterItem" data-languageId="cs">C#</a></div></div></div></div><div class="level-item"><form id="SearchForm" action="#" onsubmit="TransferToSearchPage(); return false;"><div class="field"><div class="control has-icons-left"><input id="SearchTerms" class="input" type="text" maxlength="200" placeholder="Search" /><span class="icon is-small is-left"><i class="fa fa-search"></i></span><button id="SearchButton" type="submit" class="is-hidden"></button></div></div></form></div></div></div></div><div class="fixedContent"><nav class="breadcrumb my-1 px-2 border-bottom" role="navigation"><ul id="TopicBreadcrumbs" /></nav><div id="ContentContainer" class="columns pl-5 pr-5 fixedContent"><div id="ShowHideTOCColumn" class="column is-hidden-tablet"><a id="ShowHideTOC">Show/Hide TOC</a></div><div id="TOCColumn" class="column is-hidden-mobile"><nav class="toc"><ul id="TableOfContents" class="toc-menu" /></nav></div><div id="Resizer" class="is-hidden"></div><div id="TopicContent" class="column content is-7"><h1>Cli<wbr />Command<wbr />Attribute Class</h1><div class="summary">
             Specifies a class that represents a command which is a specific action that the command line application performs.
+            <div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">[CliCommand]
+public class SomeCliCommand</code></pre></div></div>
             The class that this attribute is applied to, 
             <ul><li>will be a root command if the class is not a nested class and <a href="P_DotMake_CommandLine_CliCommandAttribute_Parent.htm">Parent</a> property is not set.</li><li>will be a sub command if the class is a nested class or <a href="P_DotMake_CommandLine_CliCommandAttribute_Parent.htm">Parent</a> property is set.</li></ul><p><b>Commands:</b> A command in command-line input is a token that specifies an action or defines a group of related actions. For example:
             <ul><li>In <span class="code">dotnet run</span>, <span class="code">run</span> is a command that specifies an action.</li><li>In <span class="code">dotnet tool install</span>, <span class="code">install</span> is a command that specifies an action, and <span class="code">tool</span> is a command that specifies a <br />
-            	group of related commands. There are other tool-related commands, such as <span class="code">tool uninstall</span>, <span class="code">tool list</span>,<br />
-            	and <span class="code">tool update</span>.</li></ul></p><p><b>Root commands:</b> The root command is the one that specifies the name of the app's executable. For example, the <span class="code">dotnet</span> command specifies the <span class="code">dotnet.exe</span> executable.
+                    group of related commands. There are other tool-related commands, such as <span class="code">tool uninstall</span>, <span class="code">tool list</span>,<br />
+                    and <span class="code">tool update</span>.</li></ul></p><p><b>Root commands:</b> The root command is the one that specifies the name of the app's executable. For example, the <span class="code">dotnet</span> command specifies the <span class="code">dotnet.exe</span> executable.
             </p><p><b>Subcommands:</b> Most command-line apps support subcommands, also known as verbs. For example, the <span class="code">dotnet</span> command has a <span class="code">run</span> subcommand that you invoke by entering <span class="code">dotnet run</span>.
             Subcommands can have their own subcommands. In <span class="code">dotnet tool install</span>, <span class="code">install</span> is a <span class="code">subcommand</span> of tool.
-            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.5.7<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
+            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.5.7<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Create a simple class like this:
+
+[CliCommand(Description = "A root cli command")]
+public class RootCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+}
+
+//In Program.cs, add this single line:
+Cli.Run&lt;RootCliCommand&gt;(args);
+
+//If you need to simply parse the command-line arguments without invocation, use this:
+var rootCliCommand = Cli.Parse&lt;RootCliCommand&gt;(args);</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument`
+//attribute is applied to, for example these properties will be parsed and bound/populated automatically:
+
+[CliCommand]
+public class WriteFileCommand
+{
+    [CliArgument]
+    public FileInfo OutputFile { get; set; }
+
+    [CliOption]
+    public List&lt;string&gt; Lines { get; set; }
+
+    public void Run()
+    {
+        if (OutputFile.Exists)
+            return;
+
+        using (var streamWriter = OutputFile.CreateText())
+        {
+            foreach (var line in Lines)
+            {
+                streamWriter.WriteLine(line);
+            }
+        }
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Arrays, lists, collections - any type that implements `IEnumerable&lt;T&gt;` and has a public constructor with a `IEnumerable&lt;T&gt;`
+//or `IList&lt;T&gt;` parameter (other parameters, if any, should be optional).
+//If type is generic `IEnumerable&lt;T&gt;`, `IList&lt;T&gt;`, `ICollection&lt;T&gt;` interfaces itself, array `T[]` will be used.
+//If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used.
+
+[CliCommand]
+public class EnumerableCliCommand
+{
+    [CliOption]
+    public IEnumerable&lt;int&gt; OptEnumerable { get; set; }
+
+    [CliOption]
+    public List&lt;string&gt; OptList { get; set; }
+
+    [CliOption(AllowMultipleArgumentsPerToken = true)]
+    public FileAccess[] OptEnumArray { get; set; }
+
+    [CliOption]
+    public Collection&lt;int?&gt; OptCollection { get; set; }
+
+    [CliOption]
+    public HashSet&lt;string&gt; OptHashSet { get; set; }
+
+    [CliOption]
+    public Queue&lt;FileInfo&gt; OptQueue { get; set; }
+
+    [CliOption]
+    public CustomList&lt;string&gt; OptCustomList { get; set; }
+
+    [CliArgument]
+    public IList ArgIList { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+
+        Console.WriteLine($@"Value for {nameof(OptEnumerable)} property is '{GetAllValues(OptEnumerable)}'");
+        Console.WriteLine($@"Value for {nameof(OptList)} property is '{GetAllValues(OptList)}'");
+        Console.WriteLine($@"Value for {nameof(OptEnumArray)} property is '{GetAllValues(OptEnumArray)}'");
+        Console.WriteLine($@"Value for {nameof(OptCollection)} property is '{GetAllValues(OptCollection)}'");
+        Console.WriteLine($@"Value for {nameof(OptHashSet)} property is '{GetAllValues(OptHashSet)}'");
+        Console.WriteLine($@"Value for {nameof(OptQueue)} property is '{GetAllValues(OptQueue)}'");
+        Console.WriteLine($@"Value for {nameof(OptCustomList)} property is '{GetAllValues(OptCustomList)}'");
+        Console.WriteLine($@"Value for {nameof(ArgIList)} property is '{GetAllValues(ArgIList)}'");
+
+        Console.WriteLine();
+    }
+
+    private static string GetAllValues(object value)
+    {
+        if (value is IEnumerable enumerable)
+        {
+            var items = enumerable.Cast&lt;object&gt;().ToArray();
+            if (items.Length == 0)
+                return "&lt;empty&gt;";
+            return string.Join("|", items.Select(GetValue));
+        }
+
+        return GetValue(value);
+    }
+
+    private static string GetValue(object value)
+    {
+        if (value == null)
+            return "&lt;null&gt;";
+
+        return value.ToString();
+    }
+}
+
+public class CustomList&lt;T&gt; : List&lt;T&gt;
+{
+    public CustomList(IEnumerable&lt;T&gt; items)
+        : base(items)
+    {
+
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any,
+//should be optional) - These types can be bound/parsed automatically even if they are wrapped
+//with `Enumerable` or `Nullable` type.
+
+[CliCommand]
+public class ArgumentConverterCliCommand
+{
+    [CliOption]
+    public ClassWithConstructor Opt { get; set; }
+
+    [CliOption(AllowMultipleArgumentsPerToken = true)]
+    public ClassWithConstructor[] OptArray { get; set; }
+
+    [CliOption]
+    public CustomStruct? OptNullable { get; set; }
+
+    [CliOption]
+    public IEnumerable&lt;ClassWithConstructor&gt; OptEnumerable { get; set; }
+
+    [CliOption]
+    public List&lt;ClassWithConstructor&gt; OptList { get; set; }
+
+    [CliOption]
+    public CustomList&lt;ClassWithConstructor&gt; OptCustomList { get; set; }
+
+    [CliArgument]
+    public IEnumerable&lt;ClassWithParser&gt; Arg { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+
+        Console.WriteLine($@"Value for {nameof(Opt)} property is '{GetAllValues(Opt)}'");
+        Console.WriteLine($@"Value for {nameof(OptArray)} property is '{GetAllValues(OptArray)}'");
+        Console.WriteLine($@"Value for {nameof(OptNullable)} property is '{GetAllValues(OptNullable)}'");
+        Console.WriteLine($@"Value for {nameof(OptEnumerable)} property is '{GetAllValues(OptEnumerable)}'");
+        Console.WriteLine($@"Value for {nameof(OptList)} property is '{GetAllValues(OptList)}'");
+        Console.WriteLine($@"Value for {nameof(OptCustomList)} property is '{GetAllValues(OptCustomList)}'");
+        Console.WriteLine($@"Value for {nameof(Arg)} property is '{GetAllValues(Arg)}'");
+
+        Console.WriteLine();
+    }
+
+    private static string GetAllValues(object value)
+    {
+        if (value is IEnumerable enumerable)
+        {
+            var items = enumerable.Cast&lt;object&gt;().ToArray();
+            if (items.Length == 0)
+                return "&lt;empty&gt;";
+            return string.Join("|", items.Select(GetValue));
+        }
+
+        return GetValue(value);
+    }
+
+    private static string GetValue(object value)
+    {
+        if (value == null)
+            return "&lt;null&gt;";
+
+        return value.ToString();
+    }
+}
+
+public class ClassWithConstructor
+{
+    private readonly string value;
+
+    public ClassWithConstructor(string value)
+    {
+        this.value = value;
+    }
+
+    public override string ToString()
+    {
+        return value;
+    }
+}
+
+public class ClassWithParser
+{
+    private string value;
+
+    public override string ToString()
+    {
+        return value;
+    }
+
+    public static ClassWithParser Parse(string value)
+    {
+        var instance = new ClassWithParser();
+        instance.value = value;
+        return instance;
+    }
+}
+
+public struct CustomStruct
+{
+    private readonly string value;
+
+    public CustomStruct(string value)
+    {
+        this.value = value;
+    }
+
+    public override string ToString()
+    {
+        return value;
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//For example, change the name casing and prefix convention:
+
+[CliCommand(
+    Description = "A cli command with snake_case name casing and forward slash prefix conventions",
+    NameCasingConvention = CliNameCasingConvention.SnakeCase,
+    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+)]
+public class RootSnakeSlashCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Defining sub-commands in DotMake.Commandline is very easy.We simply use nested classes to create a hierarchy:
+
+[CliCommand(Description = "A root cli command with nested children")]
+public class RootWithNestedChildrenCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+
+    [CliCommand(Description = "A nested level 1 sub-command")]
+    public class Level1SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run()
+        {
+            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+            Console.WriteLine();
+        }
+
+        [CliCommand(Description = "A nested level 2 sub-command")]
+        public class Level2SubCliCommand
+        {
+            [CliOption(Description = "Description for Option1")]
+            public string Option1 { get; set; } = "DefaultForOption1";
+
+            [CliArgument(Description = "Description for Argument1")]
+            public string Argument1 { get; set; }
+
+            public void Run()
+            {
+                Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+                Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+                Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+                Console.WriteLine();
+            }
+        }
+    }
+}
+
+//Just make sure you apply `CliCommand` attribute to the nested classes as well.
+//Command hierarchy in above example is:
+//  RootWithNestedChildrenCliCommand -&gt; Level1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Another way to create hierarchy between commands, especially if you want to use standalone classes,
+// is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
+
+[CliCommand(Description = "A root cli command")]
+public class RootWithExternalChildrenCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+}
+
+[CliCommand(
+    Name = "Level1External",
+    Description = "An external level 1 sub-command",
+    Parent = typeof(RootWithExternalChildrenCliCommand)
+)]
+public class ExternalLevel1SubCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+
+    [CliCommand(Description = "A nested level 2 sub-command")]
+    public class Level2SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run()
+        {
+            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+            Console.WriteLine();
+        }
+    }
+}
+
+//Command hierarchy in above example is:
+//  RootWithExternalChildrenCliCommand -&gt; ExternalLevel1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
             Gets or sets the set of alternative strings that can be used on the command line to specify the command.
             <p>The aliases will be also displayed in usage help of the command line application.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Description.htm">Description</a></td><td>
             Gets or sets the description of the command. This will be displayed in usage help of the command line application.
@@ -24,12 +405,14 @@
             If not set (or is empty/whitespace), the name of the class that this attribute is applied to, will be used to generate command name automatically:
             These suffixes will be stripped from the class name: <span class="code">RootCliCommand, RootCommand, SubCliCommand, SubCommand, CliCommand, Command, Cli</span>.
             Then the name will be converted to kebab-case, for example:
-            <ul><li>If class name is <span class="code">Build</span> or <span class="code">BuildCommand</span> or <span class="code">BuildRootCliCommand</span> -&gt; command name will be <span class="code">build</span></li><li>If class name is <span class="code">BuildText</span> or <span class="code">BuildTextCommand</span> or <span class="code">BuildTextSubCliCommand</span> -&gt; command name will be <span class="code">build-text</span></li></ul></p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_NameCasingConvention.htm">NameCasingConvention</a></td><td>
+            <ul><li>If class name is <span class="code">Build</span> or <span class="code">BuildCommand</span> or <span class="code">BuildRootCliCommand</span> -&gt; command name will be <span class="code">build</span></li><li>If class name is <span class="code">BuildText</span> or <span class="code">BuildTextCommand</span> or <span class="code">BuildTextSubCliCommand</span> -&gt; command name will be <span class="code">build-text</span></li></ul></p><p>Default convention can be changed via command's <a href="P_DotMake_CommandLine_CliCommandAttribute_NameCasingConvention.htm">NameCasingConvention</a> property.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_NameCasingConvention.htm">NameCasingConvention</a></td><td>
             Gets or sets the character casing convention to use for automatically generated command, option and argument names.
             This setting will be inherited by child options, child arguments and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <a href="T_DotMake_CommandLine_CliNameCasingConvention.htm">KebabCase</a> (e.g. <span class="code">kebab-case</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_NamePrefixConvention.htm">NamePrefixConvention</a></td><td>
             Gets or sets the prefix convention to use for automatically generated option names.
             This setting will be inherited by child options and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <a href="T_DotMake_CommandLine_CliNamePrefixConvention.htm">DoubleHyphen</a> (e.g. <span class="code">--option</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Parent.htm">Parent</a></td><td>
             Gets or sets the parent of the command. This property is used when you prefer to use a non-nested class for a subcommand,
             i.e. when you want to separate root command and subcommands into different classes/files.
@@ -39,14 +422,16 @@
             Short forms typically have a leading delimiter followed by a single character (e.g. <span class="code">-o</span> or <span class="code">--o</span> or <span class="code">/o</span>).
             Default delimiter (e.g. <span class="code">-o</span>) is changed via <a href="P_DotMake_CommandLine_CliCommandAttribute_ShortFormPrefixConvention.htm">ShortFormPrefixConvention</a>.
             This setting will be inherited by child options and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <span class="keyword"><span id="LSTA4FAE012_0" data-languageSpecificText="vb=True|nu=true"></span></span>.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_ShortFormPrefixConvention.htm">ShortFormPrefixConvention</a></td><td>
             Gets or sets the prefix convention to use for automatically generated short form option aliases.
             Short forms typically have a leading delimiter followed by a single character (e.g. <span class="code">-o</span> or <span class="code">--o</span> or <span class="code">/o</span>).
             This setting will be inherited by child options and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <a href="T_DotMake_CommandLine_CliNamePrefixConvention.htm">SingleHyphen</a> (e.g. <span class="code">-o</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_TreatUnmatchedTokensAsErrors.htm">TreatUnmatchedTokensAsErrors</a></td><td>
             Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
             if set to <span class="keyword"><span id="LSTA4FAE012_1" data-languageSpecificText="vb=True|nu=true"></span></span> and an extra command or argument is provided, validation will fail.
-            <p>Default is <span class="keyword"><span id="LSTA4FAE012_2" data-languageSpecificText="vb=True|nu=true"></span></span>.</p></td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="N_DotMake_CommandLine.htm">DotMake.CommandLine Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Definition</a></li><li><a class="quickLink">Constructors</a></li><li><a class="quickLink">Properties</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div class="column"><p>Copyright © 2023-2024 DotMake</p> 
+            <p>Default is <span class="keyword"><span id="LSTA4FAE012_2" data-languageSpecificText="vb=True|nu=true"></span></span>.</p></td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="N_DotMake_CommandLine.htm">DotMake.CommandLine Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Definition</a></li><li><a class="quickLink">Example</a></li><li><a class="quickLink">Constructors</a></li><li><a class="quickLink">Properties</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div class="column"><p>Copyright © 2023-2024 DotMake</p> 
 				</div><div class="column"> 
 				</div></div></footer></div><script>$(function(){
 SetDefaultLanguage("cs");

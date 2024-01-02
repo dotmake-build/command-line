@@ -29,6 +29,9 @@ namespace TestApp.Commands
         [CliOption]
         public Queue<FileInfo> OptQueue { get; set; }
 
+        [CliOption]
+        public CustomList<string> OptCustomList { get; set; }
+
         [CliArgument]
         public IList ArgIList { get; set; }
 
@@ -42,6 +45,7 @@ namespace TestApp.Commands
             Console.WriteLine($@"Value for {nameof(OptCollection)} property is '{GetAllValues(OptCollection)}'");
             Console.WriteLine($@"Value for {nameof(OptHashSet)} property is '{GetAllValues(OptHashSet)}'");
             Console.WriteLine($@"Value for {nameof(OptQueue)} property is '{GetAllValues(OptQueue)}'");
+            Console.WriteLine($@"Value for {nameof(OptCustomList)} property is '{GetAllValues(OptCustomList)}'");
             Console.WriteLine($@"Value for {nameof(ArgIList)} property is '{GetAllValues(ArgIList)}'");
             
             Console.WriteLine();
@@ -66,6 +70,15 @@ namespace TestApp.Commands
                 return "<null>";
 
             return value.ToString();
+        }
+    }
+
+    public class CustomList<T> : List<T>
+    {
+        public CustomList(IEnumerable<T> items)
+            : base(items)
+        {
+
         }
     }
 }

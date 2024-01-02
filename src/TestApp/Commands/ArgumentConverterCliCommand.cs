@@ -28,7 +28,7 @@ namespace TestApp.Commands
         public CustomList<ClassWithConstructor> OptCustomList { get; set; }
 
         [CliArgument]
-        public IEnumerable<Sub.ClassWithParser> Arg { get; set; }
+        public IEnumerable<ClassWithParser> Arg { get; set; }
 
         public void Run()
         {
@@ -81,6 +81,23 @@ namespace TestApp.Commands
             return value;
         }
     }
+
+    public class ClassWithParser
+    {
+        private string value;
+
+        public override string ToString()
+        {
+            return value;
+        }
+
+        public static ClassWithParser Parse(string value)
+        {
+            var instance = new ClassWithParser();
+            instance.value = value;
+            return instance;
+        }
+    }
     
     public struct CustomStruct
     {
@@ -94,37 +111,6 @@ namespace TestApp.Commands
         public override string ToString()
         {
             return value;
-        }
-    }
-
-    namespace Sub
-    {
-        public class ClassWithParser
-        {
-            public string Value { get; set; }
-
-            public override string ToString()
-            {
-                return Value;
-            }
-
-            public static ClassWithParser Parse(string value)
-            {
-                var instance = new ClassWithParser
-                {
-                    Value = value
-                };
-                return instance;
-            }
-        }
-    }
-
-    public class CustomList<T> : List<T>
-    {
-        public CustomList(IEnumerable<T> items)
-            : base(items)
-        {
-
         }
     }
 }

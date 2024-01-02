@@ -117,13 +117,13 @@ namespace TestApp.Commands
             rootCommand.Add(option5);
 
             // Argument for 'Arg' property
-            var argument0 = new System.CommandLine.Argument<System.Collections.Generic.IEnumerable<TestApp.Commands.Sub.ClassWithParser>>
+            var argument0 = new System.CommandLine.Argument<System.Collections.Generic.IEnumerable<TestApp.Commands.ClassWithParser>>
             (
                 "arg",
-                GetParseArgument<System.Collections.Generic.IEnumerable<TestApp.Commands.Sub.ClassWithParser>, TestApp.Commands.Sub.ClassWithParser>
+                GetParseArgument<System.Collections.Generic.IEnumerable<TestApp.Commands.ClassWithParser>, TestApp.Commands.ClassWithParser>
                 (
-                    array => (TestApp.Commands.Sub.ClassWithParser[])array,
-                    item => TestApp.Commands.Sub.ClassWithParser.Parse(item)
+                    array => (TestApp.Commands.ClassWithParser[])array,
+                    item => TestApp.Commands.ClassWithParser.Parse(item)
                 )
             )
             {

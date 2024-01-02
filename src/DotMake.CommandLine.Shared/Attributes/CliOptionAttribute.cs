@@ -4,6 +4,10 @@ namespace DotMake.CommandLine
 {
     /// <summary>
     /// Specifies a class property that represents an option which is a named parameter and a value for that parameter, that is used on the command line.
+    /// <code>
+    /// [CliOption]
+    /// public string SomeCliOption { get; set; }
+    /// </code>
     /// <para>
     /// Note that an option is required if the decorated property does not have a default value (set via a property initializer),
     /// see <see cref="Required"/> property for details.
@@ -37,12 +41,13 @@ namespace DotMake.CommandLine
         /// <para>
         /// If not set (or is empty/whitespace), the name of the property that this attribute is applied to, will be used to generate option name automatically:
         /// These suffixes will be stripped from the property name: <c>RootCliCommandOption, RootCommandOption, SubCliCommandOption, SubCommandOption, CliCommandOption, CommandOption, CliOption, Option</c>.
-        /// Then the name will be converted to kebab-case and will be prefixed with POSIX convention two hyphens (<c>--</c>) (default is changed via parent <see cref="CliCommandAttribute.NamePrefixConvention"/>), for example:
+        /// Then the name will be converted to kebab-case and will be prefixed with POSIX convention two hyphens (<c>--</c>), for example:
         /// <list type="bullet">
         ///     <item>If property name is <c>Input</c> or <c>InputOption</c> or <c>InputCliOption</c> -> option name will be <c>--input</c></item>
         ///     <item>If property name is <c>SearchPath</c> or <c>SearchPathOption</c> or <c>SearchPathCliOption</c> -> option name will be <c>--search-path</c></item>
         /// </list>
         /// </para>
+        /// <para>Default conventions can be changed via parent command's <see cref="CliCommandAttribute.NameCasingConvention"/> and <see cref="CliCommandAttribute.NamePrefixConvention"/> properties.</para>
         /// </summary>
         public string Name { get; set; }
 
@@ -104,11 +109,11 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets the arity of the option's argument. The arity refers to the number of values that can be passed on the command line.
-        /// <para>In most cases setting argument arity is not necessary as it is automatically determined based on the argument type:</para>
+        /// <para>In most cases setting argument arity is not necessary as it is automatically determined based on the argument type (the decorated property's type):</para>
         /// <list type="bullet">
-        ///		<item>Boolean -> ArgumentArity.ZeroOrOne</item>
-        ///		<item>Collection types -> ArgumentArity.ZeroOrMore</item>
-        ///		<item>Everything else -> ArgumentArity.ExactlyOne</item>
+        ///     <item>Boolean -> ArgumentArity.ZeroOrOne</item>
+        ///     <item>Collection types -> ArgumentArity.ZeroOrMore</item>
+        ///     <item>Everything else -> ArgumentArity.ExactlyOne</item>
         /// </list>
         /// </summary>
         public CliArgumentArity Arity { get; set; }

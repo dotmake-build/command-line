@@ -4,6 +4,10 @@ namespace DotMake.CommandLine
 {
     /// <summary>
     /// Specifies a class that represents a command which is a specific action that the command line application performs.
+    /// <code>
+    /// [CliCommand]
+    /// public class SomeCliCommand
+    /// </code>
     /// The class that this attribute is applied to, 
     /// <list type="bullet">
     ///     <item>will be a root command if the class is not a nested class and <see cref="Parent"/> property is not set.</item>
@@ -14,8 +18,8 @@ namespace DotMake.CommandLine
     /// <list type="bullet">
     ///     <item>In <c>dotnet run</c>, <c>run</c> is a command that specifies an action.</item>
     ///     <item>In <c>dotnet tool install</c>, <c>install</c> is a command that specifies an action, and <c>tool</c> is a command that specifies a <br/>
-    ///		group of related commands. There are other tool-related commands, such as <c>tool uninstall</c>, <c>tool list</c>,<br/>
-    ///		and <c>tool update</c>.</item>
+    ///         group of related commands. There are other tool-related commands, such as <c>tool uninstall</c>, <c>tool list</c>,<br/>
+    ///         and <c>tool update</c>.</item>
     /// </list>
     /// </para>
     /// <para>
@@ -26,6 +30,19 @@ namespace DotMake.CommandLine
     /// Subcommands can have their own subcommands. In <c>dotnet tool install</c>, <c>install</c> is a <c>subcommand</c> of tool.
     /// </para>
     /// </summary>
+    /// <example>
+    ///     <code id="gettingStarted">
+    ///         <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRun" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParse" language="cs" />
+    ///     </code>
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="WriteFileCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="EnumerableCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="ArgumentConverterCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootSnakeSlashCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
+    /// </example>
     [AttributeUsage(AttributeTargets.Class)]
     public class CliCommandAttribute : Attribute
     {
@@ -41,6 +58,7 @@ namespace DotMake.CommandLine
         ///     <item>If class name is <c>BuildText</c> or <c>BuildTextCommand</c> or <c>BuildTextSubCliCommand</c> -> command name will be <c>build-text</c></item>
         /// </list>
         /// </para>
+        /// <para>Default convention can be changed via command's <see cref="NameCasingConvention"/> property.</para>
         /// </summary>
         public string Name { get; set; }
 
@@ -82,6 +100,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Gets or sets the character casing convention to use for automatically generated command, option and argument names.
         /// This setting will be inherited by child options, child arguments and subcommands.
+        /// This setting can be overriden by a subcommand in the inheritance chain.
         /// <para>Default is <see cref="CliNameCasingConvention.KebabCase"/> (e.g. <c>kebab-case</c>).</para>
         /// </summary>
         public CliNameCasingConvention NameCasingConvention { get; set; } = CliNameCasingConvention.KebabCase;
@@ -89,6 +108,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Gets or sets the prefix convention to use for automatically generated option names.
         /// This setting will be inherited by child options and subcommands.
+        /// This setting can be overriden by a subcommand in the inheritance chain.
         /// <para>Default is <see cref="CliNamePrefixConvention.DoubleHyphen"/> (e.g. <c>--option</c>).</para>
         /// </summary>
         public CliNamePrefixConvention NamePrefixConvention { get; set; } = CliNamePrefixConvention.DoubleHyphen;
@@ -97,6 +117,7 @@ namespace DotMake.CommandLine
         /// Gets or sets the prefix convention to use for automatically generated short form option aliases.
         /// Short forms typically have a leading delimiter followed by a single character (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>).
         /// This setting will be inherited by child options and subcommands.
+        /// This setting can be overriden by a subcommand in the inheritance chain.
         /// <para>Default is <see cref="CliNamePrefixConvention.SingleHyphen"/> (e.g. <c>-o</c>).</para>
         /// </summary>
         public CliNamePrefixConvention ShortFormPrefixConvention { get; set; } = CliNamePrefixConvention.SingleHyphen;
@@ -106,6 +127,7 @@ namespace DotMake.CommandLine
         /// Short forms typically have a leading delimiter followed by a single character (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>).
         /// Default delimiter (e.g. <c>-o</c>) is changed via <see cref="ShortFormPrefixConvention"/>.
         /// This setting will be inherited by child options and subcommands.
+        /// This setting can be overriden by a subcommand in the inheritance chain.
         /// <para>Default is <see langword="true" />.</para>
         /// </summary>
         public bool ShortFormAutoGenerate { get; set; } = true;

@@ -209,10 +209,10 @@ Note that you can have a specific type (other than `string`) for a property whic
 public class WriteFileCommand
 {
     [CliArgument]
-    public FileInfo InputFile { get; set; };
+    public FileInfo OutputFile { get; set; }
 
     [CliOption]
-    public List<string> Lines { get; set; };
+    public List<string> Lines { get; set; }
 }
 ```
 The following types for properties is supported:
@@ -256,8 +256,20 @@ The following types for properties is supported:
         [CliOption]
         public Queue<FileInfo> OptQueue { get; set; }
 
+        [CliOption]
+        public CustomList<string> OptCustomList { get; set; }
+ 
         [CliArgument]
         public IList ArgIList { get; set; }
+    }
+ 
+    public class CustomList<T> : List<T>
+    {
+        public CustomList(IEnumerable<T> items)
+            : base(items)
+        {
+
+        }
     }
     ```
 
@@ -286,7 +298,7 @@ The following types for properties is supported:
         public CustomList<ClassWithConstructor> OptCustomList { get; set; }
 
         [CliArgument]
-        public IEnumerable<Sub.ClassWithParser> Arg { get; set; }
+        public IEnumerable<ClassWithParser> Arg { get; set; }
     }
 
     public class ClassWithConstructor
@@ -304,6 +316,23 @@ The following types for properties is supported:
         }
     }
     
+    public class ClassWithParser
+    {
+        private string value;
+
+        public override string ToString()
+        {
+            return value;
+        }
+
+        public static ClassWithParser Parse(string value)
+        {
+            var instance = new ClassWithParser();
+            instance.value = value;
+            return instance;
+        }
+    }
+
     public struct CustomStruct
     {
         private readonly string value;
@@ -316,37 +345,6 @@ The following types for properties is supported:
         public override string ToString()
         {
             return value;
-        }
-    }
-
-    namespace Sub
-    {
-        public class ClassWithParser
-        {
-            public string Value { get; set; }
-
-            public override string ToString()
-            {
-                return Value;
-            }
-
-            public static ClassWithParser Parse(string value)
-            {
-                var instance = new ClassWithParser
-                {
-                    Value = value
-                };
-                return instance;
-            }
-        }
-    }
-
-    public class CustomList<T> : List<T>
-    {
-        public CustomList(IEnumerable<T> items)
-            : base(items)
-        {
-
         }
     }
     ```
@@ -469,7 +467,7 @@ Subcommands can have their own subcommands. In `dotnet tool install`, `install` 
 Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy:
 ```c#
 [CliCommand(Description = "A root cli command with nested children")]
-public class WithNestedChildrenCliCommand
+public class RootWithNestedChildrenCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
@@ -523,12 +521,12 @@ public class WithNestedChildrenCliCommand
 }
 ```
 Just make sure you apply `CliCommand` attribute to the nested classes as well.
-Command hierarchy in above example is: **WithNestedChildrenCliCommand** -> **Level1SubCliCommand** -> **Level2SubCliCommand**
+Command hierarchy in above example is: **RootWithNestedChildrenCliCommand** -> **Level1SubCliCommand** -> **Level2SubCliCommand**
 
 Another way to create hierarchy between commands, especially if you want to use standalone classes, is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
 ```c#
 [CliCommand(Description = "A root cli command")]
-public class RootCliCommand
+public class RootWithExternalChildrenCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
@@ -548,7 +546,7 @@ public class RootCliCommand
 [CliCommand(
     Name = "Level1External",
     Description = "An external level 1 sub-command",
-    Parent = typeof(RootCliCommand)
+    Parent = typeof(RootWithExternalChildrenCliCommand)
 )]
 public class ExternalLevel1SubCliCommand
 {
@@ -585,7 +583,7 @@ public class ExternalLevel1SubCliCommand
     }
 }
 ```
-Command hierarchy in above example is: **RootCliCommand** -> **ExternalLevel1SubCliCommand** -> **Level2SubCliCommand**
+Command hierarchy in above example is: **RootWithExternalChildrenCliCommand** -> **ExternalLevel1SubCliCommand** -> **Level2SubCliCommand**
 
 ---
 The class that `CliCommand` attribute is applied to,

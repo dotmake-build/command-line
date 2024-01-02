@@ -15,12 +15,14 @@
             If not set (or is empty/whitespace), the name of the class that this attribute is applied to, will be used to generate command name automatically:
             These suffixes will be stripped from the class name: <span class="code">RootCliCommand, RootCommand, SubCliCommand, SubCommand, CliCommand, Command, Cli</span>.
             Then the name will be converted to kebab-case, for example:
-            <ul><li>If class name is <span class="code">Build</span> or <span class="code">BuildCommand</span> or <span class="code">BuildRootCliCommand</span> -&gt; command name will be <span class="code">build</span></li><li>If class name is <span class="code">BuildText</span> or <span class="code">BuildTextCommand</span> or <span class="code">BuildTextSubCliCommand</span> -&gt; command name will be <span class="code">build-text</span></li></ul></p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_NameCasingConvention.htm">NameCasingConvention</a></td><td>
+            <ul><li>If class name is <span class="code">Build</span> or <span class="code">BuildCommand</span> or <span class="code">BuildRootCliCommand</span> -&gt; command name will be <span class="code">build</span></li><li>If class name is <span class="code">BuildText</span> or <span class="code">BuildTextCommand</span> or <span class="code">BuildTextSubCliCommand</span> -&gt; command name will be <span class="code">build-text</span></li></ul></p><p>Default convention can be changed via command's <a href="P_DotMake_CommandLine_CliCommandAttribute_NameCasingConvention.htm">NameCasingConvention</a> property.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_NameCasingConvention.htm">NameCasingConvention</a></td><td>
             Gets or sets the character casing convention to use for automatically generated command, option and argument names.
             This setting will be inherited by child options, child arguments and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <a href="T_DotMake_CommandLine_CliNameCasingConvention.htm">KebabCase</a> (e.g. <span class="code">kebab-case</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_NamePrefixConvention.htm">NamePrefixConvention</a></td><td>
             Gets or sets the prefix convention to use for automatically generated option names.
             This setting will be inherited by child options and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <a href="T_DotMake_CommandLine_CliNamePrefixConvention.htm">DoubleHyphen</a> (e.g. <span class="code">--option</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Parent.htm">Parent</a></td><td>
             Gets or sets the parent of the command. This property is used when you prefer to use a non-nested class for a subcommand,
             i.e. when you want to separate root command and subcommands into different classes/files.
@@ -30,10 +32,12 @@
             Short forms typically have a leading delimiter followed by a single character (e.g. <span class="code">-o</span> or <span class="code">--o</span> or <span class="code">/o</span>).
             Default delimiter (e.g. <span class="code">-o</span>) is changed via <a href="P_DotMake_CommandLine_CliCommandAttribute_ShortFormPrefixConvention.htm">ShortFormPrefixConvention</a>.
             This setting will be inherited by child options and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <span class="keyword"><span id="LST9404BFFD_0" data-languageSpecificText="vb=True|nu=true"></span></span>.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_ShortFormPrefixConvention.htm">ShortFormPrefixConvention</a></td><td>
             Gets or sets the prefix convention to use for automatically generated short form option aliases.
             Short forms typically have a leading delimiter followed by a single character (e.g. <span class="code">-o</span> or <span class="code">--o</span> or <span class="code">/o</span>).
             This setting will be inherited by child options and subcommands.
+            This setting can be overriden by a subcommand in the inheritance chain.
             <p>Default is <a href="T_DotMake_CommandLine_CliNamePrefixConvention.htm">SingleHyphen</a> (e.g. <span class="code">-o</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_TreatUnmatchedTokensAsErrors.htm">TreatUnmatchedTokensAsErrors</a></td><td>
             Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
             if set to <span class="keyword"><span id="LST9404BFFD_1" data-languageSpecificText="vb=True|nu=true"></span></span> and an extra command or argument is provided, validation will fail.

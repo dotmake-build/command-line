@@ -118,6 +118,21 @@ namespace TestApp.Commands
             };
             rootCommand.Add(option5);
 
+            // Option for 'OptCustomList' property
+            var option6 = new System.CommandLine.Option<TestApp.Commands.CustomList<string>>
+            (
+                "--opt-custom-list",
+                GetParseArgument<TestApp.Commands.CustomList<string>, string>
+                (
+                    array => new TestApp.Commands.CustomList<string>((string[])array),
+                    null
+                )
+            )
+            {
+                IsRequired = true,
+            };
+            rootCommand.Add(option6);
+
             // Argument for 'ArgIList' property
             var argument0 = new System.CommandLine.Argument<System.Collections.IList>
             (
@@ -150,6 +165,7 @@ namespace TestApp.Commands
                 targetClass.OptCollection = GetValueForOption(parseResult, option3);
                 targetClass.OptHashSet = GetValueForOption(parseResult, option4);
                 targetClass.OptQueue = GetValueForOption(parseResult, option5);
+                targetClass.OptCustomList = GetValueForOption(parseResult, option6);
 
                 //  Set the parsed or default values for the arguments
                 targetClass.ArgIList = GetValueForArgument(parseResult, argument0);

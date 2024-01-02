@@ -75,29 +75,29 @@ namespace DotMake.CommandLine.SourceGeneration
         }
 
         /*
-		Notes:
-		If we use SyntaxNode.IsEquivalentTo(topLevel: true) alone, it works good for caching (we can ignore whitespace 
-		and nodes inside method bodies, in classes), but SyntaxNode (and Symbol, SemanticModel) seems to no longer refer 
-		to the most recent ones (especially when a class is commented out and reverted). Unfortunately, Roslyn seems to
-		create new a SyntaxNode (actually a SyntaxTree for the whole file) even if we change whitespace or nodes inside 
-		method bodies, in classes. As a side effect, it can cause location error for sourceProductionContext.ReportDiagnostic 
-		or crashing of other analyzers/features still in VS 17.8.2.
+        Notes:
+        If we use SyntaxNode.IsEquivalentTo(topLevel: true) alone, it works good for caching (we can ignore whitespace 
+        and nodes inside method bodies, in classes), but SyntaxNode (and Symbol, SemanticModel) seems to no longer refer 
+        to the most recent ones (especially when a class is commented out and reverted). Unfortunately, Roslyn seems to
+        create new a SyntaxNode (actually a SyntaxTree for the whole file) even if we change whitespace or nodes inside 
+        method bodies, in classes. As a side effect, it can cause location error for sourceProductionContext.ReportDiagnostic 
+        or crashing of other analyzers/features still in VS 17.8.2.
 
-		So we simply use reference equality for SyntaxNode to see if we are still in same node and tree.
+        So we simply use reference equality for SyntaxNode to see if we are still in same node and tree.
 
-		One possible solution is to use safe location which does not point to any SyntaxTree, e.g.:
-		  var location = symbol.Locations.FirstOrDefault();
-		  var safeLocation = Location.Create(location.SyntaxTree.FilePath, location.SourceSpan, location.GetLineSpan().Span);
-		This creates ExternalFileLocation from a SourceLocation (which depends to a SyntaxTree)
-		Reference: https://github.com/dotnet/roslyn/issues/62269
-		Problems:
-		- location.SyntaxTree.FilePath does not seem to work (comes empty? in the error list .csproj is shown not the actual file)
-		  but symbol.DeclaringSyntaxReferences.FirstOrDefault().SyntaxTree.FilePath works
-		- If we use SyntaxNode.IsEquivalentTo(other?.SyntaxNode, true) for Equals
-		  then location will be shifted because if we add/remove comments, the location will not be the same although we think it's same SyntaxNode
-		- we see duplicate diagnostics in the error list?
-		So it's better to stick to reference equality for SyntaxNode.
-		*/
+        One possible solution is to use safe location which does not point to any SyntaxTree, e.g.:
+	        var location = symbol.Locations.FirstOrDefault();
+	        var safeLocation = Location.Create(location.SyntaxTree.FilePath, location.SourceSpan, location.GetLineSpan().Span);
+        This creates ExternalFileLocation from a SourceLocation (which depends to a SyntaxTree)
+        Reference: https://github.com/dotnet/roslyn/issues/62269
+        Problems:
+        - location.SyntaxTree.FilePath does not seem to work (comes empty? in the error list .csproj is shown not the actual file)
+	        but symbol.DeclaringSyntaxReferences.FirstOrDefault().SyntaxTree.FilePath works
+        - If we use SyntaxNode.IsEquivalentTo(other?.SyntaxNode, true) for Equals
+	        then location will be shifted because if we add/remove comments, the location will not be the same although we think it's same SyntaxNode
+        - we see duplicate diagnostics in the error list?
+        So it's better to stick to reference equality for SyntaxNode.
+        */
         public bool Equals(CliSymbolInfo other)
         {
             return (SyntaxNode == other?.SyntaxNode);
