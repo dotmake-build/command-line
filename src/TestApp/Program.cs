@@ -20,6 +20,7 @@ try
     //Cli.Run<EnumerableCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<NullableReferenceCommand>(args);
+    //Cli.Run<InheritanceCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithChildrenCliCommand>(args);

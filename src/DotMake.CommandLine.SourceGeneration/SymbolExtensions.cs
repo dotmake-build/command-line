@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using System.Linq;
 
@@ -97,6 +99,32 @@ namespace DotMake.CommandLine.SourceGeneration
                 return namedType.TypeArguments[0];
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets all own and inherited members (not distinct).
+        /// </summary>
+        public static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol type)
+        {
+            var currentType = type;
+
+            while (currentType != null)
+            {
+                foreach (var member in currentType.GetMembers())
+                {
+                    yield return member;
+                }
+
+                currentType = currentType.BaseType;
+            }
+
+            foreach (var i in type.AllInterfaces)
+            {
+                foreach (var member in i.GetMembers())
+                {
+                    yield return member;
+                }
+            }
         }
     }
 }

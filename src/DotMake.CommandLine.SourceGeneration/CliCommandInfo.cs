@@ -60,7 +60,8 @@ namespace DotMake.CommandLine.SourceGeneration
             if (HasProblem)
                 return;
 
-            foreach (var member in Symbol.GetMembers())
+            var visitedProperties = new Dictionary<string, ISymbol>(StringComparer.Ordinal);
+            foreach (var member in Symbol.GetAllMembers())
             {
                 if (member is IPropertySymbol)
                 {
@@ -68,12 +69,17 @@ namespace DotMake.CommandLine.SourceGeneration
                     {
                         var attributeFullName = memberAttributeData.AttributeClass?.ToCompareString();
 
+                        visitedProperties.TryGetValue(member.Name, out var visitedMember);
+
                         if (attributeFullName == CliOptionInfo.AttributeFullName)
-                            childOptions.Add(new CliOptionInfo(member, null, memberAttributeData, SemanticModel, this));
+                            childOptions.Add(new CliOptionInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
 
                         if (attributeFullName == CliArgumentInfo.AttributeFullName)
-                            childArguments.Add(new CliArgumentInfo(member, null, memberAttributeData, SemanticModel, this));
+                            childArguments.Add(new CliArgumentInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
                     }
+
+                    if (!visitedProperties.ContainsKey(member.Name))
+                        visitedProperties.Add(member.Name, member);
                 }
                 else if (member is IMethodSymbol method)
                 {

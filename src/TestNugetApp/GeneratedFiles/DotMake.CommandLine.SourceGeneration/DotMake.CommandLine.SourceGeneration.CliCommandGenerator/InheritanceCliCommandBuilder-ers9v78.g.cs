@@ -5,11 +5,11 @@
 
 namespace TestApp.Commands
 {
-    public class RootCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
+    public class InheritanceCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
     {
-        public RootCliCommandBuilder()
+        public InheritanceCliCommandBuilder()
         {
-            DefinitionType = typeof(TestApp.Commands.RootCliCommand);
+            DefinitionType = typeof(TestApp.Commands.InheritanceCliCommand);
             ParentDefinitionType = null;
             NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
             NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
@@ -19,44 +19,62 @@ namespace TestApp.Commands
 
         public override System.CommandLine.Command Build()
         {
-            // Command for 'RootCliCommand' class
+            // Command for 'InheritanceCliCommand' class
             var rootCommand = new System.CommandLine.RootCommand()
             {
-                Description = "A root cli command",
             };
 
-            var defaultClass = new TestApp.Commands.RootCliCommand();
+            var defaultClass = new TestApp.Commands.InheritanceCliCommand();
 
-            // Option for 'Option1' property
+            // Option for 'Username' property
             var option0 = new System.CommandLine.Option<string>
             (
-                "--option-1",
+                "--username",
                 GetParseArgument<string>
                 (
                     null
                 )
             )
             {
-                Description = "Description for Option1",
+                Description = "Username of the identity performing the command",
                 IsRequired = false,
             };
-            option0.SetDefaultValue(defaultClass.Option1);
-            option0.AddAlias("-o");
+            option0.SetDefaultValue(defaultClass.Username);
+            option0.AddAlias("-u");
             rootCommand.Add(option0);
 
-            // Argument for 'Argument1' property
-            var argument0 = new System.CommandLine.Argument<string>
+            // Option for 'Password' property
+            var option1 = new System.CommandLine.Option<string>
             (
-                "argument-1",
+                "--password",
                 GetParseArgument<string>
                 (
                     null
                 )
             )
             {
-                Description = "Description for Argument1",
+                Description = "Password of the identity performing the command",
+                IsRequired = true,
             };
-            rootCommand.Add(argument0);
+            option1.AddAlias("-p");
+            rootCommand.Add(option1);
+
+            // Option for 'Department' property
+            var option2 = new System.CommandLine.Option<string>
+            (
+                "--department",
+                GetParseArgument<string>
+                (
+                    null
+                )
+            )
+            {
+                Description = "Department of the identity performing the command (interface)",
+                IsRequired = false,
+            };
+            option2.SetDefaultValue(defaultClass.Department);
+            option2.AddAlias("-d");
+            rootCommand.Add(option2);
 
             // Add nested or external registered children
             foreach (var child in Children)
@@ -66,20 +84,21 @@ namespace TestApp.Commands
 
             BindFunc = (parseResult) =>
             {
-                var targetClass = new TestApp.Commands.RootCliCommand();
+                var targetClass = new TestApp.Commands.InheritanceCliCommand();
 
                 //  Set the parsed or default values for the options
-                targetClass.Option1 = GetValueForOption(parseResult, option0);
+                targetClass.Username = GetValueForOption(parseResult, option0);
+                targetClass.Password = GetValueForOption(parseResult, option1);
+                targetClass.Department = GetValueForOption(parseResult, option2);
 
                 //  Set the parsed or default values for the arguments
-                targetClass.Argument1 = GetValueForArgument(parseResult, argument0);
 
                 return targetClass;
             };
 
             System.CommandLine.Handler.SetHandler(rootCommand, context =>
             {
-                var targetClass = (TestApp.Commands.RootCliCommand) BindFunc(context.ParseResult);
+                var targetClass = (TestApp.Commands.InheritanceCliCommand) BindFunc(context.ParseResult);
 
                 //  Call the command handler
                 targetClass.Run();
@@ -91,7 +110,7 @@ namespace TestApp.Commands
         [System.Runtime.CompilerServices.ModuleInitializerAttribute]
         public static void Initialize()
         {
-            var commandBuilder = new TestApp.Commands.RootCliCommandBuilder();
+            var commandBuilder = new TestApp.Commands.InheritanceCliCommandBuilder();
 
             // Register this command builder so that it can be found by the definition class
             // and it can be found by the parent definition class if it's a nested/external child.
