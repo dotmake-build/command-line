@@ -19,12 +19,10 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Fixed: inheritance logic for CliOption and CliArgument attributes, the attibute from the most derived property should be used
-        and other ones should be ignored (double option or argument should not be created).
-      - Added: Cli.GetArgs method which returns the same as the special variable `args` available in `Program.cs` (new style with top-level statements)
-        or as the string array passed to the program's `Main` method (old style).
-        For more more concise syntax when writing cli apps, made `args` parameter optional for Cli.Run, Cli.RunAsync and Cli.Parse methods
-        so user does not have to specify it, i.e. it will be retrieved automatically from the process with Cli.GetArgs.
+      - Improved command description handling in help output:
+        Fixed subcommand name and description on different line issue.
+        If there is no CliCommand.Description and it's the root command currently executing, AssemblyDescriptionAttribute will be used.
+      - Added more docs to CliHelpBuilder.
     </PackageReleaseNotes>
   </PropertyGroup>
 

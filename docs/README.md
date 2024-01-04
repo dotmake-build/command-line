@@ -359,7 +359,7 @@ The following types for properties are supported:
 
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.5.9
+DotMake Command-Line TestApp v1.6.0
 Copyright © 2023-2024 DotMake
 
 A root cli command
@@ -439,7 +439,7 @@ public class RootSnakeSlashCliCommand
 ```
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.5.9
+DotMake Command-Line TestApp v1.6.0
 Copyright © 2023-2024 DotMake
 
 A cli command with snake_case name casing and forward slash prefix conventions

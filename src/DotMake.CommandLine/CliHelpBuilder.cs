@@ -79,6 +79,13 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Writes a help section describing a command's synopsis.
+        /// Similar to:
+        /// <code>
+        /// DotMake Command-Line TestApp v1.6.0
+        /// Copyright © 2023-2024 DotMake
+        ///
+        /// A root cli command with nested children
+        /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
@@ -140,6 +147,11 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Writes a help section describing a command's usage.
+        /// Similar to:
+        /// <code>
+        /// Usage:
+        ///   TestApp&lt;argument-1&gt;[command][options]
+        /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
@@ -158,6 +170,11 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Writes a help section describing a command's arguments.
+        /// Similar to:
+        /// <code>
+        /// Arguments:
+        ///   &lt;argument-1&gt;  Description for Argument1[required]
+        /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
@@ -181,6 +198,13 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Writes a help section describing a command's options.
+        /// Similar to:
+        /// <code>
+        /// Options:
+        ///   -o, --option-1 &lt;option-1&gt;  Description for Option1[default: DefaultForOption1]
+        ///   -v, --version Show version information
+        ///   -?, -h, --help Show help and usage information
+        /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
@@ -237,6 +261,11 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Writes a help section describing a command's subcommands.
+        /// Similar to:
+        /// <code>
+        /// Commands:
+        ///   level-1  A nested level 1 sub-command
+        /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
