@@ -59,6 +59,12 @@ Cli.Run<RootCliCommand>(args);
 ```
 And that's it! You now have a fully working command-line app. You just specify the name of your class which represents your root command to `Cli.Run<>` method and everything is wired.
 
+> `args` is the string array typically passed to a program. This is usually
+the special variable `args` available in `Program.cs` (new style with top-level statements)
+or the string array passed to the program's `Main` method (old style).
+We also have method signatures which does not require `args`, 
+for example you can also call `Cli.Run<RootCliCommand>()` and in that case `args` will be retrieved automatically from the current process via `Cli.GetArgs()`.
+
 If you want to go async, just use this:
 ```c#
 await Cli.RunAsync<RootCliCommand>(args);
@@ -601,6 +607,45 @@ The properties for `CliCommand` attribute (see [CliCommandAttribute](https://dot
 - NamePrefixConvention *(inherited by child options and subcommands)*
 - ShortFormPrefixConvention *(inherited by child options and subcommands)*
 - ShortFormAutoGenerate *(inherited by child options and subcommands)*
+
+## Command Inheritance
+
+When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+share them by inheriting that base class in other command classes. Interfaces are also supported !
+
+```c#
+[CliCommand]
+public class InheritanceCliCommand : CredentialCommandBase, IDepartmentCommand
+{
+    public string Department { get; set; } = "Accounting";
+}
+
+public abstract class CredentialCommandBase
+{
+    [CliOption(Description = "Username of the identity performing the command")]
+    public string Username { get; set; } = "admin";
+
+    [CliOption(Description = "Password of the identity performing the command")]
+    public string Password { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"I am {Username}");
+    }
+}
+
+public interface IDepartmentCommand
+{
+    [CliOption(Description = "Department of the identity performing the command (interface)")]
+    string Department { get; set; }
+}
+```
+
+The property attribute and the property initializer from the most derived class in the hierarchy will be used 
+(they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
+So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
+option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
+so that default value will be used.
 
 ## Options
 

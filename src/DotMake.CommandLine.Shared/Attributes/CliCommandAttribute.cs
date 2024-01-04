@@ -29,6 +29,10 @@ namespace DotMake.CommandLine
     /// <b>Subcommands:</b> Most command-line apps support subcommands, also known as verbs. For example, the <c>dotnet</c> command has a <c>run</c> subcommand that you invoke by entering <c>dotnet run</c>.
     /// Subcommands can have their own subcommands. In <c>dotnet tool install</c>, <c>install</c> is a <c>subcommand</c> of tool.
     /// </para>
+    /// <para>
+    /// When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+    /// share them by inheriting that base class in other command classes.Interfaces are also supported !
+    /// </para>
     /// </summary>
     /// <example>
     ///     <code id="gettingStarted">
@@ -42,6 +46,7 @@ namespace DotMake.CommandLine
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootSnakeSlashCliCommand" language="cs" />
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="InheritanceCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Class)]
     public class CliCommandAttribute : Attribute

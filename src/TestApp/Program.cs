@@ -27,7 +27,7 @@ try
 
     //Using configureBuilder to use an exception handler:
     /*
-    Cli.Run<RootWithChildrenCliCommand>(args, builder =>
+    Cli.Run<RootWithNestedChildrenCliCommand>(args, builder =>
         builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
     );
     */

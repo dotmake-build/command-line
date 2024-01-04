@@ -61,10 +61,14 @@ namespace DotMake.CommandLine.SourceGeneration
                 return;
 
             var visitedProperties = new Dictionary<string, ISymbol>(StringComparer.Ordinal);
+            var addedProperties = new HashSet<string>(StringComparer.Ordinal);
             foreach (var member in Symbol.GetAllMembers())
             {
                 if (member is IPropertySymbol)
                 {
+                    if (addedProperties.Contains(member.Name))
+                        continue;
+
                     foreach (var memberAttributeData in member.GetAttributes())
                     {
                         var attributeFullName = memberAttributeData.AttributeClass?.ToCompareString();
@@ -72,10 +76,14 @@ namespace DotMake.CommandLine.SourceGeneration
                         visitedProperties.TryGetValue(member.Name, out var visitedMember);
 
                         if (attributeFullName == CliOptionInfo.AttributeFullName)
+                        {
                             childOptions.Add(new CliOptionInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
-
-                        if (attributeFullName == CliArgumentInfo.AttributeFullName)
+                            addedProperties.Add(member.Name);
+                        } else if (attributeFullName == CliArgumentInfo.AttributeFullName)
+                        {
                             childArguments.Add(new CliArgumentInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
+                            addedProperties.Add(member.Name);
+                        }
                     }
 
                     if (!visitedProperties.ContainsKey(member.Name))

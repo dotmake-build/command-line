@@ -2,6 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,24 @@ namespace DotMake.CommandLine
     /// </example>
     public static class Cli
     {
+        /// <summary>
+        /// Returns a string array containing the command-line arguments for the current process.
+        /// Uses <see cref="Environment.GetCommandLineArgs"/> but skips the first element which is the executable file name,
+        /// so the following zero or more elements that contain the remaining command-line arguments are returned,
+        /// i.e. returns the same as the special variable <c>args</c> available in <c>Program.cs</c> (new style with top-level statements)
+        /// or as the string array passed to the program's <c>Main</c> method (old style).
+        /// </summary>
+        /// <returns>An array of strings where each element contains a command-line argument.</returns>
+        public static string[] GetArgs()
+        {
+            if (Environment.GetCommandLineArgs() is { Length: > 0 } args)
+                return args.Skip(1).ToArray();
+
+            return Array.Empty<string>();
+        }
+
+
+
         /// <summary>
         /// Gets a command line builder for the indicated command.
         /// </summary>
@@ -83,24 +102,42 @@ namespace DotMake.CommandLine
             return commandLineBuilder;
         }
 
-        /*
-        Note about documentation, VS intellisense wants
-            /// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-        but SHFB wants (for some reason VS is confused for second parameter, repeats the first one's contents)
-            /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
-        This happens probably the method is generic?
-        */
+
+
+        /// <summary>
+        /// Parses a command line string array and runs the handler for the indicated command.
+        /// </summary>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="args">
+        /// The string array typically passed to a program. This is usually
+        /// the special variable <c>args</c> available in <c>Program.cs</c> (new style with top-level statements)
+        /// or the string array passed to the program's <c>Main</c> method (old style).
+        /// If not specified or <see langword="null"/>, <c>args</c> will be retrieved automatically from the current process via <see cref="GetArgs"/>.
+        /// </param>
+        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='configureBuilder']/node()" /></param>
+        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='useBuilderDefaults']/node()" /></param>
+        /// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
+        /// <returns>The exit code for the invocation.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRun" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+        /// </example>
+        public static int Run<TDefinition>(string[] args = null, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
+        {
+            var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
+
+            return parser.Invoke(args ?? GetArgs(), console);
+        }
 
         /// <summary>
         /// Parses a command line string value and runs the handler for the indicated command.
         /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
-        /// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
-        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
-        /// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
-        /// <returns>The exit code for the invocation.</returns>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="commandLine">The command line string that will be split into tokens as if it had been passed on the command line. Useful for testing command line input by just specifying it as a single string.</param>
+        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='configureBuilder']/node()" /></param>
+        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='useBuilderDefaults']/node()" /></param>
+        /// <param name="console"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='console']/node()" /></param>
+        /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
         ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunString" language="cs" />
         ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
@@ -112,37 +149,37 @@ namespace DotMake.CommandLine
             return parser.Invoke(commandLine, console);
         }
 
+
+
         /// <summary>
-        /// Parses a command line string array and runs the handler for the indicated command.
+        /// Parses a command line string array and runs the handler asynchronously for the indicated command.
         /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
-        /// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
-        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
-        /// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
-        /// <returns>The exit code for the invocation.</returns>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="args"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='args']/node()" /></param>
+        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='configureBuilder']/node()" /></param>
+        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='useBuilderDefaults']/node()" /></param>
+        /// <param name="console"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='console']/node()" /></param>
+        /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRun" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsync" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
         /// </example>
-        public static int Run<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
+        public static async Task<int> RunAsync<TDefinition>(string[] args = null, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
             var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
 
-            return parser.Invoke(args, console);
+            return await parser.InvokeAsync(args ?? GetArgs(), console);
         }
 
         /// <summary>
         /// Parses a command line string value and runs the handler asynchronously for the indicated command.
         /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
-        /// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
-        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
-        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console" /> is used.</param>
-        /// <returns>The exit code for the invocation.</returns>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="commandLine"><inheritdoc cref="Run{TDefinition}(string, Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='commandLine']/node()" /></param>
+        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='configureBuilder']/node()" /></param>
+        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='useBuilderDefaults']/node()" /></param>
+        /// <param name="console"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='console']/node()" /></param>
+        /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
         ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncString" language="cs" />
         ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
@@ -154,34 +191,64 @@ namespace DotMake.CommandLine
             return await parser.InvokeAsync(commandLine, console);
         }
 
-        /// <summary>
-        /// Parses a command line string array and runs the handler asynchronously for the indicated command.
-        /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
-        /// <inheritdoc cref="GetBuilder{TDefinition}" path="/param" />
-        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='configureBuilder']/node()" /></param>
-        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" Path="param/[@name='useBuilderDefaults']/node()" /></param>
-        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console" /> is used.</param>
-        /// <returns>The exit code for the invocation.</returns>
-        /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsync" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
-        /// </example>
-        public static async Task<int> RunAsync<TDefinition>(string[] args, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
-        {
-            var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
 
-            return await parser.InvokeAsync(args, console);
+
+        /// <summary>
+        /// Parses a command line string array, and also provides the parse result.
+        /// </summary>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="args"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='args']/node()" /></param>
+        /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
+        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        /// </example>
+        public static TDefinition Parse<TDefinition>(string[] args, out ParseResult parseResult)
+        {
+            var commandBuilder = CliCommandBuilder.Get<TDefinition>();
+            var command = commandBuilder.Build();
+
+            parseResult = command.Parse(args ?? GetArgs());
+
+            return (TDefinition)commandBuilder.Bind(parseResult);
+        }
+
+        /// <summary>
+        /// Parses a command line string array.
+        /// </summary>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="args"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='args']/node()" /></param>
+        /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParse" language="cs" />
+        /// </example>
+        public static TDefinition Parse<TDefinition>(string[] args = null)
+        {
+            return Parse<TDefinition>(args, out _);
+        }
+        
+        /// <summary>
+        /// Parses the command-line arguments for the current process, and also provides the parse result
+        /// (<c>args</c> will be retrieved automatically from the current process via <see cref="GetArgs"/>).
+        /// </summary>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="parseResult"><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/param[@name='parseResult']/node()" /></param>
+        /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        /// </example>
+        public static TDefinition Parse<TDefinition>(out ParseResult parseResult)
+        {
+            return Parse<TDefinition>(GetArgs(), out parseResult);
         }
 
         /// <summary>
         /// Parses a command line string, and also provides the parse result.
         /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="commandLine"><inheritdoc cref="Run{TDefinition}(string, Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='commandLine']/node()" /></param>
         /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
-        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
         /// <example>
         ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
         /// </example>
@@ -198,49 +265,15 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Parses a command line string.
         /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="commandLine">The command line string input will be split into tokens as if it had been passed on the command line.</param>
-        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        /// <typeparam name="TDefinition"><inheritdoc cref="GetBuilder{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
+        /// <param name="commandLine"><inheritdoc cref="Run{TDefinition}(string, Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='commandLine']/node()" /></param>
+        /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
         /// <example>
         ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseString" language="cs" />
         /// </example>
         public static TDefinition Parse<TDefinition>(string commandLine)
         {
             return Parse<TDefinition>(commandLine, out _);
-        }
-
-        /// <summary>
-        /// Parses a command line string array, and also provides the parse result.
-        /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
-        /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
-        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
-        /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
-        /// </example>
-        public static TDefinition Parse<TDefinition>(string[] args, out ParseResult parseResult)
-        {
-            var commandBuilder = CliCommandBuilder.Get<TDefinition>();
-            var command = commandBuilder.Build();
-
-            parseResult = command.Parse(args);
-
-            return (TDefinition)commandBuilder.Bind(parseResult);
-        }
-
-        /// <summary>
-        /// Parses a command line string array, and also provides the parse result.
-        /// </summary>
-        /// <typeparam name="TDefinition">The definition class for the command. A command builder for this class should be automatically generated.</typeparam>
-        /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
-        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
-        /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParse" language="cs" />
-        /// </example>
-        public static TDefinition Parse<TDefinition>(string[] args)
-        {
-            return Parse<TDefinition>(args, out _);
         }
     }
 }

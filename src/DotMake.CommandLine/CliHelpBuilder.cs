@@ -504,6 +504,7 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <param name="context">The help context.</param>
+        /// <returns>Two column help row.</returns>
         public new TwoColumnHelpRow GetTwoColumnRow(
             Symbol symbol,
             HelpContext context)
