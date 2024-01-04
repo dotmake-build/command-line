@@ -221,7 +221,7 @@ public class WriteFileCommand
     public List<string> Lines { get; set; }
 }
 ```
-The following types for properties is supported:
+The following types for properties are supported:
 * Booleans (flags) - If `true` or `false` is passed for an option having a `bool` argument, it is parsed and bound as expected.
   But an option whose argument type is `bool` doesn't require an argument to be specified.
   The presence of the option token on the command line, with no argument following it, results in a value of `true`.
@@ -359,8 +359,8 @@ The following types for properties is supported:
 
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.5.4
-Copyright © 2023 DotMake
+DotMake Command-Line TestApp v1.5.9
+Copyright © 2023-2024 DotMake
 
 A root cli command
 
@@ -375,6 +375,11 @@ Options:
   -v, --version              Show version information
   -?, -h, --help             Show help and usage information
 ```
+First line comes from `AssemblyProductAttribute` or `AssemblyName`. 
+Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`.
+Second line comes from `AssemblyCopyrightAttribute`.
+Third line comes from `CliCommand.Description` or `AssemblyDescriptionAttribute`.
+
 Note, how command/option/argument names, descriptions and default values are automatically populated.
 
 By default,  command/option/argument names are generated as follows;
@@ -434,8 +439,8 @@ public class RootSnakeSlashCliCommand
 ```
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.5.4
-Copyright © 2023 DotMake
+DotMake Command-Line TestApp v1.5.9
+Copyright © 2023-2024 DotMake
 
 A cli command with snake_case name casing and forward slash prefix conventions
 

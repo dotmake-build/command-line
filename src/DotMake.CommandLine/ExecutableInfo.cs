@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Reflection;
 
 namespace DotMake.CommandLine
@@ -8,6 +10,17 @@ namespace DotMake.CommandLine
         {
             Assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             AssemblyName = Assembly.GetName();
+
+            try
+            {
+                ExecutablePath = Environment.GetCommandLineArgs()[0];
+                ExecutableName = Path.GetFileNameWithoutExtension(ExecutablePath).Replace(" ", "");
+            }
+            catch
+            {
+                ExecutablePath = Assembly.Location;
+                ExecutableName = AssemblyName.Name;
+            }
 
             var assemblyInformationalVersion = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             if (assemblyInformationalVersion != null)
@@ -28,16 +41,25 @@ namespace DotMake.CommandLine
 
             var assemblyCopyright = Assembly.GetCustomAttribute<AssemblyCopyrightAttribute>();
             Copyright = (assemblyCopyright != null) ? assemblyCopyright.Copyright : "";
+
+            var assemblyDescription = Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>();
+            Description = (assemblyDescription != null) ? assemblyDescription.Description : "";
         }
 
         public static Assembly Assembly { get; }
 
         public static AssemblyName AssemblyName { get; }
 
+        public static string ExecutablePath { get; }
+
+        public static string ExecutableName { get; }
+
         public static string Product { get; }
 
         public static string Version { get; }
 
         public static string Copyright { get; }
+
+        public static string Description { get; }
     }
 }

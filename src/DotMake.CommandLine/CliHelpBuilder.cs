@@ -92,22 +92,40 @@ namespace DotMake.CommandLine
                 helpContext.Output.WriteLine(ExecutableInfo.Copyright);
 
             var isRoot = (helpContext.Command.Parents.FirstOrDefault() == null);
-            var commandName = isRoot ? string.Empty : helpContext.Command.Name;
-            var description = isRoot ? helpContext.Command.Description : ": " + helpContext.Command.Description;
+            var name = isRoot ? string.Empty : helpContext.Command.Name;
+            var description = helpContext.Command.Description
+                              ?? (isRoot ? ExecutableInfo.Description : string.Empty);
+            const string separator = ": ";
+            
+            var hasName = !string.IsNullOrWhiteSpace(name);
+            var hasDescription = !string.IsNullOrWhiteSpace(description);
 
-            if (commandName.Length > 0)
-            {
-                console.SetForegroundColor(ConsoleColor.White);
-                helpContext.Output.Write(commandName);
-                console.ResetForegroundColor();
-            }
-
-            if (!string.IsNullOrWhiteSpace(description))
+            if (hasName || hasDescription)
             {
                 helpContext.Output.WriteLine();
 
-                foreach (var part in WrapText(description, MaxWidth - commandName.Length))
-                    helpContext.Output.WriteLine(part);
+                if (hasName)
+                {
+                    console.SetForegroundColor(ConsoleColor.White);
+                    if (hasDescription)
+                        helpContext.Output.Write(name);
+                    else
+                        helpContext.Output.WriteLine(name);
+                    console.ResetForegroundColor();
+                }
+
+                if (hasDescription)
+                {
+                    if (hasName)
+                        helpContext.Output.Write(separator);
+
+                    var maxWidth = hasName
+                        ? MaxWidth - name.Length - separator.Length
+                        : MaxWidth;
+
+                    foreach (var part in WrapText(description, maxWidth))
+                        helpContext.Output.WriteLine(part);
+                }
             }
 
             /*
@@ -347,7 +365,10 @@ namespace DotMake.CommandLine
                     displayOptionTitle = parentCommand.Options.Any(x => (IsGlobalGetter?.Invoke(x, null) as bool?) == true && !x.IsHidden);
                 }
 
-                yield return parentCommand.Name;
+                if (parentCommand.Parents.FirstOrDefault() == null)
+                    yield return ExecutableInfo.ExecutableName;
+                else
+                    yield return parentCommand.Name;
 
                 yield return FormatArgumentUsage(parentCommand.Arguments);
             }

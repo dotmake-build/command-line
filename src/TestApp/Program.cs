@@ -15,8 +15,8 @@ try
     Cli.Run<RootCliCommand>(args);
     //Cli.Run<RootSnakeSlashCliCommand>(args);
     //Cli.Run<ForwardSlashCliCommand>(args);
-    //Cli.Run<RootWithExternalChildrenCliCommand>(args);
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);
+    //Cli.Run<RootWithExternalChildrenCliCommand>(args);
     //Cli.Run<EnumerableCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<NullableReferenceCommand>(args);
