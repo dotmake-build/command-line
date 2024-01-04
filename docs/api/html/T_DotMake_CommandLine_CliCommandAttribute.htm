@@ -9,7 +9,10 @@ public class SomeCliCommand</code></pre></div></div>
                     and <span class="code">tool update</span>.</li></ul></p><p><b>Root commands:</b> The root command is the one that specifies the name of the app's executable. For example, the <span class="code">dotnet</span> command specifies the <span class="code">dotnet.exe</span> executable.
             </p><p><b>Subcommands:</b> Most command-line apps support subcommands, also known as verbs. For example, the <span class="code">dotnet</span> command has a <span class="code">run</span> subcommand that you invoke by entering <span class="code">dotnet run</span>.
             Subcommands can have their own subcommands. In <span class="code">dotnet tool install</span>, <span class="code">install</span> is a <span class="code">subcommand</span> of tool.
-            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.5.8<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Create a simple class like this:
+            </p><p>
+            When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+            share them by inheriting that base class in other command classes.Interfaces are also supported !
+            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.5.9<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><span class="noLink">Object</span>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="noLink">Attribute</span>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Create a simple class like this:
 
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
@@ -326,8 +329,8 @@ public class RootWithNestedChildrenCliCommand
 
 //Just make sure you apply `CliCommand` attribute to the nested classes as well.
 //Command hierarchy in above example is:
-//  RootWithNestedChildrenCliCommand -&gt; Level1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Another way to create hierarchy between commands, especially if you want to use standalone classes,
-// is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
+//  RootWithNestedChildrenCliCommand -&gt; Level1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Another way to create hierarchy between commands, especially if you want to use standalone classes,
+//is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
 
 [CliCommand(Description = "A root cli command")]
 public class RootWithExternalChildrenCliCommand
@@ -388,7 +391,40 @@ public class ExternalLevel1SubCliCommand
 }
 
 //Command hierarchy in above example is:
-//  RootWithExternalChildrenCliCommand -&gt; ExternalLevel1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
+//  RootWithExternalChildrenCliCommand -&gt; ExternalLevel1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+//share them by inheriting that base class in other command classes.Interfaces are also supported !
+
+[CliCommand]
+public class InheritanceCliCommand : CredentialCommandBase, IDepartmentCommand
+{
+    public string Department { get; set; } = "Accounting";
+}
+
+public abstract class CredentialCommandBase
+{
+    [CliOption(Description = "Username of the identity performing the command")]
+    public string Username { get; set; } = "admin";
+
+    [CliOption(Description = "Password of the identity performing the command")]
+    public string Password { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"I am {Username}");
+    }
+}
+
+public interface IDepartmentCommand
+{
+    [CliOption(Description = "Department of the identity performing the command (interface)")]
+    string Department { get; set; }
+}
+
+//The property attribute and the property initializer from the most derived class in the hierarchy will be used 
+//(they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
+//So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
+//option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
+//so that default value will be used.</code></pre></div></div></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
             Gets or sets the set of alternative strings that can be used on the command line to specify the command.
             <p>The aliases will be also displayed in usage help of the command line application.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Description.htm">Description</a></td><td>
             Gets or sets the description of the command. This will be displayed in usage help of the command line application.
