@@ -80,7 +80,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's synopsis.
         /// Similar to:
-        /// <code>
+        /// <code language="console">
         /// DotMake Command-Line TestApp v1.6.0
         /// Copyright © 2023-2024 DotMake
         ///
@@ -148,9 +148,9 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's usage.
         /// Similar to:
-        /// <code>
+        /// <code language="console">
         /// Usage:
-        ///   TestApp&lt;argument-1&gt;[command][options]
+        ///   TestApp &lt;argument-1&gt; [command] [options]
         /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
@@ -171,9 +171,9 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's arguments.
         /// Similar to:
-        /// <code>
+        /// <code language="console">
         /// Arguments:
-        ///   &lt;argument-1&gt;  Description for Argument1[required]
+        ///   &lt;argument-1&gt;  Description for Argument1 [required]
         /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
@@ -199,9 +199,9 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's options.
         /// Similar to:
-        /// <code>
+        /// <code language="console">
         /// Options:
-        ///   -o, --option-1 &lt;option-1&gt;  Description for Option1[default: DefaultForOption1]
+        ///   -o, --option-1 &lt;option-1&gt;  Description for Option1 [default: DefaultForOption1]
         ///   -v, --version Show version information
         ///   -?, -h, --help Show help and usage information
         /// </code>
@@ -262,7 +262,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Writes a help section describing a command's subcommands.
         /// Similar to:
-        /// <code>
+        /// <code language="console">
         /// Commands:
         ///   level-1  A nested level 1 sub-command
         /// </code>
