@@ -79,7 +79,7 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The class &apos;{0}&apos; must have a parameterless (default) and public/internal and non-static constructor to generate a {1}..
+        ///   Looks up a localized string similar to The class &apos;{0}&apos; must have a parameterless (default) and public/internal and non-static constructor to generate a {1} when not using dependency injection..
         /// </summary>
         internal static string ClassHasNotPublicDefaultConstructor {
             get {

@@ -8,7 +8,6 @@ using DotMake.CommandLine;
 using TestApp.Commands;
 using TestApp.Commands.PrefixConvention;
 
-
 try
 {
     //Using Cli.Run:

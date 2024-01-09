@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- generator projects must be netstandard2.0 -->
@@ -14,14 +14,6 @@
   <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
-    <Compile Remove="Embedded\ModuleInitializerAttribute.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Embedded\ModuleInitializerAttribute.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- 
     Microsoft.CodeAnalysis.CSharp 4.0.1 is the first version that can be used with the .NET 6.0 SDK 
     https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md
@@ -34,6 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Ensure that the .Embedded project is built together with this project (for checking compile errors) -->
+    <ProjectReference Include="..\$(MSBuildProjectName).Embedded\$(MSBuildProjectName).Embedded.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -43,6 +42,14 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\DotMake.CommandLine.SourceGeneration.Embedded\**\*.cs">
+      <Link>Embedded\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Remove="..\DotMake.CommandLine.SourceGeneration.Embedded\bin\**\*" />
+    <EmbeddedResource Remove="..\DotMake.CommandLine.SourceGeneration.Embedded\obj\**\*" />
   </ItemGroup>
 
 </Project>

@@ -14,7 +14,13 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void Append(string value) => sb.Append(value);
 
-        private void AppendIndent()
+        public void AppendIndent()
+        {
+            for (var i = 0; i < IndentSize; i++)
+                sb.Append(Space);
+        }
+
+        private void AppendIndentForLevel()
         {
             for (var i = 0; i < (IndentLevel * IndentSize); i++)
                 sb.Append(Space);
@@ -22,13 +28,13 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void AppendLine(string line)
         {
-            AppendIndent();
+            AppendIndentForLevel();
             sb.AppendLine(line);
         }
 
         public void AppendLine() => sb.AppendLine();
 
-        public void AppendLineStart() => AppendIndent();
+        public void AppendLineStart() => AppendIndentForLevel();
 
         public void AppendLineEnd() => sb.AppendLine();
 

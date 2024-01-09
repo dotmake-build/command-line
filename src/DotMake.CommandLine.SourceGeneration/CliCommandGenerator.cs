@@ -19,6 +19,9 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void Initialize(IncrementalGeneratorInitializationContext initializationContext)
         {
+            var referenceDependantInfo = initializationContext.CompilationProvider
+                .Select((compilation, cancellationToken) => new ReferenceDependantInfo(compilation));
+
             var cliCommandInfos = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
                 CliCommandInfo.AttributeFullName,
                 (syntaxNode, cancellationToken) => syntaxNode is ClassDeclarationSyntax
@@ -27,18 +30,26 @@ namespace DotMake.CommandLine.SourceGeneration
                 (attributeSyntaxContext, cancellationToken) => new CliCommandInfo(attributeSyntaxContext)
             );
 
-            initializationContext.RegisterPostInitializationOutput(GenerateDefinitions);
+            initializationContext.RegisterSourceOutput(referenceDependantInfo, GenerateReferenceDependantSourceCode);
             initializationContext.RegisterSourceOutput(cliCommandInfos, GenerateSourceCode);
         }
 
-        private static void GenerateDefinitions(IncrementalGeneratorPostInitializationContext postInitializationContext)
+        private static void GenerateReferenceDependantSourceCode(SourceProductionContext sourceProductionContext, ReferenceDependantInfo referenceDependantInfo)
         {
+            //Console.Beep(1000, 200); // For testing, how many times the generator is hit
+
             //For supporting ModuleInitializerAttribute in projects before net5.0 (net472, netstandard2.0)
-            using (var resourceStream = Type.Assembly.GetManifestResourceStream($"{Type.Namespace}.Embedded.ModuleInitializerAttribute.cs"))
-            {
-                if (resourceStream != null)
-                    postInitializationContext.AddSource("ModuleInitializerAttribute.g.cs", SourceText.From(resourceStream, canBeEmbedded: true));
-            }
+            if (!referenceDependantInfo.HasModuleInitializer)
+                sourceProductionContext.AddSource(
+                    "[ModuleInitializerAttribute].g.cs",
+                    GetSourceTextFromEmbeddedResource("ModuleInitializerAttribute.cs")
+                );
+
+            if (referenceDependantInfo.HasMsDependencyInjection)
+                sourceProductionContext.AddSource(
+                    "[CliServiceExtensions].g.cs",
+                    GetSourceTextFromEmbeddedResource("CliServiceExtensions.cs")
+                );
         }
 
         private static void GenerateSourceCode(SourceProductionContext sourceProductionContext, CliCommandInfo cliCommandInfo)
@@ -96,6 +107,17 @@ namespace DotMake.CommandLine.SourceGeneration
                 var diagnostic = Diagnostic.Create(diagnosticDescriptor, cliCommandInfo.Symbol.Locations.FirstOrDefault());
 
                 sourceProductionContext.ReportDiagnosticSafe(diagnostic);
+            }
+        }
+
+        private static SourceText GetSourceTextFromEmbeddedResource(string fileName)
+        {
+            using (var resourceStream = Type.Assembly.GetManifestResourceStream($"{Type.Namespace}.Embedded.{fileName}"))
+            {
+                if (resourceStream == null)
+                    throw new Exception($"Embedded resource '{fileName}' is not found in assembly '{Type.Assembly}'.");
+
+                return SourceText.From(resourceStream, canBeEmbedded: true);
             }
         }
     }

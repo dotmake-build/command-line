@@ -24,6 +24,11 @@ namespace DotMake.CommandLine
     public static class Cli
     {
         /// <summary>
+        /// <inheritdoc cref="CliExtensions" path="/summary/node()" />
+        /// </summary>
+        public static CliExtensions Ext { get; } = new CliExtensions();
+
+        /// <summary>
         /// Returns a string array containing the command-line arguments for the current process.
         /// Uses <see cref="Environment.GetCommandLineArgs"/> but skips the first element which is the executable file name,
         /// so the following zero or more elements that contain the remaining command-line arguments are returned,

@@ -124,7 +124,7 @@
     <value>The class '{0}' will not have a {1} (ignored) because it does not have a method with one of the following signatures: 'void Run()', 'int Run()', 'async Task RunAsync()', 'async Task&lt;int&gt; RunAsync()'. Optionally the method signature can have an InvocationContext parameter: 'Run(InvocationContext context)', 'RunAsync(InvocationContext context)'</value>
   </data>
   <data name="ClassHasNotPublicDefaultConstructor" xml:space="preserve">
-    <value>The class '{0}' must have a parameterless (default) and public/internal and non-static constructor to generate a {1}.</value>
+    <value>The class '{0}' must have a parameterless (default) and public/internal and non-static constructor to generate a {1} when not using dependency injection.</value>
   </data>
   <data name="ClassNotNonAbstractNonGeneric" xml:space="preserve">
     <value>The class '{0}' must be a  non-generic and non-abstract class to generate a {1}.</value>

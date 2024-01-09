@@ -55,6 +55,10 @@ namespace DotMake.CommandLine.SourceGeneration
                 ? GeneratedClassName
                 : GeneratedClassNamespace + "." + GeneratedClassName;
 
+            ReferenceDependantInfo = (parent != null)
+                ? parent.ReferenceDependantInfo
+                : new ReferenceDependantInfo(semanticModel.Compilation);
+
             Analyze();
 
             if (HasProblem)
@@ -143,6 +147,8 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public string GeneratedClassFullName { get; }
 
+        public ReferenceDependantInfo ReferenceDependantInfo { get; }
+
         public IReadOnlyList<CliOptionInfo> ChildOptions => childOptions;
         private readonly List<CliOptionInfo> childOptions = new List<CliOptionInfo>();
 
@@ -162,7 +168,8 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (Symbol.IsAbstract || Symbol.IsGenericType)
                     AddDiagnostic(DiagnosticDescriptors.ErrorClassNotNonAbstractNonGeneric, DiagnosticName);
 
-                if (!Symbol.InstanceConstructors.Any(c =>
+                if (!ReferenceDependantInfo.HasMsDependencyInjection
+                    && !Symbol.InstanceConstructors.Any(c =>
                         c.Parameters.IsEmpty
                         && (c.DeclaredAccessibility == Accessibility.Public || c.DeclaredAccessibility == Accessibility.Internal)
                     ))
@@ -226,13 +233,27 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
                 sb.AppendLine();
 
+                using (sb.AppendBlockStart($"private {definitionClass} CreateInstance()"))
+                {
+                    if (ReferenceDependantInfo.HasMsDependencyInjection)
+                    {
+                        sb.AppendLine("var serviceProvider = DotMake.CommandLine.CliServiceExtensions.GetServiceProvider(null);");
+                        sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
+                        sb.AppendIndent();
+                        sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
+                    }
+                    else
+                        sb.AppendLine($"return new {definitionClass}();");
+                }
+                sb.AppendLine();
+
                 using (sb.AppendBlockStart($"public override {CommandClassNamespace}.{CommandClassName} Build()"))
                 {
                     AppendCSharpCreateString(sb, varCommand);
 
                     sb.AppendLine();
                     var varDefaultClass = "defaultClass";
-                    sb.AppendLine($"var {varDefaultClass} = new {definitionClass}();");
+                    sb.AppendLine($"var {varDefaultClass} = CreateInstance();");
 
                     for (var index = 0; index < childOptionsWithoutProblem.Length; index++)
                     {
@@ -270,7 +291,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     {
                         var varTargetClass = "targetClass";
 
-                        sb.AppendLine($"var {varTargetClass} = new {definitionClass}();");
+                        sb.AppendLine($"var {varTargetClass} = CreateInstance();");
 
                         sb.AppendLine();
                         sb.AppendLine("//  Set the parsed or default values for the options");

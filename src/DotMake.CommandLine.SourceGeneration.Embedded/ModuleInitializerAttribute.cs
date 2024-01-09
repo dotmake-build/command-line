@@ -1,7 +1,4 @@
 #if !NET5_0_OR_GREATER
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace System.Runtime.CompilerServices
 {
@@ -33,4 +30,5 @@ namespace System.Runtime.CompilerServices
         }
     }
 }
+
 #endif

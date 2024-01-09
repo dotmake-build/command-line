@@ -15,7 +15,11 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DotMake.CommandLine.Shared"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestNet472App", "TestNet472App\TestNet472App.csproj", "{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotMake.CommandLine.Examples", "DotMake.CommandLine.Examples\DotMake.CommandLine.Examples.csproj", "{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.Examples", "DotMake.CommandLine.Examples\DotMake.CommandLine.Examples.csproj", "{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.SourceGeneration.Embedded", "DotMake.CommandLine.SourceGeneration.Embedded\DotMake.CommandLine.SourceGeneration.Embedded.csproj", "{2CCAA9C5-133A-4841-A86B-802AD11D26B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDIApp", "TestDIApp\TestDIApp.csproj", "{9B95C386-E77B-46FD-A2E5-1DC862D905B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +47,12 @@ Global
 		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B95C386-E77B-46FD-A2E5-1DC862D905B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B95C386-E77B-46FD-A2E5-1DC862D905B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
