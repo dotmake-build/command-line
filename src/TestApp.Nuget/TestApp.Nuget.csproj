@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net6.0;net472</TargetFrameworks>
+    <Product>DotMake Command-Line TestApp.Nuget</Product>
+    <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotMake.CommandLine" Version="$(Version)" />
+    <Compile Include="..\TestApp\**\*.cs" />
+    <Compile Remove="..\TestApp\bin\**\*" />
+    <Compile Remove="..\TestApp\obj\**\*" />
+    <Compile Remove="..\TestApp\GeneratedFiles\**\*" />
+  </ItemGroup>
+
+</Project>

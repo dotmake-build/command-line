@@ -3,23 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine", "DotMake.CommandLine\DotMake.CommandLine.csproj", "{4B069137-2252-415C-9F2C-37BE08F316BB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.SourceGeneration", "DotMake.CommandLine.SourceGeneration\DotMake.CommandLine.SourceGeneration.csproj", "{DFD28E3B-497E-4DD2-84B0-26B7179CCA31}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestNugetApp", "TestNugetApp\TestNugetApp.csproj", "{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DotMake.CommandLine.Shared", "DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.shproj", "{627A4C8D-514B-402E-B056-4B633341A17B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestNet472App", "TestNet472App\TestNet472App.csproj", "{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.Examples", "DotMake.CommandLine.Examples\DotMake.CommandLine.Examples.csproj", "{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.SourceGeneration", "DotMake.CommandLine.SourceGeneration\DotMake.CommandLine.SourceGeneration.csproj", "{DFD28E3B-497E-4DD2-84B0-26B7179CCA31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.SourceGeneration.Embedded", "DotMake.CommandLine.SourceGeneration.Embedded\DotMake.CommandLine.SourceGeneration.Embedded.csproj", "{2CCAA9C5-133A-4841-A86B-802AD11D26B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDIApp", "TestDIApp\TestDIApp.csproj", "{9B95C386-E77B-46FD-A2E5-1DC862D905B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine.Examples", "DotMake.CommandLine.Examples\DotMake.CommandLine.Examples.csproj", "{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp.Nuget", "TestApp.Nuget\TestApp.Nuget.csproj", "{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp.NugetAot", "TestApp.NugetAot\TestApp.NugetAot.csproj", "{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.NugetDI", "TestApp.NugetDI\TestApp.NugetDI.csproj", "{9B95C386-E77B-46FD-A2E5-1DC862D905B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4B069137-2252-415C-9F2C-37BE08F316BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4B069137-2252-415C-9F2C-37BE08F316BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B069137-2252-415C-9F2C-37BE08F316BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,18 +35,22 @@ Global
 		{DFD28E3B-497E-4DD2-84B0-26B7179CCA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFD28E3B-497E-4DD2-84B0-26B7179CCA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFD28E3B-497E-4DD2-84B0-26B7179CCA31}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CCAA9C5-133A-4841-A86B-802AD11D26B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AD4B97E-D3A8-438B-95AE-C8F89C4D00A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9A29DC9-76B4-4CB8-9742-E2C60E02CD1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BEE245E-BB8A-4330-AFDB-BD23FAE7CB02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B95C386-E77B-46FD-A2E5-1DC862D905B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9B95C386-E77B-46FD-A2E5-1DC862D905B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection

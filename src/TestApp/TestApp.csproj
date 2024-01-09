@@ -2,34 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net472</TargetFrameworks>
     <Product>DotMake Command-Line TestApp</Product>
-    <!-- 
-      EmitCompilerGeneratedFiles is useful for debugging, it doesn't work for live editing (VS continues to run the cached 
-      source generator, needs restart as it uses VBCSCompiler.exe for Roslyn analyzers/generators) but when project is 
-      explicitly built (probably VS runs msbuild externally in that case), the latest source generator DLL is used to 
-      generate files (the in-memory generated files in Analyzers node is still not updated but at least we have files on disk).
-      CompilerGeneratedFilesOutputPath defaults to obj\Debug\net6.0\generated but we set a folder inside project to easily
-      examine the files, however we exclude the files from Compile below (and add to None) to prevent class conflict errors.
-      We also use CleanSourceGeneratedFiles target below to clean all generated files before build so that we don't have 
-      outdated files (e.g. for renamed classes).
-    -->
+    <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>GeneratedFiles</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DotMake.CommandLine\DotMake.CommandLine.csproj" />
     <ProjectReference Include="..\DotMake.CommandLine.SourceGeneration\DotMake.CommandLine.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="GeneratedFiles\**\*.cs" />
-    <None Include="GeneratedFiles\**\*.cs" />
-  </ItemGroup>
-
-  <Target Name="CleanSourceGeneratedFiles" BeforeTargets="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn)">
-    <RemoveDir Directories="GeneratedFiles" />
-  </Target>
 
 </Project>

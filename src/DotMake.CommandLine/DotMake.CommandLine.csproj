@@ -19,10 +19,10 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added dependency injection support. When the source generator detects that your project has reference
-        to `Microsoft.Extensions.DependencyInjection`, it will generate extension methods for supporting dependency injection.
-        For example, you can now add your services with the extension method `Cli.Ext.ConfigureServices`.
-        Then let them be injected to your command class automatically by providing a constructor with the required services
+      - Improved: Ensure generation (which is rendered in the generated source code) is counted separately for different projects and target frameworks.
+        This makes source control cleaner for TestApps which use EmitCompilerGeneratedFiles.
+        Also use (FileName) instead of [FileName] for special classes so they are at the top in VS Analyzers node
+        and they can be spotted quickly.
     </PackageReleaseNotes>
   </PropertyGroup>
 
