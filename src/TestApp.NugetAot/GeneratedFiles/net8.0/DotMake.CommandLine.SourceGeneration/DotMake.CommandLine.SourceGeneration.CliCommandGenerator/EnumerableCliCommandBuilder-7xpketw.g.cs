@@ -42,8 +42,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option0.SetDefaultValue(defaultClass.OptEnumerable);
             option0.AddAlias("-o");
             rootCommand.Add(option0);
 
@@ -58,8 +59,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option1.SetDefaultValue(defaultClass.OptList);
             rootCommand.Add(option1);
 
             // Option for 'OptEnumArray' property
@@ -74,8 +76,9 @@ namespace TestApp.Commands
             )
             {
                 AllowMultipleArgumentsPerToken = true,
-                IsRequired = true,
+                IsRequired = false,
             };
+            option2.SetDefaultValue(defaultClass.OptEnumArray);
             rootCommand.Add(option2);
 
             // Option for 'OptCollection' property
@@ -89,8 +92,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option3.SetDefaultValue(defaultClass.OptCollection);
             rootCommand.Add(option3);
 
             // Option for 'OptHashSet' property
@@ -104,8 +108,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option4.SetDefaultValue(defaultClass.OptHashSet);
             rootCommand.Add(option4);
 
             // Option for 'OptQueue' property
@@ -119,8 +124,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option5.SetDefaultValue(defaultClass.OptQueue);
             rootCommand.Add(option5);
 
             // Option for 'OptCustomList' property
@@ -134,8 +140,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option6.SetDefaultValue(defaultClass.OptCustomList);
             rootCommand.Add(option6);
 
             // Argument for 'ArgIList' property

@@ -41,8 +41,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option0.SetDefaultValue(defaultClass.Opt);
             option0.AddAlias("-o");
             rootCommand.Add(option0);
 
@@ -58,8 +59,9 @@ namespace TestApp.Commands
             )
             {
                 AllowMultipleArgumentsPerToken = true,
-                IsRequired = true,
+                IsRequired = false,
             };
+            option1.SetDefaultValue(defaultClass.OptArray);
             rootCommand.Add(option1);
 
             // Option for 'OptNullable' property
@@ -72,8 +74,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option2.SetDefaultValue(defaultClass.OptNullable);
             rootCommand.Add(option2);
 
             // Option for 'OptEnumerable' property
@@ -87,8 +90,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option3.SetDefaultValue(defaultClass.OptEnumerable);
             rootCommand.Add(option3);
 
             // Option for 'OptList' property
@@ -102,8 +106,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option4.SetDefaultValue(defaultClass.OptList);
             rootCommand.Add(option4);
 
             // Option for 'OptCustomList' property
@@ -117,8 +122,9 @@ namespace TestApp.Commands
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option5.SetDefaultValue(defaultClass.OptCustomList);
             rootCommand.Add(option5);
 
             // Argument for 'Arg' property
