@@ -39,14 +39,28 @@ namespace DotMake.CommandLine.Binding
             Argument argument,
             Type expectedType,
             string value,
-            LocalizationResources localizationResources) :
-            this(argument, FormatErrorMessage(argument, expectedType, value, localizationResources), ArgumentConversionResultType.FailedType)
+            LocalizationResources localizationResources,
+            Exception? exception) :
+            this(argument,
+                FormatErrorMessage(argument, expectedType, value, localizationResources)
+                    + (exception != null ? "\n Exception occured in expected type's converter: " + exception.Message : ""),
+                ArgumentConversionResultType.FailedType)
         {
+        }
+
+        internal static ArgumentConversionResult Failure(
+            Argument argument,
+            Type expectedType,
+            string value,
+            LocalizationResources localizationResources,
+            Exception? exception = null)
+        {
+            return new ArgumentConversionResult(argument, expectedType, value, localizationResources, exception);
         }
 
         internal static ArgumentConversionResult Failure(Argument argument, string error, ArgumentConversionResultType reason) => new(argument, error, reason);
 
-        public static ArgumentConversionResult Success(Argument argument, object? value) => new(argument, value);
+        internal static ArgumentConversionResult Success(Argument argument, object? value) => new(argument, value);
 
         internal static ArgumentConversionResult None(Argument argument) => new(argument);
 

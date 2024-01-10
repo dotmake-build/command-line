@@ -5,7 +5,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
-namespace DotMake.CommandLine.Examples
+// ReSharper disable once CheckNamespace
+namespace DotMake.CommandLine.CliCommandExamples
 {
     //Indenting is intentional, to fix indentation problem when merging with other code blocks
     #region RootCliCommand

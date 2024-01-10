@@ -23,6 +23,8 @@
         This makes source control cleaner for TestApps which use EmitCompilerGeneratedFiles.
         Also use (FileName) instead of [FileName] for special classes so they are at the top in VS Analyzers node
         and they can be spotted quickly.
+      - Improved: Better error handling in ArgumentConverter. If constructor or parse method of custom class/ienumerable throws
+        exception, provide the details in error message.
     </PackageReleaseNotes>
   </PropertyGroup>
 

@@ -12,25 +12,25 @@ namespace TestApp.Commands
     public class EnumerableCliCommand
     {
         [CliOption]
-        public IEnumerable<int> OptEnumerable { get; set; }
+        public IEnumerable<int> OptEnumerable { get; set; } = null;
 
         [CliOption]
-        public List<string> OptList { get; set; }
+        public List<string> OptList { get; set; } = null;
 
         [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public FileAccess[] OptEnumArray { get; set; }
+        public FileAccess[] OptEnumArray { get; set; } = null;
 
         [CliOption]
-        public Collection<int?> OptCollection { get; set; }
+        public Collection<int?> OptCollection { get; set; } = null;
 
         [CliOption]
-        public HashSet<string> OptHashSet { get; set; }
+        public HashSet<string> OptHashSet { get; set; } = null;
 
         [CliOption]
-        public Queue<FileInfo> OptQueue { get; set; }
+        public Queue<FileInfo> OptQueue { get; set; } = null;
 
         [CliOption]
-        public CustomList<string> OptCustomList { get; set; }
+        public CustomList<string> OptCustomList { get; set; } = null;
 
         [CliArgument]
         public IList ArgIList { get; set; }
@@ -78,7 +78,7 @@ namespace TestApp.Commands
         public CustomList(IEnumerable<T> items)
             : base(items)
         {
-
+            //throw new NullReferenceException();
         }
     }
 }

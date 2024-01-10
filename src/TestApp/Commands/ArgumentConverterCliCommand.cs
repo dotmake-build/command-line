@@ -10,22 +10,22 @@ namespace TestApp.Commands
     public class ArgumentConverterCliCommand
     {
         [CliOption]
-        public ClassWithConstructor Opt { get; set; }
+        public ClassWithConstructor Opt { get; set; } = null;
 
         [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public ClassWithConstructor[] OptArray { get; set; }
+        public ClassWithConstructor[] OptArray { get; set; } = null;
 
         [CliOption]
-        public CustomStruct? OptNullable { get; set; }
+        public CustomStruct? OptNullable { get; set; } = null;
 
         [CliOption]
-        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; }
+        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; } = null;
 
         [CliOption]
-        public List<ClassWithConstructor> OptList { get; set; }
+        public List<ClassWithConstructor> OptList { get; set; } = null;
 
         [CliOption]
-        public CustomList<ClassWithConstructor> OptCustomList { get; set; }
+        public CustomList<ClassWithConstructor> OptCustomList { get; set; } = null;
 
         [CliArgument]
         public IEnumerable<ClassWithParser> Arg { get; set; }
@@ -93,6 +93,7 @@ namespace TestApp.Commands
 
         public static ClassWithParser Parse(string value)
         {
+            //throw new NullReferenceException();
             var instance = new ClassWithParser();
             instance.value = value;
             return instance;

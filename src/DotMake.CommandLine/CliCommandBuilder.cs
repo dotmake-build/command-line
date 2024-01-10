@@ -215,10 +215,10 @@ namespace DotMake.CommandLine
         /// <typeparam name="TCollection">The collection type, the argument type itself.</typeparam>
         /// <typeparam name="TItem">The item type, e.g. if argument type is IEnumerable&lt;T&gt;, item type will be T.</typeparam>
         /// <returns>A <see cref="ParseArgument{T}"/> delegate which can be passed to an option or argument.</returns>
-        public static ParseArgument<TCollection> GetParseArgument<TCollection, TItem>(Func<Array, object> convertFromArray, Func<string, TItem> convertFromString = null)
+        public static ParseArgument<TCollection> GetParseArgument<TCollection, TItem>(Func<Array, TCollection> convertFromArray, Func<string, TItem> convertFromString = null)
         {
-            RegisterCollectionConverter<TCollection>(convertFromArray);
-            RegisterStringConverter(convertFromString);
+            ArgumentConverter.RegisterCollectionConverter(convertFromArray);
+            ArgumentConverter.RegisterStringConverter(convertFromString);
 
             return GetParseArgument<TCollection>();
         }
@@ -236,7 +236,7 @@ namespace DotMake.CommandLine
         /// <returns>A <see cref="ParseArgument{T}"/> delegate which can be passed to an option or argument.</returns>
         public static ParseArgument<TArgument> GetParseArgument<TArgument>(Func<string, TArgument> convertFromString = null)
         {
-            RegisterStringConverter(convertFromString);
+            ArgumentConverter.RegisterStringConverter(convertFromString);
 
             return (result) =>
             {
@@ -252,44 +252,6 @@ namespace DotMake.CommandLine
 
                 return (TArgument)value;
             };
-        }
-
-        private static void RegisterCollectionConverter<TCollection>(Func<Array, object> convertFromArray)
-        {
-            if (convertFromArray == null)
-                return;
-
-            var collectionType = typeof(TCollection).GetNullableUnderlyingTypeOrSelf();
-
-            if (!ArgumentConverter.CollectionConverters.ContainsKey(collectionType))
-                ArgumentConverter.CollectionConverters.Add(collectionType, convertFromArray);
-        }
-
-        private static void RegisterStringConverter<TCustom>(Func<string, TCustom> convertFromString)
-        {
-            if (convertFromString == null)
-                return;
-
-            var customType = typeof(TCustom).GetNullableUnderlyingTypeOrSelf();
-
-            if (!ArgumentConverter.StringConverters.ContainsKey(customType))
-            {
-                bool TryConvertString(string input, out object value)
-                {
-                    try
-                    {
-                        value = convertFromString(input);
-                        return true;
-                    }
-                    catch
-                    {
-                        value = null;
-                        return false;
-                    }
-                }
-
-                ArgumentConverter.StringConverters.Add(customType, TryConvertString);
-            }
         }
 
         /// <summary>

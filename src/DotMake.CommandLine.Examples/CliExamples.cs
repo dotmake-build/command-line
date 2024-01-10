@@ -1,10 +1,12 @@
 using System;
 using System.CommandLine.Builder;
 using System.Threading.Tasks;
+using DotMake.CommandLine.CliCommandExamples;
 
-namespace DotMake.CommandLine.Examples
+// ReSharper disable once CheckNamespace
+namespace DotMake.CommandLine.CliExamples
 {
-    public class CliExamples
+    public class Program
     {
         public void CliRun(string[] args)
         {

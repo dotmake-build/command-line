@@ -20,6 +20,11 @@ namespace DotMake.CommandLine
     ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
     ///     </code>
     ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunExceptions" language="cs" />
+    ///     <code>
+    ///         <code source="..\DotMake.CommandLine.Examples\CliServiceExtensionsExamples.cs" region="Namespace" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliServiceExtensionsExamples.cs" region="ConfigureServices" language="cs" />
+    ///         <code source="..\DotMake.CommandLine.Examples\CliServiceExtensionsExamples.cs" region="RootCliCommand" language="cs" />
+    ///     </code>
     /// </example>
     public static class Cli
     {

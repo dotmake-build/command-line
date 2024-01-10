@@ -16,6 +16,69 @@ namespace DotMake.CommandLine.Binding
     {
         internal static Dictionary<Type, Func<Array, object>> CollectionConverters = new Dictionary<Type, Func<Array, object>>();
 
+        internal static TryConvertArgument? GetConverter(Argument argument)
+        {
+            /*
+            //We check exceptions for convert methods, so disabling this shortcut
+            if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
+            {
+                var type = argument.ValueType.GetNullableUnderlyingTypeOrSelf();
+
+                if (StringConverters.TryGetValue(type, out var tryConvertString))
+                {
+                    return (ArgumentResult result, out object? value) => tryConvertString(result.Tokens[result.Tokens.Count - 1].Value, out value);
+                }
+            }
+            */
+
+            if (argument.ValueType.CanBeBoundFromScalarValue())
+            {
+                return TryConvertArgument;
+            }
+
+            return default;
+        }
+
+        private static bool CanBeBoundFromScalarValue(this Type type)
+        {
+            type = type.GetNullableUnderlyingTypeOrSelf();
+
+            if (type.IsEnum || StringConverters.ContainsKey(type))
+                return true;
+
+            if (CollectionConverters.ContainsKey(type))
+                return true;
+
+            return false;
+        }
+
+        internal static bool TryConvertArgument(ArgumentResult argumentResult, out object? value)
+        {
+            var argument = argumentResult.Argument;
+
+            var conversionResult = argument.Arity.MaximumNumberOfValues switch
+            {
+                // 0 is an implicit bool, i.e. a "flag"
+                0 => Success(argumentResult.Argument, true),
+                1 => ConvertObject(argument,
+                                   argument.ValueType,
+                                   argumentResult.Tokens.Count > 0
+                                       ? argumentResult.Tokens[argumentResult.Tokens.Count - 1]
+                                       : null,
+                                   argumentResult.LocalizationResources),
+                _ => ConvertTokens(argument,
+                                    argument.ValueType,
+                                    argumentResult.Tokens,
+                                    argumentResult.LocalizationResources,
+                                    argumentResult)
+            };
+
+            value = conversionResult.Value;
+            argumentResult.ErrorMessage = conversionResult.ErrorMessage;
+            return conversionResult.Result == ArgumentConversionResultType.Successful;
+        }
+
+
         internal static ArgumentConversionResult ConvertObject(
             Argument argument,
             Type type,
@@ -47,13 +110,15 @@ namespace DotMake.CommandLine.Binding
 
             if (StringConverters.TryGetValue(type, out var tryConvert))
             {
-                if (tryConvert(value, out var converted))
+                try
                 {
-                    return Success(argument, converted);
+                    return tryConvert(value, out var converted)
+                        ? Success(argument, converted)
+                        : Failure(argument, type, value, localizationResources);
                 }
-                else
+                catch (Exception exception)
                 {
-                    return Failure(argument, type, value, localizationResources);
+                    return Failure(argument, type, value, localizationResources, exception);
                 }
             }
 
@@ -114,85 +179,61 @@ namespace DotMake.CommandLine.Binding
                 }
             }
 
-            if (CollectionConverters.TryGetValue(type, out var convertFromArray))
-                return Success(argument, convertFromArray(values));
-
-            return Failure(argument, type, string.Join("|", tokens), localizationResources);
+            try
+            {
+                return CollectionConverters.TryGetValue(type, out var convertFromArray)
+                    ? Success(argument, convertFromArray(values))
+                    : Failure(argument, type, string.Join("|", tokens), localizationResources);
+            }
+            catch (Exception exception)
+            {
+                return Failure(argument, type, string.Join("|", tokens), localizationResources, exception);
+            }
         }
 
-        internal static TryConvertArgument? GetConverter(Argument argument)
+        internal static void RegisterCollectionConverter<TCollection>(Func<Array, TCollection>? convertFromArray)
         {
-            if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
-            {
-                var type = argument.ValueType.GetNullableUnderlyingTypeOrSelf();
+            if (convertFromArray == null)
+                return;
 
-                if (StringConverters.TryGetValue(type, out var tryConvertString))
+            var collectionType = typeof(TCollection).GetNullableUnderlyingTypeOrSelf();
+
+            if (!CollectionConverters.ContainsKey(collectionType))
+            {
+                object ConvertArray(Array array)
                 {
-                    return (ArgumentResult result, out object? value) => tryConvertString(result.Tokens[result.Tokens.Count - 1].Value, out value);
+                    //Exceptions are handled in ConvertToken
+                    return convertFromArray(array)!;
                 }
+
+                CollectionConverters.Add(collectionType, ConvertArray);
             }
+        }
 
-            if (argument.ValueType.CanBeBoundFromScalarValue())
+        internal static void RegisterStringConverter<TArgument>(Func<string, TArgument>? convertFromString)
+        {
+            if (convertFromString == null)
+                return;
+
+            var itemType = typeof(TArgument).GetNullableUnderlyingTypeOrSelf();
+
+            if (!StringConverters.ContainsKey(itemType))
             {
-                return TryConvertArgument;
+                bool TryConvertString(string input, out object value)
+                {
+                    //Exceptions are handled in ConvertTokens
+                    value = convertFromString(input)!;
+                    return true;
+                }
+
+                StringConverters.Add(itemType, TryConvertString);
             }
-
-            return default;
-        }
-
-        private static bool CanBeBoundFromScalarValue(this Type type)
-        {
-            type = type.GetNullableUnderlyingTypeOrSelf();
-
-            if (type.IsEnum || StringConverters.ContainsKey(type))
-                return true;
-
-            if (CollectionConverters.ContainsKey(type))
-                return true;
-
-            return false;
-        }
-
-        private static ArgumentConversionResult Failure(
-            Argument argument,
-            Type expectedType,
-            string value,
-            LocalizationResources localizationResources)
-        {
-            return new ArgumentConversionResult(argument, expectedType, value, localizationResources);
-        }
-
-        public static bool TryConvertArgument(ArgumentResult argumentResult, out object? value)
-        {
-            var argument = argumentResult.Argument;
-
-            ArgumentConversionResult result = argument.Arity.MaximumNumberOfValues switch
-            {
-                // 0 is an implicit bool, i.e. a "flag"
-                0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument,
-                                   argument.ValueType,
-                                   argumentResult.Tokens.Count > 0
-                                       ? argumentResult.Tokens[argumentResult.Tokens.Count - 1]
-                                       : null, 
-                                   argumentResult.LocalizationResources),
-                _ => ConvertTokens(argument,
-                                    argument.ValueType,
-                                    argumentResult.Tokens,
-                                    argumentResult.LocalizationResources,
-                                    argumentResult)
-            };
-
-            value = result.Value;
-            return result.Result == ArgumentConversionResultType.Successful;
         }
 
         internal static object? GetDefaultValue(Type type)
         {
             if (type.IsNullable())
-            {
                 return null;
-            }
 
             try
             {
