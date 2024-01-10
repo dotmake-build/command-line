@@ -1,3 +1,4 @@
+#pragma warning disable CS1591
 //#define ErrorsOrWarnings
 using DotMake.CommandLine;
 using System.CommandLine.Invocation;

@@ -8,6 +8,8 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <!-- Prevent satellite resource DLL pollution (which come from System.CommandLine package) in bin folder, by setting a specific culture -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- For testing xml comment warnings in generated source code -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

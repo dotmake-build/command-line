@@ -212,7 +212,8 @@ namespace DotMake.CommandLine.SourceGeneration
             if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
 
-            using (addNamespaceBlock ? sb.AppendBlockStart($"namespace {GeneratedClassNamespace}") : null)
+            using var namespaceBlock = addNamespaceBlock ? sb.AppendBlockStart($"namespace {GeneratedClassNamespace}") : null;
+            sb.AppendLine("/// <inheritdoc />");
             using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
                 var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(CliNameCasingConvention.CamelCase);
@@ -220,6 +221,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToReferenceString();
                 var parentDefinitionType = (parentDefinitionClass != null) ? $"typeof({parentDefinitionClass})" : "null";
 
+                sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"public {GeneratedClassName}()"))
                 {
                     sb.AppendLine($"DefinitionType = typeof({definitionClass});");
@@ -247,6 +249,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
                 sb.AppendLine();
 
+                sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"public override {CommandClassNamespace}.{CommandClassName} Build()"))
                 {
                     AppendCSharpCreateString(sb, varCommand);
@@ -346,7 +349,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 sb.AppendLine();
                 sb.AppendLine("[System.Runtime.CompilerServices.ModuleInitializerAttribute]");
-                using (sb.AppendBlockStart("public static void Initialize()"))
+                using (sb.AppendBlockStart("internal static void Initialize()"))
                 {
                     var varCommandBuilder = "commandBuilder";
                     sb.AppendLine($"var {varCommandBuilder} = new {GeneratedClassFullName}();");

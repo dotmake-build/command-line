@@ -25,6 +25,9 @@ namespace System.Runtime.CompilerServices
     [AttributeUsage(AttributeTargets.Method, Inherited = false)]
     public sealed class ModuleInitializerAttribute : Attribute
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModuleInitializerAttribute" /> class.
+        /// </summary>
         public ModuleInitializerAttribute()
         {
         }
