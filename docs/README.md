@@ -38,6 +38,30 @@ PM> Install-Package DotMake.CommandLine
 
 ## Usage
 
+Create a CLI App with DotMake.Commandline in seconds!
+In Program.cs, add this simple code:
+```c#
+Cli.Run(([CliArgument]string argument1, bool option1) =>
+{
+    Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+    Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+});
+```
+And that's it! You now have a fully working command-line app.
+
+#### Summary
+- Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
+- A parameter is by default considered as a CLI option but you can;
+  - Mark a parameter with `CliArgument` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
+  - Mark a parameter with `CliOption` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+  - Mark the delegate itself with `CliCommand` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+- Set a default value for a parameter if you want it to be optional (not required to be specified on the command-line).
+- Your delegate can be `async`.
+- Your delegate can have a return type `void` or `int` and if it's async `Task` or `Task<int>`.
+
+### Class-based model
+
+While delegate-based model above is useful for simple apps, for more complex apps, you can use the class-based model.
 Create a simple class like this:
 
 ```c#
@@ -107,7 +131,7 @@ if (parseResult.Errors.Count > 0)
 
 }
 ```
-### Summary
+#### Summary
 - Mark the class with `CliCommand` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
 - Mark a property with `CliOption` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
 - Mark a property with `CliArgument` attribute to make it a CLI argument (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).

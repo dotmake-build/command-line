@@ -106,6 +106,15 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The command as delegate must have a return type &apos;void&apos; or &apos;int&apos; and if it&apos;s async &apos;Task&apos; or &apos;Task&lt;int&gt;&apos;..
+        /// </summary>
+        internal static string DelegateNotCorrect {
+            get {
+                return ResourceManager.GetString("DelegateNotCorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The method &apos;{0}&apos; must be a  non-generic method to generate a {1}..
         /// </summary>
         internal static string MethodNotNonGeneric {

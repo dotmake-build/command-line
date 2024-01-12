@@ -94,6 +94,11 @@ namespace DotMake.CommandLine.Binding
                     return ConvertTokens(argument, type, manyValues, localizationResources);
 
                 default:
+                    //Support bool flags here because ConvertIfNeeded cannot detect it as ArgumentConversionResult is internal
+                    //and we can not return our implemented ArgumentConversionResult
+                    if (argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?))
+                        return Success(argument, true);
+
                     return None(argument);
             }
         }

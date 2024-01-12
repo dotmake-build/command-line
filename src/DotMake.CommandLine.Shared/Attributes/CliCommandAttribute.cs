@@ -48,7 +48,7 @@ namespace DotMake.CommandLine
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="InheritanceCliCommand" language="cs" />
     /// </example>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CliCommandAttribute : Attribute
     {
         /// <summary>

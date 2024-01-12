@@ -4,14 +4,23 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using DotMake.CommandLine;
 using TestApp.Commands;
 using TestApp.Commands.PrefixConvention;
 
 try
 {
-    //Using Cli.Run:
-    Cli.Run<RootCliCommand>(args);
+    //Using Cli.Run with delegate:
+    Cli.Run(([CliArgument]string argument1, bool option1) =>
+    {
+        Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+        Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+    });
+
+    //Using Cli.Run with class:
+    //Cli.Run<RootCliCommand>(args);
     //Cli.Run<RootSnakeSlashCliCommand>(args);
     //Cli.Run<ForwardSlashCliCommand>(args);
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);

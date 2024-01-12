@@ -250,7 +250,9 @@ namespace DotMake.CommandLine
 
                 tryConvertArgument(result, out var value);
 
-                return (TArgument)value;
+                return value != null
+                    ? (TArgument)value
+                    : default;
             };
         }
 

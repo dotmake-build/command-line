@@ -31,7 +31,7 @@ namespace DotMake.CommandLine
     /// Both POSIX and Windows prefix conventions are supported. When you configure an option, you specify the option name including the prefix.
     /// </para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliOptionAttribute : Attribute
     {
         /// <summary>

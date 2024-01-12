@@ -25,7 +25,7 @@ namespace DotMake.CommandLine
     /// Arguments can have default values that apply if no argument is explicitly provided. For example, many options are implicitly Boolean parameters with a default of <c>true</c> when the option name is in the command line.
     /// </para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliArgumentAttribute : Attribute
     {
         /// <summary>

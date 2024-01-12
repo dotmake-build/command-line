@@ -132,6 +132,9 @@
   <data name="ClassNotPublicNonStatic" xml:space="preserve">
     <value>The class '{0}' will not generate a {1} (ignored) because it is not a public/internal and non-static class.</value>
   </data>
+  <data name="DelegateNotCorrect" xml:space="preserve">
+    <value>The command as delegate must have a return type 'void' or 'int' and if it's async 'Task' or 'Task&lt;int&gt;'.</value>
+  </data>
   <data name="MethodNotNonGeneric" xml:space="preserve">
     <value>The method '{0}' must be a  non-generic method to generate a {1}.</value>
   </data>

@@ -159,5 +159,89 @@ namespace DotMake.CommandLine.CliExamples
 
             #endregion
         }
+
+        public void CliRunDelegate()
+        {
+            #region CliRunDelegate
+
+            //In Program.cs, add this simple code:
+            Cli.Run(([CliArgument] string argument1, bool option1) =>
+            {
+                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+            });
+
+            //Or:
+            Cli.Run(Method);
+
+            void Method([CliArgument] string argument2, bool option2)
+            {
+                Console.WriteLine($@"Value for {nameof(argument2)} property is '{argument2}'");
+                Console.WriteLine($@"Value for {nameof(option2)} parameter is '{option2}'");
+            }
+
+            #endregion
+        }
+
+        public int CliRunDelegateWithReturn()
+        {
+            #region CliRunDelegateWithReturn
+
+            //In Program.cs, add this simple code for returning exit code:
+            return Cli.Run(([CliArgument] string argument1, bool option1) =>
+            {
+                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+
+                return 0;
+            });
+
+            #endregion
+        }
+
+        public void CliRunAsyncDelegate()
+        {
+            #region CliRunAsyncDelegate
+
+            //In Program.cs, to go async, add this simple code:
+            Cli.Run(async ([CliArgument] string argument1, bool option1) =>
+            {
+                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+
+                await Task.Delay(1000);
+            });
+
+            //Or:
+            Cli.Run(Method);
+
+            async Task Method([CliArgument] string argument2, bool option2)
+            {
+                Console.WriteLine($@"Value for {nameof(argument2)} property is '{argument2}'");
+                Console.WriteLine($@"Value for {nameof(option2)} parameter is '{option2}'");
+
+                await Task.Delay(1000);
+            }
+
+            #endregion
+        }
+
+        public int CliRunAsyncDelegateWithReturn()
+        {
+            #region
+
+            //In Program.cs, to go async, add this simple code for returning exit code:
+            return Cli.Run(async ([CliArgument] string argument1, bool option1) =>
+            {
+                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+
+                await Task.Delay(1000);
+                return 0;
+            });
+
+            #endregion
+        }
+
     }
 }

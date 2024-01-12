@@ -12,6 +12,7 @@ namespace DotMake.CommandLine
     /// Provides methods for parsing command line input and running an indicated command.
     /// </summary>
     /// <example>
+    ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunDelegate" language="cs" />
     ///     <inheritdoc cref="CliCommandAttribute" path="/example/code[@id='gettingStarted']" />
     ///     <code>
     ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
@@ -82,7 +83,18 @@ namespace DotMake.CommandLine
         /// <returns>A <see cref="CommandLineBuilder" /> providing details about command line configurations.</returns>
         public static CommandLineBuilder GetBuilder<TDefinition>(Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true)
         {
-            var commandBuilder = CliCommandBuilder.Get<TDefinition>();
+            var definitionType = typeof(TDefinition);
+
+            return GetBuilder(definitionType, configureBuilder, useBuilderDefaults);
+        }
+
+        /// <inheritdoc cref = "GetBuilder{TDefinition}" />
+        /// <param name="definitionType">The definition class type for the command. A command builder for this class should be automatically generated.</param>
+        /// <param name="configureBuilder"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='configureBuilder']/node()" /></param>
+        /// <param name="useBuilderDefaults"><inheritdoc cref="GetBuilder{TDefinition}" path="/param[@name='useBuilderDefaults']/node()" /></param>
+        public static CommandLineBuilder GetBuilder(Type definitionType, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true)
+        {
+            var commandBuilder = CliCommandBuilder.Get(definitionType);
             var command = commandBuilder.Build();
             var commandLineBuilder = new CommandLineBuilder(command);
 
@@ -159,6 +171,34 @@ namespace DotMake.CommandLine
             return parser.Invoke(commandLine, console);
         }
 
+        /// <summary>
+        /// Parses the command line arguments and runs the indicated command as delegate.
+        /// </summary>
+        /// <param name="cliCommandAsDelegate">
+        /// The command as delegate.
+        /// <code>
+        /// ([CliArgument] string argument1, bool option1) => { }
+        ///
+        /// ([CliArgument] string argument1, bool option1) => { return 0; }
+        ///
+        /// async ([CliArgument] string argument1, bool option1) => { await Task.Delay(1000); }
+        /// 
+        /// MethodReference
+        /// </code>
+        /// </param>
+        /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunDelegate" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunDelegateWithReturn" language="cs" />
+        /// </example>
+        public static int Run(Delegate cliCommandAsDelegate)
+        {
+            var definitionType = CliCommandAsDelegateDefinition.Get(cliCommandAsDelegate);
+            var parser = GetBuilder(definitionType).Build();
+
+            return parser.Invoke(GetArgs());
+        }
+
 
 
         /// <summary>
@@ -199,6 +239,23 @@ namespace DotMake.CommandLine
             var parser = GetBuilder<TDefinition>(configureBuilder, useBuilderDefaults).Build();
 
             return await parser.InvokeAsync(commandLine, console);
+        }
+
+        /// <summary>
+        /// Parses the command line arguments and runs the indicated command as delegate.
+        /// </summary>
+        /// <param name="cliCommandAsDelegate"><inheritdoc cref="Run(Delegate)" path="/param[@name='cliCommandAsDelegate']/node()" /></param>
+        /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
+        /// <example>
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncDelegate" language="cs" />
+        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncDelegateWithReturn" language="cs" />
+        /// </example>
+        public static async Task<int> RunAsync(Delegate cliCommandAsDelegate)
+        {
+            var definitionType = CliCommandAsDelegateDefinition.Get(cliCommandAsDelegate);
+            var parser = GetBuilder(definitionType).Build();
+
+            return await parser.InvokeAsync(GetArgs());
         }
 
 

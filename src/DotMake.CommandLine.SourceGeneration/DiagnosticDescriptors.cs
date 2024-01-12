@@ -54,6 +54,9 @@ namespace DotMake.CommandLine.SourceGeneration
         public static readonly DiagnosticDescriptor ErrorMethodNotNonGeneric =
             Create(DiagnosticSeverity.Error, 41, null, Resources.MethodNotNonGeneric);
 
+        public static readonly DiagnosticDescriptor ErrorDelegateNotCorrect =
+            Create(DiagnosticSeverity.Error, 42, null, Resources.DelegateNotCorrect);
+
 
         public static DiagnosticDescriptor Create(DiagnosticSeverity severity, int code, string title, string messageFormat)
         {
