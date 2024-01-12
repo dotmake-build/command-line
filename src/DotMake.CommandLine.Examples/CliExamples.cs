@@ -228,7 +228,7 @@ namespace DotMake.CommandLine.CliExamples
 
         public int CliRunAsyncDelegateWithReturn()
         {
-            #region
+            #region CliRunAsyncDelegateWithReturn
 
             //In Program.cs, to go async, add this simple code for returning exit code:
             return Cli.Run(async ([CliArgument] string argument1, bool option1) =>
