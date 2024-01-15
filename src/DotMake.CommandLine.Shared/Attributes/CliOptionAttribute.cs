@@ -138,6 +138,11 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
+        /// <summary>
+        /// Configures an option to accept only values corresponding to an existing file or directory.
+        /// </summary>
+        public bool ExistingOnly { get; set; }
+
         internal static CliOptionAttribute Default { get; } = new CliOptionAttribute();
     }
 }

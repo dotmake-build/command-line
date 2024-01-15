@@ -15,6 +15,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public const string AttributeRequiredProperty = nameof(CliArgumentAttribute.Required);
         public const string AttributeArityProperty = nameof(CliArgumentAttribute.Arity);
         public const string AttributeAllowedValuesProperty = nameof(CliArgumentAttribute.AllowedValues);
+        public const string AttributeExistingOnlyProperty = nameof(CliArgumentAttribute.ExistingOnly);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
         public const string ArgumentClassName = "Argument";
         public const string ArgumentClassNamespace = "System.CommandLine";
@@ -114,6 +115,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         case AttributeNameProperty:
                         case AttributeAllowedValuesProperty:
                         case AttributeRequiredProperty:
+                        case AttributeExistingOnlyProperty:
                             continue;
                         case AttributeArityProperty:
                             var arity = kvp.Value.ToCSharpString().Split('.').Last();
@@ -142,6 +144,10 @@ namespace DotMake.CommandLine.SourceGeneration
                 && ParseInfo.ItemType != null //if it's a collection type
                 && !AttributeArguments.ContainsKey(AttributeArityProperty))
                 sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
+
+            if (AttributeArguments.TryGetValue(AttributeExistingOnlyProperty, out var existingOnly)
+                            && (bool)existingOnly.Value)
+                sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.ExistingOnly({varName});");
         }
 
         public bool Equals(CliArgumentInfo other)
