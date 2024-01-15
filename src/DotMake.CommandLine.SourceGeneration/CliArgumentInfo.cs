@@ -45,8 +45,10 @@ namespace DotMake.CommandLine.SourceGeneration
                 && requiredTypedConstant.Value != null)
                 Required = (bool)requiredTypedConstant.Value;
             else
-                Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax
-                            && propertyDeclarationSyntax.Initializer == null);
+                Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax && (
+                                propertyDeclarationSyntax.Initializer == null
+                                || propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.SuppressNullableWarningExpression)
+                            ));
         }
 
         public CliArgumentInfo(GeneratorAttributeSyntaxContext attributeSyntaxContext)

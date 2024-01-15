@@ -16,8 +16,20 @@ namespace TestApp.Commands
         )]
         public string? Display { get; set; } //= "test";
 
+        [CliOption(
+            Description = "Description for Display2",
+            AllowedValues = new[] { "Big", "Small" }
+        )]
+        public string Display2 { get; set; } = null!;
+
         [CliArgument(Required = false)]
         public string[]? NullableRefArg { get; set; } //= new[] { "1", "2" };
+
+        [CliOption]
+        public string ReqOption { get; set; } = null!;
+
+        [CliArgument]
+        public string ReqArg { get; set; } = null!;
 
         public void Run(InvocationContext context)
         {
