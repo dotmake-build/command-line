@@ -51,6 +51,37 @@ namespace TestApp.Commands
             option0.AddAlias("-d");
             rootCommand.Add(option0);
 
+            // Option for 'Display2' property
+            var option1 = new System.CommandLine.Option<string>
+            (
+                "--display-2",
+                GetParseArgument<string>
+                (
+                    null
+                )
+            )
+            {
+                Description = "Description for Display2",
+                IsRequired = true,
+            };
+            System.CommandLine.OptionExtensions.FromAmong(option1, new[] {"Big", "Small"});
+            rootCommand.Add(option1);
+
+            // Option for 'ReqOption' property
+            var option2 = new System.CommandLine.Option<string>
+            (
+                "--req",
+                GetParseArgument<string>
+                (
+                    null
+                )
+            )
+            {
+                IsRequired = true,
+            };
+            option2.AddAlias("-r");
+            rootCommand.Add(option2);
+
             // Argument for 'NullableRefArg' property
             var argument0 = new System.CommandLine.Argument<string[]>
             (
@@ -66,6 +97,19 @@ namespace TestApp.Commands
             argument0.SetDefaultValue(defaultClass.NullableRefArg);
             rootCommand.Add(argument0);
 
+            // Argument for 'ReqArg' property
+            var argument1 = new System.CommandLine.Argument<string>
+            (
+                "req-arg",
+                GetParseArgument<string>
+                (
+                    null
+                )
+            )
+            {
+            };
+            rootCommand.Add(argument1);
+
             // Add nested or external registered children
             foreach (var child in Children)
             {
@@ -78,9 +122,12 @@ namespace TestApp.Commands
 
                 //  Set the parsed or default values for the options
                 targetClass.Display = GetValueForOption(parseResult, option0);
+                targetClass.Display2 = GetValueForOption(parseResult, option1);
+                targetClass.ReqOption = GetValueForOption(parseResult, option2);
 
                 //  Set the parsed or default values for the arguments
                 targetClass.NullableRefArg = GetValueForArgument(parseResult, argument0);
+                targetClass.ReqArg = GetValueForArgument(parseResult, argument1);
 
                 return targetClass;
             };
