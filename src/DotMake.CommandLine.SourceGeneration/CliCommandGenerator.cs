@@ -73,6 +73,17 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 //Console.Beep(1000, 200); // For testing, how many times the generator is hit
 
+                if (!CheckLanguage(referenceDependantInfo.Compilation))
+                {
+                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguage, Location.None));
+                    return;
+                }
+                if (!CheckLanguageVersion(referenceDependantInfo.Compilation.SyntaxTrees.FirstOrDefault()?.Options, out var currentVersion, out var supportedMinVersion))
+                {
+                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguageVersion, Location.None, supportedMinVersion));
+                    return;
+                }
+
                 //Note for sort order we use (FileName) instead of [FileName] for special classes so that they are displayed at top also in VS Analyzers node.
                 //[] looked better, and it's on top in VS Folder nodes (which uses Windows File Explorer sorting rules) but not in VS Analyzers node (which seems to use ascii code order)
                 //https://superuser.com/a/1560527
@@ -82,6 +93,13 @@ namespace DotMake.CommandLine.SourceGeneration
                     sourceProductionContext.AddSource(
                         "(ModuleInitializerAttribute).g.cs",
                         GetSourceTextFromEmbeddedResource("ModuleInitializerAttribute.cs", analyzerConfigOptions)
+                    );
+
+                //For supporting Required modifier before net7.0 (need LangVersion 11)
+                if (currentVersion > LanguageVersion.CSharp10 && !referenceDependantInfo.HasRequiredMember)
+                    sourceProductionContext.AddSource(
+                        "(RequiredMemberAttribute).g.cs",
+                        GetSourceTextFromEmbeddedResource("RequiredMemberAttribute.cs", analyzerConfigOptions)
                     );
 
                 if (referenceDependantInfo.HasMsDependencyInjection)
@@ -100,22 +118,16 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
+
         private static void GenerateCommandBuilderSourceCode(SourceProductionContext sourceProductionContext, CliCommandInfo cliCommandInfo, AnalyzerConfigOptions analyzerConfigOptions)
         {
             try
             {
                 //Console.Beep(1000, 200); // For testing, how many times the generator is hit
 
-                if (cliCommandInfo.SemanticModel.Compilation.Language != LanguageNames.CSharp)
-                {
-                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguage, Location.None));
+                if (!CheckLanguage(cliCommandInfo.SemanticModel.Compilation)
+                    || !CheckLanguageVersion(cliCommandInfo.SyntaxNode.SyntaxTree.Options))
                     return;
-                }
-                if (cliCommandInfo.SyntaxNode.SyntaxTree.Options is CSharpParseOptions options && options.LanguageVersion < LanguageVersion.CSharp7_3)
-                {
-                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguageVersion, Location.None));
-                    return;
-                }
 
                 cliCommandInfo.ReportDiagnostics(sourceProductionContext);
 
@@ -149,12 +161,16 @@ namespace DotMake.CommandLine.SourceGeneration
 
         private static void GenerateCliCommandAsDelegateSourceCode(SourceProductionContext sourceProductionContext, CliCommandAsDelegateInfo cliCommandAsDelegateInfo, AnalyzerConfigOptions analyzerConfigOptions)
         {
-            if (cliCommandAsDelegateInfo == null)
-                return;
-
             try
             {
                 //Console.Beep(1000, 200); // For testing, how many times the generator is hit
+
+                if (cliCommandAsDelegateInfo == null)
+                    return;
+
+                if (!CheckLanguage(cliCommandAsDelegateInfo.SemanticModel.Compilation)
+                    || !CheckLanguageVersion(cliCommandAsDelegateInfo.SyntaxNode.SyntaxTree.Options))
+                    return;
 
                 cliCommandAsDelegateInfo.ReportDiagnostics(sourceProductionContext);
                 
@@ -192,6 +208,28 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 sourceProductionContext.ReportDiagnosticSafe(diagnostic);
             }
+        }
+
+        private static bool CheckLanguage(Compilation compilation)
+        {
+            return (compilation.Language == LanguageNames.CSharp);
+        }
+
+        private static bool CheckLanguageVersion(ParseOptions parseOptions)
+        {
+            return CheckLanguageVersion(parseOptions, out _, out _);
+
+        }
+
+        private static bool CheckLanguageVersion(ParseOptions parseOptions, out LanguageVersion currentVersion, out string supportedMinVersion)
+        {
+            currentVersion = 0;
+            supportedMinVersion = "9.0";
+
+            // Error CS8370	Feature 'nullable reference types' is not available in C# 7.3. Please use language version 8.0 or greater.
+            // Error CSS8370 Feature 'module initializers' is not available in C# 7.3. Please use language version 9.0 or greater.
+            return (parseOptions is CSharpParseOptions options
+                    && (currentVersion = options.LanguageVersion) >= LanguageVersion.CSharp9);
         }
 
         private static void AppendGeneratedCodeHeader(CodeStringBuilder sb, string generationKey, AnalyzerConfigOptions analyzerConfigOptions)

@@ -44,8 +44,9 @@ namespace GeneratedCode
                 )
             )
             {
-                IsRequired = true,
+                IsRequired = false,
             };
+            option0.SetDefaultValue(defaultClass.option1);
             option0.AddAlias("-o");
             rootCommand.Add(option0);
 

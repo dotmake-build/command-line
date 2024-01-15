@@ -3,6 +3,7 @@
   <PropertyGroup>
     <!-- generator projects must be netstandard2.0 -->
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
     <!-- 
       should be set for analyzer/generators projects to suppress RS1036 (enables checking of banned types):
       https://stackoverflow.com/a/75767670 

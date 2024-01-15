@@ -12,26 +12,26 @@ namespace TestApp.Commands
     [CliCommand]
     public class EnumerableCliCommand
     {
-        [CliOption]
-        public IEnumerable<int> OptEnumerable { get; set; } = null;
+        [CliOption(Required = false)]
+        public IEnumerable<int> OptEnumerable { get; set; }
 
-        [CliOption]
-        public List<string> OptList { get; set; } = null;
+        [CliOption(Required = false)]
+        public List<string> OptList { get; set; }
 
-        [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public FileAccess[] OptEnumArray { get; set; } = null;
+        [CliOption(Required = false, AllowMultipleArgumentsPerToken = true)]
+        public FileAccess[] OptEnumArray { get; set; }
 
-        [CliOption]
-        public Collection<int?> OptCollection { get; set; } = null;
+        [CliOption(Required = false)]
+        public Collection<int?> OptCollection { get; set; }
 
-        [CliOption]
-        public HashSet<string> OptHashSet { get; set; } = null;
+        [CliOption(Required = false)]
+        public HashSet<string> OptHashSet { get; set; }
 
-        [CliOption]
-        public Queue<FileInfo> OptQueue { get; set; } = null;
+        [CliOption(Required = false)]
+        public Queue<FileInfo> OptQueue { get; set; }
 
-        [CliOption]
-        public CustomList<string> OptCustomList { get; set; } = null;
+        [CliOption(Required = false)]
+        public CustomList<string> OptCustomList { get; set; }
 
         [CliArgument]
         public IList ArgIList { get; set; }

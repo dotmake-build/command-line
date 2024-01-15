@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <!-- https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generateassemblyinfo -->
-    <LangVersion>10.0</LangVersion>
     <VersionPrefix>1.6.6</VersionPrefix>
     <Product>DotMake Command-Line</Product>
     <Company>DotMake</Company>

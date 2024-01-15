@@ -7,7 +7,9 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public ReferenceDependantInfo(Compilation compilation)
         {
+            Compilation = compilation;
             HasModuleInitializer = (compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.ModuleInitializerAttribute") != null);
+            HasRequiredMember = (compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.RequiredMemberAttribute") != null);
 
             foreach (var referencedAssembly in compilation.SourceModule.ReferencedAssemblies)
             {
@@ -23,7 +25,11 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
+        public Compilation Compilation { get; }
+
         public bool HasModuleInitializer { get; }
+
+        public bool HasRequiredMember { get; }
 
         public bool HasMsDependencyInjection { get; }
 

@@ -13,12 +13,13 @@ using TestApp.Commands.PrefixConvention;
 try
 {
     //Using Cli.Run with delegate:
+    
     Cli.Run(([CliArgument]string argument1, bool option1) =>
     {
-        Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+        Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
         Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
     });
-
+    
     //Using Cli.Run with class:
     //Cli.Run<RootCliCommand>(args);
     //Cli.Run<RootSnakeSlashCliCommand>(args);
@@ -27,7 +28,7 @@ try
     //Cli.Run<RootWithExternalChildrenCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<EnumerableCliCommand>(args);
-    //Cli.Run<NullableReferenceCommand>(args);
+    Cli.Run<NullableReferenceCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
 
     //Using Cli.RunAsync:

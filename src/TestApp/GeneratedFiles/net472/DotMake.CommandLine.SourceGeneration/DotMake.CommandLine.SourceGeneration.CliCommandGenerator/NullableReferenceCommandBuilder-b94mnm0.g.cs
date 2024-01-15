@@ -34,82 +34,6 @@ namespace TestApp.Commands
 
             var defaultClass = CreateInstance();
 
-            // Option for 'Display' property
-            var option0 = new System.CommandLine.Option<string>
-            (
-                "--display",
-                GetParseArgument<string>
-                (
-                    null
-                )
-            )
-            {
-                Description = "Description for Display",
-                IsRequired = true,
-            };
-            System.CommandLine.OptionExtensions.FromAmong(option0, new[] {"Big", "Small"});
-            option0.AddAlias("-d");
-            rootCommand.Add(option0);
-
-            // Option for 'Display2' property
-            var option1 = new System.CommandLine.Option<string>
-            (
-                "--display-2",
-                GetParseArgument<string>
-                (
-                    null
-                )
-            )
-            {
-                Description = "Description for Display2",
-                IsRequired = true,
-            };
-            System.CommandLine.OptionExtensions.FromAmong(option1, new[] {"Big", "Small"});
-            rootCommand.Add(option1);
-
-            // Option for 'ReqOption' property
-            var option2 = new System.CommandLine.Option<string>
-            (
-                "--req",
-                GetParseArgument<string>
-                (
-                    null
-                )
-            )
-            {
-                IsRequired = true,
-            };
-            option2.AddAlias("-r");
-            rootCommand.Add(option2);
-
-            // Argument for 'NullableRefArg' property
-            var argument0 = new System.CommandLine.Argument<string[]>
-            (
-                "nullable-ref-arg",
-                GetParseArgument<string[], string>
-                (
-                    array => (string[])array,
-                    null
-                )
-            )
-            {
-            };
-            argument0.SetDefaultValue(defaultClass.NullableRefArg);
-            rootCommand.Add(argument0);
-
-            // Argument for 'ReqArg' property
-            var argument1 = new System.CommandLine.Argument<string>
-            (
-                "req-arg",
-                GetParseArgument<string>
-                (
-                    null
-                )
-            )
-            {
-            };
-            rootCommand.Add(argument1);
-
             // Add nested or external registered children
             foreach (var child in Children)
             {
@@ -121,13 +45,8 @@ namespace TestApp.Commands
                 var targetClass = CreateInstance();
 
                 //  Set the parsed or default values for the options
-                targetClass.Display = GetValueForOption(parseResult, option0);
-                targetClass.Display2 = GetValueForOption(parseResult, option1);
-                targetClass.ReqOption = GetValueForOption(parseResult, option2);
 
                 //  Set the parsed or default values for the arguments
-                targetClass.NullableRefArg = GetValueForArgument(parseResult, argument0);
-                targetClass.ReqArg = GetValueForArgument(parseResult, argument1);
 
                 return targetClass;
             };
@@ -137,7 +56,7 @@ namespace TestApp.Commands
                 var targetClass = (TestApp.Commands.NullableReferenceCommand) BindFunc(context.ParseResult);
 
                 //  Call the command handler
-                targetClass.Run(context);
+                targetClass.Run();
             });
 
             return rootCommand;
@@ -151,6 +70,411 @@ namespace TestApp.Commands
             // Register this command builder so that it can be found by the definition class
             // and it can be found by the parent definition class if it's a nested/external child.
             commandBuilder.Register();
+        }
+
+        /// <inheritdoc />
+        public class NullableBuilder : DotMake.CommandLine.CliCommandBuilder
+        {
+            /// <inheritdoc />
+            public NullableBuilder()
+            {
+                DefinitionType = typeof(TestApp.Commands.NullableReferenceCommand.Nullable);
+                ParentDefinitionType = typeof(TestApp.Commands.NullableReferenceCommand);
+                NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
+                NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
+                ShortFormPrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
+                ShortFormAutoGenerate = true;
+            }
+
+            private TestApp.Commands.NullableReferenceCommand.Nullable CreateInstance()
+            {
+                return new TestApp.Commands.NullableReferenceCommand.Nullable();
+            }
+
+            /// <inheritdoc />
+            public override System.CommandLine.Command Build()
+            {
+                // Command for 'Nullable' class
+                var command = new System.CommandLine.Command("nullable")
+                {
+                };
+
+                var defaultClass = CreateInstance();
+
+                // Option for 'Opt' property
+                var option0 = new System.CommandLine.Option<string>
+                (
+                    "--opt",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Option with nullable reference type with no default value (should be required)",
+                    IsRequired = true,
+                };
+                System.CommandLine.OptionExtensions.FromAmong(option0, new[] {"Big", "Small"});
+                option0.AddAlias("-o");
+                command.Add(option0);
+
+                // Option for 'OptDefault' property
+                var option1 = new System.CommandLine.Option<string>
+                (
+                    "--opt-default",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Option with nullable reference type with default value (should not be required)",
+                    IsRequired = false,
+                };
+                System.CommandLine.OptionExtensions.FromAmong(option1, new[] {"Big", "Small"});
+                option1.SetDefaultValue(defaultClass.OptDefault);
+                command.Add(option1);
+
+                // Argument for 'Arg' property
+                var argument0 = new System.CommandLine.Argument<string>
+                (
+                    "arg",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Argument with nullable reference type with no default value (should be required)",
+                };
+                command.Add(argument0);
+
+                // Argument for 'ArgDefault' property
+                var argument1 = new System.CommandLine.Argument<string>
+                (
+                    "arg-default",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Argument with nullable reference type with default value (should not be required)",
+                };
+                argument1.SetDefaultValue(defaultClass.ArgDefault);
+                command.Add(argument1);
+
+                // Add nested or external registered children
+                foreach (var child in Children)
+                {
+                    command.Add(child.Build());
+                }
+
+                BindFunc = (parseResult) =>
+                {
+                    var targetClass = CreateInstance();
+
+                    //  Set the parsed or default values for the options
+                    targetClass.Opt = GetValueForOption(parseResult, option0);
+                    targetClass.OptDefault = GetValueForOption(parseResult, option1);
+
+                    //  Set the parsed or default values for the arguments
+                    targetClass.Arg = GetValueForArgument(parseResult, argument0);
+                    targetClass.ArgDefault = GetValueForArgument(parseResult, argument1);
+
+                    return targetClass;
+                };
+
+                System.CommandLine.Handler.SetHandler(command, context =>
+                {
+                    var targetClass = (TestApp.Commands.NullableReferenceCommand.Nullable) BindFunc(context.ParseResult);
+
+                    //  Call the command handler
+                    targetClass.Run();
+                });
+
+                return command;
+            }
+
+            [System.Runtime.CompilerServices.ModuleInitializerAttribute]
+            internal static void Initialize()
+            {
+                var commandBuilder = new TestApp.Commands.NullableReferenceCommandBuilder.NullableBuilder();
+
+                // Register this command builder so that it can be found by the definition class
+                // and it can be found by the parent definition class if it's a nested/external child.
+                commandBuilder.Register();
+            }
+        }
+
+        /// <inheritdoc />
+        public class NonNullableBuilder : DotMake.CommandLine.CliCommandBuilder
+        {
+            /// <inheritdoc />
+            public NonNullableBuilder()
+            {
+                DefinitionType = typeof(TestApp.Commands.NullableReferenceCommand.NonNullable);
+                ParentDefinitionType = typeof(TestApp.Commands.NullableReferenceCommand);
+                NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
+                NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
+                ShortFormPrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
+                ShortFormAutoGenerate = true;
+            }
+
+            private TestApp.Commands.NullableReferenceCommand.NonNullable CreateInstance()
+            {
+                return new TestApp.Commands.NullableReferenceCommand.NonNullable();
+            }
+
+            /// <inheritdoc />
+            public override System.CommandLine.Command Build()
+            {
+                // Command for 'NonNullable' class
+                var command = new System.CommandLine.Command("non-nullable")
+                {
+                };
+
+                var defaultClass = CreateInstance();
+
+                // Option for 'Opt' property
+                var option0 = new System.CommandLine.Option<string>
+                (
+                    "--opt",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Option with non-nullable reference type with SuppressNullableWarningExpression (should be required)",
+                    IsRequired = true,
+                };
+                System.CommandLine.OptionExtensions.FromAmong(option0, new[] {"Big", "Small"});
+                option0.AddAlias("-o");
+                command.Add(option0);
+
+                // Option for 'OptDefault' property
+                var option1 = new System.CommandLine.Option<string>
+                (
+                    "--opt-default",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Option with non-nullable reference type with default value (should not be required)",
+                    IsRequired = false,
+                };
+                System.CommandLine.OptionExtensions.FromAmong(option1, new[] {"Big", "Small"});
+                option1.SetDefaultValue(defaultClass.OptDefault);
+                command.Add(option1);
+
+                // Argument for 'Arg' property
+                var argument0 = new System.CommandLine.Argument<string>
+                (
+                    "arg",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Argument with non-nullable reference type type with SuppressNullableWarningExpression (should be required)",
+                };
+                command.Add(argument0);
+
+                // Argument for 'ArgDefault' property
+                var argument1 = new System.CommandLine.Argument<string>
+                (
+                    "arg-default",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Argument with non-nullable reference type with default value (should not be required)",
+                };
+                argument1.SetDefaultValue(defaultClass.ArgDefault);
+                command.Add(argument1);
+
+                // Add nested or external registered children
+                foreach (var child in Children)
+                {
+                    command.Add(child.Build());
+                }
+
+                BindFunc = (parseResult) =>
+                {
+                    var targetClass = CreateInstance();
+
+                    //  Set the parsed or default values for the options
+                    targetClass.Opt = GetValueForOption(parseResult, option0);
+                    targetClass.OptDefault = GetValueForOption(parseResult, option1);
+
+                    //  Set the parsed or default values for the arguments
+                    targetClass.Arg = GetValueForArgument(parseResult, argument0);
+                    targetClass.ArgDefault = GetValueForArgument(parseResult, argument1);
+
+                    return targetClass;
+                };
+
+                System.CommandLine.Handler.SetHandler(command, context =>
+                {
+                    var targetClass = (TestApp.Commands.NullableReferenceCommand.NonNullable) BindFunc(context.ParseResult);
+
+                    //  Call the command handler
+                    targetClass.Run();
+                });
+
+                return command;
+            }
+
+            [System.Runtime.CompilerServices.ModuleInitializerAttribute]
+            internal static void Initialize()
+            {
+                var commandBuilder = new TestApp.Commands.NullableReferenceCommandBuilder.NonNullableBuilder();
+
+                // Register this command builder so that it can be found by the definition class
+                // and it can be found by the parent definition class if it's a nested/external child.
+                commandBuilder.Register();
+            }
+        }
+
+        /// <inheritdoc />
+        public class RequiredBuilder : DotMake.CommandLine.CliCommandBuilder
+        {
+            /// <inheritdoc />
+            public RequiredBuilder()
+            {
+                DefinitionType = typeof(TestApp.Commands.NullableReferenceCommand.Required);
+                ParentDefinitionType = typeof(TestApp.Commands.NullableReferenceCommand);
+                NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
+                NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
+                ShortFormPrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
+                ShortFormAutoGenerate = true;
+            }
+
+            private TestApp.Commands.NullableReferenceCommand.Required CreateInstance()
+            {
+                return System.Activator.CreateInstance<TestApp.Commands.NullableReferenceCommand.Required>();
+            }
+
+            /// <inheritdoc />
+            public override System.CommandLine.Command Build()
+            {
+                // Command for 'Required' class
+                var command = new System.CommandLine.Command("required")
+                {
+                };
+
+                var defaultClass = CreateInstance();
+
+                // Option for 'Opt' property
+                var option0 = new System.CommandLine.Option<string>
+                (
+                    "--opt",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Option with required keyword with no default value (should be required)",
+                    IsRequired = true,
+                };
+                System.CommandLine.OptionExtensions.FromAmong(option0, new[] {"Big", "Small"});
+                option0.AddAlias("-o");
+                command.Add(option0);
+
+                // Option for 'OptDefault' property
+                var option1 = new System.CommandLine.Option<string>
+                (
+                    "--opt-default",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Option with required keyword with default value (should not be required)",
+                    IsRequired = false,
+                };
+                System.CommandLine.OptionExtensions.FromAmong(option1, new[] {"Big", "Small"});
+                option1.SetDefaultValue(defaultClass.OptDefault);
+                command.Add(option1);
+
+                // Argument for 'Arg' property
+                var argument0 = new System.CommandLine.Argument<string>
+                (
+                    "arg",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Argument with required keyword with no default value (should be required)",
+                };
+                command.Add(argument0);
+
+                // Argument for 'ArgDefault' property
+                var argument1 = new System.CommandLine.Argument<string>
+                (
+                    "arg-default",
+                    GetParseArgument<string>
+                    (
+                        null
+                    )
+                )
+                {
+                    Description = "Argument with required keyword with default value (should not be required)",
+                };
+                argument1.SetDefaultValue(defaultClass.ArgDefault);
+                command.Add(argument1);
+
+                // Add nested or external registered children
+                foreach (var child in Children)
+                {
+                    command.Add(child.Build());
+                }
+
+                BindFunc = (parseResult) =>
+                {
+                    var targetClass = CreateInstance();
+
+                    //  Set the parsed or default values for the options
+                    targetClass.Opt = GetValueForOption(parseResult, option0);
+                    targetClass.OptDefault = GetValueForOption(parseResult, option1);
+
+                    //  Set the parsed or default values for the arguments
+                    targetClass.Arg = GetValueForArgument(parseResult, argument0);
+                    targetClass.ArgDefault = GetValueForArgument(parseResult, argument1);
+
+                    return targetClass;
+                };
+
+                System.CommandLine.Handler.SetHandler(command, context =>
+                {
+                    var targetClass = (TestApp.Commands.NullableReferenceCommand.Required) BindFunc(context.ParseResult);
+
+                    //  Call the command handler
+                    targetClass.Run();
+                });
+
+                return command;
+            }
+
+            [System.Runtime.CompilerServices.ModuleInitializerAttribute]
+            internal static void Initialize()
+            {
+                var commandBuilder = new TestApp.Commands.NullableReferenceCommandBuilder.RequiredBuilder();
+
+                // Register this command builder so that it can be found by the definition class
+                // and it can be found by the parent definition class if it's a nested/external child.
+                commandBuilder.Register();
+            }
         }
     }
 }

@@ -196,7 +196,7 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Source generation requires at least C# version 7.3 in the consuming project..
+        ///   Looks up a localized string similar to Source generation requires at least C# version {0} in the consuming project. Please add &lt;LangVersion&gt;9.0&lt;/LangVersion&gt; tag to your .csproj file..
         /// </summary>
         internal static string UnsupportedLanguageVersion {
             get {

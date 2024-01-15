@@ -208,6 +208,8 @@ namespace DotMake.CommandLine.SourceGeneration
             var childArgumentsWithoutProblem = ChildArguments.Where(c => !c.HasProblem).ToArray();
             var childCommandsWithoutProblem = ChildCommands.Where(c => !c.HasProblem).ToArray();
             var handlerWithoutProblem = (Handler != null && !Handler.HasProblem) ? Handler : null;
+            var memberHasRequiredModifier = childOptionsWithoutProblem.Any(o => o.Symbol.IsRequired)
+                                            || childArgumentsWithoutProblem.Any(a => a.Symbol.IsRequired);
 
             if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
@@ -244,6 +246,8 @@ namespace DotMake.CommandLine.SourceGeneration
                         sb.AppendIndent();
                         sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
                     }
+                    else if (memberHasRequiredModifier)
+                        sb.AppendLine($"return System.Activator.CreateInstance<{definitionClass}>();");
                     else
                         sb.AppendLine($"return new {definitionClass}();");
                 }

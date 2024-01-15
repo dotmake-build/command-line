@@ -167,7 +167,7 @@ namespace DotMake.CommandLine.CliExamples
             //In Program.cs, add this simple code:
             Cli.Run(([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
                 Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
             });
 
@@ -176,7 +176,7 @@ namespace DotMake.CommandLine.CliExamples
 
             void Method([CliArgument] string argument2, bool option2)
             {
-                Console.WriteLine($@"Value for {nameof(argument2)} property is '{argument2}'");
+                Console.WriteLine($@"Value for {nameof(argument2)} parameter is '{argument2}'");
                 Console.WriteLine($@"Value for {nameof(option2)} parameter is '{option2}'");
             }
 
@@ -190,7 +190,7 @@ namespace DotMake.CommandLine.CliExamples
             //In Program.cs, add this simple code for returning exit code:
             return Cli.Run(([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
                 Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
 
                 return 0;
@@ -206,7 +206,7 @@ namespace DotMake.CommandLine.CliExamples
             //In Program.cs, to go async, add this simple code:
             Cli.Run(async ([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
                 Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
 
                 await Task.Delay(1000);
@@ -217,7 +217,7 @@ namespace DotMake.CommandLine.CliExamples
 
             async Task Method([CliArgument] string argument2, bool option2)
             {
-                Console.WriteLine($@"Value for {nameof(argument2)} property is '{argument2}'");
+                Console.WriteLine($@"Value for {nameof(argument2)} parameter is '{argument2}'");
                 Console.WriteLine($@"Value for {nameof(option2)} parameter is '{option2}'");
 
                 await Task.Delay(1000);
@@ -233,7 +233,7 @@ namespace DotMake.CommandLine.CliExamples
             //In Program.cs, to go async, add this simple code for returning exit code:
             return Cli.Run(async ([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
                 Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
 
                 await Task.Delay(1000);

@@ -10,23 +10,23 @@ namespace TestApp.Commands
     [CliCommand]
     public class ArgumentConverterCliCommand
     {
-        [CliOption]
-        public ClassWithConstructor Opt { get; set; } = null;
+        [CliOption(Required = false)]
+        public ClassWithConstructor Opt { get; set; }
 
-        [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public ClassWithConstructor[] OptArray { get; set; } = null;
+        [CliOption(Required = false, AllowMultipleArgumentsPerToken = true)]
+        public ClassWithConstructor[] OptArray { get; set; }
 
-        [CliOption]
-        public CustomStruct? OptNullable { get; set; } = null;
+        [CliOption(Required = false)]
+        public CustomStruct? OptNullable { get; set; }
 
-        [CliOption]
-        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; } = null;
+        [CliOption(Required = false)]
+        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; }
 
-        [CliOption]
-        public List<ClassWithConstructor> OptList { get; set; } = null;
+        [CliOption(Required = false)]
+        public List<ClassWithConstructor> OptList { get; set; }
 
-        [CliOption]
-        public CustomList<ClassWithConstructor> OptCustomList { get; set; } = null;
+        [CliOption(Required = false)]
+        public CustomList<ClassWithConstructor> OptCustomList { get; set; }
 
         [CliArgument]
         public IEnumerable<ClassWithParser> Arg { get; set; }

@@ -33,6 +33,7 @@ PM> Install-Package DotMake.CommandLine
 ### Prerequisites
 
 - .NET 6.0 and later project or .NET Standard 2.0 and later project (note that .NET Framework 4.7.2+ can reference netstandard2.0 libraries).
+  If your target framework is below net5.0, you also need `<LangVersion>9.0</LangVersion>` tag (minimum) in your .csproj file.
 - Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (our incremental source generator requires performance features added first in these versions).
 - Usually a console app project but you can also use a class library project which will be consumed later.
 
@@ -43,7 +44,7 @@ In Program.cs, add this simple code:
 ```c#
 Cli.Run(([CliArgument]string argument1, bool option1) =>
 {
-    Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
+    Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
     Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
 });
 ```
@@ -55,6 +56,8 @@ And that's it! You now have a fully working command-line app.
   - Mark a parameter with `CliArgument` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
   - Mark a parameter with `CliOption` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
   - Mark the delegate itself with `CliCommand` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+  - Note that for being able to mark a parameter with an attribute in an anonymous lambda function, 
+    if your target framework is below net6.0, you also need `<LangVersion>10.0</LangVersion>` tag (minimum) in your .csproj file.
 - Set a default value for a parameter if you want it to be optional (not required to be specified on the command-line).
 - Your delegate can be `async`.
 - Your delegate can have a return type `void` or `int` and if it's async `Task` or `Task<int>`.
@@ -167,319 +170,13 @@ if (parseResult.Errors.Count > 0)
   The signatures which return int value, sets the ExitCode of the app.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 
-## Model binding
-
-When the command handler is run, the properties for CLI options and arguments will be already populated 
-and bound from values passed in the command-line. If no matching value is passed, the property will have its default value.
-
-When you run the app via 
-- `TestApp.exe` in project output path (e.g. in `TestApp\bin\Debug\net6.0`)
-- or `dotnet run`in project directory (e.g. in `TestApp`)
-
-You see this result:
-```console
-Required argument missing for command: 'TestApp'.
-```
-This is because a `CliArgument` or `CliOption` decorated property is required if the decorated property does not have a 
-default value (set via a property initializer) or if it's not forced via attribute property `Required`.
-
-If you want to make a `CliArgument` or `CliOption` optional (not required), set a default value for the decorated property:
-```c#
-[CliArgument]
-public string Argument1 { get; set; } = "DefaultForArgument1";
-```
-or set `Required` property to `false`, to force it:
-```c#
-[CliArgument(Required = false)]
-public string Argument1 { get; set; }
-```
-In that case, the default value for the decorated property will be used when the user does not specify the argument on the command line.
-
----
-When you run,
-```console
-TestApp.exe NewValueForArgument1
-```
-or (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application):
-```console
-dotnet run -- NewValueForArgument1
-```
-You see this result:
-```console
-Handler for 'TestApp.Commands.RootCliCommand' is run:
-Value for Option1 property is 'DefaultForOption1'
-Value for Argument1 property is 'NewValueForArgument1'
-```
-This is because a `CliArgument` or `CliOption` decorated property is not required if the decorated property has a 
-default value (set via a property initializer) or if it's not forced via attribute property `Required`.
-
-If you want to make a `CliArgument` or `CliOption` required, remove the default value for the decorated property:
-```c#
-[CliOption]
-public string Option1 { get; set; }
-```
-or set `Required` property to `true`, to force it:
-```c#
-[CliOption(Required = true)]
-public string Option1 { get; set; } = "DefaultForOption1";
-```
-In that case, the default value for the decorated property will be ignored (if exists) and the user has to specify the option on the command line.
-
----
-When you run,
-```console
-TestApp.exe NewValueForArgument1 --option-1 NewValueForOption1
-```
-or (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application):
-```console
-dotnet run -- NewValueForArgument1 --option-1 NewValueForOption1
-```
-You see this result:
-```console
-Handler for 'TestApp.Commands.RootCliCommand' is run:
-Value for Option1 property is 'NewValueForOption1'
-Value for Argument1 property is 'NewValueForArgument1'
-```
----
-### Supported types
-Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
-```c#
-[CliCommand]
-public class WriteFileCommand
-{
-    [CliArgument]
-    public FileInfo OutputFile { get; set; }
-
-    [CliOption]
-    public List<string> Lines { get; set; }
-}
-```
-The following types for properties are supported:
-* Booleans (flags) - If `true` or `false` is passed for an option having a `bool` argument, it is parsed and bound as expected.
-  But an option whose argument type is `bool` doesn't require an argument to be specified.
-  The presence of the option token on the command line, with no argument following it, results in a value of `true`.
-* Enums - The values are bound by name, and the binding is case insensitive
-* Common CLR types:
-  
-  * `string`, `bool`
-  * `FileSystemInfo`, `FileInfo`, `DirectoryInfo`
-  * `int`, `long`, `short`, `uint`, `ulong`, `ushort`
-  * `double`, `float`, `decimal`
-  * `byte`, `sbyte`
-  * `DateTime`, `DateTimeOffset`, `TimeSpan`, `DateOnly`, `TimeOnly`
-  * `Guid`
-  * `Uri`, `IPAddress`, `IPEndPoint`
-
-* Arrays, lists, collections - any type that implements `IEnumerable<T>` and has a public constructor with a `IEnumerable<T>` or `IList<T>` parameter (other parameters, if any, should be optional).
-  If type is generic `IEnumerable<T>`, `IList<T>`, `ICollection<T>` interfaces itself, array `T[]` will be used.
-  If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used.
-    ```c#
-    [CliCommand]
-    public class EnumerableCliCommand
-    {
-        [CliOption]
-        public IEnumerable<int> OptEnumerable { get; set; }
-
-        [CliOption]
-        public List<string> OptList { get; set; }
-
-        [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public FileAccess[] OptEnumArray { get; set; }
-
-        [CliOption]
-        public Collection<string> OptCollection { get; set; }
-
-        [CliOption]
-        public HashSet<string> OptHashSet { get; set; }
-
-        [CliOption]
-        public Queue<FileInfo> OptQueue { get; set; }
-
-        [CliOption]
-        public CustomList<string> OptCustomList { get; set; }
- 
-        [CliArgument]
-        public IList ArgIList { get; set; }
-    }
- 
-    public class CustomList<T> : List<T>
-    {
-        public CustomList(IEnumerable<T> items)
-            : base(items)
-        {
-
-        }
-    }
-    ```
-
-* Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any, should be optional) - These types can be bound/parsed 
-  automatically even if they are wrapped with `Enumerable` or `Nullable` type.
-    ```c#
-    [CliCommand]
-    public class ArgumentConverterCliCommand
-    {
-        [CliOption]
-        public ClassWithConstructor Opt { get; set; }
-
-        [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public ClassWithConstructor[] OptArray { get; set; }
-
-        [CliOption]
-        public CustomStruct? OptNullable { get; set; }
-
-        [CliOption]
-        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; }
-
-        [CliOption]
-        public List<ClassWithConstructor> OptList { get; set; }
-
-        [CliOption]
-        public CustomList<ClassWithConstructor> OptCustomList { get; set; }
-
-        [CliArgument]
-        public IEnumerable<ClassWithParser> Arg { get; set; }
-    }
-
-    public class ClassWithConstructor
-    {
-        private readonly string value;
-
-        public ClassWithConstructor(string value)
-        {
-            this.value = value;
-        }
-
-        public override string ToString()
-        {
-            return value;
-        }
-    }
-    
-    public class ClassWithParser
-    {
-        private string value;
-
-        public override string ToString()
-        {
-            return value;
-        }
-
-        public static ClassWithParser Parse(string value)
-        {
-            var instance = new ClassWithParser();
-            instance.value = value;
-            return instance;
-        }
-    }
-
-    public struct CustomStruct
-    {
-        private readonly string value;
-
-        public CustomStruct(string value)
-        {
-            this.value = value;
-        }
-
-        public override string ToString()
-        {
-            return value;
-        }
-    }
-    ```
-
-## Dependency Injection
-
-Commands can have injected dependencies, this is supported via `Microsoft.Extensions.DependencyInjection` package (version >= 6.0.0).
-In your project directory, via dotnet cli:
-```console
-dotnet add package Microsoft.Extensions.DependencyInjection
-```
-or in Visual Studio Package Manager Console:
-```console
-PM> Install-Package Microsoft.Extensions.DependencyInjection
-```
-When the source generator detects that your project has reference to `Microsoft.Extensions.DependencyInjection`,
-it will generate extension methods for supporting dependency injection.
-For example, you can now add your services with the extension method `Cli.Ext.ConfigureServices`:
-```c#
-using DotMake.CommandLine;
-using Microsoft.Extensions.DependencyInjection;
-
-Cli.Ext.ConfigureServices(services =>
-{
-    services.AddTransient<TransientClass>();
-    services.AddScoped<ScopedClass>();
-    services.AddSingleton<SingletonClass>();
-});
-
-Cli.Run<RootCliCommand>();
-```
-Then let them be injected to your command class automatically by providing a constructor with the required services:
-```c#
-[CliCommand(Description = "A root cli command with dependency injection")]
-public class RootCliCommand
-{
-    private readonly TransientClass transientDisposable;
-    private readonly ScopedClass scopedDisposable;
-    private readonly SingletonClass singletonDisposable;
-
-    public RootCliCommand(
-        TransientClass transientDisposable,
-        ScopedClass scopedDisposable,
-        SingletonClass singletonDisposable
-    )
-    {
-        this.transientDisposable = transientDisposable;
-        this.scopedDisposable = scopedDisposable;
-        this.singletonDisposable = singletonDisposable;
-    }
-
-    [CliOption(Description = "Description for Option1")]
-    public string Option1 { get; set; } = "DefaultForOption1";
-
-    [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-
-        Console.WriteLine($"Instance for {transientDisposable.Name} is available");
-        Console.WriteLine($"Instance for {scopedDisposable.Name} is available");
-        Console.WriteLine($"Instance for {singletonDisposable.Name} is available");
-        Console.WriteLine();
-    }
-}
-
-public sealed class TransientClass : IDisposable
-{
-    public string Name => nameof(TransientClass);
-
-    public void Dispose() => Console.WriteLine($"{nameof(TransientClass)}.Dispose()");
-}
-
-public sealed class ScopedClass : IDisposable
-{
-    public string Name => nameof(ScopedClass);
-
-    public void Dispose() => Console.WriteLine($"{nameof(ScopedClass)}.Dispose()");
-}
-
-public sealed class SingletonClass : IDisposable
-{
-    public string Name => nameof(SingletonClass);
-
-    public void Dispose() => Console.WriteLine($"{nameof(SingletonClass)}.Dispose()");
-}
-```
-
 ## Help output
 
-When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
+When you run the app via 
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net6.0`)
+- or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
+
+- You see this usage help:
 ```console
 DotMake Command-Line TestApp v1.6.0
 Copyright © 2023-2024 DotMake
@@ -578,6 +275,282 @@ Options:
   -?, -h, /help             Show help and usage information
 ```
 Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
+
+## Model binding
+
+When the command handler is run, the properties for CLI options and arguments will be already populated 
+and bound from values passed in the command-line. If no matching value is passed, the property will have its default value if
+it has one or an error will be displayed if it's a required option/argument and it was not specified on the command-line.
+
+An option/argument will be considered required when
+- There is no property initializer and the property type is a reference type (e.g. `public string Arg { get; set; }`). 
+  `string` is a reference type which has a null as the default value but `bool` and `enum` are value
+  types which already have non-null default values. `Nullable<T>` is a reference type, e.g. `bool?`.
+- There is a property initializer but it's initialized with `null` or `null!` (SuppressNullableWarningExpression)
+  (e.g. `public string Arg { get; set; } = null!;`).
+- If it's forced via attribute property `Required` (e.g. `[CliArgument(Required = true)]`).
+- If it's forced via `required` modifier (e.g. `public required string Opt { get; set; }`).
+  Note that for being able to use `required` modifier, if your target framework is below net7.0, 
+  you also need `<LangVersion>11.0</LangVersion>` tag (minimum) in your .csproj file (our source generator supplies the polyfills
+  automatically as long as you set C# language version to 11).
+
+An option/argument will be considered optional when
+- There is no property initializer (e.g. `public bool Opt { get; set; }`) but the property type is a value type 
+  which already have non-null default value.
+- There is a property initializer but it's not initialized with `null` or `null!` (SuppressNullableWarningExpression)
+  (e.g. `public string Arg { get; set; } = "Default";`).
+- If it's forced via attribute property `Required` (e.g. `[CliArgument(Required = false)]`).
+---
+When you run,
+```console
+TestApp.exe NewValueForArgument1
+```
+or (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application):
+```console
+dotnet run -- NewValueForArgument1
+```
+You see this result:
+```console
+Handler for 'TestApp.Commands.RootCliCommand' is run:
+Value for Option1 property is 'DefaultForOption1'
+Value for Argument1 property is 'NewValueForArgument1'
+```
+---
+### Supported types
+Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
+```c#
+[CliCommand]
+public class WriteFileCommand
+{
+    [CliArgument]
+    public FileInfo OutputFile { get; set; }
+
+    [CliOption]
+    public List<string> Lines { get; set; }
+}
+```
+The following types for properties are supported:
+* Booleans (flags) - If `true` or `false` is passed for an option having a `bool` argument, it is parsed and bound as expected.
+  But an option whose argument type is `bool` doesn't require an argument to be specified.
+  The presence of the option token on the command line, with no argument following it, results in a value of `true`.
+* Enums - The values are bound by name, and the binding is case insensitive
+* Common CLR types:
+  
+  * `string`, `bool`
+  * `FileSystemInfo`, `FileInfo`, `DirectoryInfo`
+  * `int`, `long`, `short`, `uint`, `ulong`, `ushort`
+  * `double`, `float`, `decimal`
+  * `byte`, `sbyte`
+  * `DateTime`, `DateTimeOffset`, `TimeSpan`, `DateOnly`, `TimeOnly`
+  * `Guid`
+  * `Uri`, `IPAddress`, `IPEndPoint`
+
+* Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any, should be optional) - These types can be bound/parsed 
+  automatically even if they are wrapped with `Enumerable` or `Nullable` type.
+    ```c#
+    [CliCommand]
+    public class ArgumentConverterCliCommand
+    {
+        [CliOption]
+        public ClassWithConstructor Opt { get; set; }
+
+        [CliOption(AllowMultipleArgumentsPerToken = true)]
+        public ClassWithConstructor[] OptArray { get; set; }
+
+        [CliOption]
+        public CustomStruct? OptNullable { get; set; }
+
+        [CliOption]
+        public IEnumerable<ClassWithConstructor> OptEnumerable { get; set; }
+
+        [CliOption]
+        public List<ClassWithConstructor> OptList { get; set; }
+
+        [CliOption]
+        public CustomList<ClassWithConstructor> OptCustomList { get; set; }
+
+        [CliArgument]
+        public IEnumerable<ClassWithParser> Arg { get; set; }
+    }
+
+    public class ClassWithConstructor
+    {
+        private readonly string value;
+
+        public ClassWithConstructor(string value)
+        {
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return value;
+        }
+    }
+    
+    public class ClassWithParser
+    {
+        private string value;
+
+        public override string ToString()
+        {
+            return value;
+        }
+
+        public static ClassWithParser Parse(string value)
+        {
+            var instance = new ClassWithParser();
+            instance.value = value;
+            return instance;
+        }
+    }
+
+    public struct CustomStruct
+    {
+        private readonly string value;
+
+        public CustomStruct(string value)
+        {
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return value;
+        }
+    }
+    ```
+  
+* Arrays, lists, collections - any type that implements `IEnumerable<T>` and has a public constructor with a `IEnumerable<T>` or `IList<T>` parameter (other parameters, if any, should be optional).
+  If type is generic `IEnumerable<T>`, `IList<T>`, `ICollection<T>` interfaces itself, array `T[]` will be used.
+  If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used.
+    ```c#
+    [CliCommand]
+    public class EnumerableCliCommand
+    {
+        [CliOption]
+        public IEnumerable<int> OptEnumerable { get; set; }
+
+        [CliOption]
+        public List<string> OptList { get; set; }
+
+        [CliOption(AllowMultipleArgumentsPerToken = true)]
+        public FileAccess[] OptEnumArray { get; set; }
+
+        [CliOption]
+        public Collection<string> OptCollection { get; set; }
+
+        [CliOption]
+        public HashSet<string> OptHashSet { get; set; }
+
+        [CliOption]
+        public Queue<FileInfo> OptQueue { get; set; }
+
+        [CliOption]
+        public CustomList<string> OptCustomList { get; set; }
+ 
+        [CliArgument]
+        public IList ArgIList { get; set; }
+    }
+ 
+    public class CustomList<T> : List<T>
+    {
+        public CustomList(IEnumerable<T> items)
+            : base(items)
+        {
+
+        }
+    }
+    ```
+
+## Dependency Injection
+
+Commands can have injected dependencies, this is supported via `Microsoft.Extensions.DependencyInjection` package (version >= 6.0.0).
+In your project directory, via dotnet cli:
+```console
+dotnet add package Microsoft.Extensions.DependencyInjection
+```
+or in Visual Studio Package Manager Console:
+```console
+PM> Install-Package Microsoft.Extensions.DependencyInjection
+```
+When the source generator detects that your project has reference to `Microsoft.Extensions.DependencyInjection`,
+it will generate extension methods for supporting dependency injection.
+For example, you can now add your services with the extension method `Cli.Ext.ConfigureServices`:
+```c#
+using DotMake.CommandLine;
+using Microsoft.Extensions.DependencyInjection;
+
+Cli.Ext.ConfigureServices(services =>
+{
+    services.AddTransient<TransientClass>();
+    services.AddScoped<ScopedClass>();
+    services.AddSingleton<SingletonClass>();
+});
+
+Cli.Run<RootCliCommand>();
+```
+Then let them be injected to your command class automatically by providing a constructor with the required services:
+```c#
+[CliCommand(Description = "A root cli command with dependency injection")]
+public class RootCliCommand
+{
+    private readonly TransientClass transientDisposable;
+    private readonly ScopedClass scopedDisposable;
+    private readonly SingletonClass singletonDisposable;
+
+    public RootCliCommand(
+        TransientClass transientDisposable,
+        ScopedClass scopedDisposable,
+        SingletonClass singletonDisposable
+    )
+    {
+        this.transientDisposable = transientDisposable;
+        this.scopedDisposable = scopedDisposable;
+        this.singletonDisposable = singletonDisposable;
+    }
+
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+
+        Console.WriteLine($"Instance for {transientDisposable.Name} is available");
+        Console.WriteLine($"Instance for {scopedDisposable.Name} is available");
+        Console.WriteLine($"Instance for {singletonDisposable.Name} is available");
+        Console.WriteLine();
+    }
+}
+
+public sealed class TransientClass : IDisposable
+{
+    public string Name => nameof(TransientClass);
+
+    public void Dispose() => Console.WriteLine($"{nameof(TransientClass)}.Dispose()");
+}
+
+public sealed class ScopedClass : IDisposable
+{
+    public string Name => nameof(ScopedClass);
+
+    public void Dispose() => Console.WriteLine($"{nameof(ScopedClass)}.Dispose()");
+}
+
+public sealed class SingletonClass : IDisposable
+{
+    public string Name => nameof(SingletonClass);
+
+    public void Dispose() => Console.WriteLine($"{nameof(SingletonClass)}.Dispose()");
+}
+```
 
 ## Command Hierarchy
 
