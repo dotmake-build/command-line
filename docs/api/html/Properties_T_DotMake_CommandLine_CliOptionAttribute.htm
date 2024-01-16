@@ -5,7 +5,9 @@
             (e.g. <span class="code">--option</span>, <span class="code">-option</span> or <span class="code">/option</span>)
             </p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliOptionAttribute_AllowedValues.htm">AllowedValues</a></td><td>
             Gets or sets the list of allowed values for an option.
-            <p>Configures an option to accept only the specified values, and to suggest them as command line completions.</p><p>Note that if the option's argument type is an enum, values are automatically added.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliOptionAttribute_AllowMultipleArgumentsPerToken.htm">AllowMultipleArgumentsPerToken</a></td><td>
+            <p>Configures an option to accept only the specified values, and to suggest them as command line completions.</p><p>Note that if the option's argument type is an enum, values are automatically added.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliOptionAttribute_AllowExisting.htm">AllowExisting</a></td><td>
+            Gets or sets a value indicating whether an option should accept only values corresponding to an existing file or directory.
+            <ul><li>When option's argument type is <a href="https://docs.microsoft.com/dotnet/api/system.io.fileinfo" target="_blank" rel="noopener noreferrer">FileInfo</a>, existing file will be checked.</li><li>When option's argument type is <a href="https://docs.microsoft.com/dotnet/api/system.io.directoryinfo" target="_blank" rel="noopener noreferrer">DirectoryInfo</a>, existing directory will be checked.</li><li>When option's argument type is <a href="https://docs.microsoft.com/dotnet/api/system.io.filesysteminfo" target="_blank" rel="noopener noreferrer">FileSystemInfo</a> or any other type, existing file or directory will be checked.</li></ul></td></tr><tr><td><a href="P_DotMake_CommandLine_CliOptionAttribute_AllowMultipleArgumentsPerToken.htm">AllowMultipleArgumentsPerToken</a></td><td>
             Gets or sets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
             <p>
             By default, when you call a command, you can repeat an option name to specify multiple arguments for an option that has maximum arity greater than one.
@@ -39,13 +41,28 @@
             Gets or sets a value indicating whether the option is required when its parent command is invoked.
             Default is auto-detected.
             <p>
-            If the decorated property has a default value (set via a property initializer), the option is detected as "not required".
-            If the decorated property does not have a default value, the option is detected as "required".
-            </p><p>
-            If you want to force an option to be required, set this property to <span class="keyword"><span id="LSTDAAA343B_1" data-languageSpecificText="vb=True|nu=true"></span></span>. In that case,
-            the default value for the decorated property will be ignored (if exists).
-            If you want to force an option to be not required, set this property to <span class="keyword"><span id="LSTDAAA343B_2" data-languageSpecificText="vb=False|nu=false"></span></span>.
-            </p><p>
+            An option/argument will be considered required when
+            <ul><li>
+                    There is no property initializer and the property type is a reference type (e.g. <span class="code">public string Arg { get; set; }</span>). 
+                    <span class="code">string</span> is a reference type which has a null as the default value but <span class="code">bool</span> and <span class="code">enum</span> are value
+                    types which already have non-null default values. <span class="code">Nullable&lt;T&gt;</span> is a reference type, e.g. <span class="code">bool?</span>.
+                </li><li>
+                    There is a property initializer, but it's initialized with <span class="code">null</span> or <span class="code">null!</span> (SuppressNullableWarningExpression)
+                    (e.g. <span class="code">public string Arg { get; set; } = null!;</span>).
+                </li><li>If it's forced via attribute property <span class="code">Required</span> (e.g. <span class="code">[CliArgument(Required = true)]</span>).</li><li>
+                    If it's forced via <span class="code">required</span> modifier (e.g. <span class="code">public required string Opt { get; set; }</span>).
+                    Note that for being able to use <span class="code">required</span> modifier, if your target framework is below net7.0, 
+                    you also need <span class="code">11.0</span> tag (minimum) in your .csproj file (our source generator supplies the polyfills
+                    automatically as long as you set C# language version to 11).
+                </li></ul></p><p>
+            An option/argument will be considered optional when
+            <ul><li>
+                    There is no property initializer (e.g. <span class="code">public bool Opt { get; set; }</span>) but the property type is a value type 
+                    which already have non-null default value.
+                </li><li>
+                    There is a property initializer but it's not initialized with <span class="code">null</span> or <span class="code">null!</span> (SuppressNullableWarningExpression)
+                    (e.g. <span class="code">public string Arg { get; set; } = "Default";</span>).
+                </li><li>If it's forced via attribute property <span class="code">Required</span> (e.g. <span class="code">[CliArgument(Required = false)]</span>).</li></ul></p><p>
             When an option is required, the option has to be specified on the command line and if its parent command is invoked
             without it, an error message is displayed and the command handler isn't called.
             When an option is not required, the option doesn't have to be specified on the command line, the default value provides the option value.
