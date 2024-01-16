@@ -29,8 +29,7 @@ namespace DotMake.CommandLine
         /// <returns>A <see cref="ServiceProvider"/> instance.</returns>
         public static ServiceProvider GetServiceProvider(this CliExtensions ext)
         {
-            return serviceProvider
-                   ?? (serviceProvider = ServiceCollection.BuildServiceProvider());
+            return serviceProvider ??= ServiceCollection.BuildServiceProvider();
         }
 
         /// <summary>
