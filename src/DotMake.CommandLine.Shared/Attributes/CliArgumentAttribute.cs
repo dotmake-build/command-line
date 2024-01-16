@@ -101,6 +101,11 @@ namespace DotMake.CommandLine
         /// </summary>
         public string[] AllowedValues { get; set; }
 
+        /// <summary>
+        /// Configures an argument to accept only values corresponding to an existing file or directory.
+        /// </summary>
+        public bool ExistingOnly { get; set; }
+
         internal static CliArgumentAttribute Default { get; } = new CliArgumentAttribute();
     }
 }

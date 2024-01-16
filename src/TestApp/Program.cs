@@ -30,6 +30,7 @@ try
     //Cli.Run<EnumerableCliCommand>(args);
     Cli.Run<NullableReferenceCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
+    //Cli.Run<FileSystemInfoCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithChildrenCliCommand>(args);
