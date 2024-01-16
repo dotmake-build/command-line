@@ -286,7 +286,7 @@ An option/argument will be considered required when
 - There is no property initializer and the property type is a reference type (e.g. `public string Arg { get; set; }`). 
   `string` is a reference type which has a null as the default value but `bool` and `enum` are value
   types which already have non-null default values. `Nullable<T>` is a reference type, e.g. `bool?`.
-- There is a property initializer but it's initialized with `null` or `null!` (SuppressNullableWarningExpression)
+- There is a property initializer, but it's initialized with `null` or `null!` (SuppressNullableWarningExpression)
   (e.g. `public string Arg { get; set; } = null!;`).
 - If it's forced via attribute property `Required` (e.g. `[CliArgument(Required = true)]`).
 - If it's forced via `required` modifier (e.g. `public required string Opt { get; set; }`).
@@ -781,6 +781,7 @@ The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotma
 - Arity
 - AllowedValues
 - AllowMultipleArgumentsPerToken
+- AllowExisting
 
 ## Arguments
 
@@ -832,6 +833,7 @@ The properties for `CliArgument` attribute (see [CliArgumentAttribute](https://d
 - Required
 - Arity
 - AllowedValues
+- AllowExisting
 
 ## Additional documentation
 - [DotMake Command-Line API docs](https://dotmake.build/api/)

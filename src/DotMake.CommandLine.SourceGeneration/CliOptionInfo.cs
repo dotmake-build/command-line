@@ -17,7 +17,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public const string AttributeRequiredProperty = nameof(CliOptionAttribute.Required);
         public const string AttributeArityProperty = nameof(CliOptionAttribute.Arity);
         public const string AttributeAllowedValuesProperty = nameof(CliOptionAttribute.AllowedValues);
-        public const string AttributeExistingOnlyProperty = nameof(CliOptionAttribute.ExistingOnly);
+        public const string AttributeAllowExistingProperty = nameof(CliOptionAttribute.AllowExisting);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Option").Append("Option").ToArray();
         public const string OptionClassName = "Option";
         public const string OptionClassNamespace = "System.CommandLine";
@@ -128,7 +128,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         case AttributeGlobalProperty:
                         case AttributeAllowedValuesProperty:
                         case AttributeRequiredProperty:
-                        case AttributeExistingOnlyProperty:
+                        case AttributeAllowExistingProperty:
                             continue;
                         case AttributeArityProperty:
                             var arity = kvp.Value.ToCSharpString().Split('.').Last();
@@ -150,6 +150,10 @@ namespace DotMake.CommandLine.SourceGeneration
                 && !allowedValuesTypedConstant.IsNull)
                 sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
+            if (AttributeArguments.TryGetValue(AttributeAllowExistingProperty, out var allowExistingTypedConstant)
+                && allowExistingTypedConstant.Value != null && (bool)allowExistingTypedConstant.Value)
+                sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.ExistingOnly({varName});");
+
             if (!Required)
                 sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
 
@@ -164,7 +168,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     Parent.UsedAliases.Add(shortForm);
                 }
             }
-            
+
             if (AttributeArguments.TryGetValue(AttributeAliasesProperty, out var aliasesTypedConstant)
                 && !aliasesTypedConstant.IsNull)
             {
@@ -179,9 +183,6 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
             }
 
-            if (AttributeArguments.TryGetValue(AttributeExistingOnlyProperty, out var existingOnly)
-                            && (bool)existingOnly.Value)
-                sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.ExistingOnly({varName});");
         }
 
         public bool Equals(CliOptionInfo other)

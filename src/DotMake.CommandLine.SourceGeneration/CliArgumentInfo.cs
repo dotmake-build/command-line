@@ -15,7 +15,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public const string AttributeRequiredProperty = nameof(CliArgumentAttribute.Required);
         public const string AttributeArityProperty = nameof(CliArgumentAttribute.Arity);
         public const string AttributeAllowedValuesProperty = nameof(CliArgumentAttribute.AllowedValues);
-        public const string AttributeExistingOnlyProperty = nameof(CliArgumentAttribute.ExistingOnly);
+        public const string AttributeAllowExistingProperty = nameof(CliArgumentAttribute.AllowExisting);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
         public const string ArgumentClassName = "Argument";
         public const string ArgumentClassNamespace = "System.CommandLine";
@@ -117,7 +117,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         case AttributeNameProperty:
                         case AttributeAllowedValuesProperty:
                         case AttributeRequiredProperty:
-                        case AttributeExistingOnlyProperty:
+                        case AttributeAllowExistingProperty:
                             continue;
                         case AttributeArityProperty:
                             var arity = kvp.Value.ToCSharpString().Split('.').Last();
@@ -137,6 +137,10 @@ namespace DotMake.CommandLine.SourceGeneration
                 && !allowedValuesTypedConstant.IsNull)
                 sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
+            if (AttributeArguments.TryGetValue(AttributeAllowExistingProperty, out var allowExistingTypedConstant)
+                && allowExistingTypedConstant.Value != null && (bool)allowExistingTypedConstant.Value)
+                sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.ExistingOnly({varName});");
+
             if (!Required)
                 sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
 
@@ -146,10 +150,6 @@ namespace DotMake.CommandLine.SourceGeneration
                 && ParseInfo.ItemType != null //if it's a collection type
                 && !AttributeArguments.ContainsKey(AttributeArityProperty))
                 sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
-
-            if (AttributeArguments.TryGetValue(AttributeExistingOnlyProperty, out var existingOnly)
-                            && (bool)existingOnly.Value)
-                sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.ExistingOnly({varName});");
         }
 
         public bool Equals(CliArgumentInfo other)

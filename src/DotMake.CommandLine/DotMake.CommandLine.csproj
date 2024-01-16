@@ -20,19 +20,25 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added: Delegate-based model for making cli apps even easier!
-        Create a CLI App with DotMake.Commandline in seconds!
-        In Program.cs, add this simple code:
-        ```c#
-        Cli.Run(([CliArgument]string argument1, bool option1) =>
-        {
-            Console.WriteLine($@"Value for {nameof(argument1)} property is '{argument1}'");
-            Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
-        });
-        ```
-      And that's it! You now have a fully working command-line app.
-      - Fixed: Bool flags were broken, bool options should be set as "true" even if no argument is provided.
-      - Fixed: NullReferenceException for option or argument with bool type.
+      - Added support for SuppressNullableWarningExpression and C# 11 `required` modifier:
+
+        An option/argument will be considered required when
+          - There is no property initializer and the property type is a reference type (e.g. `public string Arg { get; set; }`).
+          `string` is a reference type which has a null as the default value but `bool` and `enum` are value
+          types which already have non-null default values. `Nullable&lt;T&gt;` is a reference type, e.g. `bool?`.
+          - There is a property initializer, but it's initialized with `null` or `null!` (SuppressNullableWarningExpression)
+          (e.g. `public string Arg { get; set; } = null!;`).
+          - If it's forced via attribute property `Required` (e.g. `[CliArgument(Required = true)]`).
+          - If it's forced via `required` modifier (e.g. `public required string Opt { get; set; }`).
+          Note that for being able to use `required` modifier, if your target framework is below net7.0,
+          you also need `&lt;LangVersion&gt;11.0&lt;/LangVersion&gt;` tag (minimum) in your .csproj file
+          (our source generator supplies the polyfills automatically as long as you set C# language version to 11).
+
+        An option/argument will be considered optional when
+          - There is no property initializer (e.g. `public bool Opt { get; set; }`) but the property type is a value type
+          
+      - Added AllowExisting property to [CliOption] and [CliArgument] which gets or sets a value indicating whether
+        an argument should accept only values corresponding to an existing file or directory.
     </PackageReleaseNotes>
   </PropertyGroup>
 

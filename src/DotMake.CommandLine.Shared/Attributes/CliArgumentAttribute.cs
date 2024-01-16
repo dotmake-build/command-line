@@ -67,13 +67,39 @@ namespace DotMake.CommandLine
         /// Gets or sets a value indicating whether the argument is required when its parent command is invoked.
         /// Default is auto-detected.
         /// <para>
-        /// If the decorated property has a default value (set via a property initializer), the argument is detected as "not required".
-        /// If the decorated property does not have a default value, the argument is detected as "required".
+        /// An option/argument will be considered required when
+        /// <list type="bullet">
+        ///     <item>
+        ///         There is no property initializer and the property type is a reference type (e.g. <c>public string Arg { get; set; }</c>). 
+        ///         <c>string</c> is a reference type which has a null as the default value but <c>bool</c> and <c>enum</c> are value
+        ///         types which already have non-null default values. <c>Nullable&lt;T&gt;</c> is a reference type, e.g. <c>bool?</c>.
+        ///     </item>
+        ///     <item>
+        ///         There is a property initializer, but it's initialized with <c>null</c> or <c>null!</c> (SuppressNullableWarningExpression)
+        ///         (e.g. <c>public string Arg { get; set; } = null!;</c>).
+        ///     </item>
+        ///     <item>If it's forced via attribute property <c>Required</c> (e.g. <c>[CliArgument(Required = true)]</c>).</item>
+        ///     <item>
+        ///         If it's forced via <c>required</c> modifier (e.g. <c>public required string Opt { get; set; }</c>).
+        ///         Note that for being able to use <c>required</c> modifier, if your target framework is below net7.0, 
+        ///         you also need <c><LangVersion>11.0</LangVersion></c> tag (minimum) in your .csproj file (our source generator supplies the polyfills
+        ///         automatically as long as you set C# language version to 11).
+        ///     </item>
+        /// </list>
         /// </para>
         /// <para>
-        /// If you want to force an argument to be required, set this property to <see langword="true"/>. In that case,
-        /// the default value for the decorated property will be ignored (if exists).
-        /// If you want to force an argument to be not required, set this property to <see langword="false"/>.
+        /// An option/argument will be considered optional when
+        /// <list type="bullet">
+        ///     <item>
+        ///         There is no property initializer (e.g. <c>public bool Opt { get; set; }</c>) but the property type is a value type 
+        ///         which already have non-null default value.
+        ///     </item>
+        ///     <item>
+        ///         There is a property initializer but it's not initialized with <c>null</c> or <c>null!</c> (SuppressNullableWarningExpression)
+        ///         (e.g. <c>public string Arg { get; set; } = "Default";</c>).
+        ///     </item>
+        ///     <item>If it's forced via attribute property <c>Required</c> (e.g. <c>[CliArgument(Required = false)]</c>).</item>
+        /// </list>
         /// </para>
         /// <para>
         /// When an argument is required, the argument has to be specified on the command line and if its parent command is invoked
@@ -102,9 +128,14 @@ namespace DotMake.CommandLine
         public string[] AllowedValues { get; set; }
 
         /// <summary>
-        /// Configures an argument to accept only values corresponding to an existing file or directory.
+        /// Gets or sets a value indicating whether an argument should accept only values corresponding to an existing file or directory.
+        /// <list type="bullet">
+        ///     <item>When argument type is <see cref="System.IO.FileInfo"/>, existing file will be checked.</item>
+        ///     <item>When argument type is <see cref="System.IO.DirectoryInfo"/>, existing directory will be checked.</item>
+        ///     <item>When argument type is <see cref="System.IO.FileSystemInfo"/> or any other type, existing file or directory will be checked.</item>
+        /// </list>
         /// </summary>
-        public bool ExistingOnly { get; set; }
+        public bool AllowExisting { get; set; }
 
         internal static CliArgumentAttribute Default { get; } = new CliArgumentAttribute();
     }

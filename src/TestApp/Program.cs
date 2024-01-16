@@ -28,7 +28,7 @@ try
     //Cli.Run<RootWithExternalChildrenCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<EnumerableCliCommand>(args);
-    Cli.Run<NullableReferenceCommand>(args);
+    //Cli.Run<NullableReferenceCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
     //Cli.Run<FileSystemInfoCliCommand>(args);
 
