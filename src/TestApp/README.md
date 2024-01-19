@@ -3,7 +3,7 @@
 TestApp for debugging purpose, has project references to DotMake.CommandLine and DotMake.CommandLine.SourceGeneration.
 
 Uses `<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>`:
-Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets.
+Setting generated files output path, excluding them from compile and cleaning them before build, are all handled in `Directory.Build.targets`.
 
 EmitCompilerGeneratedFiles is useful for debugging, it doesn't work for live editing (VS continues to run the cached 
 source generator, needs restart as it uses VBCSCompiler.exe for Roslyn analyzers/generators) but when project is 

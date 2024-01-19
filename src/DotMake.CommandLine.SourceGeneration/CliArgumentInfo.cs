@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,11 +10,6 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliArgumentInfo : CliSymbolInfo, IEquatable<CliArgumentInfo>
     {
         public static readonly string AttributeFullName = typeof(CliArgumentAttribute).FullName;
-        public const string AttributeNameProperty = nameof(CliArgumentAttribute.Name);
-        public const string AttributeRequiredProperty = nameof(CliArgumentAttribute.Required);
-        public const string AttributeArityProperty = nameof(CliArgumentAttribute.Arity);
-        public const string AttributeAllowedValuesProperty = nameof(CliArgumentAttribute.AllowedValues);
-        public const string AttributeAllowExistingProperty = nameof(CliArgumentAttribute.AllowExisting);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
         public const string ArgumentClassName = "Argument";
         public const string ArgumentClassNamespace = "System.CommandLine";
@@ -39,12 +33,10 @@ namespace DotMake.CommandLine.SourceGeneration
             if (HasProblem)
                 return;
 
-            AttributeArguments = attributeData.NamedArguments.Where(pair => !pair.Value.IsNull)
-                .ToImmutableDictionary(pair => pair.Key, pair => pair.Value);
+            AttributeArguments = new AttributeArguments(attributeData);
 
-            if (AttributeArguments.TryGetValue(AttributeRequiredProperty, out var requiredTypedConstant)
-                && requiredTypedConstant.Value != null)
-                Required = (bool)requiredTypedConstant.Value;
+            if (AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Required), out var requiredValue))
+                Required = (bool)requiredValue;
             else
                 Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax && propertyDeclarationSyntax.Initializer != null)
                     ? propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.NullKeyword)
@@ -63,7 +55,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public new IPropertySymbol Symbol { get; }
 
-        public ImmutableDictionary<string, TypedConstant> AttributeArguments { get; }
+        public AttributeArguments AttributeArguments { get; }
 
         public CliCommandInfo Parent { get; }
 
@@ -97,9 +89,11 @@ namespace DotMake.CommandLine.SourceGeneration
         
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultValue)
         {
-            var argumentName = AttributeArguments.TryGetValue(AttributeNameProperty, out var nameTypedConstant)
-                                        && !string.IsNullOrWhiteSpace(nameTypedConstant.Value?.ToString())
-                ? nameTypedConstant.Value.ToString().Trim()
+            var attributeResourceArguments = AttributeArguments.GetResourceArguments(SemanticModel);
+
+            var argumentName = AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue)
+                                        && !string.IsNullOrWhiteSpace(nameValue.ToString())
+                ? nameValue.ToString().Trim()
                 : Symbol.Name.StripSuffixes(Suffixes).ToCase(Parent.Settings.NameCasingConvention);
 
             sb.AppendLine($"// Argument for '{Symbol.Name}' property");
@@ -114,31 +108,30 @@ namespace DotMake.CommandLine.SourceGeneration
                 {
                     switch (kvp.Key)
                     {
-                        case AttributeNameProperty:
-                        case AttributeAllowedValuesProperty:
-                        case AttributeRequiredProperty:
-                        case AttributeAllowExistingProperty:
-                            continue;
-                        case AttributeArityProperty:
-                            var arity = kvp.Value.ToCSharpString().Split('.').Last();
-                            sb.AppendLine($"{kvp.Key} = {ArgumentClassNamespace}.{ArgumentArityClassName}.{arity},");
-                            break;
-                        default:
+                        case nameof(CliArgumentAttribute.Description):
+                        case nameof(CliArgumentAttribute.HelpName):
+                        case nameof(CliArgumentAttribute.Hidden):
                             if (!PropertyMappings.TryGetValue(kvp.Key, out var propertyName))
                                 propertyName = kvp.Key;
 
-                            sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                            if (attributeResourceArguments.TryGetValue(kvp.Key, out var resourceProperty))
+                                sb.AppendLine($"{propertyName} = {resourceProperty.ToReferenceString()},");
+                            else
+                                sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                            break;
+                        case nameof(CliArgumentAttribute.Arity):
+                            var arity = kvp.Value.ToCSharpString().Split('.').Last();
+                            sb.AppendLine($"{kvp.Key} = {ArgumentClassNamespace}.{ArgumentArityClassName}.{arity},");
                             break;
                     }
                 }
             }
 
-            if (AttributeArguments.TryGetValue(AttributeAllowedValuesProperty, out var allowedValuesTypedConstant)
-                && !allowedValuesTypedConstant.IsNull)
+            if (AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.AllowedValues), out var allowedValuesTypedConstant))
                 sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
-            if (AttributeArguments.TryGetValue(AttributeAllowExistingProperty, out var allowExistingTypedConstant)
-                && allowExistingTypedConstant.Value != null && (bool)allowExistingTypedConstant.Value)
+            if (AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.AllowExisting), out var allowExistingValue)
+                && (bool)allowExistingValue)
                 sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.ExistingOnly({varName});");
 
             if (!Required)
@@ -148,7 +141,7 @@ namespace DotMake.CommandLine.SourceGeneration
             //but we want to enforce OneOrMore so that Required is consistent
             if (Required
                 && ParseInfo.ItemType != null //if it's a collection type
-                && !AttributeArguments.ContainsKey(AttributeArityProperty))
+                && !AttributeArguments.ContainsKey(nameof(CliArgumentAttribute.Arity)))
                 sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
         }
 

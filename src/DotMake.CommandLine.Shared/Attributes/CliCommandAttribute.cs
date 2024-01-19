@@ -47,6 +47,8 @@ namespace DotMake.CommandLine
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
     ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="InheritanceCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="FileSystemInfoCliCommand" language="cs" />
+    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="LocalizedCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CliCommandAttribute : Attribute

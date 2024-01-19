@@ -8,6 +8,10 @@ namespace TestApp.Commands
     [CliCommand]
     public class NullableReferenceCommand
     {
+        public void Run()
+        {
+            Console.WriteLine(@"Please specify a subcommand!");
+        }
 
         [CliCommand]
         public class Nullable
@@ -98,11 +102,6 @@ namespace TestApp.Commands
                 Console.WriteLine($@"{nameof(Arg)}={Arg}");
                 Console.WriteLine($@"{nameof(ArgDefault)}={ArgDefault}");
             }
-        }
-
-        public void Run()
-        {
-            Console.WriteLine(@"Please specify a subcommand!");
         }
     }
 }

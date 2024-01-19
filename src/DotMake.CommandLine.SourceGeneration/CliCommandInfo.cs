@@ -9,8 +9,6 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliCommandInfo : CliSymbolInfo, IEquatable<CliCommandInfo>
     {
         public static readonly string AttributeFullName = typeof(CliCommandAttribute).FullName;
-        public const string AttributeNameProperty = nameof(CliCommandAttribute.Name);
-        public const string AttributeAliasesProperty = nameof(CliCommandAttribute.Aliases);
         public static readonly string[] Suffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
         public const string RootCommandClassName = "RootCommand";
         public const string CommandClassName = "Command";
@@ -30,8 +28,8 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = (INamedTypeSymbol)symbol;
             Parent = parent;
 
-            AttributeArguments = new Dictionary<string, TypedConstant>();
-            Settings = CliCommandSettings.Parse(Symbol, attributeData, AttributeArguments);
+            AttributeArguments = new AttributeArguments(attributeData);
+            Settings = CliCommandSettings.Parse(Symbol, AttributeArguments);
             if (parent != null) //Nested class for sub-command
             {
                 Settings.ParentSettings = parent.Settings;
@@ -129,7 +127,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public new INamedTypeSymbol Symbol { get; }
 
-        public Dictionary<string, TypedConstant> AttributeArguments { get; }
+        public AttributeArguments AttributeArguments { get; }
 
         public CliCommandSettings Settings { get; }
 
@@ -374,11 +372,13 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName)
         {
+            var attributeResourceArguments = AttributeArguments.GetResourceArguments(SemanticModel);
+
             var commandClass = $"{CommandClassNamespace}.{(IsRoot ? RootCommandClassName : CommandClassName)}";
 
-            var commandName = AttributeArguments.TryGetValue(AttributeNameProperty, out var nameTypedConstant)
-                                       && !string.IsNullOrWhiteSpace(nameTypedConstant.Value?.ToString())
-                ? nameTypedConstant.Value.ToString().Trim()
+            var commandName = AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue)
+                                       && !string.IsNullOrWhiteSpace(nameValue.ToString())
+                ? nameValue.ToString().Trim()
                 : null;
 
             IDisposable block;
@@ -389,7 +389,7 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 block = sb.AppendBlockStart($"var {varName} = new {commandClass}()", ";");
                 if (commandName != null)
-                    sb.AppendLine($"{AttributeNameProperty} = \"{commandName}\",");
+                    sb.AppendLine($"Name = \"{commandName}\",");
             }
             else
             {
@@ -403,26 +403,27 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 switch (kvp.Key)
                 {
-                    case AttributeNameProperty:
-                    case AttributeAliasesProperty:
-                        continue;
-                    default:
+                    case nameof(CliCommandAttribute.Description):
+                    case nameof(CliCommandAttribute.Hidden):
+                    case nameof(CliCommandAttribute.TreatUnmatchedTokensAsErrors):
                         if (!PropertyMappings.TryGetValue(kvp.Key, out var propertyName))
                             propertyName = kvp.Key;
 
-                        sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                        if (attributeResourceArguments.TryGetValue(kvp.Key, out var resourceProperty))
+                            sb.AppendLine($"{propertyName} = {resourceProperty.ToReferenceString()},");
+                        else
+                            sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
                         break;
                 }
             }
             block.Dispose();
 
             UsedAliases.Clear(); //Reset
-            if (AttributeArguments.TryGetValue(AttributeAliasesProperty, out var aliasesTypedConstant)
-                && !aliasesTypedConstant.IsNull)
+            if (AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues))
             {
-                foreach (var aliasTypedConstant in aliasesTypedConstant.Values)
+                foreach (var aliasValue in aliasesValues)
                 {
-                    var alias = aliasTypedConstant.Value?.ToString();
+                    var alias = aliasValue?.ToString();
                     if (!UsedAliases.Contains(alias))
                     {
                         sb.AppendLine($"{varName}.AddAlias(\"{alias}\");");

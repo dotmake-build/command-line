@@ -75,44 +75,20 @@ namespace DotMake.CommandLine.SourceGeneration
             return string.Join(".", parentTree);
         }
 
-        internal static CliCommandSettings Parse(INamedTypeSymbol symbol, AttributeData attributeData, IDictionary<string, TypedConstant> otherArgumentsToFill)
+        internal static CliCommandSettings Parse(INamedTypeSymbol symbol, AttributeArguments attributeArguments)
         {
             var settings = new CliCommandSettings(symbol);
 
-            foreach (var kvp in attributeData.NamedArguments)
-            {
-                var name = kvp.Key;
-                var typedConstant = kvp.Value;
-
-                if (typedConstant.IsNull) //IsNull should be used as Value can throw for arrays
-                    continue;
-
-                switch (name)
-                {
-                    case nameof(CliCommandAttribute.Parent):
-                        settings.ParentSymbol = (INamedTypeSymbol)typedConstant.Value;
-                        break;
-                    case nameof(CliCommandAttribute.NameCasingConvention):
-                        if (typedConstant.Value != null) //Used only for casting warning
-                            settings.NameCasingConvention = (CliNameCasingConvention)typedConstant.Value;
-                        break;
-                    case nameof(CliCommandAttribute.NamePrefixConvention):
-                        if (typedConstant.Value != null)
-                            settings.NamePrefixConvention = (CliNamePrefixConvention)typedConstant.Value;
-                        break;
-                    case nameof(CliCommandAttribute.ShortFormPrefixConvention):
-                        if (typedConstant.Value != null)
-                            settings.ShortFormPrefixConvention = (CliNamePrefixConvention)typedConstant.Value;
-                        break;
-                    case nameof(CliCommandAttribute.ShortFormAutoGenerate):
-                        if (typedConstant.Value != null)
-                            settings.ShortFormAutoGenerate = (bool)typedConstant.Value;
-                        break;
-                    default:
-                        otherArgumentsToFill?.Add(name, typedConstant);
-                        break;
-                }
-            }
+            if (attributeArguments.TryGetValue(nameof(CliCommandAttribute.Parent), out var parentValue))
+                settings.ParentSymbol = (INamedTypeSymbol)parentValue;
+            if (attributeArguments.TryGetValue(nameof(CliCommandAttribute.NameCasingConvention), out var nameCasingValue))
+                settings.NameCasingConvention = (CliNameCasingConvention)nameCasingValue;
+            if (attributeArguments.TryGetValue(nameof(CliCommandAttribute.NamePrefixConvention), out var namePrefixValue))
+                settings.NamePrefixConvention = (CliNamePrefixConvention)namePrefixValue;
+            if (attributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormPrefixConvention), out var shortFormPrefixValue))
+                settings.ShortFormPrefixConvention = (CliNamePrefixConvention)shortFormPrefixValue;
+            if (attributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormAutoGenerate), out var shortFormAutoGenerateArgumentValue))
+                settings.ShortFormAutoGenerate = (bool)shortFormAutoGenerateArgumentValue;
 
             return settings;
         }
@@ -150,7 +126,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     break;
                 }
 
-                var parentSettings = Parse(currentParentSymbol, parentAttributeData, null);
+                var parentSettings = Parse(currentParentSymbol, new AttributeArguments(parentAttributeData));
                 currentSettings.ParentSettings = parentSettings;
                 currentSettings.ParentSymbol = currentParentSymbol;
 

@@ -95,7 +95,7 @@ namespace DotMake.CommandLine
         ///         which already have non-null default value.
         ///     </item>
         ///     <item>
-        ///         There is a property initializer but it's not initialized with <c>null</c> or <c>null!</c> (SuppressNullableWarningExpression)
+        ///         There is a property initializer, and it's not initialized with <c>null</c> or <c>null!</c> (SuppressNullableWarningExpression)
         ///         (e.g. <c>public string Arg { get; set; } = "Default";</c>).
         ///     </item>
         ///     <item>If it's forced via attribute property <c>Required</c> (e.g. <c>[CliArgument(Required = false)]</c>).</item>

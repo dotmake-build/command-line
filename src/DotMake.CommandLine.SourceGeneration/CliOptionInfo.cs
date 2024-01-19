@@ -11,13 +11,6 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliOptionInfo : CliSymbolInfo, IEquatable<CliOptionInfo>
     {
         public static readonly string AttributeFullName = typeof(CliOptionAttribute).FullName;
-        public const string AttributeNameProperty = nameof(CliOptionAttribute.Name);
-        public const string AttributeAliasesProperty = nameof(CliOptionAttribute.Aliases);
-        public const string AttributeGlobalProperty = nameof(CliOptionAttribute.Global);
-        public const string AttributeRequiredProperty = nameof(CliOptionAttribute.Required);
-        public const string AttributeArityProperty = nameof(CliOptionAttribute.Arity);
-        public const string AttributeAllowedValuesProperty = nameof(CliOptionAttribute.AllowedValues);
-        public const string AttributeAllowExistingProperty = nameof(CliOptionAttribute.AllowExisting);
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Option").Append("Option").ToArray();
         public const string OptionClassName = "Option";
         public const string OptionClassNamespace = "System.CommandLine";
@@ -41,15 +34,12 @@ namespace DotMake.CommandLine.SourceGeneration
             if (HasProblem)
                 return;
 
-            AttributeArguments = attributeData.NamedArguments.Where(pair => !pair.Value.IsNull)
-                .ToImmutableDictionary(pair => pair.Key, pair => pair.Value);
+            AttributeArguments = new AttributeArguments(attributeData);
 
-            if (AttributeArguments.TryGetValue(AttributeGlobalProperty, out var globalTypedConstant)
-                && globalTypedConstant.Value != null)
-                Global = (bool)globalTypedConstant.Value;
-            if (AttributeArguments.TryGetValue(AttributeRequiredProperty, out var requiredTypedConstant)
-                && requiredTypedConstant.Value != null)
-                Required = (bool)requiredTypedConstant.Value;
+            if (AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Global), out var globalValue))
+                Global = (bool)globalValue;
+            if (AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Required), out var requiredValue))
+                Required = (bool)requiredValue;
             else
                 Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax && propertyDeclarationSyntax.Initializer != null)
                                ? propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.NullKeyword)
@@ -69,7 +59,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public new IPropertySymbol Symbol { get; }
 
-        public ImmutableDictionary<string, TypedConstant> AttributeArguments { get; }
+        public AttributeArguments AttributeArguments { get; }
 
         public CliCommandInfo Parent { get; }
 
@@ -105,11 +95,14 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultValue)
         {
-            var optionName = AttributeArguments.TryGetValue(AttributeNameProperty, out var nameTypedConstant)
-                                    && !string.IsNullOrWhiteSpace(nameTypedConstant.Value?.ToString())
-                ? nameTypedConstant.Value.ToString().Trim()
+            var attributeResourceArguments = AttributeArguments.GetResourceArguments(SemanticModel);
+
+            var optionName = AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue)
+                                    && !string.IsNullOrWhiteSpace(nameValue.ToString())
+                ? nameValue.ToString().Trim()
                 : Symbol.Name.StripSuffixes(Suffixes).ToCase(Parent.Settings.NameCasingConvention)
                     .AddPrefix(Parent.Settings.NamePrefixConvention);
+
 
             sb.AppendLine($"// Option for '{Symbol.Name}' property");
             using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type.ToReferenceString()}>"))
@@ -123,35 +116,34 @@ namespace DotMake.CommandLine.SourceGeneration
                 {
                     switch (kvp.Key)
                     {
-                        case AttributeNameProperty:
-                        case AttributeAliasesProperty:
-                        case AttributeGlobalProperty:
-                        case AttributeAllowedValuesProperty:
-                        case AttributeRequiredProperty:
-                        case AttributeAllowExistingProperty:
-                            continue;
-                        case AttributeArityProperty:
-                            var arity = kvp.Value.ToCSharpString().Split('.').Last();
-                            sb.AppendLine($"{kvp.Key} = {CliArgumentInfo.ArgumentClassNamespace}.{CliArgumentInfo.ArgumentArityClassName}.{arity},");
-                            break;
-                        default:
+                        case nameof(CliOptionAttribute.Description):
+                        case nameof(CliOptionAttribute.HelpName):
+                        case nameof(CliOptionAttribute.Hidden):
+                        case nameof(CliOptionAttribute.AllowMultipleArgumentsPerToken):
                             if (!PropertyMappings.TryGetValue(kvp.Key, out var propertyName))
                                 propertyName = kvp.Key;
 
-                            sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                            if (attributeResourceArguments.TryGetValue(kvp.Key, out var resourceProperty))
+                                sb.AppendLine($"{propertyName} = {resourceProperty.ToReferenceString()},");
+                            else
+                                sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                            break;
+                        case nameof(CliOptionAttribute.Arity):
+                            var arity = kvp.Value.ToCSharpString().Split('.').Last();
+                            sb.AppendLine($"{kvp.Key} = {CliArgumentInfo.ArgumentClassNamespace}.{CliArgumentInfo.ArgumentArityClassName}.{arity},");
                             break;
                     }
                 }
 
+                //Required is special as it can be calculated when CliOptionAttribute.Required is missing (not forced)
                 sb.AppendLine($"IsRequired = {Required.ToString().ToLowerInvariant()},");
             }
 
-            if (AttributeArguments.TryGetValue(AttributeAllowedValuesProperty, out var allowedValuesTypedConstant)
-                && !allowedValuesTypedConstant.IsNull)
+            if (AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.AllowedValues), out var allowedValuesTypedConstant))
                 sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
-            if (AttributeArguments.TryGetValue(AttributeAllowExistingProperty, out var allowExistingTypedConstant)
-                && allowExistingTypedConstant.Value != null && (bool)allowExistingTypedConstant.Value)
+            if (AttributeArguments.TryGetValue(nameof(CliOptionAttribute.AllowExisting), out var allowExistingValue)
+                && (bool)allowExistingValue)
                 sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.ExistingOnly({varName});");
 
             if (!Required)
@@ -169,12 +161,11 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
             }
 
-            if (AttributeArguments.TryGetValue(AttributeAliasesProperty, out var aliasesTypedConstant)
-                && !aliasesTypedConstant.IsNull)
+            if (AttributeArguments.TryGetValues(nameof(CliOptionAttribute.Aliases), out var aliasesValues))
             {
-                foreach (var aliasTypedConstant in aliasesTypedConstant.Values)
+                foreach (var aliasValue in aliasesValues)
                 {
-                    var alias = aliasTypedConstant.Value?.ToString();
+                    var alias = aliasValue?.ToString();
                     if (!Parent.UsedAliases.Contains(alias))
                     {
                         sb.AppendLine($"{varName}.AddAlias(\"{alias}\");");
@@ -182,7 +173,6 @@ namespace DotMake.CommandLine.SourceGeneration
                     }
                 }
             }
-
         }
 
         public bool Equals(CliOptionInfo other)

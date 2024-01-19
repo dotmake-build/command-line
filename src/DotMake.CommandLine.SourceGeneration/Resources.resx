@@ -163,6 +163,6 @@
     <value>Source generation currently supports only C# language in the consuming project.</value>
   </data>
   <data name="UnsupportedLanguageVersion" xml:space="preserve">
-    <value>Source generation requires at least C# version {0} in the consuming project. Please add &lt;LangVersion&gt;9.0&lt;/LangVersion&gt; tag to your .csproj file.</value>
+    <value>Source generation requires at least C# version {0} in the consuming project. Please add &lt;LangVersion&gt;{0}&lt;/LangVersion&gt; tag to your .csproj file.</value>
   </data>
 </root>

@@ -33,4 +33,11 @@
     <Compile Remove="..\TestApp\GeneratedFiles\**\*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\TestApp\TestResources.resx">
+      <Link>TestResources.resx</Link>
+      <LogicalName>TestApp.TestResources.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
