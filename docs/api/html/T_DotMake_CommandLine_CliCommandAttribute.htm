@@ -12,7 +12,7 @@ public class SomeCliCommand</code></pre></div></div>
             </p><p>
             When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
             share them by inheriting that base class in other command classes.Interfaces are also supported !
-            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.6.8<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Create a simple class like this:
+            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.6.9<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Create a simple class like this:
 
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
@@ -424,7 +424,51 @@ public interface IDepartmentCommand
 //(they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
 //So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
 //option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
-//so that default value will be used.</code></pre></div></div></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
+//so that default value will be used.</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// AllowExisting property in [CliOption] and [CliArgument] controls whether
+// an argument should accept only values corresponding to an existing file or directory.
+
+[CliCommand(Description = "A cli command with input (must exists) files and or directories")]
+public class FileSystemInfoCliCommand
+{
+    [CliOption(Description = "Optional input file (must exists)", AllowExisting = true, Required = false)]
+    public FileInfo? FileOpt { get; set; }
+
+    [CliOption(Description = "Optional input directory (must exists)", AllowExisting = true, Required = false)]
+    public DirectoryInfo? DirOpt { get; set; }
+
+    [CliArgument(Description = "Input file or directory (must exists)", AllowExisting = true)]
+    public required FileSystemInfo FileOrDirArg { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(FileOpt)} property is '{FileOpt}'");
+        Console.WriteLine($@"Value for {nameof(DirOpt)} property is '{DirOpt}'");
+        Console.WriteLine($@"Value for {nameof(FileOrDirArg)} property is '{FileOrDirArg}'");
+        Console.WriteLine();
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Localizing commands, options and arguments is supported.
+//You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
+//and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
+//If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
+
+[CliCommand(Description = nameof(TestResources.CommandDescription))]
+internal class LocalizedCliCommand
+{
+    [CliOption(Description = nameof(TestResources.OptionDescription))]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = nameof(TestResources.ArgumentDescription))]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+}</code></pre></div></div></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
             Gets or sets the set of alternative strings that can be used on the command line to specify the command.
             <p>The aliases will be also displayed in usage help of the command line application.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Description.htm">Description</a></td><td>
             Gets or sets the description of the command. This will be displayed in usage help of the command line application.

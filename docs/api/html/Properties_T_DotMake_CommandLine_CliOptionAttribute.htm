@@ -60,7 +60,7 @@
                     There is no property initializer (e.g. <span class="code">public bool Opt { get; set; }</span>) but the property type is a value type 
                     which already have non-null default value.
                 </li><li>
-                    There is a property initializer but it's not initialized with <span class="code">null</span> or <span class="code">null!</span> (SuppressNullableWarningExpression)
+                    There is a property initializer, and it's not initialized with <span class="code">null</span> or <span class="code">null!</span> (SuppressNullableWarningExpression)
                     (e.g. <span class="code">public string Arg { get; set; } = "Default";</span>).
                 </li><li>If it's forced via attribute property <span class="code">Required</span> (e.g. <span class="code">[CliArgument(Required = false)]</span>).</li></ul></p><p>
             When an option is required, the option has to be specified on the command line and if its parent command is invoked
