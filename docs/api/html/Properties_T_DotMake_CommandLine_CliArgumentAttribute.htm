@@ -35,7 +35,7 @@
                 </li><li>If it's forced via attribute property <span class="code">Required</span> (e.g. <span class="code">[CliArgument(Required = true)]</span>).</li><li>
                     If it's forced via <span class="code">required</span> modifier (e.g. <span class="code">public required string Opt { get; set; }</span>).
                     Note that for being able to use <span class="code">required</span> modifier, if your target framework is below net7.0, 
-                    you also need <span class="code">11.0</span> tag (minimum) in your .csproj file (our source generator supplies the polyfills
+                    you also need <span class="code">&lt;LangVersion&gt;11.0&lt;/LangVersion&gt;</span> tag (minimum) in your .csproj file (our source generator supplies the polyfills
                     automatically as long as you set C# language version to 11).
                 </li></ul></p><p>
             An option/argument will be considered optional when

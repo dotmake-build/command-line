@@ -82,7 +82,7 @@ namespace DotMake.CommandLine
         ///     <item>
         ///         If it's forced via <c>required</c> modifier (e.g. <c>public required string Opt { get; set; }</c>).
         ///         Note that for being able to use <c>required</c> modifier, if your target framework is below net7.0, 
-        ///         you also need <c><LangVersion>11.0</LangVersion></c> tag (minimum) in your .csproj file (our source generator supplies the polyfills
+        ///         you also need <c>&lt;LangVersion&gt;11.0&lt;/LangVersion&gt;</c> tag (minimum) in your .csproj file (our source generator supplies the polyfills
         ///         automatically as long as you set C# language version to 11).
         ///     </item>
         /// </list>

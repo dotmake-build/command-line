@@ -39,6 +39,7 @@ namespace DotMake.CommandLine
         /// Registers a definition class so that it can be found by the hash of command as delegate.
         /// </summary>
         /// <param name="hash">The hash of command as delegate.</param>
+        /// <typeparam name="TDefinition">The definition class.</typeparam>
         public static void Register<TDefinition>(string hash)
         {
             var definitionType = typeof(TDefinition);
