@@ -103,8 +103,9 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
             }
 
-            if (Handler == null)
-                AddDiagnostic(DiagnosticDescriptors.WarningClassHasNotHandler, false, CliCommandHandlerInfo.DiagnosticName);
+            //Disable warning for missing handler, instead show help when no handler
+            //if (Handler == null)
+            //    AddDiagnostic(DiagnosticDescriptors.WarningClassHasNotHandler, false, CliCommandHandlerInfo.DiagnosticName);
 
             foreach (var nestedType in Symbol.GetTypeMembers())
             {
@@ -343,6 +344,8 @@ namespace DotMake.CommandLine.SourceGeneration
                             sb.Append(";");
                             sb.AppendLineEnd();
                         }
+                        else
+                            sb.AppendLine($"DotMake.CommandLine.InvocationContextExtensions.ShowHelp({varInvocationContext});");
                     }
 
                     sb.AppendLine();

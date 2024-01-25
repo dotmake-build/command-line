@@ -280,6 +280,20 @@ namespace DotMake.CommandLine
             return (T)ArgumentConverter.GetDefaultValue(typeof(T));
         }
 
+        /// <inheritdoc cref="GetValueForOption{T}"/>
+        public static object GetValueForOption(ParseResult parseResult, Option option)
+        {
+            var result = parseResult.FindResultFor(option);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<object>();
+                if (value != null)
+                    return value;
+            }
+
+            return ArgumentConverter.GetDefaultValue(option.ValueType);
+        }
+
         /// <summary>
         /// Gets the parsed or default value for the specified argument.
         /// <para>
@@ -302,6 +316,20 @@ namespace DotMake.CommandLine
             }
 
             return (T)ArgumentConverter.GetDefaultValue(typeof(T));
+        }
+
+        /// <inheritdoc cref="GetValueForArgument{T}"/>
+        public static object GetValueForArgument(ParseResult parseResult, Argument argument)
+        {
+            var result = parseResult.FindResultFor(argument);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<object>();
+                if (value != null)
+                    return value;
+            }
+
+            return ArgumentConverter.GetDefaultValue(argument.ValueType);
         }
 
         #endregion

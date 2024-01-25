@@ -464,6 +464,7 @@ namespace DotMake.CommandLine.CliCommandExamples
 
     #endregion
 
+    #nullable enable
     #region FileSystemInfoCliCommand
 
     // AllowExisting property in [CliOption] and [CliArgument] controls whether
@@ -492,6 +493,7 @@ namespace DotMake.CommandLine.CliCommandExamples
     }
 
     #endregion
+    #nullable disable
 
     #region LocalizedCliCommand
 

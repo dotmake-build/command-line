@@ -1,6 +1,6 @@
 #pragma warning disable CS1591
 #nullable enable
-using System;
+using System.CommandLine.Invocation;
 using System.IO;
 using DotMake.CommandLine;
 
@@ -18,13 +18,9 @@ namespace TestApp.Commands
         [CliArgument(Description = "Input file or directory (must exists)", AllowExisting = true)]
         public required FileSystemInfo FileOrDirArg { get; set; }
 
-        public void Run()
+        public void Run(InvocationContext context)
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(FileOpt)} property is '{FileOpt}'");
-            Console.WriteLine($@"Value for {nameof(DirOpt)} property is '{DirOpt}'");
-            Console.WriteLine($@"Value for {nameof(FileOrDirArg)} property is '{FileOrDirArg}'");
-            Console.WriteLine();
+            context.ShowValues();
         }
     }
 }

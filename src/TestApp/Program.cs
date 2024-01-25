@@ -19,7 +19,7 @@ try
         Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
         Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
     });
-
+    
     //Using Cli.Run with class:
     //Cli.Run<RootCliCommand>(args);
     //Cli.Run<RootSnakeSlashCliCommand>(args);
@@ -32,6 +32,7 @@ try
     //Cli.Run<InheritanceCliCommand>(args);
     //Cli.Run<FileSystemInfoCliCommand>(args);
     //Cli.Run<LocalizedCliCommand>(args);
+    //Cli.Run<HelpCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithChildrenCliCommand>(args);

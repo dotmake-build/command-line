@@ -168,6 +168,9 @@ if (parseResult.Errors.Count > 0)
     ```
 
   The signatures which return int value, sets the ExitCode of the app.
+  If no handler method is provided, then by default it will show help for the command.
+  This can be also controlled manually by extension method `ShowHelp` in `InvocationContext`.
+  Other extension methods `IsEmptyCommand` and `ShowValues` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 
 ## Help output
