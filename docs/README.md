@@ -39,6 +39,8 @@ PM> Install-Package DotMake.CommandLine
 
 ## Usage
 
+### Delegate-based model
+
 Create a CLI App with DotMake.Commandline in seconds!
 In Program.cs, add this simple code:
 ```c#
@@ -173,179 +175,336 @@ if (parseResult.Errors.Count > 0)
   Other extension methods `IsEmptyCommand` and `ShowValues` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 
-## Help output
+## Commands
 
-When you run the app via 
-- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net6.0`)
-- or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
+A *command* in command-line input is a token that specifies an action or defines a group of related actions. For example:
 
-- You see this usage help:
-```console
-DotMake Command-Line TestApp v1.6.0
-Copyright © 2023-2024 DotMake
+* In `dotnet run`, `run` is a command that specifies an action.
+* In `dotnet tool install`, `install` is a command that specifies an action, and `tool` is a command that specifies a group of related commands. There are other tool-related commands, such as `tool uninstall`, `tool list`, and `tool update`.
 
-A root cli command
+### Root commands
 
-Usage:
-  TestApp <argument-1> [options]
+The *root command* is the one that specifies the name of the app's executable. For example, the `dotnet` command specifies the *dotnet.exe* executable.
 
-Arguments:
-  <argument-1>  Description for Argument1 [required]
+### Subcommands
 
-Options:
-  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
-  -v, --version              Show version information
-  -?, -h, --help             Show help and usage information
-```
-First line comes from `AssemblyProductAttribute` or `AssemblyName`. 
-Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`.
-Second line comes from `AssemblyCopyrightAttribute`.
-Third line comes from `CliCommand.Description` or `AssemblyDescriptionAttribute`.
+Most command-line apps support *subcommands*, also known as *verbs*. For example, the `dotnet` command has a `run` subcommand that you invoke by entering `dotnet run`.
 
-Note, how command/option/argument names, descriptions and default values are automatically populated.
+Subcommands can have their own subcommands. In `dotnet tool install`, `install` is a subcommand of `tool`.
 
-By default,  command/option/argument names are generated as follows;
-- First the following suffixes are stripped out from class and property names:
-    - For commands:
-      "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
-    - For options: 
-     "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
-    - For arguments: 
-    "RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
-    
-- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
-  - `CliNameCasingConvention.None`
-  - `CliNameCasingConvention.LowerCase`
-  - `CliNameCasingConvention.UpperCase`
-  - `CliNameCasingConvention.TitleCase`
-  - `CliNameCasingConvention.PascalCase`
-  - `CliNameCasingConvention.CamelCase`
-  - `CliNameCasingConvention.KebabCase`
-  - `CliNameCasingConvention.SnakeCase`
-  
-- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `CliCommand` attribute to one of the following values:
-  - `CliNamePrefixConvention.SingleHyphen`
-  - `CliNamePrefixConvention.DoubleHyphen`
-  - `CliNamePrefixConvention.ForwardSlash`
-  
-- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `CliCommand` attribute.
+### Command Hierarchy
 
----
-For example, change the name casing and prefix convention:
+Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy.
+Just make sure you apply `CliCommand` attribute to the nested classes as well.
+Command hierarchy in below example is:  
+`RootWithNestedChildrenCliCommand` -> `Level1SubCliCommand` -> `Level2SubCliCommand`
 ```c#
-using System;
-using DotMake.CommandLine;
- 
+[CliCommand(Description = "A root cli command with nested children")]
+public class RootWithNestedChildrenCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run(InvocationContext context)
+    {
+        context.ShowValues();
+    }
+
+    [CliCommand(Description = "A nested level 1 sub-command")]
+    public class Level1SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run(InvocationContext context)
+        {
+            context.ShowValues();
+        }
+
+        [CliCommand(Description = "A nested level 2 sub-command")]
+        public class Level2SubCliCommand
+        {
+            [CliOption(Description = "Description for Option1")]
+            public string Option1 { get; set; } = "DefaultForOption1";
+
+            [CliArgument(Description = "Description for Argument1")]
+            public string Argument1 { get; set; }
+
+            public void Run(InvocationContext context)
+            {
+                context.ShowValues();
+            }
+        }
+    }
+}
+```
+Another way to create hierarchy between commands, especially if you want to use standalone classes,  
+is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
+Consider you have this root command:
+```c#
+[CliCommand(Description = "A root cli command with external children and one nested child and testing settings inheritance")]
+public class RootWithExternalChildrenCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run(InvocationContext context)
+    {
+        context.ShowValues();
+    }
+
+    [CliCommand(
+        Description = "A nested level 1 sub-command with custom settings, throws test exception",
+        NameCasingConvention = CliNameCasingConvention.SnakeCase,
+        NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+        ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+    )]
+    public class Level1SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run()
+        {
+            throw new Exception("This is a test exception from Level1SubCliCommand");
+        }
+    }
+}
+```
+Command hierarchy in below example is:  
+`RootWithExternalChildrenCliCommand` -> `ExternalLevel1SubCliCommand` -> `Level2SubCliCommand`
+```c#
 [CliCommand(
-    Description = "A cli command with snake_case name casing and forward slash prefix conventions",
+    Description = "An external level 1 sub-command",
+    Parent = typeof(RootWithExternalChildrenCliCommand)
+)]
+public class ExternalLevel1SubCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run(InvocationContext context)
+    {
+        context.ShowValues();
+    }
+
+    [CliCommand(Description = "A nested level 2 sub-command")]
+    public class Level2SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run(InvocationContext context)
+        {
+            context.ShowValues();
+        }
+    }
+}
+```
+Command hierarchy in below example is:  
+`RootWithExternalChildrenCliCommand` -> `Level1SubCliCommand` -> `ExternalLevel2SubCliCommand` -> `Level3SubCliCommand`
+```c#
+[CliCommand(
+    Description = "An external level 2 sub-command",
+    Parent = typeof(RootWithExternalChildrenCliCommand.Level1SubCliCommand),
     NameCasingConvention = CliNameCasingConvention.SnakeCase,
     NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
     ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
 )]
-public class RootSnakeSlashCliCommand
+public class ExternalLevel2SubCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
- 
+
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
- 
-    public void Run()
+
+    public void Run(InvocationContext context)
     {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
+        context.ShowValues();
+    }
+
+    [CliCommand(Description = "A nested level 3 sub-command")]
+    public class Level3SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run(InvocationContext context)
+        {
+            context.ShowValues();
+        }
     }
 }
 ```
-When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
+
+The class that `CliCommand` attribute is applied to,
+- will be a root command if the class is not a nested class and `Parent`property is not set.
+- will be a sub command if the class is a nested class or `Parent` property is set.
+
+### Command Inheritance
+
+When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+share them by inheriting that base class in other command classes. Interfaces are also supported !
+
+```c#
+[CliCommand]
+public class InheritanceCliCommand : CredentialCommandBase, IDepartmentCommand
+{
+    public string Department { get; set; } = "Accounting";
+}
+
+public abstract class CredentialCommandBase
+{
+    [CliOption(Description = "Username of the identity performing the command")]
+    public string Username { get; set; } = "admin";
+
+    [CliOption(Description = "Password of the identity performing the command")]
+    public string Password { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"I am {Username}");
+    }
+}
+
+public interface IDepartmentCommand
+{
+    [CliOption(Description = "Department of the identity performing the command (interface)")]
+    string Department { get; set; }
+}
+```
+
+The property attribute and the property initializer from the most derived class in the hierarchy will be used 
+(they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
+So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
+option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
+so that default value will be used.
+
+---
+The properties for `CliCommand` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
+- Name
+- Description
+- Aliases
+- Hidden
+- Parent
+- TreatUnmatchedTokensAsErrors
+- NameCasingConvention *(inherited by child options, child arguments and subcommands)*
+- NamePrefixConvention *(inherited by child options and subcommands)*
+- ShortFormPrefixConvention *(inherited by child options and subcommands)*
+- ShortFormAutoGenerate *(inherited by child options and subcommands)*
+
+## Options
+
+An option is a named parameter that can be passed to a command. [POSIX](https://en.wikipedia.org/wiki/POSIX) CLIs typically prefix the option name with two hyphens (`--`). The following example shows two options:
+
+```dotnetcli
+dotnet tool update dotnet-suggest --verbosity quiet --global
+                                  ^---------^       ^------^
+```
+
+As this example illustrates, the value of the option may be explicit (`quiet` for `--verbosity`) or implicit (nothing follows `--global`). Options that have no value specified are typically Boolean parameters that default to `true` if the option is specified on the command line.
+
+For some Windows command-line apps, you identify an option by using a leading slash (`/`) with the option name. For example:
+
 ```console
-DotMake Command-Line TestApp v1.6.0
-Copyright © 2023-2024 DotMake
-
-A cli command with snake_case name casing and forward slash prefix conventions
-
-Usage:
-  TestApp <argument_1> [options]
-
-Arguments:
-  <argument_1>  Description for Argument1 [required]
-
-Options:
-  /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
-  /v, /version              Show version information
-  -?, -h, /help             Show help and usage information
-```
-Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
-
-### Localization
-
-Localizing commands, options and arguments is supported.
-You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
-and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
-If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
-The reason we use `nameof` operator is that attributes in `.NET` only accept compile-time constants and you get `CS0182` error if not,
-so specifying resource property directly is not possible as it's not a compile-time constant but it's a static property access.
-
-```c#
-[CliCommand(Description = nameof(TestResources.CommandDescription))]
-internal class LocalizedCliCommand
-{
-    [CliOption(Description = nameof(TestResources.OptionDescription))]
-    public string Option1 { get; set; } = "DefaultForOption1";
-
-    [CliArgument(Description = nameof(TestResources.ArgumentDescription))]
-    public string Argument1 { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-    }
-}
+msbuild /version
+        ^------^
 ```
 
-### Triggering help
+Both POSIX and Windows prefix conventions are supported.
+When manually setting a name (overriding decorated property's name), you should specify the option name including the prefix (e.g. `--option`, `-option` or `/option`)
 
-If a command represents a group and not an action, you may want to show help. 
-If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
-You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `InvocationContext.ShowHelp`.
-For testing a command, other methods `InvocationContext.ShowValues` and `InvocationContext.IsEmptyCommand` are also useful.
-`ShowValues` shows parsed values for current command and its arguments and options.
+---
+The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
+- Name
+- Description
+- Aliases
+- HelpName
+- Hidden
+- Required
+- Global
+- Arity
+- AllowedValues
+- AllowMultipleArgumentsPerToken
+- ValidationRules
+- ValidationPattern
+- ValidationMessage
 
-See below example; root command does not have a handler method so it will always show help 
-and sub-command will show help if command is specified without any arguments or option, 
-and it will show (dump) values if not:
+## Arguments
 
-```c#
-[CliCommand(Description = "A root cli command")]
-public class HelpCliCommand
-{
-  [CliOption(Description = "Description for Option1")]
-  public string Option1 { get; set; } = "DefaultForOption1";
+An argument is a value passed to an option or a command. The following examples show an argument for the `verbosity` option and an argument for the `build` command.
 
-  [CliArgument(Description = "Description for Argument1")]
-  public string Argument1 { get; set; } = "DefaultForArgument1";
-
-  [CliCommand(Description = "A sub cli command")]
-  public class SubCliCommand
-  {
-      [CliArgument(Description = "Description for Argument2")]
-      public string Argument2 { get; set; } = "DefaultForArgument2";
-
-      public void Run(InvocationContext context)
-      {
-          if (context.IsEmptyCommand())
-              context.ShowHelp();
-          else
-              context.ShowValues();
-      }
-  }
-}
+```console
+dotnet tool update dotnet-suggest --verbosity quiet --global
+                                              ^---^
 ```
+
+```console
+dotnet build myapp.csproj
+             ^----------^
+```
+
+Arguments can have default values that apply if no argument is explicitly provided. For example, many options are implicitly Boolean parameters with a default of `true` when the option name is in the command line. The following command-line examples are equivalent:
+
+```dotnetcli
+dotnet tool update dotnet-suggest --global
+                                  ^------^
+
+dotnet tool update dotnet-suggest --global true
+                                  ^-----------^
+```
+
+Some options have required arguments. For example in the .NET CLI, `--output` requires a folder name argument. If the argument is not provided, the command fails.
+
+Arguments can have expected types, and `System.CommandLine` displays an error message if an argument can't be parsed into the expected type. For example, the following command errors because "silent" isn't one of the valid values for `--verbosity`:
+
+```dotnetcli
+dotnet build --verbosity silent
+```
+
+```output
+Cannot parse argument 'silent' for option '-v' as expected type 'Microsoft.DotNet.Cli.VerbosityOptions'. Did you mean one of the following?
+Detailed
+Diagnostic
+Minimal
+Normal
+Quiet
+```
+
+---
+The properties for `CliArgument` attribute (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
+- Name
+- Description
+- HelpName
+- Hidden
+- Required
+- Arity
+- AllowedValues
+- ValidationRules
+- ValidationPattern
+- ValidationMessage
 
 ## Model binding
 
@@ -663,29 +822,76 @@ public sealed class SingletonClass : IDisposable
     public void Dispose() => Console.WriteLine($"{nameof(SingletonClass)}.Dispose()");
 }
 ```
+## Help output
 
-## Command Hierarchy
+When you run the app via 
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net6.0`)
+- or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
-A *command* in command-line input is a token that specifies an action or defines a group of related actions. For example:
+- You see this usage help:
+```console
+DotMake Command-Line TestApp v1.6.0
+Copyright © 2023-2024 DotMake
 
-* In `dotnet run`, `run` is a command that specifies an action.
-* In `dotnet tool install`, `install` is a command that specifies an action, and `tool` is a command that specifies a group of related commands. There are other tool-related commands, such as `tool uninstall`, `tool list`, and `tool update`.
+A root cli command
 
-### Root commands
+Usage:
+  TestApp <argument-1> [options]
 
-The *root command* is the one that specifies the name of the app's executable. For example, the `dotnet` command specifies the *dotnet.exe* executable.
+Arguments:
+  <argument-1>  Description for Argument1 [required]
 
-### Subcommands
+Options:
+  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
+  -v, --version              Show version information
+  -?, -h, --help             Show help and usage information
+```
+First line comes from `AssemblyProductAttribute` or `AssemblyName`. 
+Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`.
+Second line comes from `AssemblyCopyrightAttribute`.
+Third line comes from `CliCommand.Description` or `AssemblyDescriptionAttribute`.
 
-Most command-line apps support *subcommands*, also known as *verbs*. For example, the `dotnet` command has a `run` subcommand that you invoke by entering `dotnet run`.
+Note, how command/option/argument names, descriptions and default values are automatically populated.
 
-Subcommands can have their own subcommands. In `dotnet tool install`, `install` is a subcommand of `tool`.
+By default,  command/option/argument names are generated as follows;
+- First the following suffixes are stripped out from class and property names:
+    - For commands:
+      "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
+    - For options: 
+     "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
+    - For arguments: 
+    "RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
+    
+- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
+  - `CliNameCasingConvention.None`
+  - `CliNameCasingConvention.LowerCase`
+  - `CliNameCasingConvention.UpperCase`
+  - `CliNameCasingConvention.TitleCase`
+  - `CliNameCasingConvention.PascalCase`
+  - `CliNameCasingConvention.CamelCase`
+  - `CliNameCasingConvention.KebabCase`
+  - `CliNameCasingConvention.SnakeCase`
+  
+- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `CliCommand` attribute to one of the following values:
+  - `CliNamePrefixConvention.SingleHyphen`
+  - `CliNamePrefixConvention.DoubleHyphen`
+  - `CliNamePrefixConvention.ForwardSlash`
+  
+- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `CliCommand` attribute.
 
 ---
-Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy:
+For example, change the name casing and prefix convention:
 ```c#
-[CliCommand(Description = "A root cli command with nested children")]
-public class RootWithNestedChildrenCliCommand
+using System;
+using DotMake.CommandLine;
+ 
+[CliCommand(
+    Description = "A cli command with snake_case name casing and forward slash prefix conventions",
+    NameCasingConvention = CliNameCasingConvention.SnakeCase,
+    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+)]
+public class RootSnakeSlashCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
@@ -700,256 +906,95 @@ public class RootWithNestedChildrenCliCommand
         Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
         Console.WriteLine();
     }
- 
-    [CliCommand(Description = "A nested level 1 sub-command")]
-    public class Level1SubCliCommand
+}
+```
+When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
+```console
+DotMake Command-Line TestApp v1.6.0
+Copyright © 2023-2024 DotMake
+
+A cli command with snake_case name casing and forward slash prefix conventions
+
+Usage:
+  TestApp <argument_1> [options]
+
+Arguments:
+  <argument_1>  Description for Argument1 [required]
+
+Options:
+  /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
+  /v, /version              Show version information
+  -?, -h, /help             Show help and usage information
+```
+Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
+
+### Localization
+
+Localizing commands, options and arguments is supported.
+You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
+and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
+If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
+The reason we use `nameof` operator is that attributes in `.NET` only accept compile-time constants and you get `CS0182` error if not,
+so specifying resource property directly is not possible as it's not a compile-time constant but it's a static property access.
+
+```c#
+[CliCommand(Description = nameof(TestResources.CommandDescription))]
+internal class LocalizedCliCommand
+{
+    [CliOption(Description = nameof(TestResources.OptionDescription))]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = nameof(TestResources.ArgumentDescription))]
+    public string Argument1 { get; set; }
+
+    public void Run()
     {
-        [CliOption(Description = "Description for Option1")]
-        public string Option1 { get; set; } = "DefaultForOption1";
- 
-        [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
- 
-        public void Run()
-        {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-            Console.WriteLine();
-        }
- 
-        [CliCommand(Description = "A nested level 2 sub-command")]
-        public class Level2SubCliCommand
-        {
-            [CliOption(Description = "Description for Option1")]
-            public string Option1 { get; set; } = "DefaultForOption1";
- 
-            [CliArgument(Description = "Description for Argument1")]
-            public string Argument1 { get; set; }
- 
-            public void Run()
-            {
-                Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-                Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-                Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-                Console.WriteLine();
-            }
-        }
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
     }
 }
 ```
-Just make sure you apply `CliCommand` attribute to the nested classes as well.
-Command hierarchy in above example is: **RootWithNestedChildrenCliCommand** -> **Level1SubCliCommand** -> **Level2SubCliCommand**
 
-Another way to create hierarchy between commands, especially if you want to use standalone classes, is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
+### Triggering help
+
+If a command represents a group and not an action, you may want to show help. 
+If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
+You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `InvocationContext.ShowHelp`.
+For testing a command, other methods `InvocationContext.ShowValues` and `InvocationContext.IsEmptyCommand` are also useful.
+`ShowValues` shows parsed values for current command and its arguments and options.
+
+See below example; root command does not have a handler method so it will always show help 
+and sub-command will show help if command is specified without any arguments or option, 
+and it will show (dump) values if not:
+
 ```c#
 [CliCommand(Description = "A root cli command")]
-public class RootWithExternalChildrenCliCommand
+public class HelpCliCommand
 {
-    [CliOption(Description = "Description for Option1")]
-    public string Option1 { get; set; } = "DefaultForOption1";
- 
-    [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
- 
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-    }
-}
+  [CliOption(Description = "Description for Option1")]
+  public string Option1 { get; set; } = "DefaultForOption1";
 
-[CliCommand(
-    Name = "Level1External",
-    Description = "An external level 1 sub-command",
-    Parent = typeof(RootWithExternalChildrenCliCommand)
-)]
-public class ExternalLevel1SubCliCommand
-{
-    [CliOption(Description = "Description for Option1")]
-    public string Option1 { get; set; } = "DefaultForOption1";
+  [CliArgument(Description = "Description for Argument1")]
+  public string Argument1 { get; set; } = "DefaultForArgument1";
 
-    [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
+  [CliCommand(Description = "A sub cli command")]
+  public class SubCliCommand
+  {
+      [CliArgument(Description = "Description for Argument2")]
+      public string Argument2 { get; set; } = "DefaultForArgument2";
 
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-    }
-
-    [CliCommand(Description = "A nested level 2 sub-command")]
-    public class Level2SubCliCommand
-    {
-        [CliOption(Description = "Description for Option1")]
-        public string Option1 { get; set; } = "DefaultForOption1";
-
-        [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
-
-        public void Run()
-        {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-            Console.WriteLine();
-        }
-    }
+      public void Run(InvocationContext context)
+      {
+          if (context.IsEmptyCommand())
+              context.ShowHelp();
+          else
+              context.ShowValues();
+      }
+  }
 }
 ```
-Command hierarchy in above example is: **RootWithExternalChildrenCliCommand** -> **ExternalLevel1SubCliCommand** -> **Level2SubCliCommand**
-
----
-The class that `CliCommand` attribute is applied to,
-- will be a root command if the class is not a nested class and `Parent`property is not set.
-- will be a sub command if the class is a nested class or `Parent` property is set.
-
-The properties for `CliCommand` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
-- Name
-- Description
-- Aliases
-- Hidden
-- Parent
-- TreatUnmatchedTokensAsErrors
-- NameCasingConvention *(inherited by child options, child arguments and subcommands)*
-- NamePrefixConvention *(inherited by child options and subcommands)*
-- ShortFormPrefixConvention *(inherited by child options and subcommands)*
-- ShortFormAutoGenerate *(inherited by child options and subcommands)*
-
-## Command Inheritance
-
-When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
-share them by inheriting that base class in other command classes. Interfaces are also supported !
-
-```c#
-[CliCommand]
-public class InheritanceCliCommand : CredentialCommandBase, IDepartmentCommand
-{
-    public string Department { get; set; } = "Accounting";
-}
-
-public abstract class CredentialCommandBase
-{
-    [CliOption(Description = "Username of the identity performing the command")]
-    public string Username { get; set; } = "admin";
-
-    [CliOption(Description = "Password of the identity performing the command")]
-    public string Password { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"I am {Username}");
-    }
-}
-
-public interface IDepartmentCommand
-{
-    [CliOption(Description = "Department of the identity performing the command (interface)")]
-    string Department { get; set; }
-}
-```
-
-The property attribute and the property initializer from the most derived class in the hierarchy will be used 
-(they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
-So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
-option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
-so that default value will be used.
-
-## Options
-
-An option is a named parameter that can be passed to a command. [POSIX](https://en.wikipedia.org/wiki/POSIX) CLIs typically prefix the option name with two hyphens (`--`). The following example shows two options:
-
-```dotnetcli
-dotnet tool update dotnet-suggest --verbosity quiet --global
-                                  ^---------^       ^------^
-```
-
-As this example illustrates, the value of the option may be explicit (`quiet` for `--verbosity`) or implicit (nothing follows `--global`). Options that have no value specified are typically Boolean parameters that default to `true` if the option is specified on the command line.
-
-For some Windows command-line apps, you identify an option by using a leading slash (`/`) with the option name. For example:
-
-```console
-msbuild /version
-        ^------^
-```
-
-Both POSIX and Windows prefix conventions are supported. When you configure an option, you specify the option name including the prefix.
-
----
-When manually setting a name (overriding target property's name), you should specify the option name including the prefix (e.g. `--option`, `-option` or `/option`)
-
-The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
-- Name
-- Description
-- Aliases
-- HelpName
-- Hidden
-- Required
-- Global
-- Arity
-- AllowedValues
-- AllowMultipleArgumentsPerToken
-- ValidationRules
-- ValidationPattern
-- ValidationMessage
-
-## Arguments
-
-An argument is a value passed to an option or a command. The following examples show an argument for the `verbosity` option and an argument for the `build` command.
-
-```console
-dotnet tool update dotnet-suggest --verbosity quiet --global
-                                              ^---^
-```
-
-```console
-dotnet build myapp.csproj
-             ^----------^
-```
-
-Arguments can have default values that apply if no argument is explicitly provided. For example, many options are implicitly Boolean parameters with a default of `true` when the option name is in the command line. The following command-line examples are equivalent:
-
-```dotnetcli
-dotnet tool update dotnet-suggest --global
-                                  ^------^
-
-dotnet tool update dotnet-suggest --global true
-                                  ^-----------^
-```
-
-Some options have required arguments. For example in the .NET CLI, `--output` requires a folder name argument. If the argument is not provided, the command fails.
-
-Arguments can have expected types, and `System.CommandLine` displays an error message if an argument can't be parsed into the expected type. For example, the following command errors because "silent" isn't one of the valid values for `--verbosity`:
-
-```dotnetcli
-dotnet build --verbosity silent
-```
-
-```output
-Cannot parse argument 'silent' for option '-v' as expected type 'Microsoft.DotNet.Cli.VerbosityOptions'. Did you mean one of the following?
-Detailed
-Diagnostic
-Minimal
-Normal
-Quiet
-```
-
----
-The properties for `CliArgument` attribute (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
-- Name
-- Description
-- HelpName
-- Hidden
-- Required
-- Arity
-- AllowedValues
-- ValidationRules
-- ValidationPattern
-- ValidationMessage
 
 ## Additional documentation
 - [DotMake Command-Line API docs](https://dotmake.build/api/)

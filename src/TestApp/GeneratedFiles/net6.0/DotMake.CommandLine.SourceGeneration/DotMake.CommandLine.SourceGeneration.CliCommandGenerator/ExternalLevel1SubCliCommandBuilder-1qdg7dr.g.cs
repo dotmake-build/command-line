@@ -28,7 +28,7 @@ namespace TestApp.Commands.External
         public override System.CommandLine.Command Build()
         {
             // Command for 'ExternalLevel1SubCliCommand' class
-            var command = new System.CommandLine.Command("Level1External")
+            var command = new System.CommandLine.Command("external-level-1")
             {
                 Description = "An external level 1 sub-command",
             };

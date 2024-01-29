@@ -4,14 +4,17 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
 {
+    #region ExternalLevel1SubCliCommand
+
+    // Command hierarchy in below example is:  
+    // `RootWithExternalChildrenCliCommand` -> `Level1SubCliCommand` -> `ExternalLevel2SubCliCommand` -> `Level3SubCliCommand`
+
     [CliCommand(
-        Name = "Level2External",
         Description = "An external level 2 sub-command",
         Parent = typeof(RootWithExternalChildrenCliCommand.Level1SubCliCommand),
         NameCasingConvention = CliNameCasingConvention.SnakeCase,
         NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
-        ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash,
-        Aliases = new[] { "external2Alias" }
+        ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
     )]
     public class ExternalLevel2SubCliCommand
     {
@@ -41,4 +44,6 @@ namespace TestApp.Commands.External
             }
         }
     }
+
+    #endregion
 }

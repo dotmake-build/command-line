@@ -8,8 +8,8 @@ namespace TestApp.Commands
 
     // Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy.
     // Just make sure you apply `CliCommand` attribute to the nested classes as well.
-    // Command hierarchy in below example is:
-    // RootWithNestedChildrenCliCommand -> Level1SubCliCommand -> Level2SubCliCommand
+    // Command hierarchy in below example is:  
+    // `RootWithNestedChildrenCliCommand` -> `Level1SubCliCommand` -> `Level2SubCliCommand`
 
     [CliCommand(Description = "A root cli command with nested children")]
     public class RootWithNestedChildrenCliCommand

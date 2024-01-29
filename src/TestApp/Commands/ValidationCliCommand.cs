@@ -26,7 +26,7 @@ namespace TestApp.Commands
         [CliOption(Required = false, ValidationRules = CliValidationRules.ExistingDirectory)]
         public DirectoryInfo OptDir { get; set; }
 
-        [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = null)]
+        [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$")]
         public string OptPattern1 { get; set; }
 
         [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = "Custom error message")]

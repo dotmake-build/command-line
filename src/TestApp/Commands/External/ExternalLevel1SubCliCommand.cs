@@ -6,8 +6,10 @@ namespace TestApp.Commands.External
 {
     #region ExternalLevel1SubCliCommand
 
+    // Command hierarchy in below example is:  
+    // `RootWithExternalChildrenCliCommand` -> `ExternalLevel1SubCliCommand` -> `Level2SubCliCommand`
+
     [CliCommand(
-        Name = "Level1External",
         Description = "An external level 1 sub-command",
         Parent = typeof(RootWithExternalChildrenCliCommand)
     )]

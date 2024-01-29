@@ -28,11 +28,10 @@ namespace TestApp.Commands.External
         public override System.CommandLine.Command Build()
         {
             // Command for 'ExternalLevel2SubCliCommand' class
-            var command = new System.CommandLine.Command("Level2External")
+            var command = new System.CommandLine.Command("external_level_2")
             {
                 Description = "An external level 2 sub-command",
             };
-            command.AddAlias("external2Alias");
 
             var defaultClass = CreateInstance();
 

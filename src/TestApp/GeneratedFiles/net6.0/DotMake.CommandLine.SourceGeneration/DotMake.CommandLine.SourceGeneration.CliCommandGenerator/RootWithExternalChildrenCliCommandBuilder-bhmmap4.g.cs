@@ -32,7 +32,6 @@ namespace TestApp.Commands
             {
                 Description = "A root cli command with external children and one nested child and testing settings inheritance",
             };
-            rootCommand.AddAlias("rootCmdAlias");
 
             var defaultClass = CreateInstance();
 
@@ -51,26 +50,7 @@ namespace TestApp.Commands
             };
             option0.SetDefaultValue(defaultClass.Option1);
             option0.AddAlias("-o");
-            option0.AddAlias("opt1Alias");
             rootCommand.Add(option0);
-
-            // Option for 'Option2' property
-            var option1 = new System.CommandLine.Option<string>
-            (
-                "--option-2",
-                GetParseArgument<string>
-                (
-                    null
-                )
-            )
-            {
-                Description = "Description for Option2",
-                IsRequired = false,
-            };
-            System.CommandLine.OptionExtensions.FromAmong(option1, new[] {"value1", "value2", "value3"});
-            option1.SetDefaultValue(defaultClass.Option2);
-            option1.AddAlias("globalOpt2Alias");
-            rootCommand.AddGlobalOption(option1);
 
             // Argument for 'Argument1' property
             var argument0 = new System.CommandLine.Argument<string>
@@ -98,7 +78,6 @@ namespace TestApp.Commands
 
                 //  Set the parsed or default values for the options
                 targetClass.Option1 = GetValueForOption(parseResult, option0);
-                targetClass.Option2 = GetValueForOption(parseResult, option1);
 
                 //  Set the parsed or default values for the arguments
                 targetClass.Argument1 = GetValueForArgument(parseResult, argument0);
@@ -111,7 +90,7 @@ namespace TestApp.Commands
                 var targetClass = (TestApp.Commands.RootWithExternalChildrenCliCommand) BindFunc(context.ParseResult);
 
                 //  Call the command handler
-                context.ExitCode = targetClass.Run();
+                targetClass.Run(context);
             });
 
             return rootCommand;

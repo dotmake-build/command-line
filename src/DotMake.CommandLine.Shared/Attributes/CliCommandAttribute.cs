@@ -44,6 +44,7 @@ namespace DotMake.CommandLine
     ///     <code>
     ///         <code source="..\TestApp\Commands\RootWithExternalChildrenCliCommand.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
     ///         <code source="..\TestApp\Commands\External\ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
+    ///         <code source="..\TestApp\Commands\External\ExternalLevel2SubCliCommand.cs" region="ExternalLevel2SubCliCommand" language="cs" />
     ///     </code>
     ///     <code source="..\TestApp\Commands\InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
