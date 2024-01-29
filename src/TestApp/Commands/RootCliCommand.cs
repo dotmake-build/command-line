@@ -4,6 +4,11 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
+    #region RootCliCommand
+
+    // Class-based model
+    // Create a simple class like this:
+
     [CliCommand(Description = "A root cli command")]
     public class RootCliCommand
     {
@@ -21,4 +26,6 @@ namespace TestApp.Commands
             Console.WriteLine();
         }
     }
+
+    #endregion
 }

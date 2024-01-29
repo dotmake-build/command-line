@@ -12,19 +12,23 @@ namespace DotMake.CommandLine
     /// Provides methods for parsing command line input and running an indicated command.
     /// </summary>
     /// <example>
-    ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunDelegate" language="cs" />
-    ///     <inheritdoc cref="CliCommandAttribute" path="/example/code[@id='gettingStarted']" />
-    ///     <code>
-    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsync" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+    ///     <code id="gettingStartedDelegate" source="..\TestApp\CliExamples.cs" region="CliRunDelegate" language="cs" />
+    ///     <code id="gettingStartedClass">
+    ///         <code source="..\TestApp\Commands\RootCliCommand.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
+    ///         <code source="..\TestApp\CliExamples.cs" region="CliParse" language="cs" />
     ///     </code>
-    ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunExceptions" language="cs" />
     ///     <code>
-    ///         <code source="..\DotMake.CommandLine.Examples\CliServiceExtensionsExamples.cs" region="Namespace" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliServiceExtensionsExamples.cs" region="ConfigureServices" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliServiceExtensionsExamples.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+    ///         <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
+    ///         <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+    ///         <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
+    ///     </code>
+    ///     <code source="..\TestApp\CliExamples.cs" region="CliRunExceptions" language="cs" />
+    ///     <code>
+    ///         <code source="..\TestApp.NugetDI\Program.cs" region="Namespace" language="cs" />
+    ///         <code source="..\TestApp.NugetDI\Program.cs" region="ConfigureServices" language="cs" />
+    ///         <code source="..\TestApp.NugetDI\Commands\RootCliCommand.cs" region="RootCliCommand" language="cs" />
     ///     </code>
     /// </example>
     public static class Cli

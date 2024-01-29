@@ -35,20 +35,20 @@ namespace DotMake.CommandLine
     /// </para>
     /// </summary>
     /// <example>
-    ///     <code id="gettingStarted">
-    ///         <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootCliCommand" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRun" language="cs" />
-    ///         <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParse" language="cs" />
+    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
+    ///     <code source="..\TestApp\Commands\WriteFileCommand.cs" region="WriteFileCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\ArgumentConverterCliCommand.cs" region="ArgumentConverterCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\EnumerableCliCommand.cs" region="EnumerableCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\RootSnakeSlashCliCommand.cs" region="RootSnakeSlashCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\RootWithNestedChildrenCliCommand.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
+    ///     <code>
+    ///         <code source="..\TestApp\Commands\RootWithExternalChildrenCliCommand.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
+    ///         <code source="..\TestApp\Commands\External\ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
     ///     </code>
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="WriteFileCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="EnumerableCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="ArgumentConverterCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootSnakeSlashCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="InheritanceCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="FileSystemInfoCliCommand" language="cs" />
-    ///     <code source="..\DotMake.CommandLine.Examples\CliCommandExamples.cs" region="LocalizedCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CliCommandAttribute : Attribute

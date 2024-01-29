@@ -1,5 +1,5 @@
 #pragma warning disable CS1591
-using System;
+using System.CommandLine.Invocation;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
@@ -17,12 +17,9 @@ namespace TestApp.Commands.External
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run()
+        public void Run(InvocationContext context)
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-            Console.WriteLine();
+            context.ShowValues();
         }
 
         [CliCommand(Description = "A nested level 2 sub-command")]
@@ -34,12 +31,9 @@ namespace TestApp.Commands.External
             [CliArgument(Description = "Description for Argument1")]
             public string Argument1 { get; set; }
 
-            public void Run()
+            public void Run(InvocationContext context)
             {
-                Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-                Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-                Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-                Console.WriteLine();
+                context.ShowValues();
             }
         }
     }

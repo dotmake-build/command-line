@@ -25,6 +25,10 @@ namespace DotMake.CommandLine
     /// Arguments can have default values that apply if no argument is explicitly provided. For example, many options are implicitly Boolean parameters with a default of <c>true</c> when the option name is in the command line.
     /// </para>
     /// </summary>
+    /// <example>
+    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedDelegate']" />
+    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
+    /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliArgumentAttribute : Attribute
     {
@@ -128,14 +132,32 @@ namespace DotMake.CommandLine
         public string[] AllowedValues { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether an argument should accept only values corresponding to an existing file or directory.
-        /// <list type="bullet">
-        ///     <item>When argument type is <see cref="System.IO.FileInfo"/>, existing file will be checked.</item>
-        ///     <item>When argument type is <see cref="System.IO.DirectoryInfo"/>, existing directory will be checked.</item>
-        ///     <item>When argument type is <see cref="System.IO.FileSystemInfo"/> or any other type, existing file or directory will be checked.</item>
-        /// </list>
+        /// Gets or sets a set of validation rules used to determine if argument value(s) is valid.
+        /// <para>
+        /// When combining validation rules, use bitwise 'or' operator(| in C#):
+        /// <code>
+        /// ValidationRules = CliValidationRules.NonExistingFile | CliValidationRules.LegalPath
+        /// </code>
+        /// </para>
         /// </summary>
-        public bool AllowExisting { get; set; }
+        public CliValidationRules ValidationRules { get; set; }
+
+        /// <summary>
+        /// Gets or sets a regular expression pattern used to determine if argument value(s) is valid.
+        /// <para>
+        /// Note that you can specify regular expression options inline in the pattern with the syntax <c>(?imnsx-imnsx)</c>:
+        /// <code>
+        /// ValidationPattern = @"(?i)^[a-z]+$"
+        /// </code>
+        /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference">Regular expression quick reference</see>
+        /// <br/>
+        /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options">Regular expression options</see>
+        /// </para>
+        /// </summary>
+        public string ValidationPattern { get; set; }
+
+        /// <summary>Gets or sets an error message to show when <see cref="ValidationPattern"/> does not match and validation fails.</summary>
+        public string ValidationMessage { get; set; }
 
         internal static CliArgumentAttribute Default { get; } = new CliArgumentAttribute();
     }

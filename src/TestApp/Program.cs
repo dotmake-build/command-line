@@ -13,29 +13,43 @@ using TestApp.Commands.PrefixConvention;
 try
 {
     //Using Cli.Run with delegate:
-    
+    /*
     Cli.Run(([CliArgument]string argument1, bool option1) =>
     {
         Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
         Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
     });
-    
+    */
+
     //Using Cli.Run with class:
-    //Cli.Run<RootCliCommand>(args);
-    //Cli.Run<RootSnakeSlashCliCommand>(args);
-    //Cli.Run<ForwardSlashCliCommand>(args);
-    //Cli.Run<RootWithNestedChildrenCliCommand>(args);
-    //Cli.Run<RootWithExternalChildrenCliCommand>(args);
+    Cli.Run<RootCliCommand>(args);
+    //Cli.Run<WriteFileCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<EnumerableCliCommand>(args);
-    //Cli.Run<NullableReferenceCommand>(args);
+    //Cli.Run<RootSnakeSlashCliCommand>(args);
+    //Cli.Run<RootWithNestedChildrenCliCommand>(args);
+    //Cli.Run<RootWithExternalChildrenCliCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
-    //Cli.Run<FileSystemInfoCliCommand>(args);
     //Cli.Run<LocalizedCliCommand>(args);
     //Cli.Run<HelpCliCommand>(args);
+    //Cli.Run<ValidationCliCommand>(args);
+
+    //Misc:
+    //Cli.Run<GlobalNamespaceCliCommand>(args);
+    //Cli.Run<NullableReferenceCommand>(args);
+    //Cli.Run<PartialCliCommand>(args);
+    //Cli.Run<CamelCaseCliCommand>(args);
+    //Cli.Run<NoCaseCliCommand>(args);
+    //Cli.Run<SnakeCaseCliCommand>(args);
+    //Cli.Run<UpperCaseCliCommand>(args);
+    //Cli.Run<SingleHyphenCliCommand>(args);
+    //Cli.Run<ForwardSlashCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithChildrenCliCommand>(args);
+    //await Cli.RunAsync<AsyncVoidReturnCliCommand>(args);
+    //await Cli.RunAsync<AsyncIntReturnCliCommand>(args);
+
 
     //Using configureBuilder to use an exception handler:
     /*

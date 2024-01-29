@@ -24,6 +24,11 @@
       <Link>TestResources.resx</Link>
       <LogicalName>TestApp.TestResources.resources</LogicalName>
     </EmbeddedResource>
+    <Compile Update="..\TestApp\TestResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TestResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

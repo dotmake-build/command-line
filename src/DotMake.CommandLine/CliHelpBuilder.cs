@@ -4,7 +4,6 @@ using System.CommandLine;
 using System.CommandLine.Help;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace DotMake.CommandLine
@@ -20,10 +19,6 @@ namespace DotMake.CommandLine
     {
         private const string Indent = "  ";
         private readonly IConsole console;
-        private static readonly MethodInfo IsGlobalGetter = typeof(Option)
-            .GetProperty("IsGlobal", BindingFlags.NonPublic | BindingFlags.Instance)?.GetMethod;
-        private static readonly PropertyInfo ArgumentProperty =
-            typeof(Option).GetProperty("Argument", BindingFlags.Instance | BindingFlags.NonPublic);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliHelpBuilder" /> class.
@@ -232,7 +227,7 @@ namespace DotMake.CommandLine
                         foreach (var option in parentCommand.Options)
                         {
                             // global help aliases may be duplicated, we just ignore them
-                            if ((IsGlobalGetter?.Invoke(option, null) as bool?) == true && !option.IsHidden && uniqueOptions.Add(option))
+                            if (option.GetIsGlobal() && !option.IsHidden && uniqueOptions.Add(option))
                             {
                                 options.Add(GetTwoColumnRow(option, helpContext));
                             }
@@ -391,7 +386,7 @@ namespace DotMake.CommandLine
             {
                 if (!displayOptionTitle)
                 {
-                    displayOptionTitle = parentCommand.Options.Any(x => (IsGlobalGetter?.Invoke(x, null) as bool?) == true && !x.IsHidden);
+                    displayOptionTitle = parentCommand.Options.Any(x => x.GetIsGlobal() && !x.IsHidden);
                 }
 
                 if (parentCommand.Parents.FirstOrDefault() == null)
@@ -651,7 +646,7 @@ namespace DotMake.CommandLine
                 case Option option:
                     return new[]
                     {
-                        (Argument)ArgumentProperty.GetValue(option)
+                        option.GetArgument()
                     };
                 case Command command:
                     return command.Arguments;

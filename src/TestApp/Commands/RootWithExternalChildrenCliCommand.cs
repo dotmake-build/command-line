@@ -4,6 +4,13 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
+    #region RootWithExternalChildrenCliCommand
+
+    // Another way to create hierarchy between commands, especially if you want to use standalone classes,
+    // is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
+    // Command hierarchy in below example is:
+    // RootWithExternalChildrenCliCommand -> ExternalLevel1SubCliCommand -> Level2SubCliCommand
+
     [CliCommand(
         Description = "A root cli command with external children and one nested child and testing settings inheritance",
         Aliases = new[] { "rootCmdAlias" }
@@ -55,4 +62,6 @@ namespace TestApp.Commands
             }
         }
     }
+
+    #endregion
 }

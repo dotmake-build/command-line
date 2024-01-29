@@ -1,8 +1,12 @@
 using System;
 using DotMake.CommandLine;
 
-namespace TestDIApp.Commands
+namespace TestApp.NugetDI.Commands
 {
+    #region RootCliCommand
+
+    //Then let them be injected to your command class automatically by providing a constructor with the required services:
+
     [CliCommand(Description = "A root cli command with dependency injection")]
     public class RootCliCommand
     {
@@ -61,4 +65,6 @@ namespace TestDIApp.Commands
 
         public void Dispose() => Console.WriteLine($"{nameof(SingletonClass)}.Dispose()");
     }
+
+    #endregion
 }

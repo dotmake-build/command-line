@@ -41,6 +41,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 return true;
 
             return HasModuleInitializer == other.HasModuleInitializer
+                   && HasRequiredMember == other.HasRequiredMember
                    && HasMsDependencyInjection == other.HasMsDependencyInjection;
         }
     }

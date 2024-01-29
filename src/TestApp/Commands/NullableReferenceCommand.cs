@@ -1,6 +1,7 @@
 #pragma warning disable CS1591
 #nullable enable
 using System;
+using System.CommandLine.Invocation;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -34,12 +35,9 @@ namespace TestApp.Commands
             [CliArgument(Description = "Argument with nullable reference type with default value (should not be required)")]
             public string? ArgDefault { get; set; } = "test";
 
-            public void Run()
+            public void Run(InvocationContext context)
             {
-                Console.WriteLine($@"{nameof(Opt)}={Opt}");
-                Console.WriteLine($@"{nameof(OptDefault)}={OptDefault}");
-                Console.WriteLine($@"{nameof(Arg)}={Arg}");
-                Console.WriteLine($@"{nameof(ArgDefault)}={ArgDefault}");
+                context.ShowValues();
             }
         }
 
@@ -64,12 +62,9 @@ namespace TestApp.Commands
             [CliArgument(Description = "Argument with non-nullable reference type with default value (should not be required)")]
             public string ArgDefault { get; set; } = "test";
 
-            public void Run()
+            public void Run(InvocationContext context)
             {
-                Console.WriteLine($@"{nameof(Opt)}={Opt}");
-                Console.WriteLine($@"{nameof(OptDefault)}={OptDefault}");
-                Console.WriteLine($@"{nameof(Arg)}={Arg}");
-                Console.WriteLine($@"{nameof(ArgDefault)}={ArgDefault}");
+                context.ShowValues();
             }
         }
 
@@ -95,12 +90,9 @@ namespace TestApp.Commands
             [CliArgument(Description = "Argument with required keyword with default value (should not be required)")]
             public required string ArgDefault { get; set; } = "test";
 
-            public void Run()
+            public void Run(InvocationContext context)
             {
-                Console.WriteLine($@"{nameof(Opt)}={Opt}");
-                Console.WriteLine($@"{nameof(OptDefault)}={OptDefault}");
-                Console.WriteLine($@"{nameof(Arg)}={Arg}");
-                Console.WriteLine($@"{nameof(ArgDefault)}={ArgDefault}");
+                context.ShowValues();
             }
         }
     }

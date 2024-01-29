@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
-    public static class EnumUtil<TEnum> where TEnum : struct
+    public static class EnumUtil<TEnum> where TEnum : Enum
     {
         private static readonly Dictionary<TEnum, EnumInfo> Cache;
 
@@ -19,7 +19,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 {
                     Type = type,
                     Name = Enum.GetName(type, value),
-                    Value = Convert.ToInt32(value)
+                    Value = value
                 });
         }
 
@@ -30,6 +30,11 @@ namespace DotMake.CommandLine.SourceGeneration
                 : string.Empty;
         }
 
+        public static IEnumerable<EnumInfo> Enumerate()
+        {
+            return Cache.Values;
+        }
+
         public class EnumInfo
         {
             public Type Type { get; set; }
@@ -38,7 +43,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
             public string FullName => $"{Type.FullName}.{Name}";
 
-            public int Value { get; set; }
+            public TEnum Value { get; set; }
         }
     }
 }

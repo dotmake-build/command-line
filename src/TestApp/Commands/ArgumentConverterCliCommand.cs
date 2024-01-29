@@ -5,6 +5,12 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
+    #region ArgumentConverterCliCommand
+
+    // Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any,
+    // should be optional) - These types can be bound/parsed automatically even if they are wrapped
+    // with `Enumerable` or `Nullable` type.
+
     [CliCommand]
     public class ArgumentConverterCliCommand
     {
@@ -82,4 +88,6 @@ namespace TestApp.Commands
             return value;
         }
     }
+
+    #endregion
 }

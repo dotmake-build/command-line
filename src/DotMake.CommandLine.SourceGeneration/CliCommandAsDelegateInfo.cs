@@ -95,6 +95,8 @@ namespace DotMake.CommandLine.SourceGeneration
             return GenerateString().GetStableStringHashCode32();
         }
 
+        //The generated string should match the one generated in DotMake.CommandLine.CliCommandAsDelegateDefinition
+        //So that the generated hash matches.
         public string GenerateString()
         {
             var sb = new StringBuilder();

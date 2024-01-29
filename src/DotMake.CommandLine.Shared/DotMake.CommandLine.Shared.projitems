@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliCommandAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliOptionAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNamePrefixConvention.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliValidationRules.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StringExtensions.cs" />
   </ItemGroup>
 </Project>

@@ -20,11 +20,12 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added ShowHelp, IsEmptyCommand and ShowValues extension methods to InvocationContext. You can now manually show
-      help in command class Run or RunAsync method, for example if a sub-command represents a group and not an action,
-      you can show help. If Run or RunAsync method is missing in command class, then by default it will show help
-      (analyzer warning DMCLI24 is disabled). ShowValues is useful for testing a command, it shows parsed values for
-      current command and its arguments and options.
+      - Added advanced validation. In `[CliOption]` and `[CliArgument]` attributes, removed `AllowExisting` property and added `ValidationRules`, `ValidationPattern`, `ValidationMessage` properties.
+       `ValidationRules` property allows setting predefined validation rules such as `ExistingFile`, `NonExistingFile`, `ExistingDirectory`,
+       `NonExistingDirectory`, `ExistingFileOrDirectory`, `NonExistingFileOrDirectory`, `LegalPath`, `LegalFileName`, `LegalUri`, `LegalUrl`.
+       Validation rules can be combined.
+       `ValidationPattern` property allows setting a regular expression pattern for custom validation,
+       and `ValidationMessage` property allows setting a custom error message to show when `ValidationPattern` does not match.
     </PackageReleaseNotes>
   </PropertyGroup>
 
