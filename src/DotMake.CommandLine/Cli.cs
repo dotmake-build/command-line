@@ -145,8 +145,8 @@ namespace DotMake.CommandLine
         /// <param name="console">A console to which output can be written. By default, <see cref="Console" /> is used.</param>
         /// <returns>The exit code for the invocation.</returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRun" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
         /// </example>
         public static int Run<TDefinition>(string[] args = null, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
@@ -165,8 +165,8 @@ namespace DotMake.CommandLine
         /// <param name="console"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='console']/node()" /></param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunString" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunString" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
         /// </example>
         public static int Run<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
@@ -192,8 +192,8 @@ namespace DotMake.CommandLine
         /// </param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunDelegate" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunDelegateWithReturn" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunDelegate" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunDelegateWithReturn" language="cs" />
         /// </example>
         public static int Run(Delegate cliCommandAsDelegate)
         {
@@ -215,8 +215,8 @@ namespace DotMake.CommandLine
         /// <param name="console"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='console']/node()" /></param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsync" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
         /// </example>
         public static async Task<int> RunAsync<TDefinition>(string[] args = null, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
@@ -235,8 +235,8 @@ namespace DotMake.CommandLine
         /// <param name="console"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='console']/node()" /></param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncString" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncString" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
         /// </example>
         public static async Task<int> RunAsync<TDefinition>(string commandLine, Action<CommandLineBuilder> configureBuilder = null, bool useBuilderDefaults = true, IConsole console = null)
         {
@@ -251,8 +251,8 @@ namespace DotMake.CommandLine
         /// <param name="cliCommandAsDelegate"><inheritdoc cref="Run(Delegate)" path="/param[@name='cliCommandAsDelegate']/node()" /></param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncDelegate" language="cs" />
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliRunAsyncDelegateWithReturn" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncDelegate" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncDelegateWithReturn" language="cs" />
         /// </example>
         public static async Task<int> RunAsync(Delegate cliCommandAsDelegate)
         {
@@ -272,7 +272,7 @@ namespace DotMake.CommandLine
         /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
         /// </example>
         public static TDefinition Parse<TDefinition>(string[] args, out ParseResult parseResult)
         {
@@ -291,7 +291,7 @@ namespace DotMake.CommandLine
         /// <param name="args"><inheritdoc cref="Run{TDefinition}(string[], Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='args']/node()" /></param>
         /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParse" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliParse" language="cs" />
         /// </example>
         public static TDefinition Parse<TDefinition>(string[] args = null)
         {
@@ -306,7 +306,7 @@ namespace DotMake.CommandLine
         /// <param name="parseResult"><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/param[@name='parseResult']/node()" /></param>
         /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
         /// </example>
         public static TDefinition Parse<TDefinition>(out ParseResult parseResult)
         {
@@ -321,7 +321,7 @@ namespace DotMake.CommandLine
         /// <param name="parseResult">A <see cref="ParseResult" /> providing details about the parse operation.</param>
         /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
         /// </example>
         public static TDefinition Parse<TDefinition>(string commandLine, out ParseResult parseResult)
         {
@@ -340,7 +340,7 @@ namespace DotMake.CommandLine
         /// <param name="commandLine"><inheritdoc cref="Run{TDefinition}(string, Action{CommandLineBuilder}, bool, IConsole)" path="/param[@name='commandLine']/node()" /></param>
         /// <returns><inheritdoc cref="Parse{TDefinition}(string[], out ParseResult)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\DotMake.CommandLine.Examples\CliExamples.cs" region="CliParseString" language="cs" />
+        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseString" language="cs" />
         /// </example>
         public static TDefinition Parse<TDefinition>(string commandLine)
         {

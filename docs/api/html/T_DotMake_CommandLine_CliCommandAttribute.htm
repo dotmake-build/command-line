@@ -12,7 +12,8 @@ public class SomeCliCommand</code></pre></div></div>
             </p><p>
             When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
             share them by inheriting that base class in other command classes.Interfaces are also supported !
-            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.7.0<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Create a simple class like this:
+            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.7.2<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Class-based model
+// Create a simple class like this:
 
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
@@ -32,12 +33,12 @@ public class RootCliCommand
     }
 }
 
-//In Program.cs, add this single line:
-Cli.Run&lt;RootCliCommand&gt;(args);
+        //In Program.cs, add this single line:
+        Cli.Run&lt;RootCliCommand&gt;(args);
 
-//If you need to simply parse the command-line arguments without invocation, use this:
-var rootCliCommand = Cli.Parse&lt;RootCliCommand&gt;(args);</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument`
-//attribute is applied to, for example these properties will be parsed and bound/populated automatically:
+        //If you need to simply parse the command-line arguments without invocation, use this:
+        var rootCliCommand = Cli.Parse&lt;RootCliCommand&gt;(args);</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument`
+// attribute is applied to, for example these properties will be parsed and bound/populated automatically:
 
 [CliCommand]
 public class WriteFileCommand
@@ -61,145 +62,37 @@ public class WriteFileCommand
             }
         }
     }
-}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Arrays, lists, collections - any type that implements `IEnumerable&lt;T&gt;` and has a public constructor with a `IEnumerable&lt;T&gt;`
-//or `IList&lt;T&gt;` parameter (other parameters, if any, should be optional).
-//If type is generic `IEnumerable&lt;T&gt;`, `IList&lt;T&gt;`, `ICollection&lt;T&gt;` interfaces itself, array `T[]` will be used.
-//If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used.
-
-[CliCommand]
-public class EnumerableCliCommand
-{
-    [CliOption]
-    public IEnumerable&lt;int&gt; OptEnumerable { get; set; }
-
-    [CliOption]
-    public List&lt;string&gt; OptList { get; set; }
-
-    [CliOption(AllowMultipleArgumentsPerToken = true)]
-    public FileAccess[] OptEnumArray { get; set; }
-
-    [CliOption]
-    public Collection&lt;int?&gt; OptCollection { get; set; }
-
-    [CliOption]
-    public HashSet&lt;string&gt; OptHashSet { get; set; }
-
-    [CliOption]
-    public Queue&lt;FileInfo&gt; OptQueue { get; set; }
-
-    [CliOption]
-    public CustomList&lt;string&gt; OptCustomList { get; set; }
-
-    [CliArgument]
-    public IList ArgIList { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-
-        Console.WriteLine($@"Value for {nameof(OptEnumerable)} property is '{GetAllValues(OptEnumerable)}'");
-        Console.WriteLine($@"Value for {nameof(OptList)} property is '{GetAllValues(OptList)}'");
-        Console.WriteLine($@"Value for {nameof(OptEnumArray)} property is '{GetAllValues(OptEnumArray)}'");
-        Console.WriteLine($@"Value for {nameof(OptCollection)} property is '{GetAllValues(OptCollection)}'");
-        Console.WriteLine($@"Value for {nameof(OptHashSet)} property is '{GetAllValues(OptHashSet)}'");
-        Console.WriteLine($@"Value for {nameof(OptQueue)} property is '{GetAllValues(OptQueue)}'");
-        Console.WriteLine($@"Value for {nameof(OptCustomList)} property is '{GetAllValues(OptCustomList)}'");
-        Console.WriteLine($@"Value for {nameof(ArgIList)} property is '{GetAllValues(ArgIList)}'");
-
-        Console.WriteLine();
-    }
-
-    private static string GetAllValues(object value)
-    {
-        if (value is IEnumerable enumerable)
-        {
-            var items = enumerable.Cast&lt;object&gt;().ToArray();
-            if (items.Length == 0)
-                return "&lt;empty&gt;";
-            return string.Join("|", items.Select(GetValue));
-        }
-
-        return GetValue(value);
-    }
-
-    private static string GetValue(object value)
-    {
-        if (value == null)
-            return "&lt;null&gt;";
-
-        return value.ToString();
-    }
-}
-
-public class CustomList&lt;T&gt; : List&lt;T&gt;
-{
-    public CustomList(IEnumerable&lt;T&gt; items)
-        : base(items)
-    {
-
-    }
-}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any,
-//should be optional) - These types can be bound/parsed automatically even if they are wrapped
-//with `Enumerable` or `Nullable` type.
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Any type with a public constructor or a static `Parse` method with a string parameter (other parameters, if any,
+// should be optional) - These types can be bound/parsed automatically even if they are wrapped
+// with `Enumerable` or `Nullable` type.
 
 [CliCommand]
 public class ArgumentConverterCliCommand
 {
-    [CliOption]
+    [CliOption(Required = false)]
     public ClassWithConstructor Opt { get; set; }
 
-    [CliOption(AllowMultipleArgumentsPerToken = true)]
+    [CliOption(Required = false, AllowMultipleArgumentsPerToken = true)]
     public ClassWithConstructor[] OptArray { get; set; }
 
-    [CliOption]
+    [CliOption(Required = false)]
     public CustomStruct? OptNullable { get; set; }
 
-    [CliOption]
+    [CliOption(Required = false)]
     public IEnumerable&lt;ClassWithConstructor&gt; OptEnumerable { get; set; }
 
-    [CliOption]
+    [CliOption(Required = false)]
     public List&lt;ClassWithConstructor&gt; OptList { get; set; }
 
-    [CliOption]
+    [CliOption(Required = false)]
     public CustomList&lt;ClassWithConstructor&gt; OptCustomList { get; set; }
 
     [CliArgument]
     public IEnumerable&lt;ClassWithParser&gt; Arg { get; set; }
 
-    public void Run()
+    public void Run(InvocationContext context)
     {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-
-        Console.WriteLine($@"Value for {nameof(Opt)} property is '{GetAllValues(Opt)}'");
-        Console.WriteLine($@"Value for {nameof(OptArray)} property is '{GetAllValues(OptArray)}'");
-        Console.WriteLine($@"Value for {nameof(OptNullable)} property is '{GetAllValues(OptNullable)}'");
-        Console.WriteLine($@"Value for {nameof(OptEnumerable)} property is '{GetAllValues(OptEnumerable)}'");
-        Console.WriteLine($@"Value for {nameof(OptList)} property is '{GetAllValues(OptList)}'");
-        Console.WriteLine($@"Value for {nameof(OptCustomList)} property is '{GetAllValues(OptCustomList)}'");
-        Console.WriteLine($@"Value for {nameof(Arg)} property is '{GetAllValues(Arg)}'");
-
-        Console.WriteLine();
-    }
-
-    private static string GetAllValues(object value)
-    {
-        if (value is IEnumerable enumerable)
-        {
-            var items = enumerable.Cast&lt;object&gt;().ToArray();
-            if (items.Length == 0)
-                return "&lt;empty&gt;";
-            return string.Join("|", items.Select(GetValue));
-        }
-
-        return GetValue(value);
-    }
-
-    private static string GetValue(object value)
-    {
-        if (value == null)
-            return "&lt;null&gt;";
-
-        return value.ToString();
+        context.ShowValues();
     }
 }
 
@@ -229,6 +122,7 @@ public class ClassWithParser
 
     public static ClassWithParser Parse(string value)
     {
+        //throw new NullReferenceException();
         var instance = new ClassWithParser();
         instance.value = value;
         return instance;
@@ -248,7 +142,52 @@ public struct CustomStruct
     {
         return value;
     }
-}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//For example, change the name casing and prefix convention:
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Arrays, lists, collections - any type that implements `IEnumerable&lt;T&gt;` and has a public constructor with a `IEnumerable&lt;T&gt;`
+// or `IList&lt;T&gt;` parameter (other parameters, if any, should be optional).
+// If type is generic `IEnumerable&lt;T&gt;`, `IList&lt;T&gt;`, `ICollection&lt;T&gt;` interfaces itself, array `T[]` will be used.
+// If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used.
+
+[CliCommand]
+public class EnumerableCliCommand
+{
+    [CliOption(Required = false)]
+    public IEnumerable&lt;int&gt; OptEnumerable { get; set; }
+
+    [CliOption(Required = false)]
+    public List&lt;string&gt; OptList { get; set; }
+
+    [CliOption(Required = false, AllowMultipleArgumentsPerToken = true)]
+    public FileAccess[] OptEnumArray { get; set; }
+
+    [CliOption(Required = false)]
+    public Collection&lt;int?&gt; OptCollection { get; set; }
+
+    [CliOption(Required = false)]
+    public HashSet&lt;string&gt; OptHashSet { get; set; }
+
+    [CliOption(Required = false)]
+    public Queue&lt;FileInfo&gt; OptQueue { get; set; }
+
+    [CliOption(Required = false)]
+    public CustomList&lt;string&gt; OptCustomList { get; set; }
+
+    [CliArgument]
+    public IList ArgIList { get; set; }
+
+    public void Run(InvocationContext context)
+    {
+        context.ShowValues();
+    }
+}
+
+public class CustomList&lt;T&gt; : List&lt;T&gt;
+{
+    public CustomList(IEnumerable&lt;T&gt; items)
+        : base(items)
+    {
+        //throw new NullReferenceException();
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// For example, change the name casing and prefix convention:
 
 [CliCommand(
     Description = "A cli command with snake_case name casing and forward slash prefix conventions",
@@ -263,15 +202,10 @@ public class RootSnakeSlashCliCommand
 
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-    }
-}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Defining sub-commands in DotMake.Commandline is very easy.We simply use nested classes to create a hierarchy:
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy.
+// Just make sure you apply `CliCommand` attribute to the nested classes as well.
+// Command hierarchy in below example is:
+// RootWithNestedChildrenCliCommand -&gt; Level1SubCliCommand -&gt; Level2SubCliCommand
 
 [CliCommand(Description = "A root cli command with nested children")]
 public class RootWithNestedChildrenCliCommand
@@ -282,12 +216,9 @@ public class RootWithNestedChildrenCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run()
+    public void Run(InvocationContext context)
     {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
+        context.ShowValues();
     }
 
     [CliCommand(Description = "A nested level 1 sub-command")]
@@ -299,12 +230,9 @@ public class RootWithNestedChildrenCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run()
+        public void Run(InvocationContext context)
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-            Console.WriteLine();
+            context.ShowValues();
         }
 
         [CliCommand(Description = "A nested level 2 sub-command")]
@@ -316,37 +244,66 @@ public class RootWithNestedChildrenCliCommand
             [CliArgument(Description = "Description for Argument1")]
             public string Argument1 { get; set; }
 
-            public void Run()
+            public void Run(InvocationContext context)
             {
-                Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-                Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-                Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-                Console.WriteLine();
+                context.ShowValues();
             }
         }
     }
-}
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Another way to create hierarchy between commands, especially if you want to use standalone classes,
+// is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
+// Command hierarchy in below example is:
+// RootWithExternalChildrenCliCommand -&gt; ExternalLevel1SubCliCommand -&gt; Level2SubCliCommand
 
-//Just make sure you apply `CliCommand` attribute to the nested classes as well.
-//Command hierarchy in above example is:
-//  RootWithNestedChildrenCliCommand -&gt; Level1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Another way to create hierarchy between commands, especially if you want to use standalone classes,
-//is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
-
-[CliCommand(Description = "A root cli command")]
+[CliCommand(
+    Description = "A root cli command with external children and one nested child and testing settings inheritance",
+    Aliases = new[] { "rootCmdAlias" }
+)]
 public class RootWithExternalChildrenCliCommand
 {
-    [CliOption(Description = "Description for Option1")]
+    [CliOption(Description = "Description for Option1", Aliases = new[] { "opt1Alias" })]
     public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliOption(
+        Description = "Description for Option2",
+        Aliases = new[] { "globalOpt2Alias" },
+        Global = true,
+        AllowedValues = new[] { "value1", "value2", "value3" }
+    )]
+    public string Option2 { get; set; } = "DefaultForOption1";
 
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run()
+    public int Run()
     {
         Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
         Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
         Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
         Console.WriteLine();
+
+        return 0;
+    }
+
+    [CliCommand(
+        Description = "A nested level 1 sub-command with custom settings, throws test exception",
+        NameCasingConvention = CliNameCasingConvention.SnakeCase,
+        NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+        ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+    )]
+    public class Level1SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run()
+        {
+            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+            throw new Exception("This is a test exception");
+        }
     }
 }
 
@@ -363,12 +320,9 @@ public class ExternalLevel1SubCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run()
+    public void Run(InvocationContext context)
     {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
+        context.ShowValues();
     }
 
     [CliCommand(Description = "A nested level 2 sub-command")]
@@ -380,19 +334,19 @@ public class ExternalLevel1SubCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run()
+        public void Run(InvocationContext context)
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-            Console.WriteLine();
+            context.ShowValues();
         }
     }
-}
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+// share them by inheriting that base class in other command classes.Interfaces are also supported !
 
-//Command hierarchy in above example is:
-//  RootWithExternalChildrenCliCommand -&gt; ExternalLevel1SubCliCommand -&gt; Level2SubCliCommand</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
-//share them by inheriting that base class in other command classes.Interfaces are also supported !
+// The property attribute and the property initializer from the most derived class in the hierarchy will be used 
+// (they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
+// So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
+// option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
+// so that default value will be used.
 
 [CliCommand]
 public class InheritanceCliCommand : CredentialCommandBase, IDepartmentCommand
@@ -418,39 +372,12 @@ public interface IDepartmentCommand
 {
     [CliOption(Description = "Department of the identity performing the command (interface)")]
     string Department { get; set; }
-}
-
-//The property attribute and the property initializer from the most derived class in the hierarchy will be used 
-//(they will override the base ones). The command handler (Run or RunAsync) will be also inherited.
-//So in the above example, `InheritanceCliCommand` inherits options `Username`, `Password` from a base class and
-//option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
-//so that default value will be used.</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// AllowExisting property in [CliOption] and [CliArgument] controls whether
-// an argument should accept only values corresponding to an existing file or directory.
-
-[CliCommand(Description = "A cli command with input (must exists) files and or directories")]
-public class FileSystemInfoCliCommand
-{
-    [CliOption(Description = "Optional input file (must exists)", AllowExisting = true, Required = false)]
-    public FileInfo? FileOpt { get; set; }
-
-    [CliOption(Description = "Optional input directory (must exists)", AllowExisting = true, Required = false)]
-    public DirectoryInfo? DirOpt { get; set; }
-
-    [CliArgument(Description = "Input file or directory (must exists)", AllowExisting = true)]
-    public required FileSystemInfo FileOrDirArg { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(FileOpt)} property is '{FileOpt}'");
-        Console.WriteLine($@"Value for {nameof(DirOpt)} property is '{DirOpt}'");
-        Console.WriteLine($@"Value for {nameof(FileOrDirArg)} property is '{FileOrDirArg}'");
-        Console.WriteLine();
-    }
-}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Localizing commands, options and arguments is supported.
-//You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
-//and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
-//If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Localizing commands, options and arguments is supported.
+// You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
+// and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
+// If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
+// The reason we use `nameof` operator is that attributes in `.NET` only accept compile-time constants and you get `CS0182` error if not,
+// so specifying resource property directly is not possible as it's not a compile-time constant but it's a static property access.
 
 [CliCommand(Description = nameof(TestResources.CommandDescription))]
 internal class LocalizedCliCommand
@@ -460,13 +387,76 @@ internal class LocalizedCliCommand
 
     [CliArgument(Description = nameof(TestResources.ArgumentDescription))]
     public string Argument1 { get; set; }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// If a command represents a group and not an action, you may want to show help.
+// If `Run` or `RunAsync` method is missing in a command class, then by default it will show help.
+// You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `InvocationContext.ShowHelp`.
+// For testing a command, other methods `InvocationContext.ShowValues` and `InvocationContext.IsEmptyCommand` are also useful.
+// `ShowValues` shows parsed values for current command and its arguments and options.
 
-    public void Run()
+// See below example; root command does not have a handler method so it will always show help
+// and sub-command will show help if command is specified without any arguments or option,
+// and it will show(dump) values if not:
+
+[CliCommand(Description = "A root cli command")]
+public class HelpCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
+
+    [CliCommand(Description = "A sub cli command")]
+    public class SubCliCommand
     {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
+        [CliArgument(Description = "Description for Argument2")]
+        public string Argument2 { get; set; } = "DefaultForArgument2";
+
+        public void Run(InvocationContext context)
+        {
+            if (context.IsEmptyCommand())
+                context.ShowHelp();
+            else
+                context.ShowValues();
+        }
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// In `[CliOption]` and `[CliArgument]` attributes;
+// `ValidationRules` property allows setting predefined validation rules such as `ExistingFile`, `NonExistingFile`, `ExistingDirectory`,
+// `NonExistingDirectory`, `ExistingFileOrDirectory`, `NonExistingFileOrDirectory`, `LegalPath`, `LegalFileName`, `LegalUri`, `LegalUrl`.
+// Validation rules can be combined.
+// `ValidationPattern` property allows setting a regular expression pattern for custom validation,
+// and `ValidationMessage` property allows setting a custom error message to show when `ValidationPattern` does not match.
+
+[CliCommand]
+public class ValidationCliCommand
+{
+    [CliOption(Required = false, ValidationRules = CliValidationRules.ExistingFile)]
+    public FileInfo OptFile1 { get; set; }
+
+    [CliOption(Required = false, ValidationRules = CliValidationRules.NonExistingFile | CliValidationRules.LegalPath)]
+    public string OptFile2 { get; set; }
+
+    [CliOption(Required = false, ValidationRules = CliValidationRules.ExistingDirectory)]
+    public DirectoryInfo OptDir { get; set; }
+
+    [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = null)]
+    public string OptPattern1 { get; set; }
+
+    [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = "Custom error message")]
+    public string OptPattern2 { get; set; }
+
+    [CliOption(Required = false, ValidationRules = CliValidationRules.LegalUrl)]
+    public string OptUrl { get; set; }
+
+    [CliOption(Required = false, ValidationRules = CliValidationRules.LegalUri)]
+    public string OptUri { get; set; }
+
+    [CliArgument(Required = false, ValidationRules = CliValidationRules.LegalFileName)]
+    public string OptFileName { get; set; }
+
+    public void Run(InvocationContext context)
+    {
+        context.ShowValues();
     }
 }</code></pre></div></div></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Constructors</h2><div id="IDAEASection"><table id="ConstructorList" class="table is-hoverable"><tr><td><a href="M_DotMake_CommandLine_CliCommandAttribute__ctor.htm">CliCommandAttribute</a></td><td>Initializes a new instance of the <span class="selflink">CliCommandAttribute</span> class</td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Properties</h2><div id="IDBEASection"><table id="PropertyList" class="table is-hoverable"><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Aliases.htm">Aliases</a></td><td>
             Gets or sets the set of alternative strings that can be used on the command line to specify the command.
