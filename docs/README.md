@@ -32,12 +32,12 @@ PM> Install-Package DotMake.CommandLine
 
 ### Prerequisites
 
-- .NET 7.0 and later project or .NET Standard 2.0 and later project. 
-  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to NET 6.0 projects can reference our netstandard2.0 target (automatic in nuget). 
+- .NET 7.0 and later project or .NET Standard 2.0 and later project.  
+  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to NET 6.0 projects can reference our netstandard2.0 target (automatic in nuget).  
   If your target framework is below net5.0, you also need `<LangVersion>9.0</LangVersion>` tag (minimum) in your .csproj file.
-- Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (when building via `dotnet` cli). 
+- Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (when building via `dotnet` cli).  
   Our incremental source generator requires performance features added first in these versions.
-- Usually a console app project but you can also use a class library project which will be consumed later.
+- Usually a console app project but you can also use a class library project which will be consumed later.  
 
 ## Usage
 

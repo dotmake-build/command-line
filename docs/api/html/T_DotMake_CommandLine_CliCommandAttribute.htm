@@ -12,7 +12,7 @@ public class SomeCliCommand</code></pre></div></div>
             </p><p>
             When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
             share them by inheriting that base class in other command classes.Interfaces are also supported !
-            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.7.2<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Class-based model
+            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.8.0<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliCommandAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://docs.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://docs.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliCommandAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Class-based model
 // Create a simple class like this:
 
 [CliCommand(Description = "A root cli command")]
@@ -37,7 +37,8 @@ public class RootCliCommand
         Cli.Run&lt;RootCliCommand&gt;(args);
 
         //If you need to simply parse the command-line arguments without invocation, use this:
-        var rootCliCommand = Cli.Parse&lt;RootCliCommand&gt;(args);</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument`
+        var parseResult = Cli.Parse&lt;RootCliCommand&gt;(args);
+        var rootCliCommand = parseResult.Bind&lt;RootCliCommand&gt;();</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument`
 // attribute is applied to, for example these properties will be parsed and bound/populated automatically:
 
 [CliCommand]
@@ -90,7 +91,7 @@ public class ArgumentConverterCliCommand
     [CliArgument]
     public IEnumerable&lt;ClassWithParser&gt; Arg { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -102,6 +103,9 @@ public class ClassWithConstructor
 
     public ClassWithConstructor(string value)
     {
+        if (value == "exception")
+            throw new Exception("Exception in ClassWithConstructor");
+
         this.value = value;
     }
 
@@ -122,7 +126,9 @@ public class ClassWithParser
 
     public static ClassWithParser Parse(string value)
     {
-        //throw new NullReferenceException();
+        if (value == "exception")
+            throw new Exception("Exception in ClassWithParser");
+
         var instance = new ClassWithParser();
         instance.value = value;
         return instance;
@@ -174,7 +180,7 @@ public class EnumerableCliCommand
     [CliArgument]
     public IList ArgIList { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -185,7 +191,8 @@ public class CustomList&lt;T&gt; : List&lt;T&gt;
     public CustomList(IEnumerable&lt;T&gt; items)
         : base(items)
     {
-        //throw new NullReferenceException();
+        if (items is IEnumerable&lt;string&gt; strings &amp;&amp; strings.First() == "exception")
+            throw new Exception("Exception in CustomList");
     }
 }</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// For example, change the name casing and prefix convention:
 
@@ -204,8 +211,8 @@ public class RootSnakeSlashCliCommand
     public string Argument1 { get; set; }
 }</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy.
 // Just make sure you apply `CliCommand` attribute to the nested classes as well.
-// Command hierarchy in below example is:
-// RootWithNestedChildrenCliCommand -&gt; Level1SubCliCommand -&gt; Level2SubCliCommand
+// Command hierarchy in below example is:  
+// `RootWithNestedChildrenCliCommand` -&gt; `Level1SubCliCommand` -&gt; `Level2SubCliCommand`
 
 [CliCommand(Description = "A root cli command with nested children")]
 public class RootWithNestedChildrenCliCommand
@@ -216,7 +223,7 @@ public class RootWithNestedChildrenCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -230,7 +237,7 @@ public class RootWithNestedChildrenCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -244,7 +251,7 @@ public class RootWithNestedChildrenCliCommand
             [CliArgument(Description = "Description for Argument1")]
             public string Argument1 { get; set; }
 
-            public void Run(InvocationContext context)
+            public void Run(CliContext context)
             {
                 context.ShowValues();
             }
@@ -252,37 +259,20 @@ public class RootWithNestedChildrenCliCommand
     }
 }</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Another way to create hierarchy between commands, especially if you want to use standalone classes,
 // is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
-// Command hierarchy in below example is:
-// RootWithExternalChildrenCliCommand -&gt; ExternalLevel1SubCliCommand -&gt; Level2SubCliCommand
+// Consider you have this root command:
 
-[CliCommand(
-    Description = "A root cli command with external children and one nested child and testing settings inheritance",
-    Aliases = new[] { "rootCmdAlias" }
-)]
+[CliCommand(Description = "A root cli command with external children and one nested child and testing settings inheritance")]
 public class RootWithExternalChildrenCliCommand
 {
-    [CliOption(Description = "Description for Option1", Aliases = new[] { "opt1Alias" })]
+    [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
-
-    [CliOption(
-        Description = "Description for Option2",
-        Aliases = new[] { "globalOpt2Alias" },
-        Global = true,
-        AllowedValues = new[] { "value1", "value2", "value3" }
-    )]
-    public string Option2 { get; set; } = "DefaultForOption1";
 
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public int Run()
+    public void Run(CliContext context)
     {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-
-        return 0;
+        context.ShowValues();
     }
 
     [CliCommand(
@@ -301,14 +291,15 @@ public class RootWithExternalChildrenCliCommand
 
         public void Run()
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            throw new Exception("This is a test exception");
+            throw new Exception("This is a test exception from Level1SubCliCommand");
         }
     }
 }
 
+// Command hierarchy in below example is:  
+// `RootWithExternalChildrenCliCommand` -&gt; `ExternalLevel1SubCliCommand` -&gt; `Level2SubCliCommand`
+
 [CliCommand(
-    Name = "Level1External",
     Description = "An external level 1 sub-command",
     Parent = typeof(RootWithExternalChildrenCliCommand)
 )]
@@ -320,7 +311,7 @@ public class ExternalLevel1SubCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -334,7 +325,46 @@ public class ExternalLevel1SubCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
+        {
+            context.ShowValues();
+        }
+    }
+}
+
+// Command hierarchy in below example is:  
+// `RootWithExternalChildrenCliCommand` -&gt; `Level1SubCliCommand` -&gt; `ExternalLevel2SubCliCommand` -&gt; `Level3SubCliCommand`
+
+[CliCommand(
+    Description = "An external level 2 sub-command",
+    Parent = typeof(RootWithExternalChildrenCliCommand.Level1SubCliCommand),
+    NameCasingConvention = CliNameCasingConvention.SnakeCase,
+    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+)]
+public class ExternalLevel2SubCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run(CliContext context)
+    {
+        context.ShowValues();
+    }
+
+    [CliCommand(Description = "A nested level 3 sub-command")]
+    public class Level3SubCliCommand
+    {
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
+        [CliArgument(Description = "Description for Argument1")]
+        public string Argument1 { get; set; }
+
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -389,8 +419,8 @@ internal class LocalizedCliCommand
     public string Argument1 { get; set; }
 }</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// If a command represents a group and not an action, you may want to show help.
 // If `Run` or `RunAsync` method is missing in a command class, then by default it will show help.
-// You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `InvocationContext.ShowHelp`.
-// For testing a command, other methods `InvocationContext.ShowValues` and `InvocationContext.IsEmptyCommand` are also useful.
+// You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
+// For testing a command, other methods `CliContext.ShowValues` and `CliContext.IsEmptyCommand` are also useful.
 // `ShowValues` shows parsed values for current command and its arguments and options.
 
 // See below example; root command does not have a handler method so it will always show help
@@ -412,7 +442,7 @@ public class HelpCliCommand
         [CliArgument(Description = "Description for Argument2")]
         public string Argument2 { get; set; } = "DefaultForArgument2";
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             if (context.IsEmptyCommand())
                 context.ShowHelp();
@@ -439,7 +469,7 @@ public class ValidationCliCommand
     [CliOption(Required = false, ValidationRules = CliValidationRules.ExistingDirectory)]
     public DirectoryInfo OptDir { get; set; }
 
-    [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = null)]
+    [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$")]
     public string OptPattern1 { get; set; }
 
     [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = "Custom error message")]
@@ -454,7 +484,7 @@ public class ValidationCliCommand
     [CliArgument(Required = false, ValidationRules = CliValidationRules.LegalFileName)]
     public string OptFileName { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }

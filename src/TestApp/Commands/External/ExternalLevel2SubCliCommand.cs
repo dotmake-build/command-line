@@ -3,7 +3,7 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
 {
-    #region ExternalLevel1SubCliCommand
+    #region ExternalLevel2SubCliCommand
 
     // Command hierarchy in below example is:  
     // `RootWithExternalChildrenCliCommand` -> `Level1SubCliCommand` -> `ExternalLevel2SubCliCommand` -> `Level3SubCliCommand`

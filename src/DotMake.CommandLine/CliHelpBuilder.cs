@@ -704,15 +704,24 @@ namespace DotMake.CommandLine
         /// </summary>
         public new static class Default
         {
-            /// <inheritdoc cref="HelpBuilder.Default.GetArgumentDefaultValue(CliArgument)"/>
+            /// <summary>
+            /// Gets an argument's default value to be displayed in help.
+            /// </summary>
+            /// <param name="argument">The argument to get the default value for.</param>
             /// <returns>Argument default value.</returns>
             public static string GetArgumentDefaultValue(CliArgument argument) => HelpBuilder.Default.GetArgumentDefaultValue(argument);
 
-            /// <inheritdoc cref="HelpBuilder.Default.GetArgumentDescription(CliArgument)"/>
+            /// <summary>
+            /// Gets the description for an argument (typically used in the second column text in the arguments section).
+            /// </summary>
+            /// <param name="argument">The argument to get the default value for.</param>
             /// <returns>Argument description.</returns>
             public static string GetArgumentDescription(CliArgument argument) => HelpBuilder.Default.GetArgumentDescription(argument);
 
-            /// <inheritdoc cref="HelpBuilder.Default.GetArgumentUsageLabel(CliArgument)"/>
+            /// <summary>
+            /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
+            /// </summary>
+            /// <param name="argument">The argument to get the default value for.</param>
             /// <returns>Argument usage label.</returns>
             public static string GetArgumentUsageLabel(CliArgument argument) => HelpBuilder.Default.GetArgumentUsageLabel(argument);
 
