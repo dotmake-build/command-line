@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -13,11 +12,12 @@ using TestApp.Commands.PrefixConvention;
 try
 {
     //Using Cli.Run with delegate:
+
     /*
-    Cli.Run(([CliArgument]string argument1, bool option1) =>
+    Cli.Run(([CliArgument]string arg1, bool opt1) =>
     {
-        Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
-        Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+        Console.WriteLine($@"Value for {nameof(arg1)} parameter is '{arg1}'");
+        Console.WriteLine($@"Value for {nameof(opt1)} parameter is '{opt1}'");
     });
     */
 
@@ -34,6 +34,11 @@ try
     //Cli.Run<HelpCliCommand>(args);
     //Cli.Run<ValidationCliCommand>(args);
 
+    //Using Cli.RunAsync:
+    //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);
+    //await Cli.RunAsync<AsyncVoidReturnCliCommand>(args);
+    //await Cli.RunAsync<AsyncIntReturnCliCommand>(args);
+
     //Misc:
     //Cli.Run<GlobalNamespaceCliCommand>(args);
     //Cli.Run<NullableReferenceCommand>(args);
@@ -44,40 +49,32 @@ try
     //Cli.Run<UpperCaseCliCommand>(args);
     //Cli.Run<SingleHyphenCliCommand>(args);
     //Cli.Run<ForwardSlashCliCommand>(args);
-
-    //Using Cli.RunAsync:
-    //await Cli.RunAsync<RootWithChildrenCliCommand>(args);
-    //await Cli.RunAsync<AsyncVoidReturnCliCommand>(args);
-    //await Cli.RunAsync<AsyncIntReturnCliCommand>(args);
-
-
-    //Using configureBuilder to use an exception handler:
-    /*
-    Cli.Run<RootWithNestedChildrenCliCommand>(args, builder =>
-        builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
-    );
-    */
-
+    
+    //Using the default exception handler which prints the exception in red color to console:
+    //Cli.Run<RootCliCommand>(args, new CliSettings { EnableDefaultExceptionHandler = true });
+    
     //Using Cli.Parse:
     /*
-    var rootCliCommand = Cli.Parse<RootCliCommand>(args);
-    var rootCliCommand = Cli.Parse<RootCliCommand>(args, out var parseResult);
+    var parseResult = Cli.Parse<RootCliCommand>(args);
     if (parseResult.Errors.Count > 0)
     {
-
+        foreach (var error in parseResult.Errors)
+            Console.WriteLine(error);
     }
-    Console.WriteLine($@"Value for {nameof(rootCliCommand.Option1)} property is '{rootCliCommand.Option1}'");
-    Console.WriteLine($@"Value for {nameof(rootCliCommand.Argument1)} property is '{rootCliCommand.Argument1}'");
-    Console.WriteLine();
+    else
+    {
+        var rootCliCommand = parseResult.Bind<RootCliCommand>();
+        Console.WriteLine($@"Value for {nameof(rootCliCommand.Option1)} property is '{rootCliCommand.Option1}'");
+        Console.WriteLine($@"Value for {nameof(rootCliCommand.Argument1)} property is '{rootCliCommand.Argument1}'");
+    }
     */
-    //Using Cli.GetBuilder:
-    /*
-    var parser = Cli.GetBuilder<RootWithChildrenCliCommand>()
-        .UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
-        .Build();
 
-    parser.Invoke(args);
+    //Using CliConfiguration:
+    /*
+    var configuration = Cli.GetConfiguration<RootCliCommand>(new CliSettings());
+    configuration.Invoke(args);
     */
+
 }
 catch (Exception e)
 {

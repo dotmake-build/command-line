@@ -61,6 +61,20 @@ namespace DotMake.CommandLine.SourceGeneration
                 : GeneratedClassNamespace + "." + GeneratedClassName;
         }
 
+        public static bool IsMatch(SyntaxNode syntaxNode)
+        {
+            return syntaxNode is InvocationExpressionSyntax invocationExpressionSyntax
+                   && invocationExpressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax
+                   && ((memberAccessExpressionSyntax.Expression is IdentifierNameSyntax identifierNameSyntax
+                        && identifierNameSyntax.Identifier.ValueText == "Cli")
+                       || memberAccessExpressionSyntax.Expression.NormalizeWhitespace().ToString() == "DotMake.CommandLine.Cli")
+                   && memberAccessExpressionSyntax.Name.Identifier.ValueText == "Run"
+                   && invocationExpressionSyntax.ArgumentList.Arguments.Count > 0 //maybe have optional CliSettings parameter
+                   && (invocationExpressionSyntax.ArgumentList.Arguments[0].Expression is ParenthesizedLambdaExpressionSyntax
+                       || invocationExpressionSyntax.ArgumentList.Arguments[0].Expression is AnonymousMethodExpressionSyntax
+                       || invocationExpressionSyntax.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax);
+        }
+
         public static CliCommandAsDelegateInfo From(GeneratorSyntaxContext generatorSyntaxContext)
         {
             var invocationExpressionSyntax = (InvocationExpressionSyntax)generatorSyntaxContext.Node;

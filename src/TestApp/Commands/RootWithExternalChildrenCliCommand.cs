@@ -1,6 +1,5 @@
 #pragma warning disable CS1591
 using System;
-using System.CommandLine.Invocation;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -20,7 +19,7 @@ namespace TestApp.Commands
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }

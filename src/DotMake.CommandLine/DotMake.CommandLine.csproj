@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -12,7 +12,7 @@
       IsAotCompatible to enable trim warnings (also enables IsTrimmable but it's only for net.8.0)
       https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net8plus%2Cwindows#aot-compatibility-analyzers
     -->
-    <IsTrimmable>true</IsTrimmable>
+    <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
     <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
 
     <!-- NuGet Package Information (common ones are in Directory.Build.props) -->
@@ -20,19 +20,44 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added advanced validation. In `[CliOption]` and `[CliArgument]` attributes, removed `AllowExisting` property and added `ValidationRules`, `ValidationPattern`, `ValidationMessage` properties.
-       `ValidationRules` property allows setting predefined validation rules such as `ExistingFile`, `NonExistingFile`, `ExistingDirectory`,
-       `NonExistingDirectory`, `ExistingFileOrDirectory`, `NonExistingFileOrDirectory`, `LegalPath`, `LegalFileName`, `LegalUri`, `LegalUrl`.
-       Validation rules can be combined.
-       `ValidationPattern` property allows setting a regular expression pattern for custom validation,
-       and `ValidationMessage` property allows setting a custom error message to show when `ValidationPattern` does not match.
+      - Switched to using latest daily builds of System.CommandLine (currently `2.0.0-beta4.24112.1`).
+        Since official `2.0.0-beta4.22272.1` release (dated 6/2/2022), System.CommandLine API is vastly changed
+        so we migrated those changes to DotMake.CommandLine, this way we can get all the bug fixes.
+
+        As daily builds are only published to Microsoft's private feed and not to official NuGet site,
+        we dropped the dependency to System.CommandLine package and instead we are now bundling System.CommandLine DLLs inside our
+        own NuGet package. Once System.CommandLine becomes GA and latest version is published to official NuGet site,
+        we will readd the dependency to System.CommandLine package.
+      - Renamed Global property in CliOptionAttribute to Recursive to match new System.CommandLine API.
+      - In `Cli.Run` and `Cli.RunAsync` methods; configureBuilder, useBuilderDefaults, console parameters are removed and
+        instead they now accept new `CliSettings` parameter, which is used to configure settings in one place.
+      - In `Cli.Parse` methods return type is now ParseResult and ParseResult.Bind method can be used to get an instance for
+        the command definition class.
+      - `InvocationContext` in System.CommandLine latest builds, is removed so we added a new class named `CliContext`
+        which supports command invocation by providing access to parse results and other services.
     </PackageReleaseNotes>
   </PropertyGroup>
 
   <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <!--<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />-->
+    <!--
+      Using the latest version package published on DotNet Daily Builds feed,
+      as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
+      https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
+    -->
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24112.1">
+      <GeneratePathProperty>true</GeneratePathProperty>
+      <IncludeAssets>None</IncludeAssets>
+      <ExcludeAssets>All</ExcludeAssets>
+      <PrivateAssets>None</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Memory" version="4.5.4" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <Reference Include="System.CommandLine">
+      <HintPath>$(PkgSystem_CommandLine)\lib\$(TargetFramework)\System.CommandLine.dll</HintPath>
+    </Reference>
+    <None Include="$(OutputPath)\$(TargetFramework)\**\System.CommandLine*" Pack="true" PackagePath="lib/$(TargetFramework)" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

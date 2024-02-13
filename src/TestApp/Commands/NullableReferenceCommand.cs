@@ -1,7 +1,6 @@
 #pragma warning disable CS1591
 #nullable enable
 using System;
-using System.CommandLine.Invocation;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -35,7 +34,7 @@ namespace TestApp.Commands
             [CliArgument(Description = "Argument with nullable reference type with default value (should not be required)")]
             public string? ArgDefault { get; set; } = "test";
 
-            public void Run(InvocationContext context)
+            public void Run(CliContext context)
             {
                 context.ShowValues();
             }
@@ -62,7 +61,7 @@ namespace TestApp.Commands
             [CliArgument(Description = "Argument with non-nullable reference type with default value (should not be required)")]
             public string ArgDefault { get; set; } = "test";
 
-            public void Run(InvocationContext context)
+            public void Run(CliContext context)
             {
                 context.ShowValues();
             }
@@ -90,7 +89,7 @@ namespace TestApp.Commands
             [CliArgument(Description = "Argument with required keyword with default value (should not be required)")]
             public required string ArgDefault { get; set; } = "test";
 
-            public void Run(InvocationContext context)
+            public void Run(CliContext context)
             {
                 context.ShowValues();
             }

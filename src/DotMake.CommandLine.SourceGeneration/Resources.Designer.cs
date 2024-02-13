@@ -70,7 +70,7 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The class &apos;{0}&apos; will not have a {1} (ignored) because it does not have a method with one of the following signatures: &apos;void Run()&apos;, &apos;int Run()&apos;, &apos;async Task RunAsync()&apos;, &apos;async Task&lt;int&gt; RunAsync()&apos;. Optionally the method signature can have an InvocationContext parameter: &apos;Run(InvocationContext context)&apos;, &apos;RunAsync(InvocationContext context)&apos;.
+        ///   Looks up a localized string similar to The class &apos;{0}&apos; will not have a {1} (ignored) because it does not have a method with one of the following signatures: &apos;void Run()&apos;, &apos;int Run()&apos;, &apos;async Task RunAsync()&apos;, &apos;async Task&lt;int&gt; RunAsync()&apos;. Optionally the method signature can have an CliContext parameter: &apos;Run(CliContext context)&apos;, &apos;RunAsync(CliContext context)&apos;.
         /// </summary>
         internal static string ClassHasNotHandler {
             get {

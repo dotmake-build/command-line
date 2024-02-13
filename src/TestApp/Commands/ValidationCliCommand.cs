@@ -1,5 +1,4 @@
 #pragma warning disable CS1591
-using System.CommandLine.Invocation;
 using System.IO;
 using DotMake.CommandLine;
 
@@ -41,7 +40,7 @@ namespace TestApp.Commands
         [CliArgument(Required = false, ValidationRules = CliValidationRules.LegalFileName)]
         public string OptFileName { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }

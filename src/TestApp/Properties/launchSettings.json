@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestApp": {
+      "commandName": "Project",
+      //"commandLineArgs": "NewValueForArgument1 --option-1 NewValueForOption1"
+    }
+  }
+}

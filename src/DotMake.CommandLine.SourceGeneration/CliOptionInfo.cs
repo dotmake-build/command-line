@@ -11,13 +11,13 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliOptionAttribute).FullName;
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Option").Append("Option").ToArray();
-        public const string OptionClassName = "Option";
+        public const string OptionClassName = "CliOption";
         public const string OptionClassNamespace = "System.CommandLine";
         public const string DiagnosticName = "CLI option";
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
         {
-            { nameof(CliOptionAttribute.HelpName), "ArgumentHelpName"},
-            { nameof(CliOptionAttribute.Hidden), "IsHidden"}
+            //{ nameof(CliOptionAttribute.HelpName), "ArgumentHelpName"},
+            //{ nameof(CliOptionAttribute.Hidden), "IsHidden"}
         };
 
         public CliOptionInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
@@ -35,8 +35,6 @@ namespace DotMake.CommandLine.SourceGeneration
 
             AttributeArguments = new AttributeArguments(attributeData);
 
-            if (AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Global), out var globalValue))
-                Global = (bool)globalValue;
             if (AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Required), out var requiredValue))
                 Required = (bool)requiredValue;
             else
@@ -61,8 +59,6 @@ namespace DotMake.CommandLine.SourceGeneration
         public AttributeArguments AttributeArguments { get; }
 
         public CliCommandInfo Parent { get; }
-
-        public bool Global { get; }
 
         public bool Required { get; }
 
@@ -106,8 +102,7 @@ namespace DotMake.CommandLine.SourceGeneration
             sb.AppendLine($"// Option for '{Symbol.Name}' property");
             using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"\"{optionName}\",");
-                ParseInfo.AppendCSharpCallString(sb);
+                sb.AppendLine($"\"{optionName}\"");
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -118,6 +113,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         case nameof(CliOptionAttribute.Description):
                         case nameof(CliOptionAttribute.HelpName):
                         case nameof(CliOptionAttribute.Hidden):
+                        case nameof(CliOptionAttribute.Recursive):
                         case nameof(CliOptionAttribute.AllowMultipleArgumentsPerToken):
                             if (!PropertyMappings.TryGetValue(kvp.Key, out var propertyName))
                                 propertyName = kvp.Key;
@@ -135,11 +131,13 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
 
                 //Required is special as it can be calculated when CliOptionAttribute.Required is missing (not forced)
-                sb.AppendLine($"IsRequired = {Required.ToString().ToLowerInvariant()},");
+                sb.AppendLine($"Required = {Required.ToString().ToLowerInvariant()},");
             }
 
+            ParseInfo.AppendCSharpCallString(sb, $"{varName}.CustomParser");
+
             if (AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.AllowedValues), out var allowedValuesTypedConstant))
-                sb.AppendLine($"{OptionClassNamespace}.OptionExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
+                sb.AppendLine($"{varName}.AcceptOnlyFromAmong(new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
             if (AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.ValidationRules), out var validationRulesTypedConstant))
                 sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationRulesTypedConstant.ToCSharpString()});");
@@ -153,7 +151,7 @@ namespace DotMake.CommandLine.SourceGeneration
             }
 
             if (!Required)
-                sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
+                sb.AppendLine($"{varName}.DefaultValueFactory = _ => {varDefaultValue};");
 
             var shortForm = optionName.RemovePrefix();
             if (Parent.Settings.ShortFormAutoGenerate && shortForm.Length >= 2)
@@ -162,7 +160,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     .AddPrefix(Parent.Settings.ShortFormPrefixConvention);
                 if (!Parent.UsedAliases.Contains(shortForm))
                 {
-                    sb.AppendLine($"{varName}.AddAlias(\"{shortForm}\");");
+                    sb.AppendLine($"{varName}.Aliases.Add(\"{shortForm}\");");
                     Parent.UsedAliases.Add(shortForm);
                 }
             }
@@ -174,7 +172,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     var alias = aliasValue?.ToString();
                     if (!Parent.UsedAliases.Contains(alias))
                     {
-                        sb.AppendLine($"{varName}.AddAlias(\"{alias}\");");
+                        sb.AppendLine($"{varName}.Aliases.Add(\"{alias}\");");
                         Parent.UsedAliases.Add(alias);
                     }
                 }

@@ -1,5 +1,4 @@
 #pragma warning disable CS1591
-using System.CommandLine.Invocation;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -8,8 +7,8 @@ namespace TestApp.Commands
 
     // If a command represents a group and not an action, you may want to show help.
     // If `Run` or `RunAsync` method is missing in a command class, then by default it will show help.
-    // You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `InvocationContext.ShowHelp`.
-    // For testing a command, other methods `InvocationContext.ShowValues` and `InvocationContext.IsEmptyCommand` are also useful.
+    // You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
+    // For testing a command, other methods `CliContext.ShowValues` and `CliContext.IsEmptyCommand` are also useful.
     // `ShowValues` shows parsed values for current command and its arguments and options.
 
     // See below example; root command does not have a handler method so it will always show help
@@ -31,7 +30,7 @@ namespace TestApp.Commands
             [CliArgument(Description = "Description for Argument2")]
             public string Argument2 { get; set; } = "DefaultForArgument2";
 
-            public void Run(InvocationContext context)
+            public void Run(CliContext context)
             {
                 if (context.IsEmptyCommand())
                     context.ShowHelp();

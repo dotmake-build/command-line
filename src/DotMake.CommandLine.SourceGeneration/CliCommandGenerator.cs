@@ -1,5 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,25 +30,12 @@ namespace DotMake.CommandLine.SourceGeneration
             var cliCommandInfos = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
                 CliCommandInfo.AttributeFullName,
 
-                (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax
-                                                            //skip nested classes as they will be handled by the parent classes
-                                                            && !(syntaxNode.Parent is TypeDeclarationSyntax),
-
-                (attributeSyntaxContext, _) => new CliCommandInfo(attributeSyntaxContext)
+                (syntaxNode, _) => CliCommandInfo.IsMatch(syntaxNode),
+                (attributeSyntaxContext, _) => CliCommandInfo.From(attributeSyntaxContext)
             );
 
             var cliCommandAsDelegateInfos = initializationContext.SyntaxProvider.CreateSyntaxProvider(
-                (syntaxNode, _) => syntaxNode is InvocationExpressionSyntax invocationExpressionSyntax
-                    && invocationExpressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax
-                    && ((memberAccessExpressionSyntax.Expression is IdentifierNameSyntax identifierNameSyntax
-                            && identifierNameSyntax.Identifier.ValueText == "Cli")
-                        || memberAccessExpressionSyntax.Expression.NormalizeWhitespace().ToString() == "DotMake.CommandLine.Cli")
-                    && memberAccessExpressionSyntax.Name.Identifier.ValueText == "Run"
-                    && invocationExpressionSyntax.ArgumentList.Arguments.Count == 1
-                    && (invocationExpressionSyntax.ArgumentList.Arguments[0].Expression is ParenthesizedLambdaExpressionSyntax
-                        || invocationExpressionSyntax.ArgumentList.Arguments[0].Expression is AnonymousMethodExpressionSyntax
-                        || invocationExpressionSyntax.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax),
-
+                (syntaxNode, _) => CliCommandAsDelegateInfo.IsMatch(syntaxNode),
                 (generatorSyntaxContext, _) => CliCommandAsDelegateInfo.From(generatorSyntaxContext)
             );
 

@@ -60,10 +60,10 @@ namespace DotMake.CommandLine
         public bool ShortFormAutoGenerate { get; protected set; }
 
         /// <summary>
-        /// Builds a <see cref="Command"/> instance, populated with sub-commands, options, arguments and settings.
+        /// Builds a <see cref="CliCommand"/> instance, populated with sub-commands, options, arguments and settings.
         /// </summary>
-        /// <returns>A populated <see cref="Command"/> instance.</returns>
-        public abstract Command Build();
+        /// <returns>A populated <see cref="CliCommand"/> instance.</returns>
+        public abstract CliCommand Build();
 
         /// <summary>
         /// Creates a new instance of the definition class and binds/populates the properties from the parse result.
@@ -107,7 +107,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Registers a command builder so that it can be found by the definition class.
         /// </summary>
-        /// <param name="commandBuilder">A command builder which builds a <see cref="Command"/>.</param>
+        /// <param name="commandBuilder">A command builder which builds a <see cref="CliCommand"/>.</param>
         /// <typeparam name="TDefinition">The definition class.</typeparam>
         public static void Register<TDefinition>(CliCommandBuilder commandBuilder)
         {
@@ -120,7 +120,7 @@ namespace DotMake.CommandLine
         /// Registers a command builder so that it can be found by the definition class.
         /// </summary>
         /// <param name="definitionType">The type of the definition class.</param>
-        /// <param name="commandBuilder">A command builder which builds a <see cref="Command"/>.</param>
+        /// <param name="commandBuilder">A command builder which builds a <see cref="CliCommand"/>.</param>
         public static void Register(Type definitionType, CliCommandBuilder commandBuilder)
         {
             RegisteredDefinitionTypes[definitionType] = commandBuilder;
@@ -214,8 +214,8 @@ namespace DotMake.CommandLine
         /// <param name="convertFromString">A delegate which creates an instance of item type from a string.</param>
         /// <typeparam name="TCollection">The collection type, the argument type itself.</typeparam>
         /// <typeparam name="TItem">The item type, e.g. if argument type is IEnumerable&lt;T&gt;, item type will be T.</typeparam>
-        /// <returns>A <see cref="ParseArgument{T}"/> delegate which can be passed to an option or argument.</returns>
-        public static ParseArgument<TCollection> GetParseArgument<TCollection, TItem>(Func<Array, TCollection> convertFromArray, Func<string, TItem> convertFromString = null)
+        /// <returns>A delegate which can be passed to an option or argument.</returns>
+        public static Func<ArgumentResult, TCollection> GetParseArgument<TCollection, TItem>(Func<Array, TCollection> convertFromArray, Func<string, TItem> convertFromString = null)
         {
             ArgumentConverter.RegisterCollectionConverter(convertFromArray);
             ArgumentConverter.RegisterStringConverter(convertFromString);
@@ -233,8 +233,8 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="convertFromString">A delegate which creates an instance of custom type from a string.</param>
         /// <typeparam name="TArgument">The argument type.</typeparam>
-        /// <returns>A <see cref="ParseArgument{T}"/> delegate which can be passed to an option or argument.</returns>
-        public static ParseArgument<TArgument> GetParseArgument<TArgument>(Func<string, TArgument> convertFromString = null)
+        /// <returns>A delegate which can be passed to an option or argument.</returns>
+        public static Func<ArgumentResult, TArgument> GetParseArgument<TArgument>(Func<string, TArgument> convertFromString = null)
         {
             ArgumentConverter.RegisterStringConverter(convertFromString);
 
@@ -244,7 +244,7 @@ namespace DotMake.CommandLine
 
                 if (tryConvertArgument == null)
                 {
-                    result.ErrorMessage = $"No argument converter found for type '{result.Argument.ValueType}'";
+                    result.AddError($"No argument converter found for type '{result.Argument.ValueType}'");
                     return default; // Ignored.
                 }
 
@@ -267,9 +267,9 @@ namespace DotMake.CommandLine
         /// <param name="option">The option for which to get a value.</param>
         /// <typeparam name="T">The option type.</typeparam>
         /// <returns>The parsed value or a configured default.</returns>
-        public static T GetValueForOption<T>(ParseResult parseResult, Option<T> option)
+        public static T GetValueForOption<T>(ParseResult parseResult, CliOption<T> option)
         {
-            var result = parseResult.FindResultFor(option);
+            var result = parseResult.GetResult(option);
             if (result != null)
             {
                 var value = result.GetValueOrDefault<T>();
@@ -281,9 +281,9 @@ namespace DotMake.CommandLine
         }
 
         /// <inheritdoc cref="GetValueForOption{T}"/>
-        public static object GetValueForOption(ParseResult parseResult, Option option)
+        public static object GetValueForOption(ParseResult parseResult, CliOption option)
         {
-            var result = parseResult.FindResultFor(option);
+            var result = parseResult.GetResult(option);
             if (result != null)
             {
                 var value = result.GetValueOrDefault<object>();
@@ -291,7 +291,7 @@ namespace DotMake.CommandLine
                     return value;
             }
 
-            return ArgumentConverter.GetDefaultValue(option.ValueType);
+            return ArgumentConverter.GetDefaultValue(option.GetArgument().ValueType);
         }
 
         /// <summary>
@@ -305,9 +305,9 @@ namespace DotMake.CommandLine
         /// <param name="argument">The argument for which to get a value.</param>
         /// <typeparam name="T">The argument type.</typeparam>
         /// <returns>The parsed value or a configured default.</returns>
-        public static T GetValueForArgument<T>(ParseResult parseResult, Argument<T> argument)
+        public static T GetValueForArgument<T>(ParseResult parseResult, CliArgument<T> argument)
         {
-            var result = parseResult.FindResultFor(argument);
+            var result = parseResult.GetResult(argument);
             if (result != null)
             {
                 var value = result.GetValueOrDefault<T>();
@@ -319,9 +319,9 @@ namespace DotMake.CommandLine
         }
 
         /// <inheritdoc cref="GetValueForArgument{T}"/>
-        public static object GetValueForArgument(ParseResult parseResult, Argument argument)
+        public static object GetValueForArgument(ParseResult parseResult, CliArgument argument)
         {
-            var result = parseResult.FindResultFor(argument);
+            var result = parseResult.GetResult(argument);
             if (result != null)
             {
                 var value = result.GetValueOrDefault<object>();

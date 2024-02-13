@@ -105,7 +105,7 @@ namespace TestApp.Commands
 
 		}
 
-		public static int Run2(InvocationContext context)
+		public static int Run2(CliContext context)
 		{
 			return 0;
 		}

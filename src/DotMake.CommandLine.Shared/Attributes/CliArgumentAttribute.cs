@@ -14,11 +14,11 @@ namespace DotMake.CommandLine
     /// </para>
     /// <para>
     /// <b>Arguments:</b> An argument is a value passed to an option or a command. The following examples show an argument for the <c>verbosity</c> option and an argument for the <c>build</c> command.
-    /// <code>
+    /// <code language="console">
     /// dotnet tool update dotnet-suggest --verbosity quiet --global
     ///                                               ^---^
     /// </code>
-    /// <code>
+    /// <code language="console">
     /// dotnet build myapp.csproj
     ///              ^----------^
     /// </code>

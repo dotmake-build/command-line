@@ -32,9 +32,11 @@ PM> Install-Package DotMake.CommandLine
 
 ### Prerequisites
 
-- .NET 6.0 and later project or .NET Standard 2.0 and later project (note that .NET Framework 4.7.2+ can reference netstandard2.0 libraries).
+- .NET 7.0 and later project or .NET Standard 2.0 and later project. 
+  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to NET 6.0 projects can reference our netstandard2.0 target (automatic in nuget). 
   If your target framework is below net5.0, you also need `<LangVersion>9.0</LangVersion>` tag (minimum) in your .csproj file.
-- Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (our incremental source generator requires performance features added first in these versions).
+- Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (when building via `dotnet` cli). 
+  Our incremental source generator requires performance features added first in these versions.
 - Usually a console app project but you can also use a class library project which will be consumed later.
 
 ## Usage
@@ -118,19 +120,21 @@ catch (Exception e)
     Console.WriteLine(@"Exception in main: {0}", e.Message);
 }
 ```
-System.CommandLine, by default overtakes your exceptions that are thrown in command handlers (even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows the exceptions to pass through. However if you wish, you can easily use an exception handler by using `configureBuilder` delegate parameter like this:
+System.CommandLine, by default overtakes your exceptions that are thrown in command handlers
+(even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows
+the exceptions to pass through. However if you wish, you can easily use the default exception handler
+by passing a `CliSettings` instance like below. Default exception handler prints the exception in red color to console:
 ```c#
-Cli.Run<RootCliCommand>(args, builder => 
-    builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
-);
+Cli.Run<RootCliCommand>(args, new CliSettings { EnableDefaultExceptionHandler = true });
 ```
 If you need to simply parse the command-line arguments without invocation, use this:
 ```c#
-var rootCliCommand = Cli.Parse<RootCliCommand>(args);
+var parseResult = Cli.Parse<RootCliCommand>(args);
+var rootCliCommand = parseResult.Bind<RootCliCommand>();
 ```
 If you need to examine the parse result, such as errors:
 ```c#
-var rootCliCommand = Cli.Parse<RootCliCommand>(args, out var parseResult);
+var parseResult = Cli.Parse<RootCliCommand>(args);
 if (parseResult.Errors.Count > 0)
 {
 
@@ -158,20 +162,20 @@ if (parseResult.Errors.Count > 0)
     ```c#
     async Task<int> RunAsync()
     ```
-  Optionally the method signature can have a System.CommandLine.Invocation.InvocationContext parameter in case you need to access it:
+  Optionally the method signature can have a `CliContext` parameter in case you need to access it:
   
   - 
     ```c#
-    Run(InvocationContext context)
+    Run(CliContext context)
     ```
   -
     ```c#  
-    RunAsync(InvocationContext context)
+    RunAsync(CliContext context)
     ```
 
   The signatures which return int value, sets the ExitCode of the app.
   If no handler method is provided, then by default it will show help for the command.
-  This can be also controlled manually by extension method `ShowHelp` in `InvocationContext`.
+  This can be also controlled manually by extension method `ShowHelp` in `CliContext`.
   Other extension methods `IsEmptyCommand` and `ShowValues` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 
@@ -208,7 +212,7 @@ public class RootWithNestedChildrenCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -222,7 +226,7 @@ public class RootWithNestedChildrenCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -236,7 +240,7 @@ public class RootWithNestedChildrenCliCommand
             [CliArgument(Description = "Description for Argument1")]
             public string Argument1 { get; set; }
 
-            public void Run(InvocationContext context)
+            public void Run(CliContext context)
             {
                 context.ShowValues();
             }
@@ -257,7 +261,7 @@ public class RootWithExternalChildrenCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -298,7 +302,7 @@ public class ExternalLevel1SubCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -312,7 +316,7 @@ public class ExternalLevel1SubCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -337,7 +341,7 @@ public class ExternalLevel2SubCliCommand
     [CliArgument(Description = "Description for Argument1")]
     public string Argument1 { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -351,7 +355,7 @@ public class ExternalLevel2SubCliCommand
         [CliArgument(Description = "Description for Argument1")]
         public string Argument1 { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -444,7 +448,7 @@ The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotma
 - HelpName
 - Hidden
 - Required
-- Global
+- Recursive
 - Arity
 - AllowedValues
 - AllowMultipleArgumentsPerToken
@@ -712,7 +716,7 @@ public class ValidationCliCommand
     [CliOption(Required = false, ValidationRules = CliValidationRules.NonExistingFile | CliValidationRules.LegalPath)]
     public string OptFile2 { get; set; }
 
-    [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = null)]
+    [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$")]
     public string OptPattern1 { get; set; }
 
     [CliOption(Required = false, ValidationPattern = @"(?i)^[a-z]+$", ValidationMessage = "Custom error message")]
@@ -727,7 +731,7 @@ public class ValidationCliCommand
     [CliArgument(Required = false, ValidationRules = CliValidationRules.LegalFileName)]
     public string OptFileName { get; set; }
 
-    public void Run(InvocationContext context)
+    public void Run(CliContext context)
     {
         context.ShowValues();
     }
@@ -961,8 +965,8 @@ internal class LocalizedCliCommand
 
 If a command represents a group and not an action, you may want to show help. 
 If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
-You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `InvocationContext.ShowHelp`.
-For testing a command, other methods `InvocationContext.ShowValues` and `InvocationContext.IsEmptyCommand` are also useful.
+You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
+For testing a command, other methods `CliContext.ShowValues` and `CliContext.IsEmptyCommand` are also useful.
 `ShowValues` shows parsed values for current command and its arguments and options.
 
 See below example; root command does not have a handler method so it will always show help 
@@ -985,7 +989,7 @@ public class HelpCliCommand
       [CliArgument(Description = "Description for Argument2")]
       public string Argument2 { get; set; } = "DefaultForArgument2";
 
-      public void Run(InvocationContext context)
+      public void Run(CliContext context)
       {
           if (context.IsEmptyCommand())
               context.ShowHelp();

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -121,7 +121,7 @@
     <value>Circular parent dependency involving the classes '{0}' and '{1}'. To fix this error, break the circular dependency by removing one of the attribute argument Parent.</value>
   </data>
   <data name="ClassHasNotHandler" xml:space="preserve">
-    <value>The class '{0}' will not have a {1} (ignored) because it does not have a method with one of the following signatures: 'void Run()', 'int Run()', 'async Task RunAsync()', 'async Task&lt;int&gt; RunAsync()'. Optionally the method signature can have an InvocationContext parameter: 'Run(InvocationContext context)', 'RunAsync(InvocationContext context)'</value>
+    <value>The class '{0}' will not have a {1} (ignored) because it does not have a method with one of the following signatures: 'void Run()', 'int Run()', 'async Task RunAsync()', 'async Task&lt;int&gt; RunAsync()'. Optionally the method signature can have an CliContext parameter: 'Run(CliContext context)', 'RunAsync(CliContext context)'</value>
   </data>
   <data name="ClassHasNotPublicDefaultConstructor" xml:space="preserve">
     <value>The class '{0}' must have a parameterless (default) and public/internal and non-static constructor to generate a {1} when not using dependency injection.</value>

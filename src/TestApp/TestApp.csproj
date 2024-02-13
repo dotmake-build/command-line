@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net6.0;net472</TargetFrameworks>
+    <TargetFrameworks>net7.0;net472</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Product>DotMake Command-Line TestApp</Product>
     <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
@@ -15,6 +15,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotMake.CommandLine\DotMake.CommandLine.csproj" />
+    <Reference Include="System.CommandLine" Condition="'$(TargetFramework)' == 'net7.0'">
+      <HintPath>..\DotMake.CommandLine\bin\$(Configuration)\$(TargetFramework)\System.CommandLine.dll</HintPath>
+    </Reference>
+    <Reference Include="System.CommandLine" Condition="'$(TargetFramework)' == 'net472'">
+      <HintPath>..\DotMake.CommandLine\bin\$(Configuration)\netstandard2.0\System.CommandLine.dll</HintPath>
+    </Reference>
     <ProjectReference Include="..\DotMake.CommandLine.SourceGeneration\DotMake.CommandLine.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

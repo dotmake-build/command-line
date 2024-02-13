@@ -15,7 +15,7 @@ namespace DotMake.CommandLine
     /// <para>
     /// <b>Options:</b> An option is a named parameter that can be passed to a command. The POSIX convention is to prefix the option name with two hyphens (<c>--</c>).
     /// The following example shows two options:
-    /// <code>
+    /// <code language="console">
     /// dotnet tool update dotnet-suggest --verbosity quiet --global
     ///                                   ^---------^       ^------^
     /// </code>
@@ -24,7 +24,7 @@ namespace DotMake.CommandLine
     /// </para>
     /// <para>
     /// For some Windows command-line apps, you identify an option by using a leading slash (<c>/</c>) with the option name. For example:
-    /// <code>
+    /// <code language="console">
     /// msbuild /version
     ///         ^------^
     /// </code>
@@ -131,10 +131,10 @@ namespace DotMake.CommandLine
         public bool Required { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the option is added to the owner command and recursively to all of its sub-commands.
-        /// <para>Global options do not apply to parent commands.</para>
+        /// Gets or sets a value indicating whether the option is added to its immediate parent command or commands and recursively to their subcommands.
+        /// <para>For example, <c>--help</c> is a recursive option.</para>
         /// </summary>
-        public bool Global { get; set; }
+        public bool Recursive { get; set; }
 
         /// <summary>
         /// Gets or sets the arity of the option's argument. The arity refers to the number of values that can be passed on the command line.
@@ -185,12 +185,14 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Gets or sets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
         /// <para>
-        /// By default, when you call a command, you can repeat an option name to specify multiple arguments for an option that has maximum arity greater than one.
-        /// <code>myapp --items one --items two --items three</code>
-        /// To allow multiple arguments without repeating the option name, set <see cref="AllowMultipleArgumentsPerToken"/> to <see langword="true" />. This setting lets you enter the following command line.
-        /// <code>myapp --items one two three</code>
-        /// The same setting has a different effect if maximum argument arity is 1. It allows you to repeat an option but takes only the last value on the line. In the following example, the value <c>three</c> would be passed to the app.
-        /// <code>myapp --item one --item two --item three</code>
+        /// If set to <see langword="true" />, the following command line is valid for passing multiple arguments:
+        /// <code language="console">
+        /// &gt; myapp --opt 1 2 3
+        /// </code>
+        /// The following is equivalent and is always valid:
+        /// <code language="console">
+        /// &gt; myapp --opt 1 --opt 2 --opt 3
+        /// </code>
         /// </para>
         /// </summary>
         public bool AllowMultipleArgumentsPerToken { get; set; }

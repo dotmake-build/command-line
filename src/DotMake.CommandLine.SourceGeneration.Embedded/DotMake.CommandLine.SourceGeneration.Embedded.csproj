@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
     <!-- Make sure it compiles for lowest supported LangVersion 9.0 as source may be generated in a netstandard2.0 project -->
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>

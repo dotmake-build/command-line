@@ -1,9 +1,10 @@
 #pragma warning disable CS1591
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.CommandLine.Invocation;
 using System.IO;
+using System.Linq;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -42,7 +43,7 @@ namespace TestApp.Commands
         [CliArgument]
         public IList ArgIList { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -53,7 +54,8 @@ namespace TestApp.Commands
         public CustomList(IEnumerable<T> items)
             : base(items)
         {
-            //throw new NullReferenceException();
+            if (items is IEnumerable<string> strings && strings.First() == "exception")
+                throw new Exception("Exception in CustomList");
         }
     }
 

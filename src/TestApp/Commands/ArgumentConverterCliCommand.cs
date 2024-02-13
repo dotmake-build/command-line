@@ -1,6 +1,6 @@
 #pragma warning disable CS1591
+using System;
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -35,7 +35,7 @@ namespace TestApp.Commands
         [CliArgument]
         public IEnumerable<ClassWithParser> Arg { get; set; }
 
-        public void Run(InvocationContext context)
+        public void Run(CliContext context)
         {
             context.ShowValues();
         }
@@ -47,6 +47,9 @@ namespace TestApp.Commands
 
         public ClassWithConstructor(string value)
         {
+            if (value == "exception")
+                throw new Exception("Exception in ClassWithConstructor");
+
             this.value = value;
         }
 
@@ -67,7 +70,9 @@ namespace TestApp.Commands
 
         public static ClassWithParser Parse(string value)
         {
-            //throw new NullReferenceException();
+            if (value == "exception")
+                throw new Exception("Exception in ClassWithParser");
+
             var instance = new ClassWithParser();
             instance.value = value;
             return instance;

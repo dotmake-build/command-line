@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace DotMake.CommandLine
 {
     /// <summary>
-    /// Provides extension methods related to validation for <see cref="Argument"/> and <see cref="Option"/>. 
+    /// Provides extension methods related to validation for <see cref="CliArgument"/> and <see cref="CliOption"/>. 
     /// </summary>
     public static class CliValidationExtensions
     {
@@ -20,7 +20,7 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <param name="validationRules">The validation rules to add.</param>
-        public static void AddValidator(this Option option, CliValidationRules validationRules)
+        public static void AddValidator(this CliOption option, CliValidationRules validationRules)
         {
             AddValidator(option.GetArgument(), validationRules);
         }
@@ -31,37 +31,37 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <param name="validationRules">The validation rules to add.</param>
-        public static void AddValidator(this Argument argument, CliValidationRules validationRules)
+        public static void AddValidator(this CliArgument argument, CliValidationRules validationRules)
         {
             if (validationRules.HasFlag(CliValidationRules.ExistingFile))
-                argument.AddValidator(static result => ValidateArgumentResult(result, ExistingFile));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, ExistingFile));
 
             if (validationRules.HasFlag(CliValidationRules.NonExistingFile))
-                argument.AddValidator(static result => ValidateArgumentResult(result, NonExistingFile));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, NonExistingFile));
 
             if (validationRules.HasFlag(CliValidationRules.ExistingDirectory))
-                argument.AddValidator(static result => ValidateArgumentResult(result, ExistingDirectory));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, ExistingDirectory));
 
             if (validationRules.HasFlag(CliValidationRules.NonExistingDirectory))
-                argument.AddValidator(static result => ValidateArgumentResult(result, NonExistingDirectory));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, NonExistingDirectory));
 
             if (validationRules.HasFlag(CliValidationRules.ExistingFileOrDirectory))
-                argument.AddValidator(static result => ValidateArgumentResult(result, ExistingFileOrDirectory));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, ExistingFileOrDirectory));
 
             if (validationRules.HasFlag(CliValidationRules.NonExistingFileOrDirectory))
-                argument.AddValidator(static result => ValidateArgumentResult(result, NonExistingFileOrDirectory));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, NonExistingFileOrDirectory));
 
             if (validationRules.HasFlag(CliValidationRules.LegalPath))
-                argument.AddValidator(static result => ValidateArgumentResult(result, LegalPath));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, LegalPath));
 
             if (validationRules.HasFlag(CliValidationRules.LegalFileName))
-                argument.AddValidator(static result => ValidateArgumentResult(result, LegalFileName));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, LegalFileName));
 
             if (validationRules.HasFlag(CliValidationRules.LegalUri))
-                argument.AddValidator(static result => ValidateArgumentResult(result, LegalUri));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, LegalUri));
 
             if (validationRules.HasFlag(CliValidationRules.LegalUrl))
-                argument.AddValidator(static result => ValidateArgumentResult(result, LegalUrl));
+                argument.Validators.Add(static result => ValidateArgumentResult(result, LegalUrl));
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace DotMake.CommandLine
         /// <param name="option">The option to configure.</param>
         /// <param name="validationPattern">A regular expression pattern used for validation.</param>
         /// <param name="validationMessage">An error message to show when <paramref name="validationPattern"/> does not match and validation fails.</param>
-        public static void AddValidator(this Option option, string validationPattern, string validationMessage = null)
+        public static void AddValidator(this CliOption option, string validationPattern, string validationMessage = null)
         {
             AddValidator(option.GetArgument(), validationPattern, validationMessage);
         }
@@ -83,25 +83,22 @@ namespace DotMake.CommandLine
         /// <param name="argument">The argument to configure.</param>
         /// <param name="validationPattern">A regular expression pattern used for validation.</param>
         /// <param name="validationMessage">An error message to show when <paramref name="validationPattern"/> does not match and validation fails.</param>
-        public static void AddValidator(this Argument argument, string validationPattern, string validationMessage = null)
+        public static void AddValidator(this CliArgument argument, string validationPattern, string validationMessage = null)
         {
             if (!string.IsNullOrWhiteSpace(validationPattern))
-                argument.AddValidator(result =>
+                argument.Validators.Add(result =>
                     ValidateArgumentResult(result, validationResult => RegularExpression(validationResult, validationPattern, validationMessage))
                 );
         }
 
         private class ValidationResult
         {
-            public ValidationResult(string value, LocalizationResources localizationResources)
+            public ValidationResult(string value)
             {
                 Value = value;
-                LocalizationResources = localizationResources;
             }
 
             public string Value { get; }
-
-            public LocalizationResources LocalizationResources { get; }
 
             public bool Success { get; set; }
 
@@ -113,19 +110,24 @@ namespace DotMake.CommandLine
         {
             foreach (var token in result.Tokens)
             {
-                var validationResult = new ValidationResult(token.Value, result.LocalizationResources);
+                var validationResult = new ValidationResult(token.Value);
 
                 validateToken(validationResult);
 
                 if (!validationResult.Success)
                 {
+                    var errorMessage = "";
+
                     if (result.Parent is OptionResult optionResult)
-                        result.ErrorMessage = $"Invalid argument for option '{optionResult.Token}'";
+                        errorMessage = $"Invalid argument for option '{optionResult.IdentifierToken}'";
                     else if (result.Parent is CommandResult commandResult)
-                        result.ErrorMessage = $"Invalid argument for command '{commandResult.Token}'";
+                        errorMessage = $"Invalid argument for command '{commandResult.IdentifierToken}'";
 
                     if (!string.IsNullOrEmpty(validationResult.ErrorMessage))
-                        result.ErrorMessage += " -> " + validationResult.ErrorMessage;
+                        errorMessage += " -> " + validationResult.ErrorMessage;
+
+                    if (!string.IsNullOrEmpty(errorMessage))
+                        result.AddError(errorMessage);
 
                     return;
                 }
@@ -136,7 +138,7 @@ namespace DotMake.CommandLine
         {
             if (!File.Exists(validationResult.Value))
             {
-                validationResult.ErrorMessage = validationResult.LocalizationResources.FileDoesNotExist(validationResult.Value);
+                validationResult.ErrorMessage = LocalizationResources.FileDoesNotExist(validationResult.Value);
                 return;
             }
 
@@ -158,7 +160,7 @@ namespace DotMake.CommandLine
         {
             if (!Directory.Exists(validationResult.Value))
             {
-                validationResult.ErrorMessage = validationResult.LocalizationResources.DirectoryDoesNotExist(validationResult.Value);
+                validationResult.ErrorMessage = LocalizationResources.DirectoryDoesNotExist(validationResult.Value);
                 return;
             }
 
@@ -180,7 +182,7 @@ namespace DotMake.CommandLine
         {
             if (!Directory.Exists(validationResult.Value) && !File.Exists(validationResult.Value))
             {
-                validationResult.ErrorMessage = validationResult.LocalizationResources.FileOrDirectoryDoesNotExist(validationResult.Value);
+                validationResult.ErrorMessage = LocalizationResources.FileOrDirectoryDoesNotExist(validationResult.Value);
                 return;
             }
 
@@ -210,7 +212,7 @@ namespace DotMake.CommandLine
 
             if (invalidCharactersIndex >= 0)
             {
-                validationResult.ErrorMessage = validationResult.LocalizationResources.InvalidCharactersInPath(validationResult.Value[invalidCharactersIndex]);
+                validationResult.ErrorMessage = LocalizationResources.InvalidCharactersInPath(validationResult.Value[invalidCharactersIndex]);
                 return;
             }
 
@@ -221,7 +223,7 @@ namespace DotMake.CommandLine
 
             foreach (var part in parts)
             {
-                var partValidationResult = new ValidationResult(part, validationResult.LocalizationResources);
+                var partValidationResult = new ValidationResult(part);
 
                 LegalFileName(partValidationResult);
 
@@ -247,7 +249,7 @@ namespace DotMake.CommandLine
 
             if (invalidCharactersIndex >= 0)
             {
-                validationResult.ErrorMessage = validationResult.LocalizationResources.InvalidCharactersInFileName(validationResult.Value[invalidCharactersIndex]);
+                validationResult.ErrorMessage = LocalizationResources.InvalidCharactersInFileName(validationResult.Value[invalidCharactersIndex]);
                 return;
             }
 

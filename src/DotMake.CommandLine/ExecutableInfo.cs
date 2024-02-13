@@ -18,8 +18,8 @@ namespace DotMake.CommandLine
             }
             catch
             {
-                ExecutablePath = Assembly.Location;
-                ExecutableName = AssemblyName.Name;
+                ExecutableName = AssemblyName.Name ?? "app";
+                ExecutablePath = Path.Combine(AppContext.BaseDirectory, ExecutableName);
             }
 
             var assemblyInformationalVersion = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();

@@ -11,13 +11,13 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliArgumentAttribute).FullName;
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
-        public const string ArgumentClassName = "Argument";
+        public const string ArgumentClassName = "CliArgument";
         public const string ArgumentClassNamespace = "System.CommandLine";
         public const string ArgumentArityClassName = "ArgumentArity";
         public const string DiagnosticName = "CLI argument";
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
         {
-            { nameof(CliArgumentAttribute.Hidden), "IsHidden"},
+            //{ nameof(CliArgumentAttribute.Hidden), "IsHidden"},
         };
 
         public CliArgumentInfo(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInfo parent)
@@ -99,8 +99,7 @@ namespace DotMake.CommandLine.SourceGeneration
             sb.AppendLine($"// Argument for '{Symbol.Name}' property");
             using (sb.AppendParamsBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"\"{argumentName}\",");
-                ParseInfo.AppendCSharpCallString(sb);
+                sb.AppendLine($"\"{argumentName}\"");
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -127,8 +126,10 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
             }
 
+            ParseInfo.AppendCSharpCallString(sb, $"{varName}.CustomParser");
+
             if (AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.AllowedValues), out var allowedValuesTypedConstant))
-                sb.AppendLine($"{ArgumentClassNamespace}.ArgumentExtensions.FromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
+                sb.AppendLine($"{varName}.AcceptOnlyFromAmong(new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
             if (AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.ValidationRules), out var validationRulesTypedConstant))
                 sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationRulesTypedConstant.ToCSharpString()});");
@@ -142,7 +143,7 @@ namespace DotMake.CommandLine.SourceGeneration
             }
 
             if (!Required)
-                sb.AppendLine($"{varName}.SetDefaultValue({varDefaultValue});");
+                sb.AppendLine($"{varName}.DefaultValueFactory = _ => {varDefaultValue};");
 
             //In ArgumentArity.Default, Arity is set to ZeroOrMore for IEnumerable if parent is command,
             //but we want to enforce OneOrMore so that Required is consistent

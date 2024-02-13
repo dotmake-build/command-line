@@ -16,7 +16,7 @@ namespace DotMake.CommandLine.Binding
     {
         internal static Dictionary<Type, Func<Array, object>> CollectionConverters = new Dictionary<Type, Func<Array, object>>();
 
-        internal static TryConvertArgument? GetConverter(Argument argument)
+        internal static TryConvertArgument? GetConverter(CliArgument argument)
         {
             /*
             //We check exceptions for convert methods, so disabling this shortcut
@@ -56,88 +56,96 @@ namespace DotMake.CommandLine.Binding
         {
             var argument = argumentResult.Argument;
 
-            var conversionResult = argument.Arity.MaximumNumberOfValues switch
+            ArgumentConversionResult result = argument.Arity.MaximumNumberOfValues switch
             {
                 // 0 is an implicit bool, i.e. a "flag"
-                0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument,
-                                   argument.ValueType,
-                                   argumentResult.Tokens.Count > 0
-                                       ? argumentResult.Tokens[argumentResult.Tokens.Count - 1]
-                                       : null,
-                                   argumentResult.LocalizationResources),
-                _ => ConvertTokens(argument,
-                                    argument.ValueType,
-                                    argumentResult.Tokens,
-                                    argumentResult.LocalizationResources,
-                                    argumentResult)
+                0 => Success(argumentResult, true),
+                1 => ConvertObject(argumentResult,
+                    argument.ValueType,
+                    argumentResult.Tokens.Count > 0
+                        ? argumentResult.Tokens[argumentResult.Tokens.Count - 1]
+                        : null),
+                _ => ConvertTokens(argumentResult,
+                    argument.ValueType,
+                    argumentResult.Tokens)
             };
 
-            value = conversionResult.Value;
-            argumentResult.ErrorMessage = conversionResult.ErrorMessage;
-            return conversionResult.Result == ArgumentConversionResultType.Successful;
+            /*MODIFY*/
+            //just return the value as we are only interested in success result
+            value = result.Value;
+            /*MODIFY*/
+
+            if (result.ErrorMessage != null)
+                argumentResult.AddError(result.ErrorMessage);
+
+            return result.Result == ArgumentConversionResultType.Successful;
         }
 
-
         internal static ArgumentConversionResult ConvertObject(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type type,
-            object? value,
-            LocalizationResources localizationResources)
+            object? value)
         {
             switch (value)
             {
-                case Token singleValue:
-                    return ConvertToken(argument, type, singleValue, localizationResources);
+                case CliToken singleValue:
+                    return ConvertToken(argumentResult, type, singleValue);
 
-                case IReadOnlyList<Token> manyValues:
-                    return ConvertTokens(argument, type, manyValues, localizationResources);
+                case IReadOnlyList<CliToken> manyValues:
+                    return ConvertTokens(argumentResult, type, manyValues);
 
                 default:
-                    //Support bool flags here because ConvertIfNeeded cannot detect it as ArgumentConversionResult is internal
-                    //and we can not return our implemented ArgumentConversionResult
-                    if (argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?))
-                        return Success(argument, true);
 
-                    return None(argument);
+                    if (argumentResult.Tokens.Count == 0)
+                    {
+                        //Support bool flags here because ConvertIfNeeded cannot detect it as ArgumentConversionResult is internal
+                        //and we can not return our implemented ArgumentConversionResult
+                        if (type == typeof(bool) || type == typeof(bool?))
+                            return Success(argumentResult, true);
+
+                        return None(argumentResult);
+                    }
+                    else
+                    {
+                        throw new InvalidCastException();
+                    }
             }
         }
 
         private static ArgumentConversionResult ConvertToken(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type type,
-            Token token,
-            LocalizationResources localizationResources)
+            CliToken token)
         {
-            type = type.GetNullableUnderlyingTypeOrSelf();
-
             var value = token.Value;
+
+            type = type.GetNullableUnderlyingTypeOrSelf();
 
             if (StringConverters.TryGetValue(type, out var tryConvert))
             {
                 try
                 {
                     return tryConvert(value, out var converted)
-                        ? Success(argument, converted)
-                        : Failure(argument, type, value, localizationResources);
+                        ? Success(argumentResult, converted)
+                        : ArgumentConversionCannotParse(argumentResult, type, value);
                 }
                 catch (Exception exception)
                 {
-                    return Failure(argument, type, value, localizationResources, exception);
+                    return ArgumentConversionException(argumentResult, type, value, exception);
                 }
             }
 
             if (type.IsEnum)
             {
-#if NET6_0_OR_GREATER
+#if NET7_0_OR_GREATER
                 if (Enum.TryParse(type, value, ignoreCase: true, out var converted))
                 {
-                    return Success(argument, converted);
+                    return Success(argumentResult, converted);
                 }
 #else
                 try
                 {
-                    return Success(argument, Enum.Parse(type, value, true));
+                    return Success(argumentResult, Enum.Parse(type, value, true));
                 }
                 catch (ArgumentException)
                 {
@@ -145,54 +153,60 @@ namespace DotMake.CommandLine.Binding
 #endif
             }
 
-            return Failure(argument, type, value, localizationResources);
+            return ArgumentConversionCannotParse(argumentResult, type, value);
         }
 
         private static ArgumentConversionResult ConvertTokens(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type type,
-            IReadOnlyList<Token> tokens,
-            LocalizationResources localizationResources,
-            ArgumentResult? argumentResult = null)
+            IReadOnlyList<CliToken> tokens)
         {
             type = type.GetNullableUnderlyingTypeOrSelf();
-
             var itemType = type.GetElementTypeIfEnumerable(typeof(string)) ?? typeof(string);
-            var values = Array.CreateInstance(itemType, tokens.Count); //typed array
+            var values = CreateArray(itemType, tokens.Count); //typed array
 
             for (var i = 0; i < tokens.Count; i++)
             {
                 var token = tokens[i];
 
-                var result = ConvertToken(argument, itemType, token, localizationResources);
+                var result = ConvertToken(argumentResult, itemType, token);
 
-                if (result.Result == ArgumentConversionResultType.Successful)
+                switch (result.Result)
                 {
-                    values.SetValue(result.Value, i);
-                }
-                else
-                {
-                    // failures
-                    if (argumentResult is { Parent: CommandResult })
-                    {
-                        argumentResult.OnlyTake(i);
+                    case ArgumentConversionResultType.Successful:
+                        values.SetValue(result.Value, i);
 
-                        //i = tokens.Count;
-                    }
+                        break;
+                    /*MODIFY*/
+                    //if element conversion fails due to type parsing, collection should also fail
+                    //if we don't handle this (return failure), OnlyTake below causes combined errors:
+                    // Unrecognized command or argument 'exception'.
+                    // Cannot parse argument '' for command 'TestApp' as expected type
+                    case ArgumentConversionResultType.FailedType:
+                        return result;
+                    /*MODIFY*/
+                    default: // failures
+                        if (argumentResult.Parent is CommandResult)
+                        {
+                            argumentResult.OnlyTake(i);
 
-                    return result;
+                            i = tokens.Count;
+                            break;
+                        }
+
+                        return result;
                 }
             }
 
             try
             {
                 return CollectionConverters.TryGetValue(type, out var convertFromArray)
-                    ? Success(argument, convertFromArray(values))
-                    : Failure(argument, type, string.Join("|", tokens), localizationResources);
+                    ? Success(argumentResult, convertFromArray(values))
+                    : ArgumentConversionCannotParse(argumentResult, type, string.Join("|", tokens));
             }
             catch (Exception exception)
             {
-                return Failure(argument, type, string.Join("|", tokens), localizationResources, exception);
+                return ArgumentConversionException(argumentResult, type, string.Join("|", tokens), exception);
             }
         }
 
@@ -245,7 +259,7 @@ namespace DotMake.CommandLine.Binding
                 var itemType = type.GetElementTypeIfEnumerable(typeof(string));
                 if (itemType != null
                     && CollectionConverters.TryGetValue(type, out var convertFromArray))
-                    return convertFromArray(Array.CreateInstance(itemType, 0));
+                    return convertFromArray(CreateArray(itemType, 0));
             }
             catch
             {
@@ -257,6 +271,10 @@ namespace DotMake.CommandLine.Binding
 
             return null;
         }
+
+        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
+        private static Array CreateArray(Type itemType, int capacity)
+            => Array.CreateInstance(itemType, capacity);
 
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2067:UnrecognizedReflectionPattern",
             Justification = $"{nameof(CreateDefaultValueType)} is only called on a ValueType. You can always create an instance of a ValueType.")]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
@@ -10,15 +11,15 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliCommandAttribute).FullName;
         public static readonly string[] Suffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
-        public const string RootCommandClassName = "RootCommand";
-        public const string CommandClassName = "Command";
+        public const string RootCommandClassName = "CliRootCommand";
+        public const string CommandClassName = "CliCommand";
         public const string CommandClassNamespace = "System.CommandLine";
         public const string DiagnosticName = "CLI command";
         public const string GeneratedClassSuffix = "Builder";
         public static readonly string CommandBuilderFullName = "DotMake.CommandLine.CliCommandBuilder";
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
         {
-            { nameof(CliCommandAttribute.Hidden), "IsHidden"}
+            //{ nameof(CliCommandAttribute.Hidden), "IsHidden"}
         };
         public readonly HashSet<string> UsedAliases = new HashSet<string>(StringComparer.Ordinal);
 
@@ -117,13 +118,20 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        public CliCommandInfo(GeneratorAttributeSyntaxContext attributeSyntaxContext)
-            : this(attributeSyntaxContext.TargetSymbol,
+        public static bool IsMatch(SyntaxNode syntaxNode)
+        {
+            return syntaxNode is ClassDeclarationSyntax
+                   //skip nested classes as they will be handled by the parent classes
+                   && !(syntaxNode.Parent is TypeDeclarationSyntax);
+        }
+
+        public static CliCommandInfo From(GeneratorAttributeSyntaxContext attributeSyntaxContext)
+        {
+            return new(attributeSyntaxContext.TargetSymbol,
                 attributeSyntaxContext.TargetNode,
                 attributeSyntaxContext.Attributes[0],
                 attributeSyntaxContext.SemanticModel,
-                null)
-        {
+                null);
         }
 
         public new INamedTypeSymbol Symbol { get; }
@@ -217,7 +225,7 @@ namespace DotMake.CommandLine.SourceGeneration
             sb.AppendLine("/// <inheritdoc />");
             using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
-                var varCommand = (IsRoot ? RootCommandClassName : CommandClassName).ToCase(CliNameCasingConvention.CamelCase);
+                var varCommand = (IsRoot ? "rootCommand" : "command");
                 var definitionClass = Symbol.ToReferenceString();
                 var parentDefinitionClass = IsRoot ? null : Settings.ParentSymbol.ToReferenceString();
                 var parentDefinitionType = (parentDefinitionClass != null) ? $"typeof({parentDefinitionClass})" : "null";
@@ -269,9 +277,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         var varOption = $"option{index}";
                         cliOptionInfo.AppendCSharpCreateString(sb, varOption,
                             $"{varDefaultClass}.{cliOptionInfo.Symbol.Name}");
-                        sb.AppendLine(cliOptionInfo.Global
-                            ? $"{varCommand}.AddGlobalOption({varOption});"
-                            : $"{varCommand}.Add({varOption});");
+                        sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
 
                     for (var index = 0; index < childArgumentsWithoutProblem.Length; index++)
@@ -322,30 +328,42 @@ namespace DotMake.CommandLine.SourceGeneration
                     }
 
                     sb.AppendLine();
-                    var varInvocationContext = "context";
-                    var asyncKeyword = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync) ? "async " : "";
-                    using (sb.AppendBlockStart($"{CommandClassNamespace}.Handler.SetHandler({varCommand}, {asyncKeyword}{varInvocationContext} =>", ");"))
+                    var varParseResult = "parseResult";
+                    var varCancellationToken = "cancellationToken";
+                    var varCliContext = "cliContext";
+                    var isAsync = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync);
+                    using (sb.AppendBlockStart(isAsync
+                               ? $"{varCommand}.SetAction(async ({varParseResult}, {varCancellationToken}) =>"
+                               : $"{varCommand}.SetAction({varParseResult} =>",
+                    ");"))
                     {
                         var varTargetClass = "targetClass";
 
-                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) BindFunc({varInvocationContext}.ParseResult);");
+                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) BindFunc({varParseResult});");
                         sb.AppendLine();
 
                         sb.AppendLine("//  Call the command handler");
+                        sb.AppendLine(isAsync
+                            ? $"var {varCliContext} = new DotMake.CommandLine.CliContext({varParseResult}, {varCancellationToken});"
+                            : $"var {varCliContext} = new DotMake.CommandLine.CliContext({varParseResult});");
+                        sb.AppendLine("var exitCode = 0;");
                         if (handlerWithoutProblem != null)
                         {
                             sb.AppendLineStart();
                             if (handlerWithoutProblem.ReturnsValue)
-                                sb.Append($"{varInvocationContext}.ExitCode = ");
+                                sb.Append("exitCode = ");
                             if (handlerWithoutProblem.IsAsync)
                                 sb.Append("await ");
                             sb.Append($"{varTargetClass}.");
-                            handlerWithoutProblem.AppendCSharpCallString(sb, varInvocationContext);
+                            handlerWithoutProblem.AppendCSharpCallString(sb, varCliContext);
                             sb.Append(";");
                             sb.AppendLineEnd();
                         }
                         else
-                            sb.AppendLine($"DotMake.CommandLine.InvocationContextExtensions.ShowHelp({varInvocationContext});");
+                        {
+                            sb.AppendLine($"{varCliContext}.ShowHelp();");
+                        }
+                        sb.AppendLine("return exitCode;");
                     }
 
                     sb.AppendLine();
@@ -429,7 +447,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     var alias = aliasValue?.ToString();
                     if (!UsedAliases.Contains(alias))
                     {
-                        sb.AppendLine($"{varName}.AddAlias(\"{alias}\");");
+                        sb.AppendLine($"{varName}.Aliases.Add(\"{alias}\");");
                         UsedAliases.Add(alias);
                     }
                 }

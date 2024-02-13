@@ -7,7 +7,7 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliCommandHandlerInfo : CliSymbolInfo, IEquatable<CliCommandHandlerInfo>
     {
         private const string TaskFullName = "System.Threading.Tasks.Task";
-        private const string InvocationContextFullName = "System.CommandLine.Invocation.InvocationContext";
+        private const string CliContextFullName = "DotMake.CommandLine.CliContext";
         public const string DiagnosticName = "CLI command handler";
 
         public CliCommandHandlerInfo(IMethodSymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel, CliCommandInfo parent)
@@ -32,16 +32,16 @@ namespace DotMake.CommandLine.SourceGeneration
             }
 
             HasNoParameter = (symbol.Parameters.Length == 0);
-            HasInvocationContextParameter = (symbol.Parameters.Length == 1)
-                                            && (symbol.Parameters[0].Type.ToCompareString() == InvocationContextFullName);
+            HasCliContextParameter = (symbol.Parameters.Length == 1)
+                                            && (symbol.Parameters[0].Type.ToCompareString() == CliContextFullName);
 
-            HasCorrectSignature = (ReturnsVoid || ReturnsValue) && (HasNoParameter || HasInvocationContextParameter);
+            HasCorrectSignature = (ReturnsVoid || ReturnsValue) && (HasNoParameter || HasCliContextParameter);
 
             if (IsAsync)
                 SignaturePriority++;
             if (ReturnsValue)
                 SignaturePriority++;
-            if (HasInvocationContextParameter)
+            if (HasCliContextParameter)
                 SignaturePriority++;
 
             if (HasCorrectSignature)
@@ -60,7 +60,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool HasNoParameter { get; }
 
-        public bool HasInvocationContextParameter { get; }
+        public bool HasCliContextParameter { get; }
 
         public bool HasCorrectSignature { get; }
 
@@ -82,10 +82,13 @@ namespace DotMake.CommandLine.SourceGeneration
                 : (symbol.Name == "Run");
         }
 
-        public void AppendCSharpCallString(CodeStringBuilder sb, string varInvocationContext = null)
+        public void AppendCSharpCallString(CodeStringBuilder sb, string varCliContext = null)
         {
             sb.Append(Symbol.Name);
-            sb.Append(HasInvocationContextParameter ? $"({varInvocationContext})" : "()");
+            sb.Append("(");
+            if (HasCliContextParameter)
+                sb.Append(varCliContext);
+            sb.Append(")");
         }
 
         public bool Equals(CliCommandHandlerInfo other)

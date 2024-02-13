@@ -1,97 +1,44 @@
 using System;
-using System.CommandLine;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DotMake.CommandLine
 {
     internal static class ConsoleExtensions
     {
-        private static bool? isConsoleRedirectionCheckSupported;
+        private static readonly bool ColorIsSupported =
+            !RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
+            && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"))
+            && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS"))
+            && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS"));
 
-        public static bool IsConsoleRedirectionCheckSupported
+        private static readonly bool EncodingIsSupported =
+            !RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"))
+            && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS"))
+            && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS"));
+
+        public static void SetForegroundColor(ConsoleColor color)
         {
-            get
-            {
-                if (isConsoleRedirectionCheckSupported is null)
-                {
-                    try
-                    {
-                        var check = Console.IsOutputRedirected;
-                        isConsoleRedirectionCheckSupported = true;
-                    }
-
-                    catch (PlatformNotSupportedException)
-                    {
-                        isConsoleRedirectionCheckSupported = false;
-                    }
-                }
-
-                return isConsoleRedirectionCheckSupported.Value;
-            }
-        }
-
-        public static void SetForegroundColor(this IConsole console, ConsoleColor color)
-        {
-            if (IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
-            {
-                Console.ForegroundColor = color;
-            }
-            else if (IsConsoleRedirectionCheckSupported)
+            if (ColorIsSupported && !Console.IsOutputRedirected)
             {
                 Console.ForegroundColor = color;
             }
         }
 
-        public static void ResetForegroundColor(this IConsole console)
+        public static void ResetForegroundColor()
         {
-            if (IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
-            {
-                Console.ResetColor();
-            }
-            else if (IsConsoleRedirectionCheckSupported)
+            if (ColorIsSupported && !Console.IsOutputRedirected)
             {
                 Console.ResetColor();
             }
         }
 
-        public static void SetOutputEncoding(this IConsole console, Encoding encoding)
+        public static void SetOutputEncoding(Encoding encoding)
         {
-            try
+            if (EncodingIsSupported && !Console.IsOutputRedirected)
             {
-                if (IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
-                {
-                    Console.OutputEncoding = encoding;
-                }
-                else if (IsConsoleRedirectionCheckSupported)
-                {
-                    Console.OutputEncoding = encoding;
-                }
+                Console.OutputEncoding = encoding;
             }
-            catch
-            {
-                //ignored
-            }
-        }
-
-        public static int GetWindowWidth(this IConsole console)
-        {
-            try
-            {
-                if (IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
-                {
-                    return Console.WindowWidth;
-                }
-                else if (IsConsoleRedirectionCheckSupported)
-                {
-                    return Console.WindowWidth;
-                }
-            }
-            catch
-            {
-                //ignored
-            }
-
-            return int.MaxValue;
         }
     }
 }

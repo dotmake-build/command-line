@@ -1,6 +1,5 @@
 #pragma warning disable CS1591
 using System;
-using System.CommandLine.Builder;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
 using TestApp.Commands;
@@ -108,11 +107,9 @@ namespace TestApp
 
             //System.CommandLine, by default overtakes your exceptions that are thrown in command handlers
             //(even if you don't set an exception handler explicitly) but DotMake.CommandLine, by default allows
-            //the exceptions to pass through. However if you wish, you can easily use an exception handler by
-            //using `configureBuilder` delegate parameter like this:
-            Cli.Run<RootCliCommand>(args, builder =>
-                builder.UseExceptionHandler((e, context) => Console.WriteLine(@"Exception in command handler: {0}", e.Message))
-            );
+            //the exceptions to pass through. However if you wish, you can easily use the default exception handler
+            //by passing a `CliSettings` instance like below. Default exception handler prints the exception in red color to console:
+            Cli.Run<RootCliCommand>(args, new CliSettings { EnableDefaultExceptionHandler = true });
 
             #endregion
         }
@@ -123,7 +120,8 @@ namespace TestApp
             #region CliParse
 
             //If you need to simply parse the command-line arguments without invocation, use this:
-            var rootCliCommand = Cli.Parse<RootCliCommand>(args);
+            var parseResult = Cli.Parse<RootCliCommand>(args);
+            var rootCliCommand = parseResult.Bind<RootCliCommand>();
 
             #endregion
         }
@@ -132,8 +130,9 @@ namespace TestApp
         {
             #region CliParseString
 
-            //If you need to simply parse the command-line arguments without invocation, use this:
-            var rootCliCommand = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
+            //If you need to simply parse the command-line string without invocation, use this:
+            var parseResult = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
+            var rootCliCommand = parseResult.Bind<RootCliCommand>();
 
             #endregion
         }
@@ -143,7 +142,7 @@ namespace TestApp
             #region CliParseWithResult
 
             //If you need to examine the parse result, such as errors:
-            var rootCliCommand = Cli.Parse<RootCliCommand>(args, out var parseResult);
+            var parseResult = Cli.Parse<RootCliCommand>(args);
             if (parseResult.Errors.Count > 0)
             {
 
@@ -157,7 +156,7 @@ namespace TestApp
             #region CliParseStringWithResult
 
             //If you need to examine the parse result, such as errors:
-            var rootCliCommand = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1", out var parseResult);
+            var parseResult = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
             if (parseResult.Errors.Count > 0)
             {
 

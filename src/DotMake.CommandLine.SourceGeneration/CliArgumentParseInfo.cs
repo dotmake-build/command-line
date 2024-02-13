@@ -109,11 +109,11 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        public void AppendCSharpCallString(CodeStringBuilder sb)
+        public void AppendCSharpCallString(CodeStringBuilder sb, string varCustomParser)
         {
             if (ItemType != null)
             {
-                using (sb.AppendParamsBlockStart($"GetParseArgument<{Type.ToReferenceString()}, {ItemType.ToReferenceString()}>"))
+                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetParseArgument<{Type.ToReferenceString()}, {ItemType.ToReferenceString()}>", ";"))
                 {
                     if (Converter == null)
                         sb.AppendLine("null,");
@@ -141,7 +141,7 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 //Even if argument type does not need a converter, use a ParseArgument method,
                 //so that our custom converter is used for supporting all collection compatible types.
-                using (sb.AppendParamsBlockStart($"GetParseArgument<{Type.ToReferenceString()}>"))
+                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetParseArgument<{Type.ToReferenceString()}>", ";"))
                 {
                     if (Converter == null)
                         sb.AppendLine("null");

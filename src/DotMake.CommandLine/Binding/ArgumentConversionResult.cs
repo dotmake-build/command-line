@@ -3,89 +3,97 @@
 #nullable enable
 
 using System;
-using System.CommandLine;
+using System.CommandLine.Completions;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace DotMake.CommandLine.Binding
 {
     internal sealed class ArgumentConversionResult
     {
-        internal readonly Argument Argument;
+        internal readonly ArgumentResult ArgumentResult;
         internal readonly object? Value;
         internal readonly string? ErrorMessage;
         internal ArgumentConversionResultType Result;
 
-        private ArgumentConversionResult(Argument argument, string error, ArgumentConversionResultType failure)
+        private ArgumentConversionResult(ArgumentResult argumentResult, string error, ArgumentConversionResultType failure)
         {
-            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
-            ErrorMessage = error ?? throw new ArgumentNullException(nameof(error));
+            ArgumentResult = argumentResult;
+            ErrorMessage = error;
             Result = failure;
         }
 
-        private ArgumentConversionResult(Argument argument, object? value)
+        private ArgumentConversionResult(ArgumentResult argumentResult, object? value, ArgumentConversionResultType result)
         {
-            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
+            ArgumentResult = argumentResult;
             Value = value;
-            Result = ArgumentConversionResultType.Successful;
+            Result = result;
         }
+        
+        internal static ArgumentConversionResult Failure(ArgumentResult argumentResult, string error, ArgumentConversionResultType reason)
+            => new(argumentResult, error, reason);
 
-        private ArgumentConversionResult(Argument argument)
-        {
-            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
-            Result = ArgumentConversionResultType.NoArgument;
-        }
+        internal static ArgumentConversionResult ArgumentConversionCannotParse(ArgumentResult argumentResult, Type expectedType, string value)
+            => new(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType);
 
-        internal ArgumentConversionResult(
-            Argument argument,
+        public static ArgumentConversionResult Success(ArgumentResult argumentResult, object? value)
+            => new(argumentResult, value, ArgumentConversionResultType.Successful);
+
+        internal static ArgumentConversionResult None(ArgumentResult argumentResult)
+            => new(argumentResult, value: null, ArgumentConversionResultType.NoArgument);
+
+        internal static ArgumentConversionResult ArgumentConversionException(
+            ArgumentResult argumentResult,
             Type expectedType,
             string value,
-            LocalizationResources localizationResources,
-            Exception? exception) :
-            this(argument,
-                FormatErrorMessage(argument, expectedType, value, localizationResources)
-                    + (exception != null ? "\n Exception occured in expected type's converter: " + exception.Message : ""),
-                ArgumentConversionResultType.FailedType)
-        {
-        }
-
-        internal static ArgumentConversionResult Failure(
-            Argument argument,
-            Type expectedType,
-            string value,
-            LocalizationResources localizationResources,
             Exception? exception = null)
         {
-            return new ArgumentConversionResult(argument, expectedType, value, localizationResources, exception);
+            var error = FormatErrorMessage(argumentResult, expectedType, value)
+                        + (exception != null
+                            ? "\n Exception occured in expected type's converter: " + exception.Message
+                            : "");
+
+            return new ArgumentConversionResult(argumentResult, error, ArgumentConversionResultType.FailedType);
         }
-
-        internal static ArgumentConversionResult Failure(Argument argument, string error, ArgumentConversionResultType reason) => new(argument, error, reason);
-
-        internal static ArgumentConversionResult Success(Argument argument, object? value) => new(argument, value);
-
-        internal static ArgumentConversionResult None(Argument argument) => new(argument);
-
         private static string FormatErrorMessage(
-            Argument argument,
-            Type expectedType,
-            string value,
-            LocalizationResources localizationResources)
-        {
-            var firstParent = argument.Parents.FirstOrDefault();
-            if (firstParent is IdentifierSymbol identifierSymbol &&
-                firstParent.Parents.FirstOrDefault() is null)
-            {
-                var alias = identifierSymbol.Aliases.First();
 
-                switch (identifierSymbol)
+            ArgumentResult argumentResult,
+            Type expectedType,
+            string value)
+        {
+            if (argumentResult.Parent is CommandResult commandResult)
+            {
+                string alias = commandResult.Command.Name;
+                CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
+
+                if (completionItems.Length > 0)
                 {
-                    case Command _:
-                        return localizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
-                    case Option _:
-                        return localizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                    return LocalizationResources.ArgumentConversionCannotParseForCommand(
+                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
+                }
+                else
+                {
+                    return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                }
+            }
+            else if (argumentResult.Parent is OptionResult optionResult)
+            {
+                string alias = optionResult.Option.Name;
+                CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
+
+                if (completionItems.Length > 0)
+                {
+                    return LocalizationResources.ArgumentConversionCannotParseForOption(
+                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
+                }
+                else
+                {
+                    return LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }
             }
 
-            return localizationResources.ArgumentConversionCannotParse(value, expectedType);
+            // fake ArgumentResults with no Parent
+            return LocalizationResources.ArgumentConversionCannotParse(value, expectedType);
         }
     }
 }
