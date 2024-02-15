@@ -44,15 +44,22 @@ PM> Install-Package DotMake.CommandLine
 ### Delegate-based model
 
 Create a CLI App with DotMake.Commandline in seconds!
-In Program.cs, add this simple code:
+
+In `Program.cs`, add this simple code:
 ```c#
+using System;
+using DotMake.CommandLine;
+
 Cli.Run(([CliArgument]string argument1, bool option1) =>
 {
     Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
     Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
 });
 ```
-And that's it! You now have a fully working command-line app.
+And that's it! You now have a fully working command-line app:
+
+![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
+
 
 #### Summary
 - Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
@@ -68,13 +75,18 @@ And that's it! You now have a fully working command-line app.
 
 ### Class-based model
 
-While delegate-based model above is useful for simple apps, for more complex apps, you can use the class-based model.
-Create a simple class like this:
+While delegate-based model above is useful for simple apps, for more complex apps, you should use the class-based model 
+because you can have sub-commands and command inheritance.
 
+In `Program.cs`, add this simple code:
 ```c#
 using System;
 using DotMake.CommandLine;
 
+// Add this single line to run you app!
+Cli.Run<RootCliCommand>(args);
+
+// Create a simple class like this to define your root command:
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
 {
@@ -92,10 +104,6 @@ public class RootCliCommand
         Console.WriteLine();
     }
 }
-```
-In Program.cs, add this single line:
-```c#
-Cli.Run<RootCliCommand>(args);
 ```
 And that's it! You now have a fully working command-line app. You just specify the name of your class which represents your root command to `Cli.Run<>` method and everything is wired.
 
@@ -178,6 +186,8 @@ if (parseResult.Errors.Count > 0)
   This can be also controlled manually by extension method `ShowHelp` in `CliContext`.
   Other extension methods `IsEmptyCommand` and `ShowValues` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
+- For best practice, create a subfolder named `Commands` in your project and put your command classes there 
+  so that they are easy to locate and maintain in the future.
 
 ## Commands
 
@@ -570,7 +580,6 @@ The following types for properties are supported:
 * Enums - The values are bound by name, and the binding is case insensitive
 * Common CLR types:
   
-  * `string`, `bool`
   * `FileSystemInfo`, `FileInfo`, `DirectoryInfo`
   * `int`, `long`, `short`, `uint`, `ulong`, `ushort`
   * `double`, `float`, `decimal`
@@ -655,54 +664,71 @@ The following types for properties are supported:
     }
     ```
   
-* Arrays, lists, collections - any type that implements `IEnumerable<T>` and has a public constructor with a `IEnumerable<T>` or `IList<T>` parameter (other parameters, if any, should be optional).
-  If type is generic `IEnumerable<T>`, `IList<T>`, `ICollection<T>` interfaces itself, array `T[]` will be used.
-  If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used.
-    ```c#
-    [CliCommand]
-    public class EnumerableCliCommand
-    {
-        [CliOption]
-        public IEnumerable<int> OptEnumerable { get; set; }
+* Arrays, lists, collections:
+  
+  * Any type that implements `IEnumerable<T>` and has a public constructor with a `IEnumerable<T>` or `IList<T>` parameter 
+    (other parameters, if any, should be optional). CLR collection types already satisfy this condition.
+  
+  * If type is generic `IEnumerable<T>`, `IList<T>`, `ICollection<T>` interfaces itself, array `T[]` will be used to create an instance.
+  
+  * If type is non-generic `IEnumerable`, `IList`, `ICollection` interfaces itself, array `string[]` will be used to create an instance.
+  
+  ```c#
+  [CliCommand]
+  public class EnumerableCliCommand
+  {
+      [CliOption]
+      public IEnumerable<int> OptEnumerable { get; set; }
 
-        [CliOption]
-        public List<string> OptList { get; set; }
+      [CliOption]
+      public List<string> OptList { get; set; }
 
-        [CliOption(AllowMultipleArgumentsPerToken = true)]
-        public FileAccess[] OptEnumArray { get; set; }
+      [CliOption(AllowMultipleArgumentsPerToken = true)]
+      public FileAccess[] OptEnumArray { get; set; }
 
-        [CliOption]
-        public Collection<string> OptCollection { get; set; }
+      [CliOption]
+      public Collection<string> OptCollection { get; set; }
 
-        [CliOption]
-        public HashSet<string> OptHashSet { get; set; }
+      [CliOption]
+      public HashSet<string> OptHashSet { get; set; }
 
-        [CliOption]
-        public Queue<FileInfo> OptQueue { get; set; }
+      [CliOption]
+      public Queue<FileInfo> OptQueue { get; set; }
 
-        [CliOption]
-        public CustomList<string> OptCustomList { get; set; }
- 
-        [CliArgument]
-        public IList ArgIList { get; set; }
-    }
- 
-    public class CustomList<T> : List<T>
-    {
-        public CustomList(IEnumerable<T> items)
-            : base(items)
-        {
+      [CliOption]
+      public CustomList<string> OptCustomList { get; set; }
 
-        }
-    }
-    ```
+      [CliArgument]
+      public IList ArgIList { get; set; }
+  }
+
+  public class CustomList<T> : List<T>
+  {
+      public CustomList(IEnumerable<T> items)
+          : base(items)
+      {
+
+      }
+  }
+  ```
 
 ### Validation
 
 In `[CliOption]` and `[CliArgument]` attributes;
-`ValidationRules` property allows setting predefined validation rules such as `ExistingFile`, `NonExistingFile`, `ExistingDirectory`,
-`NonExistingDirectory`, `ExistingFileOrDirectory`, `NonExistingFileOrDirectory`, `LegalPath`, `LegalFileName`, `LegalUri`, `LegalUrl`.
-Validation rules can be combined.
+`ValidationRules` property allows setting predefined validation rules such as
+- `CliValidationRules.ExistingFile`
+- `CliValidationRules.NonExistingFile`
+- `CliValidationRules.ExistingDirectory`
+- `CliValidationRules.NonExistingDirectory`
+- `CliValidationRules.ExistingFileOrDirectory`
+- `CliValidationRules.NonExistingFileOrDirectory`
+- `CliValidationRules.LegalPath`
+- `CliValidationRules.LegalFileName`
+- `CliValidationRules.LegalUri` 
+- `CliValidationRules.LegalUrl`
+
+Validation rules can be combined via using bitwise 'or' operator(`|` in C#).
+
 `ValidationPattern` property allows setting a regular expression pattern for custom validation,
 and `ValidationMessage` property allows setting a custom error message to show when `ValidationPattern` does not match.
 
@@ -829,7 +855,7 @@ public sealed class SingletonClass : IDisposable
 ## Help output
 
 When you run the app via 
-- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net6.0`)
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net7.0`)
 - or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
 - You see this usage help:

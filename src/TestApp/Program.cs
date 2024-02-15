@@ -12,7 +12,6 @@ using TestApp.Commands.PrefixConvention;
 try
 {
     //Using Cli.Run with delegate:
-
     /*
     Cli.Run(([CliArgument]string arg1, bool opt1) =>
     {
