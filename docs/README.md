@@ -50,10 +50,10 @@ In `Program.cs`, add this simple code:
 using System;
 using DotMake.CommandLine;
 
-Cli.Run(([CliArgument]string argument1, bool option1) =>
+Cli.Run(([CliArgument]string arg1, bool opt1) =>
 {
-    Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
-    Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+    Console.WriteLine($@"Value for {nameof(arg1)} parameter is '{arg1}'");
+    Console.WriteLine($@"Value for {nameof(opt1)} parameter is '{opt1}'");
 });
 ```
 And that's it! You now have a fully working command-line app:
