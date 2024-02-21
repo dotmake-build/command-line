@@ -766,7 +766,7 @@ public class ValidationCliCommand
 
 ## Dependency Injection
 
-Commands can have injected dependencies, this is supported via `Microsoft.Extensions.DependencyInjection` package (version >= 6.0.0).
+Commands can have injected dependencies, this is supported via `Microsoft.Extensions.DependencyInjection` package (version >= 2.1.1).
 In your project directory, via dotnet cli:
 ```console
 dotnet add package Microsoft.Extensions.DependencyInjection
@@ -851,6 +851,32 @@ public sealed class SingletonClass : IDisposable
 
     public void Dispose() => Console.WriteLine($"{nameof(SingletonClass)}.Dispose()");
 }
+```
+Other dependency injection containers (e.g. Autofac) are also supported 
+via `Microsoft.Extensions.DependencyInjection.Abstractions` package (version >= 2.1.1).
+In your project directory, via dotnet cli:
+```console
+dotnet add package Microsoft.Extensions.DependencyInjection.Abstractions
+```
+or in Visual Studio Package Manager Console:
+```console
+PM> Install-Package Microsoft.Extensions.DependencyInjection.Abstractions
+```
+When the source generator detects that your project has reference to `Microsoft.Extensions.DependencyInjection.Abstractions`,
+it will generate extension methods for supporting custom service providers.
+For example, you can now set your custom service provider with the extension method `Cli.Ext.SetServiceProvider`:
+```c#
+using DotMake.CommandLine;
+using Autofac.Core;
+using Autofac.Core.Registration;
+
+var cb = new ContainerBuilder();
+cb.RegisterType<object>();
+var container = cb.Build();
+
+Cli.Ext.SetServiceProvider(container);
+
+Cli.Run<RootCliCommand>();
 ```
 ## Help output
 

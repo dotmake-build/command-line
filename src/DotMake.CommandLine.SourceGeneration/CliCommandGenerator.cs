@@ -29,7 +29,6 @@ namespace DotMake.CommandLine.SourceGeneration
 
             var cliCommandInfos = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
                 CliCommandInfo.AttributeFullName,
-
                 (syntaxNode, _) => CliCommandInfo.IsMatch(syntaxNode),
                 (attributeSyntaxContext, _) => CliCommandInfo.From(attributeSyntaxContext)
             );
@@ -88,10 +87,16 @@ namespace DotMake.CommandLine.SourceGeneration
                         GetSourceTextFromEmbeddedResource("RequiredMemberAttribute.cs", analyzerConfigOptions)
                     );
 
+                if (referenceDependantInfo.HasMsDependencyInjectionAbstractions)
+                    sourceProductionContext.AddSource(
+                        "(CliServiceProviderExtensions).g.cs",
+                        GetSourceTextFromEmbeddedResource("CliServiceProviderExtensions.cs", analyzerConfigOptions)
+                    );
+
                 if (referenceDependantInfo.HasMsDependencyInjection)
                     sourceProductionContext.AddSource(
-                        "(CliServiceExtensions).g.cs",
-                        GetSourceTextFromEmbeddedResource("CliServiceExtensions.cs", analyzerConfigOptions)
+                        "(CliServiceCollectionExtensions).g.cs",
+                        GetSourceTextFromEmbeddedResource("CliServiceCollectionExtensions.cs", analyzerConfigOptions)
                     );
 
             }

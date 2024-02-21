@@ -15,11 +15,13 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 switch (referencedAssembly.Name)
                 {
+                    case "Microsoft.Extensions.DependencyInjection.Abstractions":
+                        if (referencedAssembly.Version >= new Version(2, 1, 1))
+                            HasMsDependencyInjectionAbstractions = true;
+                        break;
                     case "Microsoft.Extensions.DependencyInjection":
-                        if (referencedAssembly.Version < new Version(6, 0))
-                            continue;
-
-                        HasMsDependencyInjection = true;
+                        if (referencedAssembly.Version >= new Version(2, 1, 1))
+                           HasMsDependencyInjection = true;
                         break;
                 }
             }
@@ -30,6 +32,8 @@ namespace DotMake.CommandLine.SourceGeneration
         public bool HasModuleInitializer { get; }
 
         public bool HasRequiredMember { get; }
+
+        public bool HasMsDependencyInjectionAbstractions { get; }
 
         public bool HasMsDependencyInjection { get; }
 
@@ -42,6 +46,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
             return HasModuleInitializer == other.HasModuleInitializer
                    && HasRequiredMember == other.HasRequiredMember
+                   && HasMsDependencyInjectionAbstractions == other.HasMsDependencyInjectionAbstractions
                    && HasMsDependencyInjection == other.HasMsDependencyInjection;
         }
     }

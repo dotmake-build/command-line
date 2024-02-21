@@ -20,21 +20,14 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Switched to using latest daily builds of System.CommandLine (currently `2.0.0-beta4.24112.1`).
-        Since official `2.0.0-beta4.22272.1` release (dated 6/2/2022), System.CommandLine API is vastly changed
-        so we migrated those changes to DotMake.CommandLine, this way we can get all the bug fixes.
-
-        As daily builds are only published to Microsoft's private feed and not to official NuGet site,
-        we dropped the dependency to System.CommandLine package and instead we are now bundling System.CommandLine DLLs inside our
-        own NuGet package. Once System.CommandLine becomes GA and latest version is published to official NuGet site,
-        we will readd the dependency to System.CommandLine package.
-      - Renamed Global property in CliOptionAttribute to Recursive to match new System.CommandLine API.
-      - In `Cli.Run` and `Cli.RunAsync` methods; configureBuilder, useBuilderDefaults, console parameters are removed and
-        instead they now accept new `CliSettings` parameter, which is used to configure settings in one place.
-      - In `Cli.Parse` methods return type is now ParseResult and ParseResult.Bind method can be used to get an instance for
-        the command definition class.
-      - `InvocationContext` in System.CommandLine latest builds, is removed so we added a new class named `CliContext`
-        which supports command invocation by providing access to parse results and other services.
+      - Added support for other dependency injection containers (e.g. Autofac) when
+        only `Microsoft.Extensions.DependencyInjection.Abstractions` package (version >= 2.1.1) is added to the project.
+        You can set your custom service provider with the extension method `Cli.Ext.SetServiceProvider`.
+        In previous version, this method already existed but accepted a `ServiceProvider` parameter, instead of
+        `IServiceProvider` parameter which allows 3rd party implementations other than the default one in `Microsoft.Extensions.DependencyInjection`.
+      - Reduced minimum version requirement for `Microsoft.Extensions.DependencyInjection` from `6.0.0` to `2.1.1`
+        so that you don't need to update it in legacy projects. Added `Cli.Ext.GetServiceCollection` and
+        `Cli.Ext.GetServiceProviderOrDefault` extension methods.
     </PackageReleaseNotes>
   </PropertyGroup>
 

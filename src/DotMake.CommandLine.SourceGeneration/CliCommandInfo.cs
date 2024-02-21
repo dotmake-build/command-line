@@ -175,7 +175,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 if (Symbol.IsAbstract || Symbol.IsGenericType)
                     AddDiagnostic(DiagnosticDescriptors.ErrorClassNotNonAbstractNonGeneric, DiagnosticName);
 
-                if (!ReferenceDependantInfo.HasMsDependencyInjection
+                if (!ReferenceDependantInfo.HasMsDependencyInjectionAbstractions
                     && !Symbol.InstanceConstructors.Any(c =>
                         c.Parameters.IsEmpty
                         && (c.DeclaredAccessibility == Accessibility.Public || c.DeclaredAccessibility == Accessibility.Internal)
@@ -246,17 +246,27 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 using (sb.AppendBlockStart($"private {definitionClass} CreateInstance()"))
                 {
-                    if (ReferenceDependantInfo.HasMsDependencyInjection)
+                    if (ReferenceDependantInfo.HasMsDependencyInjectionAbstractions || ReferenceDependantInfo.HasMsDependencyInjection)
                     {
-                        sb.AppendLine("var serviceProvider = DotMake.CommandLine.CliServiceExtensions.GetServiceProvider(null);");
+                        sb.AppendLine(ReferenceDependantInfo.HasMsDependencyInjection
+                            ? "var serviceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
+                            : "var serviceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
+                        sb.AppendLine("if (serviceProvider != null)");
+                        sb.AppendIndent();
                         sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
                         sb.AppendIndent();
+                        sb.AppendIndent();
                         sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
-                    }
-                    else if (memberHasRequiredModifier)
+                        //in case serviceProvider is null (i.e. not set with SetServiceProvider)
+                        //call Activator.CreateInstance which will throw exception if class has no default constructor
+                        //but at least it avoids compile time error in generated code with new()
+                        sb.AppendLine();
                         sb.AppendLine($"return System.Activator.CreateInstance<{definitionClass}>();");
+                    }
                     else
-                        sb.AppendLine($"return new {definitionClass}();");
+                        sb.AppendLine(memberHasRequiredModifier
+                            ? $"return System.Activator.CreateInstance<{definitionClass}>();"
+                            : $"return new {definitionClass}();");
                 }
                 sb.AppendLine();
 
