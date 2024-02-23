@@ -1,4 +1,4 @@
-namespace DotMake.CommandLine.Shared.Exceptions;
+namespace DotMake.CommandLine.Shared;
 
 public class InvalidClassException : System.Exception
 {
