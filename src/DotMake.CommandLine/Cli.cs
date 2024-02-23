@@ -111,7 +111,7 @@ namespace DotMake.CommandLine
                 var versionOption = new VersionOption(
                     "version".AddPrefix(commandBuilder.NamePrefixConvention),
                     commandBuilder.ShortFormAutoGenerate
-                        ? new []{ "v".AddPrefix(commandBuilder.ShortFormPrefixConvention) }
+                        ? new[] { "v".AddPrefix(commandBuilder.ShortFormPrefixConvention) }
                         : Array.Empty<string>()
                 )
                 {
@@ -323,6 +323,15 @@ namespace DotMake.CommandLine
                 parseResult.Configuration.Output.WriteLine(ExecutableInfo.Version);
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// Ensures that a TDefinition is valid to be run as a command.
+        /// </summary>
+        /// <typeparam name="TDefinition">The TDefinition to be checked.</typeparam>
+        private static void EnsureValidityForCommand<TDefinition>()
+        {
+            
         }
     }
 }
