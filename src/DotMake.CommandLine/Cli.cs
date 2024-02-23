@@ -111,7 +111,7 @@ namespace DotMake.CommandLine
                 var versionOption = new VersionOption(
                     "version".AddPrefix(commandBuilder.NamePrefixConvention),
                     commandBuilder.ShortFormAutoGenerate
-                        ? new[] { "v".AddPrefix(commandBuilder.ShortFormPrefixConvention) }
+                        ? new []{ "v".AddPrefix(commandBuilder.ShortFormPrefixConvention) }
                         : Array.Empty<string>()
                 )
                 {
