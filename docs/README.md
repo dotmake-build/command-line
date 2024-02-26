@@ -902,10 +902,11 @@ Options:
   -v, --version              Show version information
   -?, -h, --help             Show help and usage information
 ```
-First line comes from `AssemblyProductAttribute` or `AssemblyName`. 
-Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`.
-Second line comes from `AssemblyCopyrightAttribute`.
-Third line comes from `CliCommand.Description` or `AssemblyDescriptionAttribute`.
+- First line comes from `AssemblyProductAttribute` or `AssemblyName` (`<Product>` tag in your .csproj file).  
+  Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`
+  (`<InformationalVersion>` or `<FileVersion >` or `<Version>` tag in your .csproj file).
+- Second line comes from `AssemblyCopyrightAttribute` (`<Copyright>` tag in your .csproj file).
+- Third line comes from `Description` property of `[CliCommand]` or for root commands, `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file).
 
 Note, how command/option/argument names, descriptions and default values are automatically populated.
 

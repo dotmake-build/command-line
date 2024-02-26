@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Reflection;
 using DotMake.CommandLine.Binding;
 
 namespace DotMake.CommandLine
@@ -146,8 +147,19 @@ namespace DotMake.CommandLine
         public static CliCommandBuilder Get(Type definitionType)
         {
             if (!RegisteredDefinitionTypes.TryGetValue(definitionType, out var commandBuilder))
-                throw new Exception($"A registered command builder is not found for '{definitionType}'. " +
+            {
+                if (definitionType.GetCustomAttribute<CliCommandAttribute>() == null)
+                    throw new Exception($"The class '{definitionType.Name}' should have [CliCommand] attribute.");
+
+                var parentWithoutAttribute = definitionType.RecurseWhileNotNull(t => t.DeclaringType)
+                    .FirstOrDefault(t => t.GetCustomAttribute<CliCommandAttribute>() == null);
+                if (parentWithoutAttribute != null) //nested
+                    throw new Exception($"The parent class '{parentWithoutAttribute.Name}' of nested class '{definitionType.Name}' should have [CliCommand] attribute.");
+
+
+                throw new Exception($"A registered command builder is not found for '{definitionType.Name}'. " +
                                     $"Please ensure the source generator is running and generating a command builder for your definition class.");
+            }
 
             return commandBuilder;
         }
@@ -204,7 +216,7 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Gets a parse argument method for an argument type, if it's a collection type.
+        /// Gets an argument parser method for an argument type, if it's a collection type.
         /// <para>
         /// This is mainly used for adding support for all <see cref="IEnumerable{T}"/> compatible types which have
         /// a public constructor with a <see cref="IEnumerable{T}"/> or <see cref="IList{T}"/> parameter (other parameters, if any, should be optional).
@@ -215,17 +227,17 @@ namespace DotMake.CommandLine
         /// <typeparam name="TCollection">The collection type, the argument type itself.</typeparam>
         /// <typeparam name="TItem">The item type, e.g. if argument type is IEnumerable&lt;T&gt;, item type will be T.</typeparam>
         /// <returns>A delegate which can be passed to an option or argument.</returns>
-        public static Func<ArgumentResult, TCollection> GetParseArgument<TCollection, TItem>(Func<Array, TCollection> convertFromArray, Func<string, TItem> convertFromString = null)
+        public static Func<ArgumentResult, TCollection> GetArgumentParser<TCollection, TItem>(Func<Array, TCollection> convertFromArray, Func<string, TItem> convertFromString = null)
         {
             ArgumentConverter.RegisterCollectionConverter(convertFromArray);
             ArgumentConverter.RegisterStringConverter(convertFromString);
 
-            return GetParseArgument<TCollection>();
+            return GetArgumentParser<TCollection>();
         }
 
 
         /// <summary>
-        /// Gets a parse argument method for an argument type.
+        /// Gets an argument parser method for an argument type.
         /// <para>
         /// This is mainly used for adding support for binding custom types which have a public constructor
         /// or a static <c>Parse</c> method with a string parameter (other parameters, if any, should be optional).
@@ -234,7 +246,7 @@ namespace DotMake.CommandLine
         /// <param name="convertFromString">A delegate which creates an instance of custom type from a string.</param>
         /// <typeparam name="TArgument">The argument type.</typeparam>
         /// <returns>A delegate which can be passed to an option or argument.</returns>
-        public static Func<ArgumentResult, TArgument> GetParseArgument<TArgument>(Func<string, TArgument> convertFromString = null)
+        public static Func<ArgumentResult, TArgument> GetArgumentParser<TArgument>(Func<string, TArgument> convertFromString = null)
         {
             ArgumentConverter.RegisterStringConverter(convertFromString);
 

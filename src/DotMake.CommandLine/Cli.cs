@@ -4,6 +4,7 @@ using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,16 +42,20 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Returns a string array containing the command-line arguments for the current process.
+        /// <para>
         /// Uses <see cref="Environment.GetCommandLineArgs"/> but skips the first element which is the executable file name,
         /// so the following zero or more elements that contain the remaining command-line arguments are returned,
         /// i.e. returns the same as the special variable <c>args</c> available in <c>Program.cs</c> (new style with top-level statements)
         /// or as the string array passed to the program's <c>Main</c> method (old style).
+        /// </para>
+        /// <para>Also on Windows platform, backslash + double quote (<c>\&quot;</c>) at the end of an argument,
+        /// is usually a path separator and not an escape for double quote, so it will be trimmed to prevent unnecessary path errors.</para>
         /// </summary>
         /// <returns>An array of strings where each element contains a command-line argument.</returns>
         public static string[] GetArgs()
         {
             if (Environment.GetCommandLineArgs() is { Length: > 0 } args)
-                return args.Skip(1).ToArray();
+                return FixArgs(args.Skip(1).ToArray());
 
             return Array.Empty<string>();
         }
@@ -156,7 +161,7 @@ namespace DotMake.CommandLine
         {
             var configuration = GetConfiguration<TDefinition>(settings);
 
-            return configuration.Invoke(args ?? GetArgs());
+            return configuration.Invoke(FixArgs(args) ?? GetArgs());
         }
 
         /// <summary>
@@ -200,7 +205,7 @@ namespace DotMake.CommandLine
         /// </example>
         public static int Run(Delegate cliCommandAsDelegate, CliSettings settings = null)
         {
-            var definitionType = CliCommandAsDelegateDefinition.Get(cliCommandAsDelegate);
+            var definitionType = CliCommandAsDelegate.Get(cliCommandAsDelegate);
             var configuration = GetConfiguration(definitionType, settings);
 
             return configuration.Invoke(GetArgs());
@@ -224,7 +229,7 @@ namespace DotMake.CommandLine
         {
             var configuration = GetConfiguration<TDefinition>(settings);
 
-            return await configuration.InvokeAsync(args ?? GetArgs(), cancellationToken);
+            return await configuration.InvokeAsync(FixArgs(args) ?? GetArgs(), cancellationToken);
         }
 
         /// <summary>
@@ -259,7 +264,7 @@ namespace DotMake.CommandLine
         /// </example>
         public static async Task<int> RunAsync(Delegate cliCommandAsDelegate, CliSettings settings = null, CancellationToken cancellationToken = default)
         {
-            var definitionType = CliCommandAsDelegateDefinition.Get(cliCommandAsDelegate);
+            var definitionType = CliCommandAsDelegate.Get(cliCommandAsDelegate);
             var configuration = GetConfiguration(definitionType, settings);
 
             return await configuration.InvokeAsync(GetArgs(), cancellationToken);
@@ -281,7 +286,7 @@ namespace DotMake.CommandLine
         {
             var configuration = GetConfiguration<TDefinition>(settings);
 
-            return configuration.Parse(args ?? GetArgs());
+            return configuration.Parse(FixArgs(args) ?? GetArgs());
         }
 
         /// <summary>
@@ -314,6 +319,36 @@ namespace DotMake.CommandLine
             var commandBuilder = CliCommandBuilder.Get<TDefinition>();
 
             return (TDefinition)commandBuilder.Bind(parseResult);
+        }
+
+        private static string[] FixArgs(string[] args)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                && args != null)
+            {
+                /*
+                  On Windows, trim ending double quote:
+                  For example, if a path parameter is passed like this:
+                   --source "C:\myfiles\"
+                  The value comes as
+                   C:\myfiles"
+                  due to CommandLineToArgvW reading backslash as an escape for double quote character.
+                  As on Windows, backslash at the end is usually a path separator, trim it to prevent unnecessary errors.
+                  Note that this is not required for commandLine string as in that case SplitCommandLine is used,
+                  and it already trims double quote characters
+
+                  https://devblogs.microsoft.com/oldnewthing/20100917-00/?p=12833
+                  https://github.com/dotnet/command-line-api/issues/2334
+                  https://github.com/dotnet/command-line-api/issues/2276
+                  https://github.com/dotnet/command-line-api/issues/354
+                */
+                for (var index = 0; index < args.Length; index++)
+                {
+                    args[index] = args[index].TrimEnd('"');
+                }
+            }
+
+            return args;
         }
 
         private sealed class VersionOptionAction : SynchronousCliAction

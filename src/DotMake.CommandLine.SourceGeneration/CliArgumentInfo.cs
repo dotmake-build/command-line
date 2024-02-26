@@ -26,7 +26,7 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = (IPropertySymbol)symbol;
             Parent = parent;
 
-            ParseInfo = new CliArgumentParseInfo(Symbol, syntaxNode, semanticModel, this);
+            ParseInfo = new CliArgumentParserInfo(Symbol, syntaxNode, semanticModel, this);
 
             Analyze();
 
@@ -61,7 +61,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool Required { get; }
 
-        public CliArgumentParseInfo ParseInfo { get; set; }
+        public CliArgumentParserInfo ParseInfo { get; set; }
 
         private void Analyze()
         {
@@ -124,9 +124,12 @@ namespace DotMake.CommandLine.SourceGeneration
                             break;
                     }
                 }
-            }
 
-            ParseInfo.AppendCSharpCallString(sb, $"{varName}.CustomParser");
+                if (!Required)
+                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultValue},");
+
+                ParseInfo.AppendCSharpCallString(sb, "CustomParser", ",");
+            }
 
             if (AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.AllowedValues), out var allowedValuesTypedConstant))
                 sb.AppendLine($"{varName}.AcceptOnlyFromAmong(new[] {allowedValuesTypedConstant.ToCSharpString()});");
@@ -141,9 +144,6 @@ namespace DotMake.CommandLine.SourceGeneration
                 else
                     sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
             }
-
-            if (!Required)
-                sb.AppendLine($"{varName}.DefaultValueFactory = _ => {varDefaultValue};");
 
             //In ArgumentArity.Default, Arity is set to ZeroOrMore for IEnumerable if parent is command,
             //but we want to enforce OneOrMore so that Required is consistent

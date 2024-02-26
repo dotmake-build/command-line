@@ -32,6 +32,8 @@ try
     //Cli.Run<LocalizedCliCommand>(args);
     //Cli.Run<HelpCliCommand>(args);
     //Cli.Run<ValidationCliCommand>(args);
+    //Cli.Run<InvalidCliCommand>(args);
+    //Cli.Run<InvalidCliCommand.SubCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);
@@ -48,10 +50,10 @@ try
     //Cli.Run<UpperCaseCliCommand>(args);
     //Cli.Run<SingleHyphenCliCommand>(args);
     //Cli.Run<ForwardSlashCliCommand>(args);
-    
+
     //Using the default exception handler which prints the exception in red color to console:
     //Cli.Run<RootCliCommand>(args, new CliSettings { EnableDefaultExceptionHandler = true });
-    
+
     //Using Cli.Parse:
     /*
     var parseResult = Cli.Parse<RootCliCommand>(args);

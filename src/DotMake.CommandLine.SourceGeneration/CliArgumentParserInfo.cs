@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
-    public class CliArgumentParseInfo : CliSymbolInfo, IEquatable<CliArgumentParseInfo>
+    public class CliArgumentParserInfo : CliSymbolInfo, IEquatable<CliArgumentParserInfo>
     {
         private static readonly HashSet<string> SupportedConverters = new HashSet<string>
         {
@@ -43,7 +43,7 @@ namespace DotMake.CommandLine.SourceGeneration
             "System.Net.IPEndPoint"
         };
 
-        public CliArgumentParseInfo(IPropertySymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel, CliSymbolInfo parent)
+        public CliArgumentParserInfo(IPropertySymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel, CliSymbolInfo parent)
             : base(symbol, syntaxNode, semanticModel)
         {
             Symbol = symbol;
@@ -109,11 +109,11 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        public void AppendCSharpCallString(CodeStringBuilder sb, string varCustomParser)
+        public void AppendCSharpCallString(CodeStringBuilder sb, string varCustomParser, string afterBlock)
         {
             if (ItemType != null)
             {
-                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetParseArgument<{Type.ToReferenceString()}, {ItemType.ToReferenceString()}>", ";"))
+                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetArgumentParser<{Type.ToReferenceString()}, {ItemType.ToReferenceString()}>", afterBlock))
                 {
                     if (Converter == null)
                         sb.AppendLine("null,");
@@ -141,7 +141,7 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 //Even if argument type does not need a converter, use a ParseArgument method,
                 //so that our custom converter is used for supporting all collection compatible types.
-                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetParseArgument<{Type.ToReferenceString()}>", ";"))
+                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetArgumentParser<{Type.ToReferenceString()}>", afterBlock))
                 {
                     if (Converter == null)
                         sb.AppendLine("null");
@@ -153,7 +153,7 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        public bool Equals(CliArgumentParseInfo other)
+        public bool Equals(CliArgumentParserInfo other)
         {
             return base.Equals(other);
         }

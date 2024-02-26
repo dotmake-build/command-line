@@ -53,8 +53,4 @@
     <EmbeddedResource Remove="..\DotMake.CommandLine.SourceGeneration.Embedded\obj\**\*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Remove="..\DotMake.CommandLine.SourceGeneration.Embedded\CliServiceExtensions.cs" />
-  </ItemGroup>
-
 </Project>

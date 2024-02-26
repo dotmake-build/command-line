@@ -26,7 +26,7 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = (IPropertySymbol)symbol;
             Parent = parent;
 
-            ParseInfo = new CliArgumentParseInfo(Symbol, syntaxNode, semanticModel, this);
+            ParseInfo = new CliArgumentParserInfo(Symbol, syntaxNode, semanticModel, this);
 
             Analyze();
 
@@ -62,7 +62,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool Required { get; }
 
-        public CliArgumentParseInfo ParseInfo { get; set; }
+        public CliArgumentParserInfo ParseInfo { get; set; }
 
         private void Analyze()
         {
@@ -132,9 +132,11 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 //Required is special as it can be calculated when CliOptionAttribute.Required is missing (not forced)
                 sb.AppendLine($"Required = {Required.ToString().ToLowerInvariant()},");
-            }
+                if (!Required)
+                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultValue},");
 
-            ParseInfo.AppendCSharpCallString(sb, $"{varName}.CustomParser");
+                ParseInfo.AppendCSharpCallString(sb, "CustomParser", ",");
+            }
 
             if (AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.AllowedValues), out var allowedValuesTypedConstant))
                 sb.AppendLine($"{varName}.AcceptOnlyFromAmong(new[] {allowedValuesTypedConstant.ToCSharpString()});");
@@ -149,9 +151,6 @@ namespace DotMake.CommandLine.SourceGeneration
                 else
                     sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
             }
-
-            if (!Required)
-                sb.AppendLine($"{varName}.DefaultValueFactory = _ => {varDefaultValue};");
 
             var shortForm = optionName.RemovePrefix();
             if (Parent.Settings.ShortFormAutoGenerate && shortForm.Length >= 2)

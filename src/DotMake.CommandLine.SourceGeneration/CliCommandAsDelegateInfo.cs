@@ -11,7 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliCommandAsDelegateInfo : CliSymbolInfo, IEquatable<CliCommandAsDelegateInfo>
     {
         private const string TaskFullName = "System.Threading.Tasks.Task";
-        public static readonly string CliCommandAsDelegateDefinitionFullName = "DotMake.CommandLine.CliCommandAsDelegateDefinition";
+        public static readonly string CliCommandAsDelegateFullName = "DotMake.CommandLine.CliCommandAsDelegate";
 
         public CliCommandAsDelegateInfo(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
             : base(symbol, syntaxNode, semanticModel)
@@ -109,7 +109,7 @@ namespace DotMake.CommandLine.SourceGeneration
             return GenerateString().GetStableStringHashCode32();
         }
 
-        //The generated string should match the one generated in DotMake.CommandLine.CliCommandAsDelegateDefinition
+        //The generated string should match the one generated in DotMake.CommandLine.CliCommandAsDelegate
         //So that the generated hash matches.
         public string GenerateString()
         {
@@ -199,7 +199,7 @@ namespace DotMake.CommandLine.SourceGeneration
             else
                 sb.AppendLine($"[{CliCommandInfo.AttributeFullName}]");
 
-            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CliCommandAsDelegateDefinitionFullName}"))
+            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CliCommandAsDelegateFullName}"))
             {
                 for (var index = 0; index < ParameterInfos.Count; index++)
                 {

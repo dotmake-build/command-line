@@ -20,14 +20,11 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added support for other dependency injection containers (e.g. Autofac) when
-        only `Microsoft.Extensions.DependencyInjection.Abstractions` package (version >= 2.1.1) is added to the project.
-        You can set your custom service provider with the extension method `Cli.Ext.SetServiceProvider`.
-        In previous version, this method already existed but accepted a `ServiceProvider` parameter, instead of
-        `IServiceProvider` parameter which allows 3rd party implementations other than the default one in `Microsoft.Extensions.DependencyInjection`.
-      - Reduced minimum version requirement for `Microsoft.Extensions.DependencyInjection` from `6.0.0` to `2.1.1`
-        so that you don't need to update it in legacy projects. Added `Cli.Ext.GetServiceCollection` and
-        `Cli.Ext.GetServiceProviderOrDefault` extension methods.
+      - Updated to latest daily build `2.0.0-beta4.24123.1` of System.CommandLine.
+      - Better error message when a passed class does not have a `[CliCommand]` attribute ot it's a nested class and one of its parents
+        does not have a `[CliCommand]` attribute.
+      - On Windows platform, backslash + double quote (`\&quot;`) at the end of an argument,
+        is usually a path separator and not an escape for double quote, so it will be trimmed to prevent unnecessary path errors.
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -40,7 +37,7 @@
       as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
       https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
     -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24112.1">
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24123.1">
       <GeneratePathProperty>true</GeneratePathProperty>
       <IncludeAssets>None</IncludeAssets>
       <ExcludeAssets>All</ExcludeAssets>
