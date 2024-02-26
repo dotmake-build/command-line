@@ -4,11 +4,13 @@
             then the returned instance would be empty (i.e. properties would have default values).
             </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetArgs.htm">GetArgs</a></td><td>
             Returns a string array containing the command-line arguments for the current process.
+            <p>
             Uses <a href="https://learn.microsoft.com/dotnet/api/system.environment.getcommandlineargs#system-environment-getcommandlineargs" target="_blank" rel="noopener noreferrer">GetCommandLineArgs<span id="LST266F5259_2" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a> but skips the first element which is the executable file name,
             so the following zero or more elements that contain the remaining command-line arguments are returned,
             i.e. returns the same as the special variable <span class="code">args</span> available in <span class="code">Program.cs</span> (new style with top-level statements)
             or as the string array passed to the program's <span class="code">Main</span> method (old style).
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetConfiguration.htm">GetConfiguration(Type, CliSettings)</a></td><td>
+            </p><p>Also on Windows platform, backslash + double quote (<span class="code">\"</span>) at the end of an argument,
+            is usually a path separator and not an escape for double quote, so it will be trimmed to prevent unnecessary path errors.</p></td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetConfiguration.htm">GetConfiguration(Type, CliSettings)</a></td><td>
             Gets a CLI configuration for the indicated command.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetConfiguration__1.htm">GetConfiguration<span id="LST266F5259_3" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LST266F5259_4" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(CliSettings)</a></td><td>
             Gets a CLI configuration for the indicated command.
