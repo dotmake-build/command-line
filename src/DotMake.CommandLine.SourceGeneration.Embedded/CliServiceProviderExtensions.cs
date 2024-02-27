@@ -11,7 +11,7 @@ namespace DotMake.CommandLine
     /// used class <see cref="ActivatorUtilities"/> is in <c>Microsoft.Extensions.DependencyInjection.Abstractions</c> assembly.
     /// </para>
     /// </summary>
-    public static class CliServiceProviderExtensions
+    internal static class CliServiceProviderExtensions
     {
         private static IServiceProvider serviceProvider;
 

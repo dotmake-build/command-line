@@ -55,7 +55,7 @@ namespace DotMake.CommandLine.SourceGeneration
 
             Hash = GenerateHash();
             GeneratedClassName = "CliCommandAsDelegate_" + Hash;
-            GeneratedClassNamespace = "GeneratedCode";
+            GeneratedClassNamespace = CliCommandInfo.GeneratedSubNamespace;
             GeneratedClassFullName = string.IsNullOrEmpty(GeneratedClassNamespace)
                 ? GeneratedClassName
                 : GeneratedClassNamespace + "." + GeneratedClassName;

@@ -15,6 +15,7 @@ namespace DotMake.CommandLine.SourceGeneration
         public const string CommandClassName = "CliCommand";
         public const string CommandClassNamespace = "System.CommandLine";
         public const string DiagnosticName = "CLI command";
+        public const string GeneratedSubNamespace = "GeneratedCode";
         public const string GeneratedClassSuffix = "Builder";
         public static readonly string CommandBuilderFullName = "DotMake.CommandLine.CliCommandBuilder";
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>
@@ -45,15 +46,13 @@ namespace DotMake.CommandLine.SourceGeneration
             IsExternalChild = (parent == null) && (Settings.ParentSymbol != null);
 
             GeneratedClassName = symbol.Name + GeneratedClassSuffix;
-            GeneratedClassNamespace = Settings.IsParentContaining
-                ? Settings.GetContainingTypeFullName(GeneratedClassSuffix)
-                : (symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace)
-                    ? string.Empty
-                    : symbol.ContainingNamespace.ToReferenceString();
-            GeneratedClassFullName = string.IsNullOrEmpty(GeneratedClassNamespace)
-                ? GeneratedClassName
-                : GeneratedClassNamespace + "." + GeneratedClassName;
-
+            GeneratedClassNamespace = symbol.GetNamespaceOrEmpty();
+            if (!GeneratedClassNamespace.EndsWith(GeneratedSubNamespace))
+                GeneratedClassNamespace = SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedSubNamespace);
+            GeneratedClassFullName = Settings.IsParentContaining
+                ? SymbolExtensions.CombineNameParts(Settings.GetContainingTypeFullName(GeneratedSubNamespace, GeneratedClassSuffix), GeneratedClassName)
+                : SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
+            
             ReferenceDependantInfo = (parent != null)
                 ? parent.ReferenceDependantInfo
                 : new ReferenceDependantInfo(semanticModel.Compilation);

@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotMake.CommandLine
 {
@@ -10,7 +10,7 @@ namespace DotMake.CommandLine
     /// <br/>Default implementation <see cref="ServiceCollection"/> is in <c>Microsoft.Extensions.DependencyInjection</c> assembly.
     /// </para>
     /// </summary>
-    public static class CliServiceCollectionExtensions
+    internal static class CliServiceCollectionExtensions
     {
         private static readonly IServiceCollection ServiceCollection = new ServiceCollection();
         private static IServiceProvider serviceProvider;

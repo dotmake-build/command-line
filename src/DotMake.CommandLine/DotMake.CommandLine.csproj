@@ -20,11 +20,9 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to latest daily build `2.0.0-beta4.24123.1` of System.CommandLine.
-      - Better error message when a passed class does not have a `[CliCommand]` attribute ot it's a nested class and one of its parents
-        does not have a `[CliCommand]` attribute.
-      - On Windows platform, backslash + double quote (`\&quot;`) at the end of an argument,
-        is usually a path separator and not an escape for double quote, so it will be trimmed to prevent unnecessary path errors.
+      - Fixed "CS0436 : The type 'CliServiceProviderExtensions' in ..." compiler error when project is referenced by another project.
+      - Generated Builder classes will be put in GeneratedCode sub-namespace of the definition class's namespace to prevent namespace pollution.
+        Global GeneratedCode namespace was already being used by delegate-model, now class-based model will use GeneratedCode sub-namespace.
     </PackageReleaseNotes>
   </PropertyGroup>
 

@@ -63,14 +63,27 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        public string GetContainingTypeFullName(string classSuffix)
+        public string GetContainingTypeFullName(string subNamespace, string classSuffix)
         {
             var parentTree = GetParentTree()
                 .Prepend(this) //to include first ParentSymbol
                 .TakeWhile(s => s.IsParentContaining)
                 .Reverse()
                 .Select((s, i) =>
-                    ((i == 0) ? s.ParentSymbol.ToReferenceString() : s.ParentSymbol.Name) + classSuffix);
+                {
+                    var className = s.ParentSymbol.Name + classSuffix;
+                    
+                    if (i == 0)
+                    {
+                        var classNamespace = ParentSymbol.GetNamespaceOrEmpty();
+                        if (!classNamespace.EndsWith(classSuffix))
+                            classNamespace = SymbolExtensions.CombineNameParts(classNamespace, subNamespace);
+
+                        return SymbolExtensions.CombineNameParts(classNamespace, className);
+                    }
+
+                    return className;
+                });
 
             return string.Join(".", parentTree);
         }

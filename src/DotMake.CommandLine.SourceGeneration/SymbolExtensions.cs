@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using System.Linq;
@@ -125,6 +124,18 @@ namespace DotMake.CommandLine.SourceGeneration
                     yield return member;
                 }
             }
+        }
+
+        public static string GetNamespaceOrEmpty(this ISymbol symbol)
+        {
+            return (symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace)
+                ? string.Empty
+                : symbol.ContainingNamespace.ToReferenceString();
+        }
+
+        public static string CombineNameParts(params string[] nameParts)
+        {
+            return string.Join(".", nameParts.Where(n => !string.IsNullOrEmpty(n)));
         }
     }
 }
