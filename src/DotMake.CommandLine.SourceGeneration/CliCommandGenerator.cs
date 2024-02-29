@@ -87,18 +87,19 @@ namespace DotMake.CommandLine.SourceGeneration
                         GetSourceTextFromEmbeddedResource("RequiredMemberAttribute.cs", analyzerConfigOptions)
                     );
 
-                if (referenceDependantInfo.HasMsDependencyInjectionAbstractions)
+                if (!referenceDependantInfo.IsParentCompilation
+                    && referenceDependantInfo.HasMsDependencyInjectionAbstractions)
                     sourceProductionContext.AddSource(
                         "(CliServiceProviderExtensions).g.cs",
                         GetSourceTextFromEmbeddedResource("CliServiceProviderExtensions.cs", analyzerConfigOptions)
                     );
 
-                if (referenceDependantInfo.HasMsDependencyInjection)
+                if (!referenceDependantInfo.IsParentCompilation
+                    && referenceDependantInfo.HasMsDependencyInjection)
                     sourceProductionContext.AddSource(
                         "(CliServiceCollectionExtensions).g.cs",
                         GetSourceTextFromEmbeddedResource("CliServiceCollectionExtensions.cs", analyzerConfigOptions)
                     );
-
             }
             catch (Exception exception)
             {

@@ -33,6 +33,7 @@ namespace DotMake.CommandLine
     /// </summary>
     /// <example>
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
+    ///     <code source="..\TestApp\Commands\RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliOptionAttribute : Attribute

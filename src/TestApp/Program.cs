@@ -34,6 +34,7 @@ try
     //Cli.Run<ValidationCliCommand>(args);
     //Cli.Run<InvalidCliCommand>(args);
     //Cli.Run<InvalidCliCommand.SubCliCommand>(args);
+    //Cli.Run<RecursiveOptionCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);

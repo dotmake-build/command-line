@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
     public class ReferenceDependantInfo : IEquatable<ReferenceDependantInfo>
     {
+        private static readonly HashSet<string> VisitedCompilationAssemblies = new (StringComparer.OrdinalIgnoreCase);
+
         public ReferenceDependantInfo(Compilation compilation)
         {
             Compilation = compilation;
@@ -23,8 +26,36 @@ namespace DotMake.CommandLine.SourceGeneration
                         if (referencedAssembly.Version >= new Version(2, 1, 1))
                            HasMsDependencyInjection = true;
                         break;
+                    default:
+                        /*
+                          We need to inject feature extensions once in child project because if they are also
+                          injected in parent projects, class conflict errors occur (due to same namespace in different assemblies)
+                          CliServiceProviderExtensions and CliServiceCollectionExtensions needs this check as they are used by the user.
+                          ModuleInitializerAttribute and RequiredMemberAttribute does not need this check as they are used by compiler only,
+                          and they are needed for each assembly.
+
+                          This can't be fixed via PackageReference because;
+                          Default value for PrivateAssets in PackageReference is "contentfiles;analyzers;build"
+                          However, source generator still flows to the parent project via ProjectReference.
+                          One solution is to use
+                            <PackageReference Include="DotMake.CommandLine" PrivateAssets="all" />
+                          Although this prevents flow of source generator, it also prevents flow of "compile"
+                          so it becomes useless.
+
+                          First attempt to fix, was making CliServiceProviderExtensions and CliServiceCollectionExtensions
+                          classes internal but the problem resurfaces if user adds InternalsVisibleTo attribute in child project.
+
+                          So we solve this problem, by detecting if current compilation is a parent project in the solution,
+                          if so we do not inject feature extensions as they already come transitively from the child project.
+                          This way we can also keep CliServiceProviderExtensions and CliServiceCollectionExtensions classes public.
+                        */
+                        if (VisitedCompilationAssemblies.Contains(referencedAssembly.ToString()))
+                            IsParentCompilation = true;
+                        break;
                 }
             }
+
+            VisitedCompilationAssemblies.Add(compilation.Assembly.Identity.ToString());
         }
 
         public Compilation Compilation { get; }
@@ -37,6 +68,8 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public bool HasMsDependencyInjection { get; }
 
+        public bool IsParentCompilation { get; }
+
         public bool Equals(ReferenceDependantInfo other)
         {
             if (ReferenceEquals(null, other))
@@ -47,7 +80,8 @@ namespace DotMake.CommandLine.SourceGeneration
             return HasModuleInitializer == other.HasModuleInitializer
                    && HasRequiredMember == other.HasRequiredMember
                    && HasMsDependencyInjectionAbstractions == other.HasMsDependencyInjectionAbstractions
-                   && HasMsDependencyInjection == other.HasMsDependencyInjection;
+                   && HasMsDependencyInjection == other.HasMsDependencyInjection
+                   && IsParentCompilation == other.IsParentCompilation;
         }
     }
 }

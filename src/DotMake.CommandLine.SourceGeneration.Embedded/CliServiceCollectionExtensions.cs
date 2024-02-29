@@ -10,7 +10,7 @@ namespace DotMake.CommandLine
     /// <br/>Default implementation <see cref="ServiceCollection"/> is in <c>Microsoft.Extensions.DependencyInjection</c> assembly.
     /// </para>
     /// </summary>
-    internal static class CliServiceCollectionExtensions
+    public static class CliServiceCollectionExtensions
     {
         private static readonly IServiceCollection ServiceCollection = new ServiceCollection();
         private static IServiceProvider serviceProvider;

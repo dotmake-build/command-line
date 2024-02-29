@@ -20,9 +20,20 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Fixed "CS0436 : The type 'CliServiceProviderExtensions' in ..." compiler error when project is referenced by another project.
-      - Generated Builder classes will be put in GeneratedCode sub-namespace of the definition class's namespace to prevent namespace pollution.
-        Global GeneratedCode namespace was already being used by delegate-model, now class-based model will use GeneratedCode sub-namespace.
+      - Updated to latest daily build `2.0.0-beta4.24126.1` of System.CommandLine.
+      - Fixed compiler error related to CliServiceProviderExtensions and CliServiceCollectionExtensions when project is referenced
+        by another project. Class conflict errors occur due to same namespace in different assemblies.
+
+        This can't be fixed via PrivateAssets in PackageReference because although default value is "contentfiles;analyzers;build",
+        source generator still flows to the parent project via ProjectReference and PrivateAssets="all" prevents flow of
+        source generator but it also prevents flow of "compile" so it becomes useless.
+
+        First attempt to fix (in v1.8.3), was making CliServiceProviderExtensions and CliServiceCollectionExtensions
+        classes internal but the problem resurfaces if user adds InternalsVisibleTo attribute in child project.
+
+        So we finally solve this problem, by detecting if current compilation is a parent project in the solution,
+        if so we do not inject feature extensions as they already come transitively from the child project.
+        This way we can also keep CliServiceProviderExtensions and CliServiceCollectionExtensions classes public.
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -35,7 +46,7 @@
       as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
       https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
     -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24123.1">
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24126.1">
       <GeneratePathProperty>true</GeneratePathProperty>
       <IncludeAssets>None</IncludeAssets>
       <ExcludeAssets>All</ExcludeAssets>
