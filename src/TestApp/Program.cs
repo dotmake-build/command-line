@@ -28,6 +28,7 @@ try
     //Cli.Run<RootSnakeSlashCliCommand>(args);
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);
     //Cli.Run<RootWithExternalChildrenCliCommand>(args);
+    //Cli.Run<RootWithNestedChildrenReferencingRootCliCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
     //Cli.Run<LocalizedCliCommand>(args);
     //Cli.Run<HelpCliCommand>(args);
