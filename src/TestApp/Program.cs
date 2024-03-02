@@ -41,6 +41,22 @@ try
     //await Cli.RunAsync<AsyncVoidReturnCliCommand>(args);
     //await Cli.RunAsync<AsyncIntReturnCliCommand>(args);
 
+    //Using themes:
+    //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Red });
+    //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkRed });
+    //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Green });
+    //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkGreen });
+    //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Blue });
+    //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkBlue });
+    /*Cli.Run<RootCliCommand>(args, new CliSettings
+    {
+        Theme = new CliTheme(CliTheme.Default)
+        {
+            HeadingCasing = CliNameCasingConvention.UpperCase,
+            HeadingNoColon = true
+        }
+    });*/
+    
     //Misc:
     //Cli.Run<GlobalNamespaceCliCommand>(args);
     //Cli.Run<NullableReferenceCommand>(args);

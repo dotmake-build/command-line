@@ -17,6 +17,8 @@ Supports
 
 [![Nuget](https://img.shields.io/nuget/v/DotMake.CommandLine?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/DotMake.CommandLine)
 
+![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
+
 ## Getting started
 
 Install the library to your console app project with  [NuGet](https://www.nuget.org/).
@@ -56,10 +58,7 @@ Cli.Run(([CliArgument]string arg1, bool opt1) =>
     Console.WriteLine($@"Value for {nameof(opt1)} parameter is '{opt1}'");
 });
 ```
-And that's it! You now have a fully working command-line app:
-
-![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
-
+And that's it! You now have a fully working command-line app.
 
 #### Summary
 - Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
@@ -985,6 +984,33 @@ Options:
 ```
 Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
 
+### Themes
+
+Cli app theme can be changed via setting `CliSettings.Theme` property to predefined themes Red, DarkRed, Green, DarkGreen, Blue, DarkBlue
+or a custom `CliTheme`. These color and formatting option are mainly used by the help output.
+
+```c#
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Red });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkRed });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Green });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkGreen });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Blue });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkBlue });
+
+Cli.Run<RootCliCommand>(args, new CliSettings
+{
+    Theme = new CliTheme(CliTheme.Default)
+    {
+        HeadingCasing = CliNameCasingConvention.UpperCase,
+        HeadingNoColon = true
+    }
+});
+```
 ### Localization
 
 Localizing commands, options and arguments is supported.

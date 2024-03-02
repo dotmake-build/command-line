@@ -42,10 +42,10 @@ namespace DotMake.CommandLine.SourceGeneration
                           Although this prevents flow of source generator, it also prevents flow of "compile"
                           so it becomes useless.
 
-                          First attempt to fix, was making CliServiceProviderExtensions and CliServiceCollectionExtensions
+                          First attempt to fix (in v1.8.3), was making CliServiceProviderExtensions and CliServiceCollectionExtensions
                           classes internal but the problem resurfaces if user adds InternalsVisibleTo attribute in child project.
 
-                          So we solve this problem, by detecting if current compilation is a parent project in the solution,
+                          So we finally solve this problem, by detecting if current compilation is a parent project in the solution,
                           if so we do not inject feature extensions as they already come transitively from the child project.
                           This way we can also keep CliServiceProviderExtensions and CliServiceCollectionExtensions classes public.
                         */

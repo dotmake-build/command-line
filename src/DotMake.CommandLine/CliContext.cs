@@ -62,7 +62,7 @@ namespace DotMake.CommandLine
                 {
                     Action = new HelpAction
                     {
-                        Builder = new CliHelpBuilder(Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
+                        Builder = new CliHelpBuilder(CliTheme.Default, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
                     }
                 };
 

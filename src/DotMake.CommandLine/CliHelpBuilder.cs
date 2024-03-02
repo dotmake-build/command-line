@@ -18,14 +18,17 @@ namespace DotMake.CommandLine
     public class CliHelpBuilder : HelpBuilder
     {
         private const string Indent = "  ";
+        private readonly CliTheme theme;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliHelpBuilder" /> class.
         /// </summary>
+        /// <param name="theme">The theme to use for help output</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        public CliHelpBuilder(int maxWidth = int.MaxValue)
+        public CliHelpBuilder(CliTheme theme, int maxWidth = int.MaxValue)
             : base(maxWidth)
         {
+            this.theme = theme;
             //CustomizeLayout(GetLayout);
         }
 
@@ -82,6 +85,7 @@ namespace DotMake.CommandLine
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteSynopsisSection(HelpContext helpContext)
         {
+            ConsoleExtensions.SetColor(theme.SynopsisColor, theme.DefaultColor);
             helpContext.Output.Write(ExecutableInfo.Product);
             if (!string.IsNullOrWhiteSpace(ExecutableInfo.Version))
                 helpContext.Output.Write(" v{0}", ExecutableInfo.Version);
@@ -104,12 +108,11 @@ namespace DotMake.CommandLine
 
                 if (hasName)
                 {
-                    ConsoleExtensions.SetForegroundColor(ConsoleColor.White);
-                    if (hasDescription)
-                        helpContext.Output.Write(name);
-                    else
-                        helpContext.Output.WriteLine(name);
-                    ConsoleExtensions.ResetForegroundColor();
+                    ConsoleExtensions.SetColor(theme.FirstColumnColor, theme.DefaultColor);
+                    helpContext.Output.Write(name);
+                    ConsoleExtensions.SetColor(theme.SynopsisColor, theme.DefaultColor);
+                    if (!hasDescription)
+                        helpContext.Output.WriteLine();
                 }
 
                 if (hasDescription)
@@ -126,12 +129,7 @@ namespace DotMake.CommandLine
                 }
             }
 
-            /*
-            WriteHeading(
-                LocalizationResources.HelpDescriptionTitle(),
-                helpContext.Command.Description,
-                helpContext.Output
-            );*/
+            ConsoleExtensions.SetColor(theme.DefaultColor);
 
             return true;
         }
@@ -191,8 +189,8 @@ namespace DotMake.CommandLine
         /// <code language="console">
         /// Options:
         ///   -o, --option-1 &lt;option-1&gt;  Description for Option1 [default: DefaultForOption1]
-        ///   -v, --version Show version information
-        ///   -?, -h, --help Show help and usage information
+        ///   -v, --version              Show version information
+        ///   -?, -h, --help             Show help and usage information
         /// </code>
         /// </summary>
         /// <param name="helpContext">The help context.</param>
@@ -299,7 +297,12 @@ namespace DotMake.CommandLine
         {
             if (!string.IsNullOrWhiteSpace(heading))
             {
+                heading = heading.ToCase(theme.HeadingCasing);
+                if (theme.HeadingNoColon)
+                    heading = heading.TrimEnd(':');
+                ConsoleExtensions.SetColor(theme.HeadingColor, theme.DefaultColor);
                 writer.WriteLine(heading);
+                ConsoleExtensions.SetColor(theme.DefaultColor);
             }
 
             if (!string.IsNullOrWhiteSpace(description))
@@ -349,9 +352,9 @@ namespace DotMake.CommandLine
                 foreach (var (first, second) in ZipWithEmpty(firstColumnParts, secondColumnParts))
                 {
                     /*MODIFY*/
-                    ConsoleExtensions.SetForegroundColor(ConsoleColor.White);
+                    ConsoleExtensions.SetColor(theme.FirstColumnColor, theme.DefaultColor);
                     context.Output.Write($"{Indent}{first}");
-                    ConsoleExtensions.ResetForegroundColor();
+                    ConsoleExtensions.SetColor(theme.DefaultColor);
                     /*MODIFY*/
 
                     if (!string.IsNullOrWhiteSpace(second))
@@ -363,7 +366,9 @@ namespace DotMake.CommandLine
                             padding = new string(' ', padSize);
                         }
 
+                        ConsoleExtensions.SetColor(theme.SecondColumnColor, theme.DefaultColor);
                         context.Output.Write($"{padding}{Indent}{second}");
+                        ConsoleExtensions.SetColor(theme.DefaultColor);
                     }
 
                     context.Output.WriteLine();

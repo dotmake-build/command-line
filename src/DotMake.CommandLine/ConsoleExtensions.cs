@@ -17,15 +17,37 @@ namespace DotMake.CommandLine
             && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS"))
             && !RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS"));
 
-        public static void SetForegroundColor(ConsoleColor color)
+        public static void SetColor(ConsoleColor? color, ConsoleColor? defaultColor = null)
         {
             if (ColorIsSupported && !Console.IsOutputRedirected)
             {
-                Console.ForegroundColor = color;
+                //Color 07 will set it to the default scheme that cmd.exe uses.
+                //0 = Black
+                //7 = White  (ConsoleColor.Gray is 7)
+                //https://superuser.com/a/158769
+                if (color == null)
+                    Console.ForegroundColor = defaultColor ?? ConsoleColor.Gray;
+                else
+                    Console.ForegroundColor = color.Value;
             }
         }
 
-        public static void ResetForegroundColor()
+        public static void SetBgColor(ConsoleColor? color, ConsoleColor? defaultColor = null)
+        {
+            if (ColorIsSupported && !Console.IsOutputRedirected)
+            {
+                //Color 07 will set it to the default scheme that cmd.exe uses.
+                //0 = Black
+                //7 = White  (ConsoleColor.Gray is 7)
+                //https://superuser.com/a/158769
+                if (color == null)
+                    Console.BackgroundColor = defaultColor ?? ConsoleColor.Black;
+                else
+                    Console.BackgroundColor = color.Value;
+            }
+        }
+
+        public static void ResetColor()
         {
             if (ColorIsSupported && !Console.IsOutputRedirected)
             {

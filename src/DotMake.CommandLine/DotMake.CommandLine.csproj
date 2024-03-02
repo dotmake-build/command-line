@@ -20,20 +20,8 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to latest daily build `2.0.0-beta4.24126.1` of System.CommandLine.
-      - Fixed compiler error related to CliServiceProviderExtensions and CliServiceCollectionExtensions when project is referenced
-        by another project. Class conflict errors occur due to same namespace in different assemblies.
-
-        This can't be fixed via PrivateAssets in PackageReference because although default value is "contentfiles;analyzers;build",
-        source generator still flows to the parent project via ProjectReference and PrivateAssets="all" prevents flow of
-        source generator but it also prevents flow of "compile" so it becomes useless.
-
-        First attempt to fix (in v1.8.3), was making CliServiceProviderExtensions and CliServiceCollectionExtensions
-        classes internal but the problem resurfaces if user adds InternalsVisibleTo attribute in child project.
-
-        So we finally solve this problem, by detecting if current compilation is a parent project in the solution,
-        if so we do not inject feature extensions as they already come transitively from the child project.
-        This way we can also keep CliServiceProviderExtensions and CliServiceCollectionExtensions classes public.
+      - Added theme support. CliSettings.Theme property can be set to predefined themes Red, DarkRed, Green, DarkGreen, Blue, DarkBlue
+        or a custom CliTheme. These color and formatting option are mainly used by the help output.
     </PackageReleaseNotes>
   </PropertyGroup>
 

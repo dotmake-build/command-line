@@ -83,16 +83,19 @@ namespace DotMake.CommandLine
             var commandBuilder = CliCommandBuilder.Get(definitionType);
             var command = commandBuilder.Build();
 
-            settings = settings ?? new CliSettings();
+            settings ??= new CliSettings();
             var configuration = new CliConfiguration(command)
             {
                 EnablePosixBundling = settings.EnablePosixBundling,
                 EnableDefaultExceptionHandler = settings.EnableDefaultExceptionHandler,
                 ProcessTerminationTimeout = settings.ProcessTerminationTimeout,
-                ResponseFileTokenReplacer = settings.ResponseFileTokenReplacer,
-                Output = settings.Output,
-                Error = settings.Error
+                ResponseFileTokenReplacer = settings.ResponseFileTokenReplacer
             };
+
+            if (settings.Output != null) //Console.Out is NOT being used
+                configuration.Output = settings.Output;
+            if (settings.Error != null) //Console.Error is NOT being used
+                configuration.Error = settings.Error;
 
             if (command is CliRootCommand rootCommand)
             {
@@ -108,7 +111,7 @@ namespace DotMake.CommandLine
                 {
                     Action = new HelpAction
                     {
-                        Builder = new CliHelpBuilder(Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
+                        Builder = new CliHelpBuilder(settings.Theme, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
                     }
                 };
                 rootCommand.Options.Add(helpOption);
@@ -159,9 +162,14 @@ namespace DotMake.CommandLine
         /// </example>
         public static int Run<TDefinition>(string[] args = null, CliSettings settings = null)
         {
-            var configuration = GetConfiguration<TDefinition>(settings);
+            settings ??= new CliSettings();
 
-            return configuration.Invoke(FixArgs(args) ?? GetArgs());
+            using (new CliSession(settings))
+            {
+                var configuration = GetConfiguration<TDefinition>(settings);
+
+                return configuration.Invoke(FixArgs(args) ?? GetArgs());
+            }
         }
 
         /// <summary>
@@ -177,9 +185,14 @@ namespace DotMake.CommandLine
         /// </example>
         public static int Run<TDefinition>(string commandLine, CliSettings settings = null)
         {
-            var configuration = GetConfiguration<TDefinition>(settings);
+            settings ??= new CliSettings();
 
-            return configuration.Invoke(commandLine);
+            using (new CliSession(settings))
+            {
+                var configuration = GetConfiguration<TDefinition>(settings);
+
+                return configuration.Invoke(commandLine);
+            }
         }
 
         /// <summary>
@@ -205,10 +218,15 @@ namespace DotMake.CommandLine
         /// </example>
         public static int Run(Delegate cliCommandAsDelegate, CliSettings settings = null)
         {
-            var definitionType = CliCommandAsDelegate.Get(cliCommandAsDelegate);
-            var configuration = GetConfiguration(definitionType, settings);
+            settings ??= new CliSettings();
 
-            return configuration.Invoke(GetArgs());
+            using (new CliSession(settings))
+            {
+                var definitionType = CliCommandAsDelegate.Get(cliCommandAsDelegate);
+                var configuration = GetConfiguration(definitionType, settings);
+
+                return configuration.Invoke(GetArgs());
+            }
         }
 
 
@@ -227,9 +245,14 @@ namespace DotMake.CommandLine
         /// </example>
         public static async Task<int> RunAsync<TDefinition>(string[] args = null, CliSettings settings = null, CancellationToken cancellationToken = default)
         {
-            var configuration = GetConfiguration<TDefinition>(settings);
+            settings ??= new CliSettings();
 
-            return await configuration.InvokeAsync(FixArgs(args) ?? GetArgs(), cancellationToken);
+            using (new CliSession(settings))
+            {
+                var configuration = GetConfiguration<TDefinition>(settings);
+
+                return await configuration.InvokeAsync(FixArgs(args) ?? GetArgs(), cancellationToken);
+            }
         }
 
         /// <summary>
@@ -246,9 +269,14 @@ namespace DotMake.CommandLine
         /// </example>
         public static async Task<int> RunAsync<TDefinition>(string commandLine, CliSettings settings = null, CancellationToken cancellationToken = default)
         {
-            var configuration = GetConfiguration<TDefinition>(settings);
+            settings ??= new CliSettings();
 
-            return await configuration.InvokeAsync(commandLine, cancellationToken);
+            using (new CliSession(settings))
+            {
+                var configuration = GetConfiguration<TDefinition>(settings);
+
+                return await configuration.InvokeAsync(commandLine, cancellationToken);
+            }
         }
 
         /// <summary>
@@ -264,10 +292,15 @@ namespace DotMake.CommandLine
         /// </example>
         public static async Task<int> RunAsync(Delegate cliCommandAsDelegate, CliSettings settings = null, CancellationToken cancellationToken = default)
         {
-            var definitionType = CliCommandAsDelegate.Get(cliCommandAsDelegate);
-            var configuration = GetConfiguration(definitionType, settings);
+            settings ??= new CliSettings();
 
-            return await configuration.InvokeAsync(GetArgs(), cancellationToken);
+            using (new CliSession(settings))
+            {
+                var definitionType = CliCommandAsDelegate.Get(cliCommandAsDelegate);
+                var configuration = GetConfiguration(definitionType, settings);
+
+                return await configuration.InvokeAsync(GetArgs(), cancellationToken);
+            }
         }
 
 

@@ -1,7 +1,6 @@
 using System;
 using System.CommandLine.Parsing;
 using System.IO;
-using System.Text;
 
 namespace DotMake.CommandLine
 {
@@ -82,35 +81,24 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets the standard output. Used by Help and other facilities that write non-error information.
-        /// By default, it's set to <see cref="P:System.Console.Out" /> with encoding set to UTF8.
+        /// <para>Default is <see langword="null" /> which means <see cref="P:System.Console.Out" /> with encoding set to UTF8, will be used.</para>
         /// For testing purposes, it can be set to a new instance of <see cref="T:System.IO.StringWriter" />.
         /// If you want to disable the output, please set it to <see cref="F:System.IO.TextWriter.Null" />.
         /// </summary>
-        public TextWriter Output
-        {
-            get
-            {
-                if (output == null)
-                {
-                    //Important, encoding must be set before accessing Console.Out (there seems to be some kind of delay?),
-                    //otherwise it's not updated until next execution of the app.
-                    //Related: https://stackoverflow.com/questions/45513075/why-does-checking-the-console-outputencoding-take-so-long
-                    ConsoleExtensions.SetOutputEncoding(Encoding.UTF8);
-                    output = Console.Out;
-                }
-
-                return output;
-            }
-            set => output = value;
-        }
-        private TextWriter output;
+        public TextWriter Output { get; set; }
 
         /// <summary>
         /// Gets or sets the standard error. Used for printing error information like parse errors.
-        /// By default, it's set to <see cref="P:System.Console.Error" />.
+        /// <para>Default is <see langword="null" /> which means <see cref="P:System.Console.Error" />, will be used.</para>
         /// For testing purposes, it can be set to a new instance of <see cref="T:System.IO.StringWriter" />.
         /// If you want to disable the output, please set it to <see cref="F:System.IO.TextWriter.Null" />.
         /// </summary>
-        public TextWriter Error { get; set; } = Console.Error;
+        public TextWriter Error { get; set; }
+
+        /// <summary>
+        /// Gets or sets the theme used by the <see cref="Cli" />. These color and formatting option are mainly used by the help output.
+        /// <para>Default is <see  cref="CliTheme.Default"/>.</para>
+        /// </summary>
+        public CliTheme Theme { get; set; } = CliTheme.Default;
     }
 }
