@@ -6,12 +6,12 @@
 namespace TestApp.Commands.GeneratedCode
 {
     /// <inheritdoc />
-    public class RootWithNestedChildrenCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
+    public class RootWithNestedChildrenReferencingRootCliCommandBuilder : DotMake.CommandLine.CliCommandBuilder
     {
         /// <inheritdoc />
-        public RootWithNestedChildrenCliCommandBuilder()
+        public RootWithNestedChildrenReferencingRootCliCommandBuilder()
         {
-            DefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenCliCommand);
+            DefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand);
             ParentDefinitionType = null;
             NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
             NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
@@ -19,15 +19,15 @@ namespace TestApp.Commands.GeneratedCode
             ShortFormAutoGenerate = true;
         }
 
-        private TestApp.Commands.RootWithNestedChildrenCliCommand CreateInstance()
+        private TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand CreateInstance()
         {
-            return new TestApp.Commands.RootWithNestedChildrenCliCommand();
+            return new TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand();
         }
 
         /// <inheritdoc />
         public override System.CommandLine.CliCommand Build()
         {
-            // Command for 'RootWithNestedChildrenCliCommand' class
+            // Command for 'RootWithNestedChildrenReferencingRootCliCommand' class
             var rootCommand = new System.CommandLine.CliRootCommand()
             {
                 Description = "A root cli command with nested children",
@@ -35,30 +35,31 @@ namespace TestApp.Commands.GeneratedCode
 
             var defaultClass = CreateInstance();
 
-            // Option for 'Option1' property
+            // Option for 'GlobalOption1' property
             var option0 = new System.CommandLine.CliOption<string>
             (
-                "--option-1"
+                "--global-option-1"
             )
             {
-                Description = "Description for Option1",
+                Recursive = true,
+                Description = "This is a global option (Recursive option on the root command), it can appear anywhere on the command line",
                 Required = false,
-                DefaultValueFactory = _ => defaultClass.Option1,
+                DefaultValueFactory = _ => defaultClass.GlobalOption1,
                 CustomParser = GetArgumentParser<string>
                 (
                     null
                 ),
             };
-            option0.Aliases.Add("-o");
+            option0.Aliases.Add("-g");
             rootCommand.Add(option0);
 
-            // Argument for 'Argument1' property
+            // Argument for 'RootArgument1' property
             var argument0 = new System.CommandLine.CliArgument<string>
             (
-                "argument-1"
+                "root-argument-1"
             )
             {
-                Description = "Description for Argument1",
+                Description = "Description for RootArgument1",
                 CustomParser = GetArgumentParser<string>
                 (
                     null
@@ -77,10 +78,10 @@ namespace TestApp.Commands.GeneratedCode
                 var targetClass = CreateInstance();
 
                 //  Set the parsed or default values for the options
-                targetClass.Option1 = GetValueForOption(cliBindContext.ParseResult, option0);
+                targetClass.GlobalOption1 = GetValueForOption(cliBindContext.ParseResult, option0);
 
                 //  Set the parsed or default values for the arguments
-                targetClass.Argument1 = GetValueForArgument(cliBindContext.ParseResult, argument0);
+                targetClass.RootArgument1 = GetValueForArgument(cliBindContext.ParseResult, argument0);
 
                 //  Set the values for the parent command references
 
@@ -90,7 +91,7 @@ namespace TestApp.Commands.GeneratedCode
             rootCommand.SetAction(parseResult =>
             {
                 var cliBindContext = new DotMake.CommandLine.CliBindContext(parseResult);
-                var targetClass = (TestApp.Commands.RootWithNestedChildrenCliCommand) BindFunc(cliBindContext);
+                var targetClass = (TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand) BindFunc(cliBindContext);
 
                 //  Call the command handler
                 var cliContext = new DotMake.CommandLine.CliContext(parseResult);
@@ -105,7 +106,7 @@ namespace TestApp.Commands.GeneratedCode
         [System.Runtime.CompilerServices.ModuleInitializerAttribute]
         internal static void Initialize()
         {
-            var commandBuilder = new TestApp.Commands.GeneratedCode.RootWithNestedChildrenCliCommandBuilder();
+            var commandBuilder = new TestApp.Commands.GeneratedCode.RootWithNestedChildrenReferencingRootCliCommandBuilder();
 
             // Register this command builder so that it can be found by the definition class
             // and it can be found by the parent definition class if it's a nested/external child.
@@ -118,17 +119,17 @@ namespace TestApp.Commands.GeneratedCode
             /// <inheritdoc />
             public Level1SubCliCommandBuilder()
             {
-                DefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand);
-                ParentDefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenCliCommand);
+                DefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand);
+                ParentDefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand);
                 NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
                 NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
                 ShortFormPrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
                 ShortFormAutoGenerate = true;
             }
 
-            private TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand CreateInstance()
+            private TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand CreateInstance()
             {
-                return new TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand();
+                return new TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand();
             }
 
             /// <inheritdoc />
@@ -137,26 +138,27 @@ namespace TestApp.Commands.GeneratedCode
                 // Command for 'Level1SubCliCommand' class
                 var command = new System.CommandLine.CliCommand("level-1")
                 {
-                    Description = "A nested level 1 sub-command",
+                    Description = "A nested level 1 sub-command which accesses the root command",
                 };
 
                 var defaultClass = CreateInstance();
 
-                // Option for 'Option1' property
+                // Option for 'Level1RecursiveOption1' property
                 var option0 = new System.CommandLine.CliOption<string>
                 (
-                    "--option-1"
+                    "--level-1-recursive-option-1"
                 )
                 {
-                    Description = "Description for Option1",
+                    Recursive = true,
+                    Description = "This is global for all sub commands (it can appear anywhere after the level-1 verb)",
                     Required = false,
-                    DefaultValueFactory = _ => defaultClass.Option1,
+                    DefaultValueFactory = _ => defaultClass.Level1RecursiveOption1,
                     CustomParser = GetArgumentParser<string>
                     (
                         null
                     ),
                 };
-                option0.Aliases.Add("-o");
+                option0.Aliases.Add("-l");
                 command.Add(option0);
 
                 // Argument for 'Argument1' property
@@ -184,12 +186,13 @@ namespace TestApp.Commands.GeneratedCode
                     var targetClass = CreateInstance();
 
                     //  Set the parsed or default values for the options
-                    targetClass.Option1 = GetValueForOption(cliBindContext.ParseResult, option0);
+                    targetClass.Level1RecursiveOption1 = GetValueForOption(cliBindContext.ParseResult, option0);
 
                     //  Set the parsed or default values for the arguments
                     targetClass.Argument1 = GetValueForArgument(cliBindContext.ParseResult, argument0);
 
                     //  Set the values for the parent command references
+                    targetClass.RootCommand = cliBindContext.BindOrGetBindResult<TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand>();
 
                     return targetClass;
                 };
@@ -197,7 +200,7 @@ namespace TestApp.Commands.GeneratedCode
                 command.SetAction(parseResult =>
                 {
                     var cliBindContext = new DotMake.CommandLine.CliBindContext(parseResult);
-                    var targetClass = (TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand) BindFunc(cliBindContext);
+                    var targetClass = (TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand) BindFunc(cliBindContext);
 
                     //  Call the command handler
                     var cliContext = new DotMake.CommandLine.CliContext(parseResult);
@@ -212,7 +215,7 @@ namespace TestApp.Commands.GeneratedCode
             [System.Runtime.CompilerServices.ModuleInitializerAttribute]
             internal static void Initialize()
             {
-                var commandBuilder = new TestApp.Commands.GeneratedCode.RootWithNestedChildrenCliCommandBuilder.Level1SubCliCommandBuilder();
+                var commandBuilder = new TestApp.Commands.GeneratedCode.RootWithNestedChildrenReferencingRootCliCommandBuilder.Level1SubCliCommandBuilder();
 
                 // Register this command builder so that it can be found by the definition class
                 // and it can be found by the parent definition class if it's a nested/external child.
@@ -225,17 +228,17 @@ namespace TestApp.Commands.GeneratedCode
                 /// <inheritdoc />
                 public Level2SubCliCommandBuilder()
                 {
-                    DefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand.Level2SubCliCommand);
-                    ParentDefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand);
+                    DefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand.Level2SubCliCommand);
+                    ParentDefinitionType = typeof(TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand);
                     NameCasingConvention = DotMake.CommandLine.CliNameCasingConvention.KebabCase;
                     NamePrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.DoubleHyphen;
                     ShortFormPrefixConvention = DotMake.CommandLine.CliNamePrefixConvention.SingleHyphen;
                     ShortFormAutoGenerate = true;
                 }
 
-                private TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand.Level2SubCliCommand CreateInstance()
+                private TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand.Level2SubCliCommand CreateInstance()
                 {
-                    return new TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand.Level2SubCliCommand();
+                    return new TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand.Level2SubCliCommand();
                 }
 
                 /// <inheritdoc />
@@ -244,7 +247,7 @@ namespace TestApp.Commands.GeneratedCode
                     // Command for 'Level2SubCliCommand' class
                     var command = new System.CommandLine.CliCommand("level-2")
                     {
-                        Description = "A nested level 2 sub-command",
+                        Description = "A nested level 2 sub-command which accesses its parent commands",
                     };
 
                     var defaultClass = CreateInstance();
@@ -297,6 +300,8 @@ namespace TestApp.Commands.GeneratedCode
                         targetClass.Argument1 = GetValueForArgument(cliBindContext.ParseResult, argument0);
 
                         //  Set the values for the parent command references
+                        targetClass.RootCommand = cliBindContext.BindOrGetBindResult<TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand>();
+                        targetClass.ParentCommand = cliBindContext.BindOrGetBindResult<TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand>();
 
                         return targetClass;
                     };
@@ -304,7 +309,7 @@ namespace TestApp.Commands.GeneratedCode
                     command.SetAction(parseResult =>
                     {
                         var cliBindContext = new DotMake.CommandLine.CliBindContext(parseResult);
-                        var targetClass = (TestApp.Commands.RootWithNestedChildrenCliCommand.Level1SubCliCommand.Level2SubCliCommand) BindFunc(cliBindContext);
+                        var targetClass = (TestApp.Commands.RootWithNestedChildrenReferencingRootCliCommand.Level1SubCliCommand.Level2SubCliCommand) BindFunc(cliBindContext);
 
                         //  Call the command handler
                         var cliContext = new DotMake.CommandLine.CliContext(parseResult);
@@ -319,7 +324,7 @@ namespace TestApp.Commands.GeneratedCode
                 [System.Runtime.CompilerServices.ModuleInitializerAttribute]
                 internal static void Initialize()
                 {
-                    var commandBuilder = new TestApp.Commands.GeneratedCode.RootWithNestedChildrenCliCommandBuilder.Level1SubCliCommandBuilder.Level2SubCliCommandBuilder();
+                    var commandBuilder = new TestApp.Commands.GeneratedCode.RootWithNestedChildrenReferencingRootCliCommandBuilder.Level1SubCliCommandBuilder.Level2SubCliCommandBuilder();
 
                     // Register this command builder so that it can be found by the definition class
                     // and it can be found by the parent definition class if it's a nested/external child.
