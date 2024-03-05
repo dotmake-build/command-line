@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -64,13 +65,19 @@ namespace DotMake.CommandLine.SourceGeneration
 
             var visitedProperties = new Dictionary<string, ISymbol>(StringComparer.Ordinal);
             var addedProperties = new HashSet<string>(StringComparer.Ordinal);
+            Dictionary<ITypeSymbol, (int Index, CliCommandSettings Settings)> ancestorsByType = Settings
+                .GetParentTree()
+                .Select((s, i) => (i, Setings: s))
+                .ToDictionary(x => x.Setings.Symbol, (IEqualityComparer<ITypeSymbol>)SymbolEqualityComparer.Default);
+
             foreach (var member in Symbol.GetAllMembers())
             {
-                if (member is IPropertySymbol)
+                if (member is IPropertySymbol property)
                 {
                     if (addedProperties.Contains(member.Name))
                         continue;
 
+                    bool added = false;
                     foreach (var memberAttributeData in member.GetAttributes())
                     {
                         var attributeFullName = memberAttributeData.AttributeClass?.ToCompareString();
@@ -81,11 +88,18 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             childOptions.Add(new CliOptionInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
                             addedProperties.Add(member.Name);
+                            added = true;
                         } else if (attributeFullName == CliArgumentInfo.AttributeFullName)
                         {
                             childArguments.Add(new CliArgumentInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
                             addedProperties.Add(member.Name);
+                            added = true;
                         }
+                    }
+                    if (!added && ancestorsByType.TryGetValue(property.Type, out var ancestorInfo))
+                    {
+                        childParentCommandRefs.Add(new CliParentCommandRefInfo(property, null, SemanticModel, ancestorInfo.Index, ancestorInfo.Settings));
+                        addedProperties.Add(member.Name);
                     }
 
                     if (!visitedProperties.ContainsKey(member.Name))
@@ -164,6 +178,9 @@ namespace DotMake.CommandLine.SourceGeneration
         public IReadOnlyList<CliCommandInfo> ChildCommands => childCommands;
         private readonly List<CliCommandInfo> childCommands = new List<CliCommandInfo>();
 
+        public IReadOnlyList<CliParentCommandRefInfo> ChildParentCommandRefs => childParentCommandRefs;
+        private readonly List<CliParentCommandRefInfo> childParentCommandRefs = new List<CliParentCommandRefInfo>();
+
         private void Analyze()
         {
             if ((Symbol.DeclaredAccessibility != Accessibility.Public && Symbol.DeclaredAccessibility != Accessibility.Internal)
@@ -206,6 +223,9 @@ namespace DotMake.CommandLine.SourceGeneration
 
             foreach (var child in ChildCommands)
                 child.ReportDiagnostics(sourceProductionContext);
+
+            foreach (var child in ChildParentCommandRefs)
+                child.ReportDiagnostics(sourceProductionContext);
         }
 
         public void AppendCSharpDefineString(CodeStringBuilder sb, bool addNamespaceBlock)
@@ -213,9 +233,11 @@ namespace DotMake.CommandLine.SourceGeneration
             var childOptionsWithoutProblem = ChildOptions.Where(c => !c.HasProblem).ToArray();
             var childArgumentsWithoutProblem = ChildArguments.Where(c => !c.HasProblem).ToArray();
             var childCommandsWithoutProblem = ChildCommands.Where(c => !c.HasProblem).ToArray();
+            var childParentCommandRefsWithoutProblem = ChildParentCommandRefs.Where(c => !c.HasProblem).ToArray();
             var handlerWithoutProblem = (Handler != null && !Handler.HasProblem) ? Handler : null;
             var memberHasRequiredModifier = childOptionsWithoutProblem.Any(o => o.Symbol.IsRequired)
-                                            || childArgumentsWithoutProblem.Any(a => a.Symbol.IsRequired);
+                                            || childArgumentsWithoutProblem.Any(a => a.Symbol.IsRequired)
+                                            || childParentCommandRefsWithoutProblem.Any(r => r.Symbol.IsRequired);
 
             if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
@@ -308,7 +330,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     }
 
                     sb.AppendLine();
-                    using (sb.AppendBlockStart($"BindFunc = (parseResult) =>", ";"))
+                    using (sb.AppendBlockStart($"BindFunc = (cliBindContext) =>", ";"))
                     {
                         var varTargetClass = "targetClass";
 
@@ -320,7 +342,7 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             var cliOptionInfo = childOptionsWithoutProblem[index];
                             var varOption = $"option{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = GetValueForOption(parseResult, {varOption});");
+                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = GetValueForOption(cliBindContext.ParseResult, {varOption});");
                         }
 
                         sb.AppendLine();
@@ -329,7 +351,15 @@ namespace DotMake.CommandLine.SourceGeneration
                         {
                             var cliArgumentInfo = childArgumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument(parseResult, {varArgument});");
+                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument(cliBindContext.ParseResult, {varArgument});");
+                        }
+
+                        sb.AppendLine();
+                        sb.AppendLine("//  Set the values for the parent command references");
+                        for (var index = 0; index < childParentCommandRefsWithoutProblem.Length; index++)
+                        {
+                            var cliParentCommandRefInfo = childParentCommandRefsWithoutProblem[index];
+                            sb.AppendLine($"{varTargetClass}.{cliParentCommandRefInfo.Symbol.Name} = cliBindContext.BindOrGetBindResult<{cliParentCommandRefInfo.Symbol.Type.ToReferenceString()}>();");
                         }
 
                         sb.AppendLine();
@@ -339,6 +369,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     sb.AppendLine();
                     var varParseResult = "parseResult";
                     var varCancellationToken = "cancellationToken";
+                    var varCliBindContext = "cliBindContext";
                     var varCliContext = "cliContext";
                     var isAsync = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync);
                     using (sb.AppendBlockStart(isAsync
@@ -348,7 +379,8 @@ namespace DotMake.CommandLine.SourceGeneration
                     {
                         var varTargetClass = "targetClass";
 
-                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) BindFunc({varParseResult});");
+                        sb.AppendLine($"var {varCliBindContext} = new DotMake.CommandLine.CliBindContext({varParseResult});");
+                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) BindFunc({varCliBindContext});");
                         sb.AppendLine();
 
                         sb.AppendLine("//  Call the command handler");

@@ -14,9 +14,9 @@ namespace DotMake.CommandLine
     public abstract class CliCommandBuilder
     {
         /// <summary>
-        /// A delegate which is set by the source generator to be called from <see cref="Bind"/> method.
+        /// A delegate which is set by the source generator to be called from <see cref="Bind(CliBindContext)"/> method.
         /// </summary>
-        protected Func<ParseResult, object> BindFunc;
+        protected Func<CliBindContext, object> BindFunc;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliCommandBuilder" /> class.
@@ -73,10 +73,20 @@ namespace DotMake.CommandLine
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
         public object Bind(ParseResult parseResult)
         {
+            return Bind(new CliBindContext(parseResult));
+        }
+
+        /// <summary>
+        /// Creates a new instance of the definition class and binds/populates the properties from the parse result.
+        /// </summary>
+        /// <param name="cliBindContext">A <see cref="CliBindContext"/> instance to use for the binding operation.</param>
+        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
+        public object Bind(CliBindContext cliBindContext)
+        {
             if (BindFunc == null)
                 throw new Exception("Ensure Build method is called first.");
 
-            return BindFunc(parseResult);
+            return BindFunc(cliBindContext);
         }
 
         /// <summary>
