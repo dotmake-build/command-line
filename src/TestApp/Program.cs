@@ -20,6 +20,13 @@ try
     });
     */
 
+    //Cli.Run(([CliArgument] string arg1, bool opt1) =>
+    //{
+    //    Console.WriteLine($@"Value for {nameof(arg1)} parameter is '{arg1}'");
+    //    Console.WriteLine($@"Value for {nameof(opt1)} parameter is '{opt1}'");
+    //    return Task.CompletedTask;
+    //});
+
     //Using Cli.Run with class:
     Cli.Run<RootCliCommand>(args);
     //Cli.Run<WriteFileCommand>(args);
