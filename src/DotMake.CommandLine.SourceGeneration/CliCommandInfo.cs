@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -63,47 +63,62 @@ namespace DotMake.CommandLine.SourceGeneration
             if (HasProblem)
                 return;
 
+            var addedPropertyNames = new HashSet<string>(StringComparer.Ordinal);
             var visitedProperties = new Dictionary<string, ISymbol>(StringComparer.Ordinal);
-            var addedProperties = new HashSet<string>(StringComparer.Ordinal);
-            Dictionary<ITypeSymbol, (int Index, CliCommandSettings Settings)> ancestorsByType = Settings
+            var parentCommandsByType = Settings
                 .GetParentTree()
-                .Select((s, i) => (i, Setings: s))
-                .ToDictionary(x => x.Setings.Symbol, (IEqualityComparer<ITypeSymbol>)SymbolEqualityComparer.Default);
+                .Select(settings => settings.Symbol)
+                .ToImmutableHashSet(SymbolEqualityComparer.Default);
 
+            //Loop through all own and then inherited members (not distinct)
             foreach (var member in Symbol.GetAllMembers())
             {
                 if (member is IPropertySymbol property)
                 {
-                    if (addedProperties.Contains(member.Name))
+                    if (addedPropertyNames.Contains(property.Name))
                         continue;
 
-                    bool added = false;
-                    foreach (var memberAttributeData in member.GetAttributes())
+                    //Property with [CliOption] or [CliArgument] attribute
+                    foreach (var propertyAttributeData in property.GetAttributes())
                     {
-                        var attributeFullName = memberAttributeData.AttributeClass?.ToCompareString();
+                        var attributeFullName = propertyAttributeData.AttributeClass?.ToCompareString();
 
-                        visitedProperties.TryGetValue(member.Name, out var visitedMember);
+                        //visitedProperty is used to inherit [CliOption] or [CliArgument] attribute
+                        //for example, property does not have an attribute in child class but has one in a parent class.
+                        //The property attribute and the property initializer from the most derived class in the hierarchy
+                        //will be used (they will override the base ones).
+                        //future note: non-existing property initializer in derived may be overriding an existing one in base
+                        visitedProperties.TryGetValue(property.Name, out var visitedProperty);
 
+                        //having both attributes doesn't make sense as the binding would override the previous one's value
+                        //user should better have separate properties for each attribute
+                        //so stop (break) when one of the attributes found first on a property.
                         if (attributeFullName == CliOptionInfo.AttributeFullName)
                         {
-                            childOptions.Add(new CliOptionInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
-                            addedProperties.Add(member.Name);
-                            added = true;
-                        } else if (attributeFullName == CliArgumentInfo.AttributeFullName)
+                            options.Add(new CliOptionInfo(visitedProperty ?? property, null, propertyAttributeData, SemanticModel, this));
+                            addedPropertyNames.Add(property.Name);
+
+                            break; 
+                        }
+                        if (attributeFullName == CliArgumentInfo.AttributeFullName)
                         {
-                            childArguments.Add(new CliArgumentInfo(visitedMember ?? member, null, memberAttributeData, SemanticModel, this));
-                            addedProperties.Add(member.Name);
-                            added = true;
+                            arguments.Add(new CliArgumentInfo(visitedProperty ?? property, null, propertyAttributeData, SemanticModel, this));
+                            addedPropertyNames.Add(property.Name);
+
+                            break;
                         }
                     }
-                    if (!added && ancestorsByType.TryGetValue(property.Type, out var ancestorInfo))
+
+                    //Property with a type that refers to a parent command
+                    if (!addedPropertyNames.Contains(property.Name)
+                        && parentCommandsByType.Contains(property.Type))
                     {
-                        childParentCommandRefs.Add(new CliParentCommandRefInfo(property, null, SemanticModel, ancestorInfo.Index, ancestorInfo.Settings));
-                        addedProperties.Add(member.Name);
+                        parentCommandAccessors.Add(new CliParentCommandAccessorInfo(property, null, SemanticModel));
+                        addedPropertyNames.Add(property.Name);
                     }
 
-                    if (!visitedProperties.ContainsKey(member.Name))
-                        visitedProperties.Add(member.Name, member);
+                    if (!visitedProperties.ContainsKey(property.Name))
+                        visitedProperties.Add(property.Name, property);
                 }
                 else if (member is IMethodSymbol method)
                 {
@@ -126,7 +141,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 foreach (var memberAttributeData in nestedType.GetAttributes())
                 {
                     if (memberAttributeData.AttributeClass?.ToCompareString() == AttributeFullName)
-                        childCommands.Add(new CliCommandInfo(nestedType, null, memberAttributeData, SemanticModel, this));
+                        subcommands.Add(new CliCommandInfo(nestedType, null, memberAttributeData, SemanticModel, this));
                 }
             }
         }
@@ -169,17 +184,17 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public ReferenceDependantInfo ReferenceDependantInfo { get; }
 
-        public IReadOnlyList<CliOptionInfo> ChildOptions => childOptions;
-        private readonly List<CliOptionInfo> childOptions = new List<CliOptionInfo>();
+        public IReadOnlyList<CliOptionInfo> Options => options;
+        private readonly List<CliOptionInfo> options = new List<CliOptionInfo>();
 
-        public IReadOnlyList<CliArgumentInfo> ChildArguments => childArguments;
-        private readonly List<CliArgumentInfo> childArguments = new List<CliArgumentInfo>();
+        public IReadOnlyList<CliArgumentInfo> Arguments => arguments;
+        private readonly List<CliArgumentInfo> arguments = new List<CliArgumentInfo>();
 
-        public IReadOnlyList<CliCommandInfo> ChildCommands => childCommands;
-        private readonly List<CliCommandInfo> childCommands = new List<CliCommandInfo>();
+        public IReadOnlyList<CliCommandInfo> Subcommands => subcommands;
+        private readonly List<CliCommandInfo> subcommands = new List<CliCommandInfo>();
 
-        public IReadOnlyList<CliParentCommandRefInfo> ChildParentCommandRefs => childParentCommandRefs;
-        private readonly List<CliParentCommandRefInfo> childParentCommandRefs = new List<CliParentCommandRefInfo>();
+        public IReadOnlyList<CliParentCommandAccessorInfo> ParentCommandAccessors => parentCommandAccessors;
+        private readonly List<CliParentCommandAccessorInfo> parentCommandAccessors = new List<CliParentCommandAccessorInfo>();
 
         private void Analyze()
         {
@@ -215,29 +230,29 @@ namespace DotMake.CommandLine.SourceGeneration
 
             Handler?.ReportDiagnostics(sourceProductionContext);
 
-            foreach (var child in ChildOptions)
+            foreach (var child in Options)
                 child.ReportDiagnostics(sourceProductionContext);
 
-            foreach (var child in ChildArguments)
+            foreach (var child in Arguments)
                 child.ReportDiagnostics(sourceProductionContext);
 
-            foreach (var child in ChildCommands)
+            foreach (var child in Subcommands)
                 child.ReportDiagnostics(sourceProductionContext);
 
-            foreach (var child in ChildParentCommandRefs)
+            foreach (var child in ParentCommandAccessors)
                 child.ReportDiagnostics(sourceProductionContext);
         }
 
         public void AppendCSharpDefineString(CodeStringBuilder sb, bool addNamespaceBlock)
         {
-            var childOptionsWithoutProblem = ChildOptions.Where(c => !c.HasProblem).ToArray();
-            var childArgumentsWithoutProblem = ChildArguments.Where(c => !c.HasProblem).ToArray();
-            var childCommandsWithoutProblem = ChildCommands.Where(c => !c.HasProblem).ToArray();
-            var childParentCommandRefsWithoutProblem = ChildParentCommandRefs.Where(c => !c.HasProblem).ToArray();
+            var optionsWithoutProblem = Options.Where(c => !c.HasProblem).ToArray();
+            var argumentsWithoutProblem = Arguments.Where(c => !c.HasProblem).ToArray();
+            var subcommandsWithoutProblem = Subcommands.Where(c => !c.HasProblem).ToArray();
+            var parentCommandAccessorsWithoutProblem = ParentCommandAccessors.Where(c => !c.HasProblem).ToArray();
             var handlerWithoutProblem = (Handler != null && !Handler.HasProblem) ? Handler : null;
-            var memberHasRequiredModifier = childOptionsWithoutProblem.Any(o => o.Symbol.IsRequired)
-                                            || childArgumentsWithoutProblem.Any(a => a.Symbol.IsRequired)
-                                            || childParentCommandRefsWithoutProblem.Any(r => r.Symbol.IsRequired);
+            var memberHasRequiredModifier = optionsWithoutProblem.Any(o => o.Symbol.IsRequired)
+                                            || argumentsWithoutProblem.Any(a => a.Symbol.IsRequired)
+                                            || parentCommandAccessorsWithoutProblem.Any(r => r.Symbol.IsRequired);
 
             if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
@@ -300,22 +315,22 @@ namespace DotMake.CommandLine.SourceGeneration
                     var varDefaultClass = "defaultClass";
                     sb.AppendLine($"var {varDefaultClass} = CreateInstance();");
 
-                    for (var index = 0; index < childOptionsWithoutProblem.Length; index++)
+                    for (var index = 0; index < optionsWithoutProblem.Length; index++)
                     {
                         sb.AppendLine();
 
-                        var cliOptionInfo = childOptionsWithoutProblem[index];
+                        var cliOptionInfo = optionsWithoutProblem[index];
                         var varOption = $"option{index}";
                         cliOptionInfo.AppendCSharpCreateString(sb, varOption,
                             $"{varDefaultClass}.{cliOptionInfo.Symbol.Name}");
                         sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
 
-                    for (var index = 0; index < childArgumentsWithoutProblem.Length; index++)
+                    for (var index = 0; index < argumentsWithoutProblem.Length; index++)
                     {
                         sb.AppendLine();
 
-                        var cliArgumentInfo = childArgumentsWithoutProblem[index];
+                        var cliArgumentInfo = argumentsWithoutProblem[index];
                         var varArgument = $"argument{index}";
                         cliArgumentInfo.AppendCSharpCreateString(sb, varArgument,
                             $"{varDefaultClass}.{cliArgumentInfo.Symbol.Name}");
@@ -330,7 +345,8 @@ namespace DotMake.CommandLine.SourceGeneration
                     }
 
                     sb.AppendLine();
-                    using (sb.AppendBlockStart($"BindFunc = (cliBindContext) =>", ";"))
+                    var varParseResult = "parseResult";
+                    using (sb.AppendBlockStart($"Binder = ({varParseResult}) =>", ";"))
                     {
                         var varTargetClass = "targetClass";
 
@@ -338,28 +354,29 @@ namespace DotMake.CommandLine.SourceGeneration
 
                         sb.AppendLine();
                         sb.AppendLine("//  Set the parsed or default values for the options");
-                        for (var index = 0; index < childOptionsWithoutProblem.Length; index++)
+                        for (var index = 0; index < optionsWithoutProblem.Length; index++)
                         {
-                            var cliOptionInfo = childOptionsWithoutProblem[index];
+                            var cliOptionInfo = optionsWithoutProblem[index];
                             var varOption = $"option{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = GetValueForOption(cliBindContext.ParseResult, {varOption});");
+                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = GetValueForOption({varParseResult}, {varOption});");
                         }
 
                         sb.AppendLine();
                         sb.AppendLine("//  Set the parsed or default values for the arguments");
-                        for (var index = 0; index < childArgumentsWithoutProblem.Length; index++)
+                        for (var index = 0; index < argumentsWithoutProblem.Length; index++)
                         {
-                            var cliArgumentInfo = childArgumentsWithoutProblem[index];
+                            var cliArgumentInfo = argumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument(cliBindContext.ParseResult, {varArgument});");
+                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument({varParseResult}, {varArgument});");
                         }
 
                         sb.AppendLine();
-                        sb.AppendLine("//  Set the values for the parent command references");
-                        for (var index = 0; index < childParentCommandRefsWithoutProblem.Length; index++)
+                        sb.AppendLine("//  Set the values for the parent command accessors");
+                        foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
                         {
-                            var cliParentCommandRefInfo = childParentCommandRefsWithoutProblem[index];
-                            sb.AppendLine($"{varTargetClass}.{cliParentCommandRefInfo.Symbol.Name} = cliBindContext.BindOrGetBindResult<{cliParentCommandRefInfo.Symbol.Type.ToReferenceString()}>();");
+                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = DotMake.CommandLine.ParseResultExtensions");
+                            sb.AppendIndent();
+                            sb.AppendLine($".Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
                         }
 
                         sb.AppendLine();
@@ -367,9 +384,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     }
 
                     sb.AppendLine();
-                    var varParseResult = "parseResult";
                     var varCancellationToken = "cancellationToken";
-                    var varCliBindContext = "cliBindContext";
                     var varCliContext = "cliContext";
                     var isAsync = (handlerWithoutProblem != null && handlerWithoutProblem.IsAsync);
                     using (sb.AppendBlockStart(isAsync
@@ -379,8 +394,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     {
                         var varTargetClass = "targetClass";
 
-                        sb.AppendLine($"var {varCliBindContext} = new DotMake.CommandLine.CliBindContext({varParseResult});");
-                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) BindFunc({varCliBindContext});");
+                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) Bind({varParseResult});");
                         sb.AppendLine();
 
                         sb.AppendLine("//  Call the command handler");
@@ -424,7 +438,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     sb.AppendLine($"{varCommandBuilder}.Register();");
                 }
 
-                foreach (var nestedCliCommandInfo in childCommandsWithoutProblem)
+                foreach (var nestedCliCommandInfo in subcommandsWithoutProblem)
                 {
                     sb.AppendLine();
                     nestedCliCommandInfo.AppendCSharpDefineString(sb, false);

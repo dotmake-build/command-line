@@ -28,6 +28,7 @@ namespace DotMake.CommandLine
     /// <example>
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedDelegate']" />
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
+    ///     <code source="..\TestApp\Commands\ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliArgumentAttribute : Attribute

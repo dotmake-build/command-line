@@ -3,25 +3,19 @@ using Microsoft.CodeAnalysis;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
-    public class CliParentCommandRefInfo : CliSymbolInfo, IEquatable<CliParentCommandRefInfo>
+    public class CliParentCommandAccessorInfo : CliSymbolInfo, IEquatable<CliParentCommandAccessorInfo>
     {
-        public const string DiagnosticName = "CLI parent command reference";
+        public const string DiagnosticName = "CLI parent command accessor";
 
-        public CliParentCommandRefInfo(IPropertySymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel,
-            int parentTreeIndex, CliCommandSettings parentCommandSettings) : base(symbol, syntaxNode, semanticModel)
+        public CliParentCommandAccessorInfo(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
+            : base(symbol, syntaxNode, semanticModel)
         {
-            ParentTreeIndex = parentTreeIndex;
-            ParentCommandSettings = parentCommandSettings;
+            Symbol = (IPropertySymbol)symbol;
 
             Analyze();
-
-            if (HasProblem)
-                return;
         }
 
-        public int ParentTreeIndex { get; }
-        public CliCommandSettings ParentCommandSettings { get; }
-        public new IPropertySymbol Symbol => (IPropertySymbol)base.Symbol;
+        public new IPropertySymbol Symbol;
 
         private void Analyze()
         {
@@ -40,7 +34,7 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        public bool Equals(CliParentCommandRefInfo other)
+        public bool Equals(CliParentCommandAccessorInfo other)
         {
             return base.Equals(other);
         }

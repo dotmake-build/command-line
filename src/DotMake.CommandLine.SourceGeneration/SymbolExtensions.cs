@@ -101,7 +101,7 @@ namespace DotMake.CommandLine.SourceGeneration
         }
 
         /// <summary>
-        /// Gets all own and inherited members (not distinct).
+        /// Gets all own and then inherited members (not distinct).
         /// </summary>
         public static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol type)
         {

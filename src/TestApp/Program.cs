@@ -28,7 +28,6 @@ try
     //Cli.Run<RootSnakeSlashCliCommand>(args);
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);
     //Cli.Run<RootWithExternalChildrenCliCommand>(args);
-    //Cli.Run<RootWithNestedChildrenReferencingRootCliCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
     //Cli.Run<LocalizedCliCommand>(args);
     //Cli.Run<HelpCliCommand>(args);
@@ -36,6 +35,7 @@ try
     //Cli.Run<InvalidCliCommand>(args);
     //Cli.Run<InvalidCliCommand.SubCliCommand>(args);
     //Cli.Run<RecursiveOptionCliCommand>(args);
+    //Cli.Run<ParentCommandAccessorCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);

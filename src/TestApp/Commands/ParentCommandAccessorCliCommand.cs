@@ -1,18 +1,18 @@
 #pragma warning disable CS1591
-#pragma warning disable CA1822 // Mark members as static
 using System;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
-    #region RootWithNestedChildrenReferencingRootCliCommand
+    #region ParentCommandAccessorCliCommand
 
     // Sub-commands can get a reference to the parent command by adding a property of the parent command type.
 
-    [CliCommand(Description = "A root cli command with nested children")]
-    public class RootWithNestedChildrenReferencingRootCliCommand
+    [CliCommand(Description = "A root cli command with children that can access parent commands")]
+    public class ParentCommandAccessorCliCommand
     {
-        [CliOption(Description = "This is a global option (Recursive option on the root command), it can appear anywhere on the command line",
+        [CliOption(
+            Description = "This is a global option (Recursive option on the root command), it can appear anywhere on the command line",
             Recursive = true)]
         public string GlobalOption1 { get; set; } = "DefaultForGlobalOption1";
 
@@ -27,7 +27,8 @@ namespace TestApp.Commands
         [CliCommand(Description = "A nested level 1 sub-command which accesses the root command")]
         public class Level1SubCliCommand
         {
-            [CliOption(Description = "This is global for all sub commands (it can appear anywhere after the level-1 verb)",
+            [CliOption(
+                Description = "This is global for all sub commands (it can appear anywhere after the level-1 verb)",
                 Recursive = true)]
             public string Level1RecursiveOption1 { get; set; } = "DefaultForLevel1RecusiveOption1";
 
@@ -35,7 +36,7 @@ namespace TestApp.Commands
             public string Argument1 { get; set; }
 
             // The parent command gets automatically injected
-            public RootWithNestedChildrenReferencingRootCliCommand RootCommand { get; set; }
+            public ParentCommandAccessorCliCommand RootCommand { get; set; }
 
             public void Run(CliContext context)
             {
@@ -52,16 +53,18 @@ namespace TestApp.Commands
                 public string Argument1 { get; set; }
 
                 // All ancestor commands gets injected
-                public RootWithNestedChildrenReferencingRootCliCommand RootCommand { get; set; }
+                public ParentCommandAccessorCliCommand RootCommand { get; set; }
                 public Level1SubCliCommand ParentCommand { get; set; }
 
                 public void Run(CliContext context)
                 {
                     context.ShowValues();
-                    Console.WriteLine($"Level1RecursiveOption1 = {ParentCommand.Level1RecursiveOption1}");
-                    Console.WriteLine($"parent Argument1 = {ParentCommand.Argument1}");
-                    Console.WriteLine($"GlobalOption1 = {RootCommand.GlobalOption1}");
-                    Console.WriteLine($"RootArgument1 = {RootCommand.RootArgument1}");
+
+                    Console.WriteLine();
+                    Console.WriteLine(@$"Level1RecursiveOption1 = {ParentCommand.Level1RecursiveOption1}");
+                    Console.WriteLine(@$"parent Argument1 = {ParentCommand.Argument1}");
+                    Console.WriteLine(@$"GlobalOption1 = {RootCommand.GlobalOption1}");
+                    Console.WriteLine(@$"RootArgument1 = {RootCommand.RootArgument1}");
                 }
             }
         }

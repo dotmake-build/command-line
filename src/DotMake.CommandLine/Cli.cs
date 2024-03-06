@@ -339,21 +339,6 @@ namespace DotMake.CommandLine
             return configuration.Parse(commandLine);
         }
 
-        /// <summary>
-        /// Creates a new instance of the command definition class and binds/populates the properties from the parse result.
-        /// If the command line input is not for the indicated definition class (e.g. it's for a sub-command but not for the indicated root command or vice versa),
-        /// then the returned instance would be empty (i.e. properties would have default values).
-        /// </summary>
-        /// <typeparam name="TDefinition"><inheritdoc cref="GetConfiguration{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="parseResult">The parse result.</param>
-        /// <returns>The parsed value or a configured default.</returns>
-        public static TDefinition Bind<TDefinition>(this ParseResult parseResult)
-        {
-            var commandBuilder = CliCommandBuilder.Get<TDefinition>();
-
-            return (TDefinition)commandBuilder.Bind(parseResult);
-        }
-
         private static string[] FixArgs(string[] args)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)

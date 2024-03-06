@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
@@ -14,9 +15,11 @@ namespace DotMake.CommandLine
     public abstract class CliCommandBuilder
     {
         /// <summary>
-        /// A delegate which is set by the source generator to be called from <see cref="Bind(CliBindContext)"/> method.
+        /// A delegate which is set by the source generator to be called from <see cref="Bind(ParseResult)"/> method.
         /// </summary>
-        protected Func<CliBindContext, object> BindFunc;
+        protected Func<ParseResult, object> Binder;
+
+        private readonly ConcurrentDictionary<ParseResult, object> bindResults = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliCommandBuilder" /> class.
@@ -67,28 +70,26 @@ namespace DotMake.CommandLine
         public abstract CliCommand Build();
 
         /// <summary>
-        /// Creates a new instance of the definition class and binds/populates the properties from the parse result.
+        /// Creates a new instance of the command definition class and binds/populates the properties from the parse result.
+        /// Note that binding will be done only once, so calling this method consecutively will return the cached result.
+        /// <para>
+        /// If the command line input is not for this definition class (e.g. it's for a sub-command but not for
+        /// this root command or vice versa), then the returned instance would be empty (i.e. properties would have default values).
+        /// </para>
         /// </summary>
         /// <param name="parseResult">A parse result describing the outcome of the parse operation.</param>
         /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
         public object Bind(ParseResult parseResult)
         {
-            return Bind(new CliBindContext(parseResult));
+            return bindResults.GetOrAdd(parseResult, pr =>
+            {
+                if (Binder == null)
+                    throw new Exception("Binder is not set. Ensure Build method is called first.");
+
+                return Binder(pr);
+            });
         }
-
-        /// <summary>
-        /// Creates a new instance of the definition class and binds/populates the properties from the parse result.
-        /// </summary>
-        /// <param name="cliBindContext">A <see cref="CliBindContext"/> instance to use for the binding operation.</param>
-        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
-        public object Bind(CliBindContext cliBindContext)
-        {
-            if (BindFunc == null)
-                throw new Exception("Ensure Build method is called first.");
-
-            return BindFunc(cliBindContext);
-        }
-
+        
         /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
         /// </summary>

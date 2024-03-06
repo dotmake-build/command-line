@@ -20,8 +20,9 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added theme support. CliSettings.Theme property can be set to predefined themes Red, DarkRed, Green, DarkGreen, Blue, DarkBlue
-        or a custom CliTheme. These color and formatting option are mainly used by the help output.
+      - Added parent command accessor support. Sub-commands can get a reference to the parent command by adding a property of the parent command type.
+      - ParseResultExtensions.Bind improvement: Binding will be done only once per definition class, so calling this method consecutively for
+        the same definition class will return the cached result.
     </PackageReleaseNotes>
   </PropertyGroup>
 
