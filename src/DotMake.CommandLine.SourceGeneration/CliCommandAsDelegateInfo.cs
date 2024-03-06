@@ -11,6 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliCommandAsDelegateInfo : CliSymbolInfo, IEquatable<CliCommandAsDelegateInfo>
     {
         private const string TaskFullName = "System.Threading.Tasks.Task";
+        private const string TaskIntFullName = "System.Threading.Tasks.Task<System.Int32>";
         public static readonly string CliCommandAsDelegateFullName = "DotMake.CommandLine.CliCommandAsDelegate";
 
         public CliCommandAsDelegateInfo(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
@@ -18,7 +19,7 @@ namespace DotMake.CommandLine.SourceGeneration
         {
             Symbol = (IMethodSymbol)symbol;
 
-            if (Symbol.IsAsync)
+            if (Symbol.IsAsync || Symbol.ReturnType.ToCompareString() is TaskFullName or TaskIntFullName)
             {
                 IsAsync = true;
                 ReturnsVoid = (Symbol.ReturnType.ToCompareString() == TaskFullName);

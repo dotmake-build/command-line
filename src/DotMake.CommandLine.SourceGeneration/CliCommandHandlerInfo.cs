@@ -7,6 +7,7 @@ namespace DotMake.CommandLine.SourceGeneration
     public class CliCommandHandlerInfo : CliSymbolInfo, IEquatable<CliCommandHandlerInfo>
     {
         private const string TaskFullName = "System.Threading.Tasks.Task";
+        private const string TaskIntFullName = "System.Threading.Tasks.Task<System.Int32>";
         private const string CliContextFullName = "DotMake.CommandLine.CliContext";
         public const string DiagnosticName = "CLI command handler";
 
@@ -16,7 +17,7 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = symbol;
             Parent = parent;
 
-            if (symbol.IsAsync)
+            if (symbol.IsAsync || (Symbol.Name == "RunAsync" && Symbol.ReturnType.ToCompareString() is TaskFullName or TaskIntFullName))
             {
                 IsAsync = true;
                 ReturnsVoid = (symbol.ReturnType.ToCompareString() == TaskFullName);
@@ -77,9 +78,12 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public static bool HasCorrectName(IMethodSymbol symbol)
         {
-            return symbol.IsAsync
-                ? (symbol.Name == "RunAsync")
-                : (symbol.Name == "Run");
+            return symbol.Name switch
+            {
+                "Run" => true,
+                "RunAsync" => symbol.IsAsync || symbol.ReturnType.ToCompareString() is TaskFullName or TaskIntFullName,
+                _ => false
+            };
         }
 
         public void AppendCSharpCallString(CodeStringBuilder sb, string varCliContext = null)
