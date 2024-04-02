@@ -11,7 +11,7 @@ namespace DotMake.CommandLine
     {
         private static readonly ConcurrentDictionary<ParseResult, ConcurrentDictionary<Type, object>> BindResults = new();
 
-        /// <inheritdoc cref = "Bind{TDefinition}" />
+        /// <inheritdoc cref = "Bind" />
         /// <typeparam name="TDefinition"><inheritdoc cref="Cli.GetConfiguration{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
         public static TDefinition Bind<TDefinition>(this ParseResult parseResult)
         {

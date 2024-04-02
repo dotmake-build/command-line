@@ -1,13 +1,10 @@
 using System;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace DotMake.CommandLine.SourceGeneration
 {
     public class CliCommandHandlerInfo : CliSymbolInfo, IEquatable<CliCommandHandlerInfo>
     {
-        private const string TaskFullName = "System.Threading.Tasks.Task";
-        private const string TaskIntFullName = "System.Threading.Tasks.Task<System.Int32>";
         private const string CliContextFullName = "DotMake.CommandLine.CliContext";
         public const string DiagnosticName = "CLI command handler";
 
@@ -17,14 +14,11 @@ namespace DotMake.CommandLine.SourceGeneration
             Symbol = symbol;
             Parent = parent;
 
-            if (symbol.IsAsync || (Symbol.Name == "RunAsync" && Symbol.ReturnType.ToCompareString() is TaskFullName or TaskIntFullName))
+            if (symbol.IsAsync || symbol.ReturnType.IsTask() || symbol.ReturnType.IsTaskInt())
             {
                 IsAsync = true;
-                ReturnsVoid = (symbol.ReturnType.ToCompareString() == TaskFullName);
-                ReturnsValue = (symbol.ReturnType is INamedTypeSymbol namedTypeSymbol)
-                               && namedTypeSymbol.IsGenericType
-                               && namedTypeSymbol.BaseType?.ToCompareString() == TaskFullName
-                               && (namedTypeSymbol.TypeArguments.FirstOrDefault().SpecialType == SpecialType.System_Int32);
+                ReturnsVoid = symbol.ReturnType.IsTask();
+                ReturnsValue = symbol.ReturnType.IsTaskInt();
             }
             else
             {
@@ -78,12 +72,9 @@ namespace DotMake.CommandLine.SourceGeneration
 
         public static bool HasCorrectName(IMethodSymbol symbol)
         {
-            return symbol.Name switch
-            {
-                "Run" => true,
-                "RunAsync" => symbol.IsAsync || symbol.ReturnType.ToCompareString() is TaskFullName or TaskIntFullName,
-                _ => false
-            };
+            return symbol.IsAsync || symbol.ReturnType.IsTask() || symbol.ReturnType.IsTaskInt()
+                ? (symbol.Name == "RunAsync")
+                : (symbol.Name == "Run");
         }
 
         public void AppendCSharpCallString(CodeStringBuilder sb, string varCliContext = null)

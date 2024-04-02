@@ -20,9 +20,8 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Added parent command accessor support. Sub-commands can get a reference to the parent command by adding a property of the parent command type.
-      - ParseResultExtensions.Bind improvement: Binding will be done only once per definition class, so calling this method consecutively for
-        the same definition class will return the cached result.
+      - Updated to latest daily build 2.0.0-beta4.24201.1 of System.CommandLine.
+      - Added support for command handlers or command as delegates without the async keyword (which returns Task or Task&lt;int&gt;).
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -35,7 +34,7 @@
       as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
       https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
     -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24126.1">
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24201.1">
       <GeneratePathProperty>true</GeneratePathProperty>
       <IncludeAssets>None</IncludeAssets>
       <ExcludeAssets>All</ExcludeAssets>

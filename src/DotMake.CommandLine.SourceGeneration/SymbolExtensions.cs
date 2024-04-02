@@ -28,6 +28,8 @@ namespace DotMake.CommandLine.SourceGeneration
                 miscellaneousOptions:
                 SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
 
+        private const string TaskFullName = "System.Threading.Tasks.Task";
+
         /// <summary>
         /// Converts the symbol to a string representation, which is suitable for calling the symbol in code.
         /// <para>
@@ -136,6 +138,19 @@ namespace DotMake.CommandLine.SourceGeneration
         public static string CombineNameParts(params string[] nameParts)
         {
             return string.Join(".", nameParts.Where(n => !string.IsNullOrEmpty(n)));
+        }
+
+        public static bool IsTask(this ITypeSymbol type)
+        {
+            return (type.ToCompareString() == TaskFullName);
+        }
+
+        public static bool IsTaskInt(this ITypeSymbol type)
+        {
+            return (type is INamedTypeSymbol namedTypeSymbol)
+                   && namedTypeSymbol.IsGenericType
+                   && namedTypeSymbol.BaseType?.ToCompareString() == TaskFullName
+                   && (namedTypeSymbol.TypeArguments.FirstOrDefault().SpecialType == SpecialType.System_Int32);
         }
     }
 }
