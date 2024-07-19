@@ -18,6 +18,7 @@ Supports
 [![Nuget](https://img.shields.io/nuget/v/DotMake.CommandLine?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/DotMake.CommandLine)
 
 ![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
+
 ![DotMake Command-Line Themes](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/themes.gif "DotMake Command-Line Themes")
 
 ## Getting started
@@ -201,23 +202,23 @@ When you run the app via
 - or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
 - You see this usage help:
-```console
-DotMake Command-Line TestApp v1.6.0
-Copyright © 2023-2024 DotMake
+    ```console
+    DotMake Command-Line TestApp v1.6.0
+    Copyright © 2023-2024 DotMake
 
-A root cli command
+    A root cli command
 
-Usage:
-  TestApp <argument-1> [options]
+    Usage:
+      TestApp <argument-1> [options]
 
-Arguments:
-  <argument-1>  Description for Argument1 [required]
+    Arguments:
+      <argument-1>  Description for Argument1 [required]
 
-Options:
-  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
-  -v, --version              Show version information
-  -?, -h, --help             Show help and usage information
-```
+    Options:
+      -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
+      -v, --version              Show version information
+      -?, -h, --help             Show help and usage information
+    ```
 - First line comes from `AssemblyProductAttribute` or `AssemblyName` (`<Product>` tag in your .csproj file).  
   Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`
   (`<InformationalVersion>` or `<FileVersion >` or `<Version>` tag in your .csproj file).
