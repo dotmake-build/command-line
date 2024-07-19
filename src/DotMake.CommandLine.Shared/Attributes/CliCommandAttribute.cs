@@ -36,7 +36,7 @@ namespace DotMake.CommandLine
     /// </summary>
     /// <example>
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
-    ///     <code source="..\TestApp\Commands\WriteFileCommand.cs" region="WriteFileCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\WriteFileCliCommand.cs" region="WriteFileCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ArgumentConverterCliCommand.cs" region="ArgumentConverterCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\EnumerableCliCommand.cs" region="EnumerableCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\RootSnakeSlashCliCommand.cs" region="RootSnakeSlashCliCommand" language="cs" />

@@ -28,7 +28,15 @@ namespace DotMake.CommandLine
     /// msbuild /version
     ///         ^------^
     /// </code>
-    /// Both POSIX and Windows prefix conventions are supported. When you configure an option, you specify the option name including the prefix.
+    /// Both POSIX and Windows prefix conventions are supported.
+    /// When manually setting a name (overriding decorated property's name), you should specify the option name including the prefix (e.g. `--option`, `-o`, `-option` or `/option`).
+    /// </para>
+    /// <para>
+    /// Bundling of single-character options are supported, also known as stacking.
+    /// Bundled options are single-character option aliases specified together after a single hyphen prefix.
+    /// For example if you have options "-a", "-b" and "-c", you can bundle them like "-abc".
+    /// Only the last option can specify an argument.
+    /// Note that if you have an explicit option named "-abc" then it will win over bundled options.
     /// </para>
     /// </summary>
     /// <example>
@@ -36,6 +44,7 @@ namespace DotMake.CommandLine
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
     ///     <code source="..\TestApp\Commands\RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\OptionBundlingCliCommand.cs" region="OptionBundlingCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliOptionAttribute : Attribute

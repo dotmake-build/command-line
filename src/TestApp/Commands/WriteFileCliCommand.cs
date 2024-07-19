@@ -5,13 +5,13 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
-    #region WriteFileCommand
+    #region WriteFileCliCommand
 
     // Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument`
     // attribute is applied to, for example these properties will be parsed and bound/populated automatically:
 
     [CliCommand]
-    public class WriteFileCommand
+    public class WriteFileCliCommand
     {
         [CliArgument]
         public FileInfo OutputFile { get; set; }

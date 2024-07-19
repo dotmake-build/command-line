@@ -1,4 +1,5 @@
 using System;
+using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
 
@@ -77,7 +78,7 @@ namespace DotMake.CommandLine
         /// When enabled, any token prefixed with <c>@</c> can be replaced with zero or more other tokens.
         /// This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
-        public TryReplaceToken ResponseFileTokenReplacer { get; set; }
+        public TryReplaceToken ResponseFileTokenReplacer { get; set; } = DefaultConfiguration.ResponseFileTokenReplacer;
 
         /// <summary>
         /// Gets or sets the standard output. Used by Help and other facilities that write non-error information.
@@ -100,5 +101,7 @@ namespace DotMake.CommandLine
         /// <para>Default is <see  cref="CliTheme.Default"/>.</para>
         /// </summary>
         public CliTheme Theme { get; set; } = CliTheme.Default;
+
+        private static readonly CliConfiguration DefaultConfiguration = new CliConfiguration(new CliRootCommand());
     }
 }

@@ -31,7 +31,7 @@ try
 
     //Using Cli.Run with class:
     Cli.Run<RootCliCommand>(args);
-    //Cli.Run<WriteFileCommand>(args);
+    //Cli.Run<WriteFileCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<EnumerableCliCommand>(args);
     //Cli.Run<RootSnakeSlashCliCommand>(args);
@@ -45,6 +45,7 @@ try
     //Cli.Run<InvalidCliCommand.SubCliCommand>(args);
     //Cli.Run<RecursiveOptionCliCommand>(args);
     //Cli.Run<ParentCommandAccessorCliCommand>(args);
+    //Cli.Run<OptionBundlingCliCommand>(args);
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);
@@ -58,15 +59,17 @@ try
     //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkGreen });
     //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Blue });
     //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkBlue });
-    /*Cli.Run<RootCliCommand>(args, new CliSettings
+    /*
+    Cli.Run<RootCliCommand>(args, new CliSettings
     {
         Theme = new CliTheme(CliTheme.Default)
         {
             HeadingCasing = CliNameCasingConvention.UpperCase,
             HeadingNoColon = true
         }
-    });*/
-    
+    });
+    */
+
     //Misc:
     //Cli.Run<GlobalNamespaceCliCommand>(args);
     //Cli.Run<NullableReferenceCommand>(args);

@@ -18,6 +18,7 @@ Supports
 [![Nuget](https://img.shields.io/nuget/v/DotMake.CommandLine?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/DotMake.CommandLine)
 
 ![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
+![DotMake Command-Line Themes](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/themes.gif "DotMake Command-Line Themes")
 
 ## Getting started
 
@@ -43,39 +44,13 @@ PM> Install-Package DotMake.CommandLine
 
 ## Usage
 
-### Delegate-based model
-
-Create a CLI App with DotMake.Commandline in seconds!
-
-In `Program.cs`, add this simple code:
-```c#
-using System;
-using DotMake.CommandLine;
-
-Cli.Run(([CliArgument]string arg1, bool opt1) =>
-{
-    Console.WriteLine($@"Value for {nameof(arg1)} parameter is '{arg1}'");
-    Console.WriteLine($@"Value for {nameof(opt1)} parameter is '{opt1}'");
-});
-```
-And that's it! You now have a fully working command-line app.
-
-#### Summary
-- Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
-- A parameter is by default considered as a CLI option but you can;
-  - Mark a parameter with `CliArgument` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
-  - Mark a parameter with `CliOption` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
-  - Mark the delegate itself with `CliCommand` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
-  - Note that for being able to mark a parameter with an attribute in an anonymous lambda function, 
-    if your target framework is below net6.0, you also need `<LangVersion>10.0</LangVersion>` tag (minimum) in your .csproj file.
-- Set a default value for a parameter if you want it to be optional (not required to be specified on the command-line).
-- Your delegate can be `async`.
-- Your delegate can have a return type `void` or `int` and if it's async `Task` or `Task<int>`.
+DotMake.CommandLine offers 2 models: class-based model and delegate-based model.
+Delegate-based model is useful for simple apps, for more complex apps, you should use the class-based model 
+because you can have sub-commands and command inheritance.
 
 ### Class-based model
 
-While delegate-based model above is useful for simple apps, for more complex apps, you should use the class-based model 
-because you can have sub-commands and command inheritance.
+Create a CLI App with DotMake.Commandline in seconds!
 
 In `Program.cs`, add this simple code:
 ```c#
@@ -187,6 +162,239 @@ if (parseResult.Errors.Count > 0)
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 - For best practice, create a subfolder named `Commands` in your project and put your command classes there 
   so that they are easy to locate and maintain in the future.
+
+
+### Delegate-based model
+
+Create a CLI App with DotMake.Commandline in seconds!
+
+In `Program.cs`, add this simple code:
+```c#
+using System;
+using DotMake.CommandLine;
+
+Cli.Run(([CliArgument]string arg1, bool opt1) =>
+{
+    Console.WriteLine($@"Value for {nameof(arg1)} parameter is '{arg1}'");
+    Console.WriteLine($@"Value for {nameof(opt1)} parameter is '{opt1}'");
+});
+```
+And that's it! You now have a fully working command-line app.
+
+#### Summary
+- Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
+- A parameter is by default considered as a CLI option but you can;
+  - Mark a parameter with `CliArgument` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
+  - Mark a parameter with `CliOption` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+  - Mark the delegate itself with `CliCommand` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+  - Note that for being able to mark a parameter with an attribute in an anonymous lambda function, 
+    if your target framework is below net6.0, you also need `<LangVersion>10.0</LangVersion>` tag (minimum) in your .csproj file.
+- Set a default value for a parameter if you want it to be optional (not required to be specified on the command-line).
+- Your delegate can be `async`.
+- Your delegate can have a return type `void` or `int` and if it's async `Task` or `Task<int>`.
+
+
+## Help output
+
+When you run the app via 
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net7.0`)
+- or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
+
+- You see this usage help:
+```console
+DotMake Command-Line TestApp v1.6.0
+Copyright © 2023-2024 DotMake
+
+A root cli command
+
+Usage:
+  TestApp <argument-1> [options]
+
+Arguments:
+  <argument-1>  Description for Argument1 [required]
+
+Options:
+  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
+  -v, --version              Show version information
+  -?, -h, --help             Show help and usage information
+```
+- First line comes from `AssemblyProductAttribute` or `AssemblyName` (`<Product>` tag in your .csproj file).  
+  Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`
+  (`<InformationalVersion>` or `<FileVersion >` or `<Version>` tag in your .csproj file).
+- Second line comes from `AssemblyCopyrightAttribute` (`<Copyright>` tag in your .csproj file).
+- Third line comes from `Description` property of `[CliCommand]` or for root commands, `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file).
+
+Note, how command/option/argument names, descriptions and default values are automatically populated.
+
+By default,  command/option/argument names are generated as follows;
+- First the following suffixes are stripped out from class and property names:
+    - For commands:
+      "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
+    - For options: 
+     "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
+    - For arguments: 
+    "RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
+    
+- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
+  - `CliNameCasingConvention.None`
+  - `CliNameCasingConvention.LowerCase`
+  - `CliNameCasingConvention.UpperCase`
+  - `CliNameCasingConvention.TitleCase`
+  - `CliNameCasingConvention.PascalCase`
+  - `CliNameCasingConvention.CamelCase`
+  - `CliNameCasingConvention.KebabCase`
+  - `CliNameCasingConvention.SnakeCase`
+  
+- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `CliCommand` attribute to one of the following values:
+  - `CliNamePrefixConvention.SingleHyphen`
+  - `CliNamePrefixConvention.DoubleHyphen`
+  - `CliNamePrefixConvention.ForwardSlash`
+  
+- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `CliCommand` attribute.
+
+---
+For example, change the name casing and prefix convention:
+```c#
+using System;
+using DotMake.CommandLine;
+ 
+[CliCommand(
+    Description = "A cli command with snake_case name casing and forward slash prefix conventions",
+    NameCasingConvention = CliNameCasingConvention.SnakeCase,
+    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
+    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
+)]
+public class RootSnakeSlashCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+ 
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+ 
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+}
+```
+When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
+```console
+DotMake Command-Line TestApp v1.6.0
+Copyright © 2023-2024 DotMake
+
+A cli command with snake_case name casing and forward slash prefix conventions
+
+Usage:
+  TestApp <argument_1> [options]
+
+Arguments:
+  <argument_1>  Description for Argument1 [required]
+
+Options:
+  /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
+  /v, /version              Show version information
+  -?, -h, /help             Show help and usage information
+```
+Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
+
+### Themes
+
+Cli app theme can be changed via setting `CliSettings.Theme` property to predefined themes Red, DarkRed, Green, DarkGreen, Blue, DarkBlue
+or a custom `CliTheme`. These color and formatting option are mainly used by the help output.
+
+```c#
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Red });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkRed });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Green });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkGreen });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Blue });
+
+Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkBlue });
+
+Cli.Run<RootCliCommand>(args, new CliSettings
+{
+    Theme = new CliTheme(CliTheme.Default)
+    {
+        HeadingCasing = CliNameCasingConvention.UpperCase,
+        HeadingNoColon = true
+    }
+});
+```
+### Localization
+
+Localizing commands, options and arguments is supported.
+You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
+and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
+If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
+The reason we use `nameof` operator is that attributes in `.NET` only accept compile-time constants and you get `CS0182` error if not,
+so specifying resource property directly is not possible as it's not a compile-time constant but it's a static property access.
+
+```c#
+[CliCommand(Description = nameof(TestResources.CommandDescription))]
+internal class LocalizedCliCommand
+{
+    [CliOption(Description = nameof(TestResources.OptionDescription))]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = nameof(TestResources.ArgumentDescription))]
+    public string Argument1 { get; set; }
+
+    public void Run()
+    {
+        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
+        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
+        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine();
+    }
+}
+```
+
+### Triggering help
+
+If a command represents a group and not an action, you may want to show help. 
+If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
+You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
+For testing a command, other methods `CliContext.ShowValues` and `CliContext.IsEmptyCommand` are also useful.
+`ShowValues` shows parsed values for current command and its arguments and options.
+
+See below example; root command does not have a handler method so it will always show help 
+and sub-command will show help if command is specified without any arguments or option, 
+and it will show (dump) values if not:
+
+```c#
+[CliCommand(Description = "A root cli command")]
+public class HelpCliCommand
+{
+  [CliOption(Description = "Description for Option1")]
+  public string Option1 { get; set; } = "DefaultForOption1";
+
+  [CliArgument(Description = "Description for Argument1")]
+  public string Argument1 { get; set; } = "DefaultForArgument1";
+
+  [CliCommand(Description = "A sub cli command")]
+  public class SubCliCommand
+  {
+      [CliArgument(Description = "Description for Argument2")]
+      public string Argument2 { get; set; } = "DefaultForArgument2";
+
+      public void Run(CliContext context)
+      {
+          if (context.IsEmptyCommand())
+              context.ShowHelp();
+          else
+              context.ShowValues();
+      }
+  }
+}
+```
 
 ## Commands
 
@@ -520,7 +728,13 @@ msbuild /version
 ```
 
 Both POSIX and Windows prefix conventions are supported.
-When manually setting a name (overriding decorated property's name), you should specify the option name including the prefix (e.g. `--option`, `-option` or `/option`)
+When manually setting a name (overriding decorated property's name), you should specify the option name including the prefix (e.g. `--option`, `-o`, `-option` or `/option`).
+
+Bundling of single-character options are supported, also known as stacking.
+Bundled options are single-character option aliases specified together after a single hyphen prefix.
+For example if you have options "-a", "-b" and "-c", you can bundle them like "-abc".
+Only the last option can specify an argument.
+Note that if you have an explicit option named "-abc" then it will win over bundled options.
 
 ---
 The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
@@ -636,7 +850,7 @@ Value for Argument1 property is 'NewValueForArgument1'
 Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
 ```c#
 [CliCommand]
-public class WriteFileCommand
+public class WriteFileCliCommand
 {
     [CliArgument]
     public FileInfo OutputFile { get; set; }
@@ -950,207 +1164,116 @@ Cli.Ext.SetServiceProvider(container);
 
 Cli.Run<RootCliCommand>();
 ```
-## Help output
 
-When you run the app via 
-- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net7.0`)
-- or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
+## Response files
 
-- You see this usage help:
+A *response file* is a file that contains a set of [tokens](syntax.md#tokens) for a command-line app. Response files are a feature of `System.CommandLine` that is useful in two scenarios:
+
+* To invoke a command-line app by specifying input that is longer than the character limit of the terminal.
+* To invoke the same command repeatedly without retyping the whole line.
+
+To use a response file, enter the file name prefixed by an `@` sign wherever in the line you want to insert commands, options, and arguments. The *.rsp* file extension is a common convention, but you can use any file extension.
+
+The following lines are equivalent:
+
+```dotnetcli
+dotnet build --no-restore --output ./build-output/
+dotnet @sample1.rsp
+dotnet build @sample2.rsp --output ./build-output/
+```
+
+Contents of *sample1.rsp*:
+
 ```console
-DotMake Command-Line TestApp v1.6.0
-Copyright © 2023-2024 DotMake
-
-A root cli command
-
-Usage:
-  TestApp <argument-1> [options]
-
-Arguments:
-  <argument-1>  Description for Argument1 [required]
-
-Options:
-  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
-  -v, --version              Show version information
-  -?, -h, --help             Show help and usage information
+build
+--no-restore 
+--output
+./build-output/
 ```
-- First line comes from `AssemblyProductAttribute` or `AssemblyName` (`<Product>` tag in your .csproj file).  
-  Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`
-  (`<InformationalVersion>` or `<FileVersion >` or `<Version>` tag in your .csproj file).
-- Second line comes from `AssemblyCopyrightAttribute` (`<Copyright>` tag in your .csproj file).
-- Third line comes from `Description` property of `[CliCommand]` or for root commands, `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file).
 
-Note, how command/option/argument names, descriptions and default values are automatically populated.
+Contents of *sample2.rsp*:
 
-By default,  command/option/argument names are generated as follows;
-- First the following suffixes are stripped out from class and property names:
-    - For commands:
-      "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
-    - For options: 
-     "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
-    - For arguments: 
-    "RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
-    
-- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
-  - `CliNameCasingConvention.None`
-  - `CliNameCasingConvention.LowerCase`
-  - `CliNameCasingConvention.UpperCase`
-  - `CliNameCasingConvention.TitleCase`
-  - `CliNameCasingConvention.PascalCase`
-  - `CliNameCasingConvention.CamelCase`
-  - `CliNameCasingConvention.KebabCase`
-  - `CliNameCasingConvention.SnakeCase`
-  
-- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `CliCommand` attribute to one of the following values:
-  - `CliNamePrefixConvention.SingleHyphen`
-  - `CliNamePrefixConvention.DoubleHyphen`
-  - `CliNamePrefixConvention.ForwardSlash`
-  
-- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `CliCommand` attribute.
-
----
-For example, change the name casing and prefix convention:
-```c#
-using System;
-using DotMake.CommandLine;
- 
-[CliCommand(
-    Description = "A cli command with snake_case name casing and forward slash prefix conventions",
-    NameCasingConvention = CliNameCasingConvention.SnakeCase,
-    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
-    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
-)]
-public class RootSnakeSlashCliCommand
-{
-    [CliOption(Description = "Description for Option1")]
-    public string Option1 { get; set; } = "DefaultForOption1";
- 
-    [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
- 
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-    }
-}
-```
-When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.6.0
-Copyright © 2023-2024 DotMake
-
-A cli command with snake_case name casing and forward slash prefix conventions
-
-Usage:
-  TestApp <argument_1> [options]
-
-Arguments:
-  <argument_1>  Description for Argument1 [required]
-
-Options:
-  /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
-  /v, /version              Show version information
-  -?, -h, /help             Show help and usage information
-```
-Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
-
-### Themes
-
-Cli app theme can be changed via setting `CliSettings.Theme` property to predefined themes Red, DarkRed, Green, DarkGreen, Blue, DarkBlue
-or a custom `CliTheme`. These color and formatting option are mainly used by the help output.
-
-```c#
-Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Red });
-
-Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkRed });
-
-Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Green });
-
-Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkGreen });
-
-Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Blue });
-
-Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkBlue });
-
-Cli.Run<RootCliCommand>(args, new CliSettings
-{
-    Theme = new CliTheme(CliTheme.Default)
-    {
-        HeadingCasing = CliNameCasingConvention.UpperCase,
-        HeadingNoColon = true
-    }
-});
-```
-### Localization
-
-Localizing commands, options and arguments is supported.
-You can specify a `nameof` operator expression with a resource property (generated by resx) in the attribute's argument (for `string` types only)
-and the source generator will smartly use the resource property accessor as the value of the argument so that it can localize at runtime.
-If the property in the `nameof` operator expression does not point to a resource property, then the name of that property will be used as usual.
-The reason we use `nameof` operator is that attributes in `.NET` only accept compile-time constants and you get `CS0182` error if not,
-so specifying resource property directly is not possible as it's not a compile-time constant but it's a static property access.
-
-```c#
-[CliCommand(Description = nameof(TestResources.CommandDescription))]
-internal class LocalizedCliCommand
-{
-    [CliOption(Description = nameof(TestResources.OptionDescription))]
-    public string Option1 { get; set; } = "DefaultForOption1";
-
-    [CliArgument(Description = nameof(TestResources.ArgumentDescription))]
-    public string Argument1 { get; set; }
-
-    public void Run()
-    {
-        Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-        Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-        Console.WriteLine();
-    }
-}
+--no-restore
 ```
 
-### Triggering help
+Here are syntax rules that determine how the text in a response file is interpreted:
 
-If a command represents a group and not an action, you may want to show help. 
-If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
-You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
-For testing a command, other methods `CliContext.ShowValues` and `CliContext.IsEmptyCommand` are also useful.
-`ShowValues` shows parsed values for current command and its arguments and options.
+* Tokens are delimited by spaces. A line that contains *Good morning!* is treated as two tokens, *Good* and *morning!*.
+* Multiple tokens enclosed in quotes are interpreted as a single token. A line that contains *"Good morning!"* is treated as one token, *Good morning!*.
+* Any text between a `#` symbol and the end of the line is treated as a comment and ignored.
+* Tokens prefixed with `@` can reference additional response files.
+* The response file can have multiple lines of text. The lines are concatenated and interpreted as a sequence of tokens.
 
-See below example; root command does not have a handler method so it will always show help 
-and sub-command will show help if command is specified without any arguments or option, 
-and it will show (dump) values if not:
+## Directives
 
-```c#
-[CliCommand(Description = "A root cli command")]
-public class HelpCliCommand
-{
-  [CliOption(Description = "Description for Option1")]
-  public string Option1 { get; set; } = "DefaultForOption1";
+`System.CommandLine` introduces a syntactic element called a *directive*. The `[diagram]` directive is an example. When you include `[diagram]` after the app's name, `System.CommandLine` displays a diagram of the parse result instead of invoking the command-line app:
 
-  [CliArgument(Description = "Description for Argument1")]
-  public string Argument1 { get; set; } = "DefaultForArgument1";
-
-  [CliCommand(Description = "A sub cli command")]
-  public class SubCliCommand
-  {
-      [CliArgument(Description = "Description for Argument2")]
-      public string Argument2 { get; set; } = "DefaultForArgument2";
-
-      public void Run(CliContext context)
-      {
-          if (context.IsEmptyCommand())
-              context.ShowHelp();
-          else
-              context.ShowValues();
-      }
-  }
-}
+```dotnetcli
+dotnet [diagram] build --no-restore --output ./build-output/
+       ^-----^
 ```
+
+```output
+[ dotnet [ build [ --no-restore <True> ] [ --output <./build-output/> ] ] ]
+```
+
+The purpose of directives is to provide cross-cutting functionality that can apply across command-line apps. Because directives are syntactically distinct from the app's own syntax, they can provide functionality that applies across apps.
+
+A directive must conform to the following syntax rules:
+
+* It's a token on the command line that comes after the app's name but before any subcommands or options.
+* It's enclosed in square brackets.
+* It doesn't contain spaces.
+
+An unrecognized directive is ignored without causing a parsing error.
+
+A directive can include an argument, separated from the directive name by a colon.
+
+The following directives are built in:
+
+### The `[diagram]` directive
+
+This directive can be enabled with `CliSettings.EnableDiagramDirective`.
+
+Both users and developers may find it useful to see how an app will interpret a given input. One of the default features of a `System.CommandLine` app is the `[diagram]` directive, which lets you preview the result of parsing command input. For example:
+
+```console
+myapp [diagram] --delay not-an-int --interactive --file filename.txt extra
+```
+
+```output
+![ myapp [ --delay !<not-an-int> ] [ --interactive <True> ] [ --file <filename.txt> ] *[ --fgcolor <White> ] ]   ???--> extra
+```
+
+In the preceding example:
+
+* The command (`myapp`), its child options, and the arguments to those options are grouped using square brackets.
+* For the option result `[ --delay !<not-an-int> ]`, the `!` indicates a parsing error. The value `not-an-int` for an `int` option can't be parsed to the expected type. The error is also flagged by `!` in front of the command that contains the errored option: `![ myapp...`.
+* For the option result `*[ --fgcolor <White> ]`, the option wasn't specified on the command line, so the configured default was used. `White` is the effective value for this option. The asterisk indicates that the value is the default.
+* `???-->` points to input that wasn't matched to any of the app's commands or options.
+
+### The `[suggest]` directive
+
+This directive is enabled by default and can be disabled with `CliSettings.EnableSuggestDirective`.
+
+The `[suggest]` directive lets you search for commands when you don't know the exact command.
+
+```dotnetcli
+dotnet [suggest] buil
+```
+
+```output
+build
+build-server
+msbuild
+```
+
+### The environment variables directive
+
+This directive can be enabled with `CliSettings.EnableEnvironmentVariablesDirective`.
+
+Enables the use of the `[env:key=value]` directive, allowing environment variables to be set from the command line during invocation.
 
 ## Additional documentation
 - [DotMake Command-Line API docs](https://dotmake.build/api/)
