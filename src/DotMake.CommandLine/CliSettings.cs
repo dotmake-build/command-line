@@ -102,6 +102,6 @@ namespace DotMake.CommandLine
         /// </summary>
         public CliTheme Theme { get; set; } = CliTheme.Default;
 
-        private static readonly CliConfiguration DefaultConfiguration = new CliConfiguration(new CliRootCommand());
+        private static readonly CommandLineConfiguration DefaultConfiguration = new CommandLineConfiguration(new RootCommand());
     }
 }

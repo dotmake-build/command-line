@@ -40,7 +40,7 @@ namespace DotMake.CommandLine.Properties { /*MODIFY*/
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     /*MODIFY*/
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("System.CommandLine.Properties.Resources", typeof(System.CommandLine.CliCommand).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("System.CommandLine.Properties.Resources", typeof(System.CommandLine.Command).Assembly);
                     //global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("System.CommandLine.Properties.Resources", typeof(Resources).Assembly);
                     /*MODIFY*/
                     resourceMan = temp;

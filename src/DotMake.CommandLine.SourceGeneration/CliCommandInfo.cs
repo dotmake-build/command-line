@@ -12,8 +12,8 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliCommandAttribute).FullName;
         public static readonly string[] Suffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
-        public const string RootCommandClassName = "CliRootCommand";
-        public const string CommandClassName = "CliCommand";
+        public const string RootCommandClassName = "RootCommand";
+        public const string CommandClassName = "Command";
         public const string CommandClassNamespace = "System.CommandLine";
         public const string DiagnosticName = "CLI command";
         public const string GeneratedSubNamespace = "GeneratedCode";

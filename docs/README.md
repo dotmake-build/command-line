@@ -36,8 +36,8 @@ PM> Install-Package DotMake.CommandLine
 
 ### Prerequisites
 
-- .NET 7.0 and later project or .NET Standard 2.0 and later project.  
-  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to NET 6.0 projects can reference our netstandard2.0 target (automatic in nuget).  
+- .NET 8.0 and later project or .NET Standard 2.0 and later project.  
+  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to NET 7.0 projects can reference our netstandard2.0 target (automatic in nuget).  
   If your target framework is below net5.0, you also need `<LangVersion>9.0</LangVersion>` tag (minimum) in your .csproj file.
 - Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (when building via `dotnet` cli).  
   Our incremental source generator requires performance features added first in these versions.
@@ -198,7 +198,7 @@ And that's it! You now have a fully working command-line app.
 ## Help output
 
 When you run the app via 
-- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net7.0`)
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net8.0`)
 - or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
 - You see this usage help:
@@ -1168,7 +1168,7 @@ Cli.Run<RootCliCommand>();
 
 ## Response files
 
-A *response file* is a file that contains a set of [tokens](syntax.md#tokens) for a command-line app. Response files are a feature of `System.CommandLine` that is useful in two scenarios:
+A *response file* is a file that contains a set of tokens for a command-line app. Response files are a feature of `System.CommandLine` that is useful in two scenarios:
 
 * To invoke a command-line app by specifying input that is longer than the character limit of the terminal.
 * To invoke the same command repeatedly without retyping the whole line.

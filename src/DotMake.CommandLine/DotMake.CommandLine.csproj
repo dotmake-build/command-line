@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -20,10 +20,21 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to latest daily build 2.0.0-beta4.24324.3 of System.CommandLine.
-      - Fixed: CliSettings.ResponseFileTokenReplacer should use the default StringExtensions.TryReadResponseFile from System.CommandLine
-        so that response files should work out of the box.
-      - Updated docs regarding bundled options, directives and response files features.
+      - Updated to latest daily build 2.0.0-beta4.25072.1 of System.CommandLine.
+      - Fixed: New naming convention of classes from System.CommandLine (they dropped `Cli` prefix from symbol classes and replaced it with `CommandLine` for other classes).
+      - Changed: Nuget framework targets from `net7.0;netstandard2.0` to `net8.0;netstandard2.0` as underlying System.CommandLine package did so.
+        `net7.0` project can still use `netstandard2.0` target.
+      - Added: We now include a MSBuild .props file in the nuget package so referencing projects
+        that do not explicitly set SatelliteResourceLanguages property, will be considered using "en" by default:
+        Prevent satellite resource DLL pollution (which come from System.CommandLine package) in bin folder,
+        by setting a specific culture in referencing project, if not already set.
+        Empty value (default) for SatelliteResourceLanguages property causes copying of all culture subfolders and DLLs to bin folder,
+        so we opt for "en" culture by default, to prevent copying of satellite resource DLLs.
+      - Fixed: Referencing DotMake.CommandLine DLL instead of project in DotMake.CommandLine.SourceGeneration.Embedded project,
+        does not work well, especially if you Clean and Build (or for first build) you get reference errors
+        as DotMake.CommandLine.dll is not yet produced, so better to use project reference but only from this project (to avoid circular dependency).
+        Ensure that the .Embedded project is built after DotMake.CommandLine project only for checking compile errors,
+        otherwise .cs files are only embedded as resource in DotMake.CommandLine.SourceGeneration.dll.
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -36,7 +47,7 @@
       as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
       https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
     -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3">
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.25072.1">
       <GeneratePathProperty>true</GeneratePathProperty>
       <IncludeAssets>None</IncludeAssets>
       <ExcludeAssets>All</ExcludeAssets>
@@ -60,6 +71,11 @@
     </ProjectReference>
     <!-- Package the generator in the analyzer directory of the nuget package -->
     <None Include="..\$(MSBuildProjectName).SourceGeneration\$(OutputPath)\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <!--
+      Package MSBuild .props file in the nuget package
+      https://learn.microsoft.com/en-us/nuget/concepts/msbuild-props-and-targets
+    -->
+    <None Include="nuget.props" Pack="true" PackagePath="build/$(PackageId).props" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

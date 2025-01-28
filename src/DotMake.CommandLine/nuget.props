@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <!--
+      Prevent satellite resource DLL pollution (which come from System.CommandLine package) in bin folder,
+      by setting a specific culture in referencing project, if not already set.
+      Empty value (default) for SatelliteResourceLanguages property causes copying of all culture subfolders and DLLs to bin folder,
+      so we opt for "en" culture by default, to prevent copying of satellite resource DLLs.
+    -->
+    <SatelliteResourceLanguages Condition="'$(SatelliteResourceLanguages)' == ''">en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

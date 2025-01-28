@@ -64,10 +64,10 @@ namespace DotMake.CommandLine
         public bool ShortFormAutoGenerate { get; protected set; }
 
         /// <summary>
-        /// Builds a <see cref="CliCommand"/> instance, populated with sub-commands, options, arguments and settings.
+        /// Builds a <see cref="Command"/> instance, populated with sub-commands, options, arguments and settings.
         /// </summary>
-        /// <returns>A populated <see cref="CliCommand"/> instance.</returns>
-        public abstract CliCommand Build();
+        /// <returns>A populated <see cref="Command"/> instance.</returns>
+        public abstract Command Build();
 
         /// <summary>
         /// Creates a new instance of the command definition class and binds/populates the properties from the parse result.
@@ -119,7 +119,7 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Registers a command builder so that it can be found by the definition class.
         /// </summary>
-        /// <param name="commandBuilder">A command builder which builds a <see cref="CliCommand"/>.</param>
+        /// <param name="commandBuilder">A command builder which builds a <see cref="Command"/>.</param>
         /// <typeparam name="TDefinition">The definition class.</typeparam>
         public static void Register<TDefinition>(CliCommandBuilder commandBuilder)
         {
@@ -132,7 +132,7 @@ namespace DotMake.CommandLine
         /// Registers a command builder so that it can be found by the definition class.
         /// </summary>
         /// <param name="definitionType">The type of the definition class.</param>
-        /// <param name="commandBuilder">A command builder which builds a <see cref="CliCommand"/>.</param>
+        /// <param name="commandBuilder">A command builder which builds a <see cref="Command"/>.</param>
         public static void Register(Type definitionType, CliCommandBuilder commandBuilder)
         {
             RegisteredDefinitionTypes[definitionType] = commandBuilder;
@@ -290,7 +290,7 @@ namespace DotMake.CommandLine
         /// <param name="option">The option for which to get a value.</param>
         /// <typeparam name="T">The option type.</typeparam>
         /// <returns>The parsed value or a configured default.</returns>
-        public static T GetValueForOption<T>(ParseResult parseResult, CliOption<T> option)
+        public static T GetValueForOption<T>(ParseResult parseResult, Option<T> option)
         {
             var result = parseResult.GetResult(option);
             if (result != null)
@@ -304,7 +304,7 @@ namespace DotMake.CommandLine
         }
 
         /// <inheritdoc cref="GetValueForOption{T}"/>
-        public static object GetValueForOption(ParseResult parseResult, CliOption option)
+        public static object GetValueForOption(ParseResult parseResult, Option option)
         {
             var result = parseResult.GetResult(option);
             if (result != null)
@@ -328,7 +328,7 @@ namespace DotMake.CommandLine
         /// <param name="argument">The argument for which to get a value.</param>
         /// <typeparam name="T">The argument type.</typeparam>
         /// <returns>The parsed value or a configured default.</returns>
-        public static T GetValueForArgument<T>(ParseResult parseResult, CliArgument<T> argument)
+        public static T GetValueForArgument<T>(ParseResult parseResult, Argument<T> argument)
         {
             var result = parseResult.GetResult(argument);
             if (result != null)
@@ -342,7 +342,7 @@ namespace DotMake.CommandLine
         }
 
         /// <inheritdoc cref="GetValueForArgument{T}"/>
-        public static object GetValueForArgument(ParseResult parseResult, CliArgument argument)
+        public static object GetValueForArgument(ParseResult parseResult, Argument argument)
         {
             var result = parseResult.GetResult(argument);
             if (result != null)

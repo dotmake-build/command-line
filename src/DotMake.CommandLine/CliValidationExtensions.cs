@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace DotMake.CommandLine
 {
     /// <summary>
-    /// Provides extension methods related to validation for <see cref="CliArgument"/> and <see cref="CliOption"/>. 
+    /// Provides extension methods related to validation for <see cref="Argument"/> and <see cref="Option"/>. 
     /// </summary>
     public static class CliValidationExtensions
     {
@@ -20,7 +20,7 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <param name="validationRules">The validation rules to add.</param>
-        public static void AddValidator(this CliOption option, CliValidationRules validationRules)
+        public static void AddValidator(this Option option, CliValidationRules validationRules)
         {
             AddValidator(option.GetArgument(), validationRules);
         }
@@ -31,7 +31,7 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <param name="validationRules">The validation rules to add.</param>
-        public static void AddValidator(this CliArgument argument, CliValidationRules validationRules)
+        public static void AddValidator(this Argument argument, CliValidationRules validationRules)
         {
             if (validationRules.HasFlag(CliValidationRules.ExistingFile))
                 argument.Validators.Add(static result => ValidateArgumentResult(result, ExistingFile));
@@ -71,7 +71,7 @@ namespace DotMake.CommandLine
         /// <param name="option">The option to configure.</param>
         /// <param name="validationPattern">A regular expression pattern used for validation.</param>
         /// <param name="validationMessage">An error message to show when <paramref name="validationPattern"/> does not match and validation fails.</param>
-        public static void AddValidator(this CliOption option, string validationPattern, string validationMessage = null)
+        public static void AddValidator(this Option option, string validationPattern, string validationMessage = null)
         {
             AddValidator(option.GetArgument(), validationPattern, validationMessage);
         }
@@ -83,7 +83,7 @@ namespace DotMake.CommandLine
         /// <param name="argument">The argument to configure.</param>
         /// <param name="validationPattern">A regular expression pattern used for validation.</param>
         /// <param name="validationMessage">An error message to show when <paramref name="validationPattern"/> does not match and validation fails.</param>
-        public static void AddValidator(this CliArgument argument, string validationPattern, string validationMessage = null)
+        public static void AddValidator(this Argument argument, string validationPattern, string validationMessage = null)
         {
             if (!string.IsNullOrWhiteSpace(validationPattern))
                 argument.Validators.Add(result =>

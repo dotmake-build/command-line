@@ -11,7 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliOptionAttribute).FullName;
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Option").Append("Option").ToArray();
-        public const string OptionClassName = "CliOption";
+        public const string OptionClassName = "Option";
         public const string OptionClassNamespace = "System.CommandLine";
         public const string DiagnosticName = "CLI option";
         public static readonly Dictionary<string, string> PropertyMappings = new Dictionary<string, string>

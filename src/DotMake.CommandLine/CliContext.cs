@@ -66,7 +66,7 @@ namespace DotMake.CommandLine
                     }
                 };
 
-            var action = (SynchronousCliAction)helpOption.Action;
+            var action = (SynchronousCommandLineAction)helpOption.Action;
 
             action?.Invoke(ParseResult);
         }

@@ -199,7 +199,7 @@ namespace DotMake.CommandLine
         {
             // by making this logic more complex, we were able to get some nice perf wins elsewhere
             var options = new List<TwoColumnHelpRow>();
-            var uniqueOptions = new HashSet<CliOption>();
+            var uniqueOptions = new HashSet<Option>();
             foreach (var option in helpContext.Command.Options)
             {
                 if (!option.Hidden && uniqueOptions.Add(option))
@@ -211,10 +211,10 @@ namespace DotMake.CommandLine
             var current = helpContext.Command;
             while (current != null)
             {
-                CliCommand parentCommand = null;
+                Command parentCommand = null;
                 foreach (var parent in current.Parents)
                 {
-                    if ((parentCommand = parent as CliCommand) != null)
+                    if ((parentCommand = parent as Command) != null)
                     {
                         foreach (var option in parentCommand.Options)
                         {
@@ -273,7 +273,7 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="CliCommand.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
+        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
         /// </summary>
         /// <param name="helpContext">The help context.</param>
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
@@ -387,7 +387,7 @@ namespace DotMake.CommandLine
             }
         }
 
-        private string GetUsage(CliCommand command)
+        private string GetUsage(Command command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -395,9 +395,9 @@ namespace DotMake.CommandLine
             {
                 bool displayOptionTitle = false;
 
-                IEnumerable<CliCommand> parentCommands =
+                IEnumerable<Command> parentCommands =
                     command
-                        .RecurseWhileNotNull(c => c.Parents.OfType<CliCommand>().FirstOrDefault())
+                        .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                         .Reverse();
 
                 foreach (var parentCommand in parentCommands)
@@ -442,7 +442,7 @@ namespace DotMake.CommandLine
             }
         }
 
-        private string FormatArgumentUsage(IList<CliArgument> arguments)
+        private string FormatArgumentUsage(IList<Argument> arguments)
         {
             var sb = new StringBuilder(arguments.Count * 100);
 
@@ -492,7 +492,7 @@ namespace DotMake.CommandLine
 
             return sb.ToString();
 
-            bool IsOptional(CliArgument argument) =>
+            bool IsOptional(Argument argument) =>
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
@@ -545,9 +545,9 @@ namespace DotMake.CommandLine
             }
         }
 
-        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(CliCommand command, HelpContext context) =>
+        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(Command command, HelpContext context) =>
             command
-                .RecurseWhileNotNull(c => c.Parents.OfType<CliCommand>().FirstOrDefault())
+                .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                 .Reverse()
                 .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
                 .Select(a => GetTwoColumnRow(a, context))
@@ -560,7 +560,7 @@ namespace DotMake.CommandLine
         /// <param name="context">The help context.</param>
         /// <returns>Two column help row.</returns>
         public new TwoColumnHelpRow GetTwoColumnRow(
-            CliSymbol symbol,
+            Symbol symbol,
             HelpContext context)
         {
             if (symbol is null)
@@ -575,11 +575,11 @@ namespace DotMake.CommandLine
                 _customizationsBySymbol.TryGetValue(symbol, out customization);
             }
 
-            if (symbol is CliOption or CliCommand)
+            if (symbol is Option or Command)
             {
                 return GetOptionOrCommandRow();
             }
-            else if (symbol is CliArgument argument)
+            else if (symbol is Argument argument)
             {
                 return GetCommandArgumentRow(argument);
             }
@@ -591,9 +591,9 @@ namespace DotMake.CommandLine
             TwoColumnHelpRow GetOptionOrCommandRow()
             {
                 var firstColumnText = customization?.GetFirstColumn?.Invoke(context)
-                    ?? (symbol is CliOption option
+                    ?? (symbol is Option option
                             ? Default.GetOptionUsageLabel(option)
-                            : Default.GetCommandUsageLabel((CliCommand)symbol));
+                            : Default.GetCommandUsageLabel((Command)symbol));
 
                 var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
 
@@ -606,7 +606,7 @@ namespace DotMake.CommandLine
                     : string.Empty;
 
                 /*MODIFY*/
-                if (symbol is CliOption o && o.Required)
+                if (symbol is Option o && o.Required)
                 {
                     if (symbolDescription.Length > 0)
                         symbolDescription += " ";
@@ -622,7 +622,7 @@ namespace DotMake.CommandLine
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            TwoColumnHelpRow GetCommandArgumentRow(CliArgument argument)
+            TwoColumnHelpRow GetCommandArgumentRow(Argument argument)
             {
                 var firstColumnText =
                     customization?.GetFirstColumn?.Invoke(context) ?? Default.GetArgumentUsageLabel(argument);
@@ -652,9 +652,9 @@ namespace DotMake.CommandLine
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            string GetSymbolDefaultValue(CliSymbol symbol)
+            string GetSymbolDefaultValue(Symbol symbol)
             {
-                IList<CliArgument> arguments = symbol.Arguments();
+                IList<Argument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.Hidden && x.HasDefaultValue).ToArray();
 
                 if (defaultArguments.Length == 0) return "";
@@ -666,11 +666,11 @@ namespace DotMake.CommandLine
             }
         }
         // ReSharper disable once InconsistentNaming
-        private Dictionary<CliSymbol, Customization> _customizationsBySymbol = null;
+        private Dictionary<Symbol, Customization> _customizationsBySymbol = null;
 
         private string GetArgumentDefaultValue(
-            CliSymbol parent,
-            CliArgument argument,
+            Symbol parent,
+            Argument argument,
             bool displayArgumentName,
             HelpContext context)
         {
@@ -714,35 +714,35 @@ namespace DotMake.CommandLine
             /// </summary>
             /// <param name="argument">The argument to get the default value for.</param>
             /// <returns>Argument default value.</returns>
-            public static string GetArgumentDefaultValue(CliArgument argument) => HelpBuilder.Default.GetArgumentDefaultValue(argument);
+            public static string GetArgumentDefaultValue(Argument argument) => HelpBuilder.Default.GetArgumentDefaultValue(argument);
 
             /// <summary>
             /// Gets the description for an argument (typically used in the second column text in the arguments section).
             /// </summary>
             /// <param name="argument">The argument to get the default value for.</param>
             /// <returns>Argument description.</returns>
-            public static string GetArgumentDescription(CliArgument argument) => HelpBuilder.Default.GetArgumentDescription(argument);
+            public static string GetArgumentDescription(Argument argument) => HelpBuilder.Default.GetArgumentDescription(argument);
 
             /// <summary>
             /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
             /// </summary>
             /// <param name="argument">The argument to get the default value for.</param>
             /// <returns>Argument usage label.</returns>
-            public static string GetArgumentUsageLabel(CliArgument argument) => HelpBuilder.Default.GetArgumentUsageLabel(argument);
+            public static string GetArgumentUsageLabel(Argument argument) => HelpBuilder.Default.GetArgumentUsageLabel(argument);
 
             /// <summary>
             /// Gets the usage label for the specified symbol (typically used as the first column text in help output).
             /// </summary>
             /// <param name="symbol">The symbol to get a help item for.</param>
             /// <returns>Text to display.</returns>
-            public static string GetCommandUsageLabel(CliCommand symbol)
+            public static string GetCommandUsageLabel(Command symbol)
                 => GetIdentifierSymbolUsageLabel(symbol, symbol.Aliases);
 
-            /// <inheritdoc cref="GetCommandUsageLabel(CliCommand)"/>
-            public static string GetOptionUsageLabel(CliOption symbol)
+            /// <inheritdoc cref="GetCommandUsageLabel(Command)"/>
+            public static string GetOptionUsageLabel(Option symbol)
                 => GetIdentifierSymbolUsageLabel(symbol, symbol.Aliases);
 
-            private static string GetIdentifierSymbolUsageLabel(CliSymbol symbol, ICollection<string> aliasSet)
+            private static string GetIdentifierSymbolUsageLabel(Symbol symbol, ICollection<string> aliasSet)
             {
                 var aliases = aliasSet.Count == 0 /*MODIFY*/
                     ? new[] { symbol.Name }
@@ -757,7 +757,7 @@ namespace DotMake.CommandLine
                 var firstColumnText = string.Join(", ", aliases);
 
                 /*MODIFY*/
-                if (symbol is CliCommand)
+                if (symbol is Command)
                     return firstColumnText;
                 /*MODIFY*/
 

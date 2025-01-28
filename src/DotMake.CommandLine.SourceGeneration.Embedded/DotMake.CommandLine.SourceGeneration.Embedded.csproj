@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <!-- Make sure it compiles for lowest supported LangVersion 9.0 as source may be generated in a netstandard2.0 project -->
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
@@ -14,11 +14,26 @@
     <!--
     Code should compile against DotMake.CommandLine.dll (not project due to circular dependency),
     which will be available during runtime.
-    -->
+    $(OutputPath) will be same as bin\$(Configuration)\$(TargetFramework)\
+    $(IntermediateOutputPath) will be same as obj\$(Configuration)\$(TargetFramework)\
+    
+    This does not work well, especially if you Clean and Build (or for first build) you get reference errors
+    as DotMake.CommandLine.dll is not yet produced, so better to use project reference but only from this project.
+
     <Reference Include="DotMake.CommandLine">
       <HintPath>..\DotMake.CommandLine\$(OutputPath)DotMake.CommandLine.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    -->
+    <!--
+      Ensure that the .Embedded project is built after DotMake.CommandLine project only for checking compile errors,
+      otherwise .cs files are only embedded as resource in DotMake.CommandLine.SourceGeneration.dll
+    -->
+    <ProjectReference Include="..\DotMake.CommandLine\DotMake.CommandLine.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <Private>false</Private>
+    </ProjectReference>
+
   </ItemGroup>
 
 </Project>

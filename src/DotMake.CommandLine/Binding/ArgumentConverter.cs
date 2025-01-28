@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using static DotMake.CommandLine.Binding.ArgumentConversionResult;
 
@@ -16,7 +17,7 @@ namespace DotMake.CommandLine.Binding
     {
         internal static Dictionary<Type, Func<Array, object>> CollectionConverters = new Dictionary<Type, Func<Array, object>>();
 
-        internal static TryConvertArgument? GetConverter(CliArgument argument)
+        internal static TryConvertArgument? GetConverter(Argument argument)
         {
             /*
             //We check exceptions for convert methods, so disabling this shortcut
@@ -88,10 +89,10 @@ namespace DotMake.CommandLine.Binding
         {
             switch (value)
             {
-                case CliToken singleValue:
+                case Token singleValue:
                     return ConvertToken(argumentResult, type, singleValue);
 
-                case IReadOnlyList<CliToken> manyValues:
+                case IReadOnlyList<Token> manyValues:
                     return ConvertTokens(argumentResult, type, manyValues);
 
                 default:
@@ -115,7 +116,7 @@ namespace DotMake.CommandLine.Binding
         private static ArgumentConversionResult ConvertToken(
             ArgumentResult argumentResult,
             Type type,
-            CliToken token)
+            Token token)
         {
             var value = token.Value;
 
@@ -159,7 +160,7 @@ namespace DotMake.CommandLine.Binding
         private static ArgumentConversionResult ConvertTokens(
             ArgumentResult argumentResult,
             Type type,
-            IReadOnlyList<CliToken> tokens)
+            IReadOnlyList<Token> tokens)
         {
             type = type.GetNullableUnderlyingTypeOrSelf();
             var itemType = type.GetElementTypeIfEnumerable(typeof(string)) ?? typeof(string);
@@ -279,6 +280,10 @@ namespace DotMake.CommandLine.Binding
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2067:UnrecognizedReflectionPattern",
             Justification = $"{nameof(CreateDefaultValueType)} is only called on a ValueType. You can always create an instance of a ValueType.")]
         private static object CreateDefaultValueType(Type type) =>
+#if NET
+            RuntimeHelpers.GetUninitializedObject(type);
+#else
             FormatterServices.GetUninitializedObject(type);
+#endif
     }
 }

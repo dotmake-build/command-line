@@ -11,7 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration
     {
         public static readonly string AttributeFullName = typeof(CliArgumentAttribute).FullName;
         public static readonly string[] Suffixes = CliCommandInfo.Suffixes.Select(s => s + "Argument").Append("Argument").ToArray();
-        public const string ArgumentClassName = "CliArgument";
+        public const string ArgumentClassName = "Argument";
         public const string ArgumentClassNamespace = "System.CommandLine";
         public const string ArgumentArityClassName = "ArgumentArity";
         public const string DiagnosticName = "CLI argument";

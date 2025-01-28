@@ -27,13 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Ensure that the .Embedded project is built together with this project (for checking compile errors) -->
-    <ProjectReference Include="..\$(MSBuildProjectName).Embedded\$(MSBuildProjectName).Embedded.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Update="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

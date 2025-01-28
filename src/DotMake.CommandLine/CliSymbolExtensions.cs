@@ -8,29 +8,29 @@ namespace DotMake.CommandLine
     internal static class CliSymbolExtensions
     {
         private static readonly PropertyInfo ArgumentProperty =
-            typeof(CliOption).GetProperty("Argument", BindingFlags.Instance | BindingFlags.NonPublic);
+            typeof(Option).GetProperty("Argument", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        public static CliArgument GetArgument(this CliOption option)
+        public static Argument GetArgument(this Option option)
         {
             var value = ArgumentProperty.GetValue(option);
             if (value == null)
                 throw new NullReferenceException(nameof(ArgumentProperty));
 
-            return (CliArgument)value;
+            return (Argument)value;
         }
 
-        internal static IList<CliArgument> Arguments(this CliSymbol symbol)
+        internal static IList<Argument> Arguments(this Symbol symbol)
         {
             switch (symbol)
             {
-                case CliOption option:
+                case Option option:
                     return new[]
                     {
                         option.GetArgument()
                     };
-                case CliCommand command:
+                case Command command:
                     return command.Arguments;
-                case CliArgument argument:
+                case Argument argument:
                     return new[]
                     {
                         argument
@@ -40,17 +40,17 @@ namespace DotMake.CommandLine
             }
         }
 
-        internal static bool HasArguments(this CliCommand command)
+        internal static bool HasArguments(this Command command)
         {
             return command.Arguments.Count > 0;
         }
 
-        internal static bool HasOptions(this CliCommand command)
+        internal static bool HasOptions(this Command command)
         {
             return command.Options.Count > 0;
         }
 
-        internal static bool HasSubcommands(this CliCommand command)
+        internal static bool HasSubcommands(this Command command)
         {
             return command.Subcommands.Count > 0;
         }
