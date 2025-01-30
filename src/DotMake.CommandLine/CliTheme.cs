@@ -12,7 +12,7 @@ namespace DotMake.CommandLine
         /// </summary>
         public CliTheme()
         {
-            
+
         }
 
         /// <summary>
@@ -33,13 +33,13 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets the default color used by the app.
-        /// <para>Default is <see langword="null"/> which also means <see cref="ConsoleColor.Gray"/>.</para>
+        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Gray"/> on Windows. On *nix-like platforms, the default is unset (<see cref="ConsoleColor"/>(-1)).</para>
         /// </summary>
         public ConsoleColor? DefaultColor { get; init; }
 
         /// <summary>
         /// Gets or sets the default background color used by the app.
-        /// <para>Default is <see langword="null"/> which also means <see cref="ConsoleColor.Black"/>.</para>
+        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Black"/> on Windows. On *nix-like platforms, the default is unset (<see cref="ConsoleColor"/>(-1)).</para>
         /// </summary>
         public ConsoleColor? DefaultBgColor { get; init; }
 
@@ -101,7 +101,7 @@ namespace DotMake.CommandLine
         /// <para>First column is similar to:</para>
         /// <code language="console">
         ///   &lt;argument-1&gt;
-        /// 
+        ///
         ///   -o, --option-1 &lt;option-1&gt;
         ///   -v, --version
         ///   -?, -h, --help
@@ -117,7 +117,7 @@ namespace DotMake.CommandLine
         /// <para>Second column is similar to:</para>
         /// <code language="console">
         ///                       Description for Argument1 [required]
-        /// 
+        ///
         ///                       Description for Option1 [default: DefaultForOption1]
         ///                       Show version information
         ///                       Show help and usage information
