@@ -21,10 +21,9 @@ namespace DotMake.CommandLine
         {
             if (ColorIsSupported && !Console.IsOutputRedirected)
             {
-                //Color 07 will set it to the default scheme that cmd.exe uses.
-                //0 = Black
-                //7 = White  (ConsoleColor.Gray is 7)
-                //https://superuser.com/a/158769
+                // https://learn.microsoft.com/en-us/dotnet/api/system.console.foregroundcolor?view=net-8.0#remarks
+                // On Windows, the default color is gray (ConsoleColor.Gray).
+                // On *nix-like platforms, the default color is unset ((ConsoleColor)-1).
                 if (color == null)
                     Console.ForegroundColor = defaultColor ?? ConsoleColor.Gray;
                 else
@@ -36,12 +35,12 @@ namespace DotMake.CommandLine
         {
             if (ColorIsSupported && !Console.IsOutputRedirected)
             {
-                //Color 07 will set it to the default scheme that cmd.exe uses.
-                //0 = Black
-                //7 = White  (ConsoleColor.Gray is 7)
-                //https://superuser.com/a/158769
+                // https://learn.microsoft.com/en-us/dotnet/api/system.console.backgroundcolor?view=net-8.0#remarks
+                // On Windows, the default color is black (ConsoleColor.Black).
+                // On *nix-like platforms, the default color is unset ((ConsoleColor)-1).
                 if (color == null)
-                    Console.BackgroundColor = defaultColor ?? ConsoleColor.Black;
+                    // Console.BackgroundColor = defaultColor ?? ConsoleColor.Black;
+                    Console.BackgroundColor = defaultColor ?? (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ConsoleColor.Black : (ConsoleColor)(-1));
                 else
                     Console.BackgroundColor = color.Value;
             }
