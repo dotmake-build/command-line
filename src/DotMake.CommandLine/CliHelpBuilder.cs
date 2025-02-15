@@ -19,6 +19,7 @@ namespace DotMake.CommandLine
     {
         private const string Indent = "  ";
         private readonly CliTheme theme;
+        private Func<HelpContext, IEnumerable<Func<HelpContext, bool>>>? _getLayout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliHelpBuilder" /> class.
@@ -62,13 +63,21 @@ namespace DotMake.CommandLine
             {
                 return;
             }
-
-            var writeSections = GetLayout(helpContext).ToArray();
+            var layout = _getLayout ?? GetLayout;     
+            var writeSections = layout(helpContext).ToArray();
             foreach (var writeSection in writeSections)
             {
                 if (writeSection(helpContext))
                     helpContext.Output.WriteLine();
             }
+        }
+        /// <summary>
+        /// Customizes the layout of the help output.
+        /// </summary>
+        /// <param name="getLayout">A delegate that returns the layout sections.</param>
+        public new void CustomizeLayout(Func<HelpContext, IEnumerable<Func<HelpContext, bool>>> getLayout)
+        {
+            _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
 
         /// <summary>
