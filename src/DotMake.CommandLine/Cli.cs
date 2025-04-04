@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
@@ -20,6 +21,7 @@ namespace DotMake.CommandLine
     ///         <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
     ///         <code source="..\TestApp\CliExamples.cs" region="CliParse" language="cs" />
     ///     </code>
+    ///     <code id="gettingStartedClass2" source="..\TestApp\RootHelpOnEmptyCliCommand.cs" region="RootHelpOnEmptyCliCommand" language="cs" />
     ///     <code>
     ///         <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
     ///         <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
@@ -82,6 +84,53 @@ namespace DotMake.CommandLine
         {
             var commandBuilder = CliCommandBuilder.Get(definitionType);
             var command = commandBuilder.Build();
+
+            // Add nested or external registered parent commands
+            var currentCommand = command;
+            foreach (var parent in commandBuilder.Parents)
+            {
+                var parentCommand = parent.Build();
+                parentCommand.Add(currentCommand);
+                currentCommand = parentCommand;
+            }
+
+            // Add nested or external registered children commands
+            var queue = new Queue<Tuple<CliCommandBuilder, Command>>();
+            queue.Enqueue(Tuple.Create(commandBuilder, command));
+            while (queue.Count > 0)
+            {
+                var currentTuple= queue.Dequeue();
+                var current = currentTuple.Item1;
+                var currentCommand2 = currentTuple.Item2;
+
+                foreach (var child in current.Children)
+                {
+                    var childCommand = child.Build();
+                    currentCommand2.Add(childCommand);
+                    queue.Enqueue(Tuple.Create(child, childCommand));
+                }
+            }
+
+
+            /*
+            //Testing command hierarchy
+            var topCommandBuilder = commandBuilder.Parents.LastOrDefault() ?? commandBuilder;
+            var queue2 = new Queue<CliCommandBuilder>();
+            queue2.Enqueue(topCommandBuilder);
+            while (queue2.Count > 0)
+            {
+                var current = queue2.Dequeue();
+
+                var depth = current.Parents.Count();
+                Console.Write(new string(' ', 2 * depth));
+                Console.WriteLine($@"{current.DefinitionType.Name} (depth: {depth})");
+
+                foreach (var child in current.Children)
+                {
+                    queue2.Enqueue(child);
+                }
+            }
+            */
 
             settings ??= new CliSettings();
             var configuration = new CommandLineConfiguration(command)

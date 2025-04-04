@@ -19,7 +19,7 @@ namespace DotMake.CommandLine
     {
         private const string Indent = "  ";
         private readonly CliTheme theme;
-        private Func<HelpContext, IEnumerable<Func<HelpContext, bool>>>? _getLayout;
+        private Func<HelpContext, IEnumerable<Func<HelpContext, bool>>> customGetLayout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliHelpBuilder" /> class.
@@ -63,8 +63,9 @@ namespace DotMake.CommandLine
             {
                 return;
             }
-            var layout = _getLayout ?? GetLayout;     
-            var writeSections = layout(helpContext).ToArray();
+
+            var getLayout = customGetLayout ?? GetLayout;     
+            var writeSections = getLayout(helpContext).ToArray();
             foreach (var writeSection in writeSections)
             {
                 if (writeSection(helpContext))
@@ -77,7 +78,7 @@ namespace DotMake.CommandLine
         /// <param name="getLayout">A delegate that returns the layout sections.</param>
         public new void CustomizeLayout(Func<HelpContext, IEnumerable<Func<HelpContext, bool>>> getLayout)
         {
-            _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
+            customGetLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
 
         /// <summary>

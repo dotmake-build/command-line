@@ -11,7 +11,7 @@ namespace DotMake.CommandLine
     {
         internal static IEnumerable<T> FlattenBreadthFirst<T>(
             this IEnumerable<T> source,
-            Func<T, IEnumerable<T>> children)
+            Func<T, IEnumerable<T>> getChildren)
         {
             var queue = new Queue<T>();
 
@@ -24,9 +24,9 @@ namespace DotMake.CommandLine
             {
                 var current = queue.Dequeue();
 
-                foreach (var option in children(current))
+                foreach (var item in getChildren(current))
                 {
-                    queue.Enqueue(option);
+                    queue.Enqueue(item);
                 }
 
                 yield return current;

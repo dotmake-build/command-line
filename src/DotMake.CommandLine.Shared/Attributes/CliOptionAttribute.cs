@@ -42,6 +42,7 @@ namespace DotMake.CommandLine
     /// <example>
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedDelegate']" />
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
+    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass2']" />
     ///     <code source="..\TestApp\Commands\RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\OptionBundlingCliCommand.cs" region="OptionBundlingCliCommand" language="cs" />

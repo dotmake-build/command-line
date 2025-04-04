@@ -8,7 +8,7 @@ What if you had an easy class-based layer combined with a good parser?
 
 DotMake.CommandLine is a library which provides declarative syntax for 
 [System.CommandLine](https://github.com/dotnet/command-line-api) 
-via attributes for easy, fast, strongly-typed (no reflection) usage. The library includes includes a source generator 
+via attributes for easy, fast, strongly-typed (no reflection) usage. The library includes a source generator 
 which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments. 
 Supports 
 [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained), 
@@ -329,6 +329,9 @@ Cli.Run<RootCliCommand>(args, new CliSettings
     }
 });
 ```
+
+Note that [NO_COLOR](https://no-color.org/) is supported, i.e. if `NO_COLOR` environment variable is set, the colors will be disabled.
+
 ### Localization
 
 Localizing commands, options and arguments is supported.

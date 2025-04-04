@@ -33,13 +33,13 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets the default color used by the app.
-        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Gray"/> on Windows. On *nix-like platforms, the default is unset (<see cref="ConsoleColor"/>(-1)).</para>
+        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Gray"/> on Windows and is equivalent to <c>(<see cref="ConsoleColor"/>)-1</c> (unset/unknown) on Unix-like platforms.</para>
         /// </summary>
         public ConsoleColor? DefaultColor { get; init; }
 
         /// <summary>
         /// Gets or sets the default background color used by the app.
-        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Black"/> on Windows. On *nix-like platforms, the default is unset (<see cref="ConsoleColor"/>(-1)).</para>
+        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Black"/> on Windows and is equivalent to <c>(<see cref="ConsoleColor"/>)-1</c> (unset/unknown) on Unix-like platforms.</para>
         /// </summary>
         public ConsoleColor? DefaultBgColor { get; init; }
 

@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
 using TestApp.Commands;
+using TestApp.Commands.External;
 using TestApp.Commands.PrefixConvention;
 
 try
@@ -30,7 +32,8 @@ try
     */
 
     //Using Cli.Run with class:
-    Cli.Run<RootCliCommand>(args);
+    Cli.Run<RootHelpOnEmptyCliCommand>(args);
+    //Cli.Run<RootCliCommand>(args);
     //Cli.Run<WriteFileCliCommand>(args);
     //Cli.Run<ArgumentConverterCliCommand>(args);
     //Cli.Run<EnumerableCliCommand>(args);

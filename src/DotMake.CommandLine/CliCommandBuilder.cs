@@ -64,6 +64,16 @@ namespace DotMake.CommandLine
         public bool ShortFormAutoGenerate { get; protected set; }
 
         /// <summary>
+        /// Gets the command builders that are nested/external children of this command builder.
+        /// </summary>
+        public IEnumerable<CliCommandBuilder> Children => GetChildren(DefinitionType);
+
+        /// <summary>
+        /// Gets the command builders that are nested/external parents of this command builder.
+        /// </summary>
+        public IEnumerable<CliCommandBuilder> Parents => GetParents(DefinitionType);
+
+        /// <summary>
         /// Builds a <see cref="Command"/> instance, populated with sub-commands, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
@@ -89,11 +99,6 @@ namespace DotMake.CommandLine
                 return Binder(pr);
             });
         }
-        
-        /// <summary>
-        /// Gets the command builders that are nested/external children of this command builder.
-        /// </summary>
-        public IEnumerable<CliCommandBuilder> Children => GetChildren(DefinitionType);
 
         /// <summary>
         /// Registers this command builder so that it can be found by the definition class,
@@ -110,10 +115,10 @@ namespace DotMake.CommandLine
 
         #region Static
 
-        private static readonly Dictionary<Type, CliCommandBuilder> RegisteredDefinitionTypes =
+        private static readonly Dictionary<Type, CliCommandBuilder> RegisteredCommandBuilders =
             new Dictionary<Type, CliCommandBuilder>();
 
-        private static readonly Dictionary<Type, HashSet<CliCommandBuilder>> RegisteredParentDefinitionTypes =
+        private static readonly Dictionary<Type, HashSet<CliCommandBuilder>> RegisteredChildCommandBuilders =
             new Dictionary<Type, HashSet<CliCommandBuilder>>();
 
         /// <summary>
@@ -135,7 +140,7 @@ namespace DotMake.CommandLine
         /// <param name="commandBuilder">A command builder which builds a <see cref="Command"/>.</param>
         public static void Register(Type definitionType, CliCommandBuilder commandBuilder)
         {
-            RegisteredDefinitionTypes[definitionType] = commandBuilder;
+            RegisteredCommandBuilders[definitionType] = commandBuilder;
         }
 
         /// <summary>
@@ -157,7 +162,7 @@ namespace DotMake.CommandLine
         /// <returns>The registered <see cref="CliCommandBuilder" /> instance.</returns>
         public static CliCommandBuilder Get(Type definitionType)
         {
-            if (!RegisteredDefinitionTypes.TryGetValue(definitionType, out var commandBuilder))
+            if (!RegisteredCommandBuilders.TryGetValue(definitionType, out var commandBuilder))
             {
                 if (definitionType.GetCustomAttribute<CliCommandAttribute>() == null)
                     throw new Exception($"The class '{definitionType.Name}' should have [CliCommand] attribute.");
@@ -194,10 +199,18 @@ namespace DotMake.CommandLine
         /// <param name="childCommandBuilder">The nested/external child command builder.</param>
         public static void RegisterAsChild(Type parentDefinitionType, CliCommandBuilder childCommandBuilder)
         {
-            if (!RegisteredParentDefinitionTypes.TryGetValue(parentDefinitionType, out var children))
-                RegisteredParentDefinitionTypes[parentDefinitionType] = children = new HashSet<CliCommandBuilder>();
+            if (!RegisteredChildCommandBuilders.TryGetValue(parentDefinitionType, out var children))
+                RegisteredChildCommandBuilders[parentDefinitionType] = children = new HashSet<CliCommandBuilder>();
 
             children.Add(childCommandBuilder);
+
+            /*
+            if (childCommandBuilder.ParentDefinitionType != null)
+            {
+                if (RegisteredDefinitionTypes.TryGetValue(childCommandBuilder.ParentDefinitionType, out var parent))
+                    RegisteredParentDefinitionTypes[childCommandBuilder.DefinitionType] = parent;
+            }
+            */
         }
 
         /// <summary>
@@ -220,10 +233,47 @@ namespace DotMake.CommandLine
         public static IEnumerable<CliCommandBuilder> GetChildren(Type parentDefinitionType)
         {
             if (parentDefinitionType == null
-                || !RegisteredParentDefinitionTypes.TryGetValue(parentDefinitionType, out var children))
+                || !RegisteredChildCommandBuilders.TryGetValue(parentDefinitionType, out var children))
                 return Enumerable.Empty<CliCommandBuilder>();
 
             return children;
+        }
+
+        /// <summary>
+        /// Gets the command builders that are registered as nested/external parents of a child definition.
+        /// </summary>
+        /// <typeparam name="TDefinition">The child definition class.</typeparam>
+        /// <returns>An enumerable whose elements are the <see cref="CliCommandBuilder" /> instances registered as nested/external parents.</returns>
+        public static IEnumerable<CliCommandBuilder> GetParents<TDefinition>()
+        {
+            var definitionType = typeof(TDefinition);
+
+            return GetParents(definitionType);
+        }
+
+
+        /// <summary>
+        /// Gets the command builders that are registered as nested/external parents of a child definition.
+        /// </summary>
+        /// <param name="definitionType">The type of the child definition class.</param>
+        /// <returns>An enumerable whose elements are the <see cref="CliCommandBuilder" /> instances registered as nested/external parents.</returns>
+        public static IEnumerable<CliCommandBuilder> GetParents(Type definitionType)
+        {
+            while (definitionType != null)
+            {
+                if (RegisteredCommandBuilders.TryGetValue(definitionType, out var commandBuilder)
+                    && commandBuilder.ParentDefinitionType != null
+                    && RegisteredChildCommandBuilders.TryGetValue(commandBuilder.ParentDefinitionType, out var children)
+                    && children.Contains(commandBuilder)
+                    && RegisteredCommandBuilders.TryGetValue(commandBuilder.ParentDefinitionType, out var parentCommandBuilder))
+                {
+                    yield return parentCommandBuilder;
+
+                    definitionType = parentCommandBuilder.ParentDefinitionType;
+                }
+                else
+                    yield break;
+            }
         }
 
         /// <summary>

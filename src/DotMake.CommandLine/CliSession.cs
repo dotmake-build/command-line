@@ -17,8 +17,11 @@ namespace DotMake.CommandLine
                 //otherwise it's not updated until next execution of the app.
                 //Related: https://stackoverflow.com/questions/45513075/why-does-checking-the-console-outputencoding-take-so-long
                 ConsoleExtensions.SetOutputEncoding(Encoding.UTF8);
-                ConsoleExtensions.SetColor(settings.Theme.DefaultColor);
+
                 ConsoleExtensions.SetBgColor(settings.Theme.DefaultBgColor);
+                ConsoleExtensions.SetColor(settings.Theme.DefaultColor);
+                //Console.WriteLine($@"BackgroundColor: {Console.BackgroundColor}");
+                //Console.WriteLine($@"ForegroundColor: {Console.ForegroundColor}");
             }
 
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;

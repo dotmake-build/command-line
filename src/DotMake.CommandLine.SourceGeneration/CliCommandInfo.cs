@@ -337,12 +337,17 @@ namespace DotMake.CommandLine.SourceGeneration
                         sb.AppendLine($"{varCommand}.Add({varArgument});");
                     }
 
+                    /*
+                    From now on, we will handle this in Cli.GetConfiguration where Build() is called and command is created.
+                    We don't want it to be recursive here, because we will also create the parents.
+
                     sb.AppendLine();
                     sb.AppendLine("// Add nested or external registered children");
                     using (sb.AppendBlockStart("foreach (var child in Children)"))
                     {
                         sb.AppendLine($"{varCommand}.Add(child.Build());");
                     }
+                    */
 
                     sb.AppendLine();
                     var varParseResult = "parseResult";
