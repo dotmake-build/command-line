@@ -21,7 +21,7 @@ namespace DotMake.CommandLine
     ///         <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
     ///         <code source="..\TestApp\CliExamples.cs" region="CliParse" language="cs" />
     ///     </code>
-    ///     <code id="gettingStartedClass2" source="..\TestApp\RootHelpOnEmptyCliCommand.cs" region="RootHelpOnEmptyCliCommand" language="cs" />
+    ///     <code id="gettingStartedClass2" source="..\TestApp\Commands\RootHelpOnEmptyCliCommand.cs" region="RootHelpOnEmptyCliCommand" language="cs" />
     ///     <code>
     ///         <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
     ///         <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />

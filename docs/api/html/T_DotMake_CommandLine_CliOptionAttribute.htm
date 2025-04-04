@@ -22,7 +22,7 @@ public string SomeCliOption { get; set; }</code></pre></div></div><p>
             For example if you have options "-a", "-b" and "-c", you can bundle them like "-abc".
             Only the last option can specify an argument.
             Note that if you have an explicit option named "-abc" then it will win over bundled options.
-            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 1.9.0<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliOptionAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://learn.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://learn.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliOptionAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Delegate-based model
+            </p></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Definition</h2><div id="IDBSection"><strong>Namespace:</strong> <a href="N_DotMake_CommandLine.htm">DotMake.CommandLine</a><br /><strong>Assembly:</strong> DotMake.CommandLine (in DotMake.CommandLine.dll) Version: 2.0.0<div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><span class="buttons"><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></span></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs"><span class="keyword">public</span> <span class="keyword">class</span> <span class="identifier">CliOptionAttribute</span> : <span class="identifier">Attribute</span></code></pre></div></div><dl class="inheritanceHierarchy"><dt>Inheritance</dt><dd><a href="https://learn.microsoft.com/dotnet/api/system.object" target="_blank" rel="noopener noreferrer">Object</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <a href="https://learn.microsoft.com/dotnet/api/system.attribute" target="_blank" rel="noopener noreferrer">Attribute</a>  <span class="icon is-small"><i class="fa fa-arrow-right"></i></span>  <span class="selflink">CliOptionAttribute</span></dd></dl></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Example</h2><div id="IDBCSection"><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">//Delegate-based model
 //In Program.cs, add this simple code:
 Cli.Run(([CliArgument] string argument1, bool option1) =&gt;
 {
@@ -63,7 +63,27 @@ public class RootCliCommand
 
         //If you need to simply parse the command-line arguments without invocation, use this:
         var parseResult = Cli.Parse&lt;RootCliCommand&gt;(args);
-        var rootCliCommand = parseResult.Bind&lt;RootCliCommand&gt;();</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Getting the value for a recursive option in a sub-command:
+        var rootCliCommand = parseResult.Bind&lt;RootCliCommand&gt;();</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// A root cli command which shows help if command is empty, i.e. no arguments or options are passed.
+// Arguments and options should be optional, if they are required (no default values),
+// then handler will not run and missing error message will be shown.
+
+[CliCommand(Description = "A root cli command")]
+public class RootHelpOnEmptyCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
+
+    public void Run(CliContext context)
+    {
+        if (context.IsEmptyCommand())
+            context.ShowHelp();
+        else
+            context.ShowValues();
+    }
+}</code></pre></div></div><div class="codeSnippet"><div class="codeHeader"><span class="codeHeaderTitle">C#</span><button class="button is-small is-light copyCode" title="Copy"><span class="icon is-small"><i class="fa fa-copy"></i></span><span>Copy</span></button></div><div class="codePanel hljs"><pre xml:space="preserve"><code class="language-cs">// Getting the value for a recursive option in a sub-command:
 
 [CliCommand(Description = "A root cli command")]
 public class RecursiveOptionCliCommand
