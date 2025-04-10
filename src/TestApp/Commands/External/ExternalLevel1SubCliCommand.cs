@@ -26,5 +26,5 @@ namespace TestApp.Commands.External
         }
     }
 
-    #endregion ExternalLevel1SubCliCommand
+    #endregion
 }

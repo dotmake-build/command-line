@@ -3,7 +3,7 @@ using DotMake.CommandLine;
 
 namespace TestApp.Commands.External
 {
-    #region ExternalLevel1SubCliCommand
+    #region ExternalLevel2SubCliCommand
 
     [CliCommand(Description = "An external level 2 sub-command")]
     public class ExternalLevel2SubCliCommand
@@ -20,5 +20,5 @@ namespace TestApp.Commands.External
         }
     }
 
-    #endregion ExternalLevel1SubCliCommand
+    #endregion
 }
