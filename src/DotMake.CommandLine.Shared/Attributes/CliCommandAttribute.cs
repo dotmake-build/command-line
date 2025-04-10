@@ -10,8 +10,8 @@ namespace DotMake.CommandLine
     /// </code>
     /// The class that this attribute is applied to, 
     /// <list type="bullet">
-    ///     <item>will be a root command if the class is not a nested class and <see cref="Parent"/> property is not set.</item>
-    ///     <item>will be a sub command if the class is a nested class or <see cref="Parent"/> property is set.</item>
+    ///     <item>will be a root command if the class is not a nested class and other's <see cref="Children"/> property and self's <see cref="Parent"/> property is not set.</item>
+    ///     <item>will be a sub command if the class is a nested class or other's <see cref="Children"/> property or self's <see cref="Parent"/> property is set.</item>
     /// </list>
     /// <para>
     /// <b>Commands:</b> A command in command-line input is a token that specifies an action or defines a group of related actions. For example:
@@ -46,6 +46,11 @@ namespace DotMake.CommandLine
     ///         <code source="..\TestApp\Commands\RootWithExternalChildrenCliCommand.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
     ///         <code source="..\TestApp\Commands\External\ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
     ///         <code source="..\TestApp\Commands\External\ExternalLevel2SubCliCommand.cs" region="ExternalLevel2SubCliCommand" language="cs" />
+    ///     </code>
+    ///     <code>
+    ///         <code source="..\TestApp\Commands\RootAsExternalParentCliCommand.cs" region="RootAsExternalParentCliCommand" language="cs" />
+    ///         <code source="..\TestApp\Commands\External\ExternalLevel1WithParentSubCliCommand.cs" region="ExternalLevel1WithParentSubCliCommand" language="cs" />
+    ///         <code source="..\TestApp\Commands\External\ExternalLevel2WithParentSubCliCommand.cs" region="ExternalLevel2WithParentSubCliCommand" language="cs" />
     ///     </code>
     ///     <code source="..\TestApp\Commands\InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
@@ -100,6 +105,13 @@ namespace DotMake.CommandLine
         public Type Parent { get; set; }
 
         /// <summary>
+        /// Gets or sets the children of the command. This property is used when you prefer to use a non-nested classes for subcommands,
+        /// i.e. when you want to separate root command and subcommands into different classes/files.
+        /// If a class in the list, is already a nested class, then that class will be ignored.
+        /// </summary>
+        public Type[] Children { get; set; }
+
+        /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
         /// if set to <see langword="true" /> and an extra command or argument is provided, validation will fail.
         /// <para>Default is <see langword="true" />.</para>
@@ -141,6 +153,6 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool ShortFormAutoGenerate { get; set; } = true;
 
-        internal static CliCommandAttribute Default { get; } = new CliCommandAttribute();
+        internal static CliCommandAttribute Default { get; } = new();
     }
 }

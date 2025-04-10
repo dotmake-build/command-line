@@ -61,7 +61,7 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Circular parent dependency involving the classes &apos;{0}&apos; and &apos;{1}&apos;. To fix this error, break the circular dependency by removing one of the attribute argument Parent..
+        ///   Looks up a localized string similar to Circular parent dependency involving the classes &apos;{0}&apos; and &apos;{1}&apos;. To fix this error, break the circular dependency by removing one of the attribute argument Parent or Children..
         /// </summary>
         internal static string ClassCircularDependency {
             get {

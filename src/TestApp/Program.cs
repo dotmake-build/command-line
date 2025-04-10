@@ -40,6 +40,8 @@ try
     //Cli.Run<RootSnakeSlashCliCommand>(args);
     //Cli.Run<RootWithNestedChildrenCliCommand>(args);
     //Cli.Run<RootWithExternalChildrenCliCommand>(args);
+    //Cli.Run<RootAsExternalParentCliCommand>(args);
+    //Cli.Run<RootWithMixedChildrenCliCommand>(args);
     //Cli.Run<InheritanceCliCommand>(args);
     //Cli.Run<LocalizedCliCommand>(args);
     //Cli.Run<HelpCliCommand>(args);

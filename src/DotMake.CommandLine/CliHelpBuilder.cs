@@ -30,8 +30,12 @@ namespace DotMake.CommandLine
             : base(maxWidth)
         {
             this.theme = theme;
-            //CustomizeLayout(GetLayout);
         }
+
+        /// <summary>
+        /// Gets the theme used by this <see cref="CliHelpBuilder"/>.
+        /// </summary>
+        public CliTheme Theme => theme;
 
         /// <summary>
         /// Gets the default sections to be written for command line help.

@@ -45,5 +45,7 @@ wait a few minutes and it will complete.
 ## References
 
 https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained
+
 https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
+
 https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#pubxml-files

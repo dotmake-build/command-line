@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ClassCircularDependency" xml:space="preserve">
-    <value>Circular parent dependency involving the classes '{0}' and '{1}'. To fix this error, break the circular dependency by removing one of the attribute argument Parent.</value>
+    <value>Circular parent dependency involving the classes '{0}' and '{1}'. To fix this error, break the circular dependency by removing one of the attribute argument Parent or Children.</value>
   </data>
   <data name="ClassHasNotHandler" xml:space="preserve">
     <value>The class '{0}' will not have a {1} (ignored) because it does not have a method with one of the following signatures: 'void Run()', 'int Run()', 'async Task RunAsync()', 'async Task&lt;int&gt; RunAsync()'. Optionally the method signature can have an CliContext parameter: 'Run(CliContext context)', 'RunAsync(CliContext context)'</value>

@@ -14,7 +14,7 @@ namespace TestApp.Commands
         }
 
         [CliCommand]
-        public class Nullable
+        public class NullableCommand
         {
             [CliOption(
                 Description = "Option with nullable reference type with no default value (should be required)",
@@ -41,7 +41,7 @@ namespace TestApp.Commands
         }
 
         [CliCommand]
-        public class NonNullable
+        public class NonNullableCommand
         {
             [CliOption(
                 Description = "Option with non-nullable reference type with SuppressNullableWarningExpression (should be required)",
@@ -69,7 +69,7 @@ namespace TestApp.Commands
 
 
         [CliCommand]
-        public class Required
+        public class RequiredCommand
         {
             [CliOption(
                 Description = "Option with required keyword with no default value (should be required)",

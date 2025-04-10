@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
@@ -20,17 +20,22 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to latest daily build 2.0.0-beta5.25174.1 of System.CommandLine.
-      - Fixed: On Unix-like platforms, Console.ForegroundColor and Console.BackgroundColor is unset/unknown so prevent setting them to
-        ConsoleColor.Gray and ConsoleColor.Black on non-Windows platforms when theme color is null (unset).
-        Also will try to fix color visibility by making some assumptions (e.g. on OSX background color is white)
-        as it's impossible to detect terminal colors.
-      - Added: [NO_COLOR](https://no-color.org/) support, i.e. if `NO_COLOR` environment variable is set, the colors will be disabled.
-      - Improved: Added CustomizeLayout method in CliHelpBuilder to mimic the base class HelpBuilder in System.Commandline.
-        A delegate can be passed to customize the default layout sections in help output.
-      - Fixed: System.CommandLine.RootCommand returned by Cli.GetConfiguration should have correct parents. This did not
-        effect the working of Cli, however for metadata purpose we will populate accurate command hierarchy even if
-        Cli.GetConfiguration is called for a command which is in the middle of the hierarchy.
+      - Updated to latest daily build 2.0.0-beta5.25209.2 of System.CommandLine.
+
+      - Improved: Redesigned the source generator. Separated code into Inputs and Outputs. This way collecting metadata (inputs)
+        and generating source code (outputs) can be maintained more easily. For example, generating outputs for a different CLI library
+        may be possible in the future. But the main reason for the redesign was to handle input cli command hierarchy in a better way.
+
+      - Added: CliCommandAttribute.Children property. It's set to an array of types.
+        This is similar to existing Parent property but in reverse. For example if you have a ConsoleAppParent and ConsoleAppChild 
+        projects and you have the root command in ConsoleAppParent, the external child commands in ConsoleAppChild had to reference
+        ConsoleAppParent to that Parent property could refer to the root command. This compiled but did not work
+        because ConsoleAppChild references ConsoleAppParent where logically it should be the opposite, i.e. ConsoleAppParent
+        does not know about ConsoleAppChild so it can't find the external child commands inside it.
+        For this reason, we added Children property so that ConsoleAppParent
+        
+      - Added: CliContext.ShowHierarchy method which shows hierarchy for all commands.
+        It will start from the root command and show a tree. Useful for testing a command.
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -43,7 +48,7 @@
       as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
       https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
     -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25174.1">
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25209.2">
       <GeneratePathProperty>true</GeneratePathProperty>
       <IncludeAssets>None</IncludeAssets>
       <ExcludeAssets>All</ExcludeAssets>

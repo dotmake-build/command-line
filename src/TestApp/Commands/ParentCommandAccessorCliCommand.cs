@@ -30,7 +30,7 @@ namespace TestApp.Commands
             [CliOption(
                 Description = "This is global for all sub commands (it can appear anywhere after the level-1 verb)",
                 Recursive = true)]
-            public string Level1RecursiveOption1 { get; set; } = "DefaultForLevel1RecusiveOption1";
+            public string Level1RecursiveOption1 { get; set; } = "DefaultForLevel1RecursiveOption1";
 
             [CliArgument(Description = "Description for Argument1")]
             public string Argument1 { get; set; }

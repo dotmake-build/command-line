@@ -21,16 +21,15 @@ namespace DotMake.CommandLine
 
         private readonly ConcurrentDictionary<ParseResult, object> bindResults = new();
 
+        private readonly HashSet<string> usedAliases = new(StringComparer.Ordinal);
+
+        private readonly CliCommandAttribute defaults = CliCommandAttribute.Default;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="CliCommandBuilder" /> class.
         /// </summary>
         protected CliCommandBuilder()
         {
-            var defaults = CliCommandAttribute.Default;
-            NameCasingConvention = defaults.NameCasingConvention;
-            NamePrefixConvention = defaults.NamePrefixConvention;
-            ShortFormPrefixConvention = defaults.ShortFormPrefixConvention;
-            ShortFormAutoGenerate = defaults.ShortFormAutoGenerate;
         }
 
         /// <summary>
@@ -46,22 +45,22 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Gets the character casing convention used for automatically generated command, option and argument names.
         /// </summary>
-        public CliNameCasingConvention NameCasingConvention { get; protected set; }
+        public CliNameCasingConvention? NameCasingConvention { get; protected set; }
 
         /// <summary>
         /// Gets the prefix convention used for automatically generated option names.
         /// </summary>
-        public CliNamePrefixConvention NamePrefixConvention { get; protected set; }
+        public CliNamePrefixConvention? NamePrefixConvention { get; protected set; }
 
         /// <summary>
         /// Gets the prefix convention used for automatically generated short form option aliases.
         /// </summary>
-        public CliNamePrefixConvention ShortFormPrefixConvention { get; protected set; }
+        public CliNamePrefixConvention? ShortFormPrefixConvention { get; protected set; }
 
         /// <summary>
         /// Gets a value which indicates whether short form aliases were automatically generated for options.
         /// </summary>
-        public bool ShortFormAutoGenerate { get; protected set; }
+        public bool? ShortFormAutoGenerate { get; protected set; }
 
         /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
@@ -111,6 +110,74 @@ namespace DotMake.CommandLine
 
             if (ParentDefinitionType != null)
                 RegisterAsChild(ParentDefinitionType, this);
+        }
+
+        /// <summary>
+        /// Gets the command name for a property by using current <see cref="NameCasingConvention"/>.
+        /// </summary>
+        public string GetCommandName(string commandName)
+        {
+            return commandName.ToCase(NameCasingConvention ?? defaults.NameCasingConvention);
+        }
+
+        /// <summary>
+        /// Gets the argument name for a property by using current <see cref="NameCasingConvention"/>.
+        /// </summary>
+        public string GetArgumentName(string propertyName)
+        {
+            return propertyName.ToCase(NameCasingConvention ?? defaults.NameCasingConvention);
+        }
+
+        /// <summary>
+        /// Gets the option name for a property by using current <see cref="NameCasingConvention"/> and <see cref="NamePrefixConvention"/>.
+        /// </summary>
+        public string GetOptionName(string propertyName)
+        {
+            return propertyName.ToCase(NameCasingConvention ?? defaults.NameCasingConvention)
+                .AddPrefix(NamePrefixConvention ?? defaults.NamePrefixConvention);
+        }
+
+        /// <summary>
+        /// Adds an alias to an option. Tracks used aliases and only adds if not already used.
+        /// </summary>
+        public void AddAlias(Option option, string alias)
+        {
+            if (!string.IsNullOrWhiteSpace(alias) && !usedAliases.Contains(alias))
+            {
+                option.Aliases.Add(alias);
+                usedAliases.Add(alias);
+            }
+        }
+
+        /// <summary>
+        /// Adds an alias to a command. Tracks used aliases and only adds if not already used.
+        /// </summary>
+        public void AddAlias(Command command, string alias)
+        {
+            if (!string.IsNullOrWhiteSpace(alias) && !usedAliases.Contains(alias))
+            {
+                command.Aliases.Add(alias);
+                usedAliases.Add(alias);
+            }
+        }
+
+        /// <summary>
+        /// Adds a short form alias for an option name for a property by using current <see cref="ShortFormAutoGenerate"/> and <see cref="ShortFormPrefixConvention"/>.
+        /// Short form alias is added only when current <see cref="ShortFormAutoGenerate"/> is <see langword="true"/> and option name without prefix is longer than 1 character.
+        /// </summary>
+        public void AddShortFormAlias(Option option)
+        {
+            var optionNameWithoutPrefix = option.Name.RemovePrefix();
+
+            if ((ShortFormAutoGenerate ?? defaults.ShortFormAutoGenerate)
+                && optionNameWithoutPrefix.Length > 1)
+            {
+                var shortForm = optionNameWithoutPrefix[0]
+                    .ToString()
+                    .AddPrefix(ShortFormPrefixConvention ?? defaults.ShortFormPrefixConvention);
+
+                AddAlias(option, shortForm);
+            }
         }
 
         #region Static

@@ -159,7 +159,7 @@ if (parseResult.Errors.Count > 0)
   The signatures which return int value, sets the ExitCode of the app.
   If no handler method is provided, then by default it will show help for the command.
   This can be also controlled manually by extension method `ShowHelp` in `CliContext`.
-  Other extension methods `IsEmptyCommand` and `ShowValues` are also useful.
+  Other extension methods `IsEmptyCommand`, `ShowValues` and `ShowHierarchy` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 - For best practice, create a subfolder named `Commands` in your project and put your command classes there 
   so that they are easy to locate and maintain in the future.
@@ -366,8 +366,12 @@ internal class LocalizedCliCommand
 If a command represents a group and not an action, you may want to show help. 
 If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
 You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
-For testing a command, other methods `CliContext.ShowValues` and `CliContext.IsEmptyCommand` are also useful.
-`ShowValues` shows parsed values for current command and its arguments and options.
+For testing a command, these methods are also useful:
+- `CliContext.IsEmptyCommand` gets value indicating whether current command is specified without any arguments or options.
+  Note that arguments and options should be optional, if they are required (no default values),
+  then handler will not run and missing error message will be shown.
+- `CliContext.ShowValues` shows parsed values for current command and its arguments and options.
+- `CliContext.ShowHierarchy` shows hierarchy for all commands, it will start from the root command and show a tree.
 
 See below example; root command does not have a handler method so it will always show help 
 and sub-command will show help if command is specified without any arguments or option, 
@@ -420,10 +424,16 @@ Subcommands can have their own subcommands. In `dotnet tool install`, `install` 
 ### Command Hierarchy
 
 Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy.
-Just make sure you apply `CliCommand` attribute to the nested classes as well.
-Command hierarchy in below example is:  
-`RootWithNestedChildrenCliCommand` -> `Level1SubCliCommand` -> `Level2SubCliCommand`
+Just make sure you apply `CliCommand` attribute to the nested classes as well:
 ```c#
+/*
+    Command hierarchy in below example is:
+        
+     TestApp
+     └╴level-1
+       └╴level-2
+*/
+
 [CliCommand(Description = "A root cli command with nested children")]
 public class RootWithNestedChildrenCliCommand
 {
@@ -431,11 +441,14 @@ public class RootWithNestedChildrenCliCommand
     public string Option1 { get; set; } = "DefaultForOption1";
 
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
+    public string Argument1 { get; set; } = "DefaultForArgument1";
 
     public void Run(CliContext context)
     {
-        context.ShowValues();
+        if (context.IsEmptyCommand())
+            context.ShowHierarchy();
+        else
+            context.ShowValues();
     }
 
     [CliCommand(Description = "A nested level 1 sub-command")]
@@ -469,51 +482,49 @@ public class RootWithNestedChildrenCliCommand
     }
 }
 ```
+
 Another way to create hierarchy between commands, especially if you want to use standalone classes,  
-is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
-Consider you have this root command:
+is to 
+- Use `Children` property of `CliCommand` attribute to specify array of `typeof` child classes:
 ```c#
-[CliCommand(Description = "A root cli command with external children and one nested child and testing settings inheritance")]
+/*
+    Command hierarchy in below example is:
+
+     TestApp
+     └╴external-level-1
+       └╴external-level-2
+*/
+
+[CliCommand(
+    Description = "A root cli command with external children",
+    Children = new []
+    {
+        typeof(ExternalLevel1SubCliCommand)
+    }
+)]
 public class RootWithExternalChildrenCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
 
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
+    public string Argument1 { get; set; } = "DefaultForArgument1";
 
     public void Run(CliContext context)
     {
-        context.ShowValues();
-    }
-
-    [CliCommand(
-        Description = "A nested level 1 sub-command with custom settings, throws test exception",
-        NameCasingConvention = CliNameCasingConvention.SnakeCase,
-        NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
-        ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
-    )]
-    public class Level1SubCliCommand
-    {
-        [CliOption(Description = "Description for Option1")]
-        public string Option1 { get; set; } = "DefaultForOption1";
-
-        [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
-
-        public void Run()
-        {
-            throw new Exception("This is a test exception from Level1SubCliCommand");
-        }
+        if (context.IsEmptyCommand())
+            context.ShowHierarchy();
+        else
+            context.ShowValues();
     }
 }
-```
-Command hierarchy in below example is:  
-`RootWithExternalChildrenCliCommand` -> `ExternalLevel1SubCliCommand` -> `Level2SubCliCommand`
-```c#
+
 [CliCommand(
     Description = "An external level 1 sub-command",
-    Parent = typeof(RootWithExternalChildrenCliCommand)
+    Children = new[]
+    {
+        typeof(ExternalLevel2SubCliCommand)
+    }
 )]
 public class ExternalLevel1SubCliCommand
 {
@@ -527,33 +538,9 @@ public class ExternalLevel1SubCliCommand
     {
         context.ShowValues();
     }
-
-    [CliCommand(Description = "A nested level 2 sub-command")]
-    public class Level2SubCliCommand
-    {
-        [CliOption(Description = "Description for Option1")]
-        public string Option1 { get; set; } = "DefaultForOption1";
-
-        [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
-
-        public void Run(CliContext context)
-        {
-            context.ShowValues();
-        }
-    }
 }
-```
-Command hierarchy in below example is:  
-`RootWithExternalChildrenCliCommand` -> `Level1SubCliCommand` -> `ExternalLevel2SubCliCommand` -> `Level3SubCliCommand`
-```c#
-[CliCommand(
-    Description = "An external level 2 sub-command",
-    Parent = typeof(RootWithExternalChildrenCliCommand.Level1SubCliCommand),
-    NameCasingConvention = CliNameCasingConvention.SnakeCase,
-    NamePrefixConvention = CliNamePrefixConvention.ForwardSlash,
-    ShortFormPrefixConvention = CliNamePrefixConvention.ForwardSlash
-)]
+
+[CliCommand(Description = "An external level 2 sub-command")]
 public class ExternalLevel2SubCliCommand
 {
     [CliOption(Description = "Description for Option1")]
@@ -566,27 +553,93 @@ public class ExternalLevel2SubCliCommand
     {
         context.ShowValues();
     }
+}
 
-    [CliCommand(Description = "A nested level 3 sub-command")]
-    public class Level3SubCliCommand
+```
+
+- Use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
+```c#
+/*
+    Command hierarchy in below example is:
+
+     TestApp
+     └╴external-level-1-with-parent
+       └╴external-level-2-with-parent
+*/
+
+[CliCommand(
+    Description = "A root cli command with external children"
+)]
+public class RootAsExternalParentCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; } = "DefaultForArgument1";
+
+    public void Run(CliContext context)
     {
-        [CliOption(Description = "Description for Option1")]
-        public string Option1 { get; set; } = "DefaultForOption1";
-
-        [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
-
-        public void Run(CliContext context)
-        {
+        if (context.IsEmptyCommand())
+            context.ShowHierarchy();
+        else
             context.ShowValues();
-        }
     }
 }
+
+[CliCommand(
+    Description = "An external level 1 sub-command",
+    Parent = typeof(RootAsExternalParentCliCommand)
+)]
+public class ExternalLevel1WithParentSubCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run(CliContext context)
+    {
+        context.ShowValues();
+    }
+}
+
+[CliCommand(
+    Description = "An external level 2 sub-command",
+    Parent = typeof(ExternalLevel1WithParentSubCliCommand)
+)]
+public class ExternalLevel2WithParentSubCliCommand
+{
+    [CliOption(Description = "Description for Option1")]
+    public string Option1 { get; set; } = "DefaultForOption1";
+
+    [CliArgument(Description = "Description for Argument1")]
+    public string Argument1 { get; set; }
+
+    public void Run(CliContext context)
+    {
+        context.ShowValues();
+    }
+}
+
 ```
 
 The class that `CliCommand` attribute is applied to,
-- will be a root command if the class is not a nested class and `Parent`property is not set.
-- will be a sub command if the class is a nested class or `Parent` property is set.
+- will be a root command if the class is not a nested class and other's `Children` property and self's `Parent` property is not set.
+- will be a sub command if the class is a nested class or other's `Children` property or self's `Parent` property is set.
+
+You can create a complex hierarchy like this by mixing nested classes and external classes:
+```c#
+ TestApp
+ ├╴external-level-1-with-nested
+ │ └╴level-2
+ └╴level_1
+   └╴external_level_2_with_nested
+     └╴level_3
+```
+`Parent` property can even refer to a nested class in another class, `Children` property can not because having a nested parent
+is higher priority. A nested child can use `Children` property to refer non-nested classes though.
 
 #### Accessing parent commands
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
@@ -51,33 +52,28 @@ namespace DotMake.CommandLine
         public CancellationToken CancellationToken { get; }
 
         /// <summary>
-        /// Shows help for current command.
-        /// </summary>
-        public  void ShowHelp()
-        {
-            var helpOption =
-                ParseResult.RootCommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
-                ?? ParseResult.CommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
-                ?? new HelpOption
-                {
-                    Action = new HelpAction
-                    {
-                        Builder = new CliHelpBuilder(CliTheme.Default, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
-                    }
-                };
-
-            var action = (SynchronousCommandLineAction)helpOption.Action;
-
-            action?.Invoke(ParseResult);
-        }
-
-        /// <summary>
         /// Gets a value indicating whether current command is specified without any arguments or options.
+        /// <para>
+        /// Note that arguments and options should be optional, if they are required (no default values),
+        /// then handler will not run and missing error message will be shown.
+        /// </para>
         /// </summary>
         /// <returns><see langword="true"/> if current command has no arguments or options, <see langword="false"/> if not.</returns>
         public bool IsEmptyCommand()
         {
             return (ParseResult.CommandResult.Tokens.Count == 0);
+        }
+
+        /// <summary>
+        /// Shows help for current command.
+        /// </summary>
+        public void ShowHelp()
+        {
+            var helpOption = GetHelpOptionOrDefault();
+
+            var action = (SynchronousCommandLineAction)helpOption.Action;
+
+            action?.Invoke(ParseResult);
         }
 
         /// <summary>
@@ -105,6 +101,106 @@ namespace DotMake.CommandLine
                     output.WriteLine($"Option '{optionResult.Option.Name}' = {FormatValue(value)}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Shows hierarchy for all commands. It will start from the root command and show a tree. Useful for testing a command.
+        /// </summary>
+        /// <param name="showLevel">Whether to show level labels next to the tree nodes.</param>
+        public void ShowHierarchy(bool showLevel = false)
+        {
+            var theme = GetThemeOrDefault();
+            var rootCommand = ParseResult.Configuration.RootCommand;
+
+            foreach (var command in GetParentTree(rootCommand))
+            {
+                var parent = command.Parents.FirstOrDefault() as Command;
+                var isLast = (parent?.Subcommands[parent.Subcommands.Count - 1] == command);
+                var isRoot = (command == rootCommand);
+
+
+                var indent = " ";
+                var level = isRoot ? 0 : 1;
+                var current = parent;
+                while (current != null && current != rootCommand)
+                {
+                    var currentParent = current.Parents.FirstOrDefault() as Command;
+                    var currentHasChildren = current.Subcommands.Count > 0;
+                    var currentIsLast = (currentParent?.Subcommands[currentParent.Subcommands.Count - 1] == current);
+
+                    indent += (currentHasChildren && !currentIsLast ? "│ " : "  ");
+                    level++;
+
+                    current = currentParent;
+                }
+
+                var charArray = indent.ToCharArray();
+                Array.Reverse(charArray); //we reverse because we loop parents above reversely, so tree symbols are reverse
+                indent = new string(charArray);
+
+                Console.Write(indent + (isRoot ? "" : isLast ? "└╴" : "├╴"));
+
+                /*
+                var level = command
+                    .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
+                    .Count() - 1;
+                */
+
+                ConsoleExtensions.SetColor(theme.FirstColumnColor, theme.DefaultColor);
+                Console.Write($@"{command.Name}");
+                ConsoleExtensions.SetColor(theme.DefaultColor);
+
+                if (showLevel)
+                {
+                    ConsoleExtensions.SetColor(theme.SecondColumnColor, theme.DefaultColor);
+                    Console.Write($@" (level {level})");
+                    ConsoleExtensions.SetColor(theme.DefaultColor);
+                }
+                
+                Console.WriteLine();
+            }
+        }
+
+        private IEnumerable<Command> GetParentTree(Command rootCommand)
+        {
+            var stack = new Stack<Command>();
+            stack.Push(rootCommand);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+
+                yield return current;
+
+                foreach (var child in current.Subcommands.Reverse())
+                {
+                    stack.Push(child);
+                }
+            }
+        }
+
+        private HelpOption GetHelpOptionOrDefault()
+        {
+            var option =
+                ParseResult.RootCommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
+                ?? ParseResult.CommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
+                ?? new HelpOption
+                {
+                    Action = new HelpAction
+                    {
+                        Builder = new CliHelpBuilder(CliTheme.Default, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
+                    }
+                };
+
+            return (HelpOption)option;
+        }
+
+        private CliTheme GetThemeOrDefault()
+        {
+            return GetHelpOptionOrDefault().Action is HelpAction helpAction
+                   && helpAction.Builder is CliHelpBuilder cliHelpBuilder
+                ? cliHelpBuilder.Theme
+                : CliTheme.Default;
         }
 
         private static string FormatValue(object value)
