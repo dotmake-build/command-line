@@ -7,7 +7,8 @@ namespace DotMake.CommandLine
     /// Provides <see cref="IServiceCollection"/> related extension methods for <see cref="Cli"/> services feature.
     /// <para>
     /// Requires dependency <c>Microsoft.Extensions.DependencyInjection (>= 2.1.1)</c>.
-    /// <br/>Default implementation <see cref="ServiceCollection"/> is in <c>Microsoft.Extensions.DependencyInjection</c> assembly.
+    /// <br/>Although <see cref="ServiceCollection"/> is in <c>Microsoft.Extensions.DependencyInjection.Abstractions</c> assembly,
+    /// <br/>used method <see cref="ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection)"/> is in <c>Microsoft.Extensions.DependencyInjection</c> assembly.
     /// </para>
     /// </summary>
     public static class CliServiceCollectionExtensions

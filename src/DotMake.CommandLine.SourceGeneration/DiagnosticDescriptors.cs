@@ -31,6 +31,9 @@ namespace DotMake.CommandLine.SourceGeneration
         public static readonly DiagnosticDescriptor ErrorClassCircularDependency =
             Create(DiagnosticSeverity.Error, 25, null, Resources.ClassCircularDependency);
 
+        public static readonly DiagnosticDescriptor ErrorChildClassHasNotAttribute =
+            Create(DiagnosticSeverity.Error, 26, null, Resources.ChildClassHasNotAttribute);
+
 
         public static readonly DiagnosticDescriptor WarningPropertyNotPublicNonStatic =
             Create(DiagnosticSeverity.Warning, 30, null, Resources.PropertyNotPublicNonStatic);

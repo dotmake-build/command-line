@@ -15,4 +15,5 @@ Make sure it compiles for lowest supported langversion 9.0 as source may be gene
   Although `IServiceProvider` is in `System.ComponentModel` assembly, 
   used class `ActivatorUtilities` is in `Microsoft.Extensions.DependencyInjection.Abstractions` assembly.
 - `CliServiceCollectionExtensions` feature injected only when project references `Microsoft.Extensions.DependencyInjection (>= 2.1.1)`.  
-  Default implementation `ServiceCollection` is in `Microsoft.Extensions.DependencyInjection` assembly.
+  Although `ServiceCollection` is in `Microsoft.Extensions.DependencyInjection.Abstractions` assembly, 
+  used method `ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection)` is in `Microsoft.Extensions.DependencyInjection` assembly.

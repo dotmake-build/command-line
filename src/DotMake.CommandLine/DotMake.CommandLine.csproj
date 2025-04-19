@@ -20,22 +20,18 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to latest daily build 2.0.0-beta5.25209.2 of System.CommandLine.
+      - Updated to latest daily build 2.0.0-beta5.25218.1 of System.CommandLine.
 
-      - Improved: Redesigned the source generator. Separated code into Inputs and Outputs. This way collecting metadata (inputs)
-        and generating source code (outputs) can be maintained more easily. For example, generating outputs for a different CLI library
-        may be possible in the future. But the main reason for the redesign was to handle input cli command hierarchy in a better way.
+      - Fixed: New CliCommandAttribute.Children property did not work across projects.
 
-      - Added: CliCommandAttribute.Children property. It's set to an array of types.
-        This is similar to existing Parent property but in reverse. For example if you have a ConsoleAppParent and ConsoleAppChild 
-        projects and you have the root command in ConsoleAppParent, the external child commands in ConsoleAppChild had to reference
-        ConsoleAppParent to that Parent property could refer to the root command. This compiled but did not work
-        because ConsoleAppChild references ConsoleAppParent where logically it should be the opposite, i.e. ConsoleAppParent
-        does not know about ConsoleAppChild so it can't find the external child commands inside it.
-        For this reason, we added Children property so that ConsoleAppParent
+      - Improved: Calculating parent tree is hard (across projects) and expensive in generator so we removed
+        Collect and Re-generate logic in CliIncrementalGenerator that was added in v2.1.0.
+        We can already figure out whole command hierarchy at runtime.
+        - for parent command accessors, we will only check if property type has CliCommand attribute.
+        - for circular dependency, we will do some simple checks for types in Parent and Children attributes and class type itself.
+          Full circular dependency can be detected at runtime.
         
-      - Added: CliContext.ShowHierarchy method which shows hierarchy for all commands.
-        It will start from the root command and show a tree. Useful for testing a command.
+      - Fixed: ServiceProvider.Dispose() should be called at the end of the command execution.
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -48,7 +44,7 @@
       as it's not on official nuget feed, we directly reference the DLL inside the package so that it's also bundled in our package.
       https://blog.maartenballiauw.be/post/2020/04/22/referencing-specific-assembly-nuget-package.html
     -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25209.2">
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25218.1">
       <GeneratePathProperty>true</GeneratePathProperty>
       <IncludeAssets>None</IncludeAssets>
       <ExcludeAssets>All</ExcludeAssets>

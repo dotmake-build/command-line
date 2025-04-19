@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
@@ -12,6 +11,8 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         public const string RootCommandClassName = "RootCommand";
         public const string CommandClassName = "Command";
         public const string CommandClassNamespace = "System.CommandLine";
+        public const string GeneratedSubNamespace = "GeneratedCode";
+        public const string GeneratedClassSuffix = "Builder";
         public static readonly string CommandBuilderFullName = "DotMake.CommandLine.CliCommandBuilder";
         public static readonly string[] Suffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
         public static readonly Dictionary<string, string> PropertyMappings = new()
@@ -23,9 +24,25 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             : base(input)
         {
             Input = input;
+
+            GeneratedClassName = Input.Symbol.Name + GeneratedClassSuffix;
+            GeneratedClassNamespace = Input.Symbol.GetNamespaceOrEmpty();
+            if (!GeneratedClassNamespace.EndsWith(GeneratedSubNamespace))
+                GeneratedClassNamespace = SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedSubNamespace);
+            GeneratedClassFullName = (Input.Symbol.ContainingType != null)
+                ? SymbolExtensions.CombineNameParts(
+                    Input.Symbol.RenameContainingTypesFullName(GeneratedSubNamespace, GeneratedClassSuffix),
+                    GeneratedClassName)
+                : SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
         }
 
         public new CliCommandInput Input { get; set; }
+
+        public string GeneratedClassName { get; }
+
+        public string GeneratedClassNamespace { get; }
+
+        public string GeneratedClassFullName { get; }
 
         public void AppendCSharpDefineString(CodeStringBuilder sb, bool addNamespaceBlock)
         {
@@ -38,23 +55,41 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                             || argumentsWithoutProblem.Any(a => a.Symbol.IsRequired)
                                             || parentCommandAccessorsWithoutProblem.Any(r => r.Symbol.IsRequired);
 
-            if (string.IsNullOrEmpty(Input.GeneratedClassNamespace))
+            if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
 
-            using var namespaceBlock = addNamespaceBlock ? sb.AppendBlockStart($"namespace {Input.GeneratedClassNamespace}") : null;
+            using var namespaceBlock = addNamespaceBlock ? sb.AppendBlockStart($"namespace {GeneratedClassNamespace}") : null;
             sb.AppendLine("/// <inheritdoc />");
-            using (sb.AppendBlockStart($"public class {Input.GeneratedClassName} : {CommandBuilderFullName}"))
+            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
-                var varCommand = (Input.IsRoot ? "rootCommand" : "command");
+                var varCommand = "command";
                 var definitionClass = Input.Symbol.ToReferenceString();
-                var parentDefinitionClass = Input.IsRoot ? null : Input.NestedOrExternalParentSymbol.ToReferenceString();
-                var parentDefinitionType = (parentDefinitionClass != null) ? $"typeof({parentDefinitionClass})" : "null";
 
                 sb.AppendLine("/// <inheritdoc />");
-                using (sb.AppendBlockStart($"public {Input.GeneratedClassName}()"))
+                using (sb.AppendBlockStart($"public {GeneratedClassName}()"))
                 {
                     sb.AppendLine($"DefinitionType = typeof({definitionClass});");
+
+                    var parentDefinitionType = (Input.ParentSymbol != null) ? $"typeof({Input.ParentSymbol.ToReferenceString()})" : "null";
                     sb.AppendLine($"ParentDefinitionType = {parentDefinitionType};");
+
+                    if (Input.ChildrenArgument == null)
+                        sb.AppendLine("ChildDefinitionTypes = null;");
+                    else
+                        using (sb.AppendBlockStart("ChildDefinitionTypes = new [] ", ";"))
+                        {
+                            for (var i = 0; i < Input.ChildrenArgument.Length; i++)
+                            {
+                                var childType = Input.ChildrenArgument[i];
+                                if (childType == null)
+                                    continue;
+                                sb.AppendLineStart();
+                                sb.Append($"typeof({childType.ToReferenceString()})");
+                                if (i < Input.ChildrenArgument.Length - 1)
+                                    sb.Append(",");
+                                sb.AppendLineEnd();
+                            }
+                        }
 
                     var nameCasingConvention = (Input.NameCasingConvention.HasValue)
                         ? EnumUtil<CliNameCasingConvention>.ToFullName(Input.NameCasingConvention.Value)
@@ -84,15 +119,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     if (Input.CliReferenceDependantInput.HasMsDependencyInjectionAbstractions || Input.CliReferenceDependantInput.HasMsDependencyInjection)
                     {
                         sb.AppendLine(Input.CliReferenceDependantInput.HasMsDependencyInjection
-                            ? "var serviceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
-                            : "var serviceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
-                        sb.AppendLine("if (serviceProvider != null)");
+                            ? "ServiceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
+                            : "ServiceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
+                        sb.AppendLine("if (ServiceProvider != null)");
                         sb.AppendIndent();
                         sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
                         sb.AppendIndent();
                         sb.AppendIndent();
-                        sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
-                        //in case serviceProvider is null (i.e. not set with SetServiceProvider)
+                        sb.AppendLine($".CreateInstance<{definitionClass}>(ServiceProvider);");
+                        //in case ServiceProvider is null (i.e. not set with SetServiceProvider)
                         //call Activator.CreateInstance which will throw exception if class has no default constructor
                         //but at least it avoids compile time error in generated code with new()
                         sb.AppendLine();
@@ -225,6 +260,17 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         {
                             sb.AppendLine($"{varCliContext}.ShowHelp();");
                         }
+
+                        if (Input.CliReferenceDependantInput.HasMsDependencyInjectionAbstractions ||
+                            Input.CliReferenceDependantInput.HasMsDependencyInjection)
+                        {
+                            sb.AppendLine();
+                            sb.AppendLine("if (ServiceProvider != null && ServiceProvider is System.IDisposable)");
+                            sb.AppendIndent();
+                            sb.AppendLine("((System.IDisposable)ServiceProvider).Dispose();");
+                        }
+
+                        sb.AppendLine();
                         sb.AppendLine("return exitCode;");
                     }
 
@@ -237,7 +283,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 using (sb.AppendBlockStart("internal static void Initialize()"))
                 {
                     var varCommandBuilder = "commandBuilder";
-                    sb.AppendLine($"var {varCommandBuilder} = new {Input.GeneratedClassFullName}();");
+                    sb.AppendLine($"var {varCommandBuilder} = new {GeneratedClassFullName}();");
 
                     sb.AppendLine();
                     sb.AppendLine("// Register this command builder so that it can be found by the definition class");
@@ -257,32 +303,21 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName)
         {
-            var commandClass = $"{CommandClassNamespace}.{(Input.IsRoot ? RootCommandClassName : CommandClassName)}";
-
             var commandName = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue)
                               && !string.IsNullOrWhiteSpace(nameValue.ToString())
                 ? $"\"{nameValue.ToString().Trim()}\""
-                : null;
-
-            IDisposable block;
+                : $"GetCommandName(\"{Input.Symbol.Name.StripSuffixes(Suffixes)}\")";
 
             sb.AppendLine($"// Command for '{Input.Symbol.Name}' class");
             //sb.AppendLine($"// Parent tree: '{string.Join(" -> ", Input.ParentTree.Select(p=> p.Symbol))}'");
 
-            if (Input.IsRoot)
+            using (sb.AppendBlockStart($"var {varName} = IsRoot", null, null, null))
             {
-                block = sb.AppendBlockStart($"var {varName} = new {commandClass}()", ";");
-                if (commandName != null)
-                    sb.AppendLine($"Name = {commandName},");
+                //Cannot set name for a RootCommand, it's the executable name by default
+                sb.AppendLine($"? new {CommandClassNamespace}.{RootCommandClassName}()");
+                sb.AppendLine($": new {CommandClassNamespace}.{CommandClassName}({commandName});");                
             }
-            else
-            {
-                if (commandName == null)
-                    commandName = $"GetCommandName(\"{Input.Symbol.Name.StripSuffixes(Suffixes)}\")";
-
-                block = sb.AppendBlockStart($"var {varName} = new {commandClass}({commandName})", ";");
-            }
-
+            
             foreach (var kvp in Input.AttributeArguments)
             {
                 switch (kvp.Key)
@@ -294,13 +329,12 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             propertyName = kvp.Key;
 
                         if (Input.AttributeArguments.TryGetResourceProperty(kvp.Key, out var resourceProperty))
-                            sb.AppendLine($"{propertyName} = {resourceProperty.ToReferenceString()},");
+                            sb.AppendLine($"{varName}.{propertyName} = {resourceProperty.ToReferenceString()};");
                         else
-                            sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                            sb.AppendLine($"{varName}.{propertyName} = {kvp.Value.ToCSharpString()};");
                         break;
                 }
             }
-            block.Dispose();
 
             if (Input.AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues))
             {

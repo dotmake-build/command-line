@@ -83,31 +83,41 @@ namespace DotMake.CommandLine
         public static CommandLineConfiguration GetConfiguration(Type definitionType, CliSettings settings = null)
         {
             var commandBuilder = CliCommandBuilder.Get(definitionType);
-            var command = commandBuilder.Build();
 
             // Add nested or external registered parent commands
-            var currentCommand = command;
-            foreach (var parent in commandBuilder.Parents)
+            CliCommandBuilder parent = null;
+            Command parentCommand = null;
+            Command currentCommand = null;
+            foreach (var current in commandBuilder.Parents.Reverse().Append(commandBuilder))
             {
-                var parentCommand = parent.Build();
-                parentCommand.Add(currentCommand);
-                currentCommand = parentCommand;
+                if (parent != null)
+                    current.InheritSettings(parent); //should be before Build
+
+                currentCommand = current.Build();
+
+                if (parentCommand != null)
+                    parentCommand.Add(currentCommand);
+
+                parent = current;
+                parentCommand = currentCommand;
             }
+            var command = currentCommand!; //always non-null
 
             // Add nested or external registered children commands
-            var queue = new Queue<Tuple<CliCommandBuilder, Command>>();
-            queue.Enqueue(Tuple.Create(commandBuilder, command));
-            while (queue.Count > 0)
+            var stack = new Stack<Tuple<CliCommandBuilder, Command>>();
+            stack.Push(Tuple.Create(commandBuilder, command));
+            while (stack.Count > 0)
             {
-                var currentTuple= queue.Dequeue();
+                var currentTuple= stack.Pop();
                 var current = currentTuple.Item1;
                 var currentCommand2 = currentTuple.Item2;
 
-                foreach (var child in current.Children)
+                foreach (var child in current.Children.Reverse())
                 {
+                    child.InheritSettings(current); //should be before Build
                     var childCommand = child.Build();
                     currentCommand2.Add(childCommand);
-                    queue.Enqueue(Tuple.Create(child, childCommand));
+                    stack.Push(Tuple.Create(child, childCommand));
                 }
             }
 

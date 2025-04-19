@@ -8,7 +8,7 @@ namespace DotMake.CommandLine.SourceGeneration.Util
         private const int IndentSize = 4;
         private const char Space = ' ';
 
-        private readonly StringBuilder sb = new StringBuilder();
+        private readonly StringBuilder sb = new();
 
         private int IndentLevel { get; set; }
 
@@ -43,7 +43,8 @@ namespace DotMake.CommandLine.SourceGeneration.Util
             if (line != null)
                 AppendLine(line);
 
-            AppendLine(startBlock);
+            if (startBlock != null)
+                AppendLine(startBlock);
 
             IndentLevel++;
 
@@ -64,7 +65,8 @@ namespace DotMake.CommandLine.SourceGeneration.Util
         {
             IndentLevel--;
 
-            AppendLine(string.IsNullOrEmpty(afterBlock) ? endBlock : endBlock + afterBlock);
+            if (endBlock != null)
+                AppendLine((afterBlock == null) ? endBlock : endBlock + afterBlock);
         }
 
         public override string ToString() => sb.ToString();

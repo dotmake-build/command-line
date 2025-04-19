@@ -6,9 +6,18 @@ namespace TestApp.Commands
 {
     #region RootWithMixedChildrenCliCommand
 
-    // Another way to create hierarchy between commands, especially if you want to use standalone classes,
-    // is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
-    // Consider you have this root command:
+    /*
+        Another way to create hierarchy between commands, especially if you want to use standalone classes,
+        is to use `Parent` property of `CliCommand` attribute to specify `typeof` parent class.
+        Command hierarchy in below example is:
+
+         TestApp
+         ├╴level_1
+         │ └╴external_level_2_with_nested
+         │   └╴level_3
+         └╴external-level-1-with-nested
+           └╴level-2
+    */
 
     [CliCommand(Description = "A root cli command with external children and one nested child and testing settings inheritance")]
     public class RootWithMixedChildrenCliCommand

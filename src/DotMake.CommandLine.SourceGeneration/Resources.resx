@@ -144,6 +144,9 @@
   <data name="ParentClassHasNotAttribute" xml:space="preserve">
     <value>The class '{0}' must have its 'Parent' attribute argument point to a class which has {2}, to generate a {1}.</value>
   </data>
+  <data name="ChildClassHasNotAttribute" xml:space="preserve">
+    <value>The class '{0}' must have its 'Children' attribute argument point to classes which has {2}, to generate a {1}.</value>
+  </data>
   <data name="PropertyHasNotPublicGetter" xml:space="preserve">
     <value>The property '{0}' must have a public/internal get accessor to generate a {1}.</value>
   </data>

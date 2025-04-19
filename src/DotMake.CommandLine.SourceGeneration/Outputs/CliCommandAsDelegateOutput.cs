@@ -11,13 +11,23 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             : base(input)
         {
             Input = input;
+
+            GeneratedClassName = "CliCommandAsDelegate_" + Input.Hash;
+            GeneratedClassNamespace = CliCommandOutput.GeneratedSubNamespace;
+            GeneratedClassFullName = SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
         }
 
         public new CliCommandAsDelegateInput Input { get; set; }
-      
+
+        public string GeneratedClassName { get; }
+
+        public string GeneratedClassNamespace { get; }
+
+        public string GeneratedClassFullName { get; }
+
         public void AppendCSharpDefineString(CodeStringBuilder sb)
         {
-            using var namespaceBlock = sb.AppendBlockStart($"namespace {Input.GeneratedClassNamespace}");
+            using var namespaceBlock = sb.AppendBlockStart($"namespace {GeneratedClassNamespace}");
 
             sb.AppendLine("/// <inheritdoc />");
 
@@ -26,7 +36,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             else
                 sb.AppendLine($"[{CliCommandInput.AttributeFullName}]");
 
-            using (sb.AppendBlockStart($"public class {Input.GeneratedClassName} : {CliCommandAsDelegateFullName}"))
+            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CliCommandAsDelegateFullName}"))
             {
                 for (var index = 0; index < Input.ParameterInfos.Count; index++)
                 {
@@ -79,7 +89,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 using (sb.AppendBlockStart("internal static void Initialize()"))
                 {
                     sb.AppendLine("// Register this definition class so that it can be found by the command as delegate hash.");
-                    sb.AppendLine($"Register<{Input.GeneratedClassFullName}>(\"{Input.Hash}\");");
+                    sb.AppendLine($"Register<{GeneratedClassFullName}>(\"{Input.Hash}\");");
                 }
             }
         }

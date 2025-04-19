@@ -178,6 +178,12 @@ namespace DotMake.CommandLine.SourceGeneration.Util
             return string.Join(".", nameParts.Where(n => !string.IsNullOrEmpty(n)));
         }
 
+        public static string GetName(string fullName)
+        {
+            var parts = fullName.Split('.');
+            return parts.Last();
+        }
+        
         public static bool IsTask(this ITypeSymbol type)
         {
             return type.ToCompareString() == TaskFullName;

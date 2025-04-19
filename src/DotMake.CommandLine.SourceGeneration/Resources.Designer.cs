@@ -61,6 +61,15 @@ namespace DotMake.CommandLine.SourceGeneration {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The class &apos;{0}&apos; must have its &apos;Children&apos; attribute argument point to classes which has {2}, to generate a {1}..
+        /// </summary>
+        internal static string ChildClassHasNotAttribute {
+            get {
+                return ResourceManager.GetString("ChildClassHasNotAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Circular parent dependency involving the classes &apos;{0}&apos; and &apos;{1}&apos;. To fix this error, break the circular dependency by removing one of the attribute argument Parent or Children..
         /// </summary>
         internal static string ClassCircularDependency {

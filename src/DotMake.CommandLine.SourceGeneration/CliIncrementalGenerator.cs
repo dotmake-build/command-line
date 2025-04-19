@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
@@ -47,7 +46,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 static (sourceProductionContext, tuple) => GenerateReferenceDependantSourceCode(sourceProductionContext, tuple.Left, tuple.Right)
             );
             initializationContext.RegisterSourceOutput(
-                cliCommandInputs.Collect().Combine(analyzerConfigOptions),
+                cliCommandInputs.Combine(analyzerConfigOptions),
                 static (sourceProductionContext, tuple) => GenerateCommandBuilderSourceCode(sourceProductionContext, tuple.Left, tuple.Right)
             );
             initializationContext.RegisterSourceOutput(
@@ -79,106 +78,42 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 //For supporting ModuleInitializerAttribute in projects before net5.0 (net472, netstandard2.0)
                 if (!cliReferenceDependantInput.HasModuleInitializer)
+                {
+                    var name = SymbolExtensions.GetName(CliReferenceDependantInput.ModuleInitializerAttributeFullName);
                     sourceProductionContext.AddSource(
-                        "(ModuleInitializerAttribute).g.cs",
-                        GetSourceTextFromEmbeddedResource("ModuleInitializerAttribute.cs", analyzerConfigOptions)
+                        $"({name}).g.cs",
+                        GetSourceTextFromEmbeddedResource($"{name}.cs", analyzerConfigOptions)
                     );
+                }
 
                 //For supporting Required modifier before net7.0 (need LangVersion 11)
                 if (cliReferenceDependantInput.LanguageVersion > (int)LanguageVersion.CSharp10 && !cliReferenceDependantInput.HasRequiredMember)
+                {
+                    var name = SymbolExtensions.GetName(CliReferenceDependantInput.RequiredMemberAttributeFullName);
                     sourceProductionContext.AddSource(
-                        "(RequiredMemberAttribute).g.cs",
-                        GetSourceTextFromEmbeddedResource("RequiredMemberAttribute.cs", analyzerConfigOptions)
+                        $"({name}).g.cs",
+                        GetSourceTextFromEmbeddedResource($"{name}.cs", analyzerConfigOptions)
                     );
+                }
 
-                if (!cliReferenceDependantInput.IsParentCompilation
-                    && cliReferenceDependantInput.HasMsDependencyInjectionAbstractions)
+                if (cliReferenceDependantInput.HasMsDependencyInjectionAbstractions
+                    && !cliReferenceDependantInput.HasCliServiceProviderExtensions)
+                {
+                    var name = SymbolExtensions.GetName(CliReferenceDependantInput.CliServiceProviderExtensionsFullName);
                     sourceProductionContext.AddSource(
-                        "(CliServiceProviderExtensions).g.cs",
-                        GetSourceTextFromEmbeddedResource("CliServiceProviderExtensions.cs", analyzerConfigOptions)
+                        $"({name}).g.cs",
+                        GetSourceTextFromEmbeddedResource($"{name}.cs", analyzerConfigOptions)
                     );
+                }
 
-                if (!cliReferenceDependantInput.IsParentCompilation
-                    && cliReferenceDependantInput.HasMsDependencyInjection)
+                if (cliReferenceDependantInput.HasMsDependencyInjection
+                    && !cliReferenceDependantInput.HasCliServiceCollectionExtensions)
+                {
+                    var name = SymbolExtensions.GetName(CliReferenceDependantInput.CliServiceCollectionExtensionsFullName);
                     sourceProductionContext.AddSource(
-                        "(CliServiceCollectionExtensions).g.cs",
-                        GetSourceTextFromEmbeddedResource("CliServiceCollectionExtensions.cs", analyzerConfigOptions)
+                        $"({name}).g.cs",
+                        GetSourceTextFromEmbeddedResource($"{name}.cs", analyzerConfigOptions)
                     );
-            }
-            catch (Exception exception)
-            {
-                var diagnosticDescriptor = DiagnosticDescriptors.Create(exception);
-                var diagnostic = Diagnostic.Create(diagnosticDescriptor, Location.None);
-
-                sourceProductionContext.ReportDiagnosticSafe(diagnostic);
-            }
-        }
-
-
-        private static void GenerateCommandBuilderSourceCode(SourceProductionContext sourceProductionContext, ImmutableArray<CliCommandInput> cliCommandInputs, AnalyzerConfigOptions analyzerConfigOptions)
-        {
-            try
-            {
-                //When attribute's Parent property is changed we will already get a new CliCommandInput.
-                //But when attribute's Children property is changed in a parent class, we will not get a new CliCommandInput
-                //for external child so we need to update parent tree and re-generate if parent tree is different.
-                //Parent map includes everything; collected commands and their nested sub-commands
-                //and then external commands.
-                var typeMap = new Dictionary<INamedTypeSymbol, CliCommandInput>(SymbolEqualityComparer.Default);
-                var parentMap = new Dictionary<CliCommandInput, CliCommandInput>(); //Child, Parent
-
-                foreach (var cliCommandInput in cliCommandInputs.SelectRecursive(input => input.Subcommands))
-                {
-                    typeMap[cliCommandInput.Symbol] = cliCommandInput;
-
-                    //if nested, add nested parent (external parent can not override nested parent)
-                    //These should be added before the second loop
-                    if (cliCommandInput.Parent != null)
-                        parentMap.Add(cliCommandInput, cliCommandInput.Parent);
-                }
-
-                foreach (var cliCommandInput in cliCommandInputs)
-                {
-                    if (cliCommandInput.ParentArgument != null
-                        && typeMap.TryGetValue(cliCommandInput.ParentArgument, out var externalParent)
-                        && !parentMap.ContainsKey(cliCommandInput))
-                        parentMap.Add(cliCommandInput, externalParent);
-
-                    if (cliCommandInput.ChildrenArgument != null)
-                        foreach (var externalChildSymbol in cliCommandInput.ChildrenArgument)
-                        {
-                            if (externalChildSymbol != null
-                                && typeMap.TryGetValue(externalChildSymbol, out var externalChild)
-                                && !parentMap.ContainsKey(externalChild))
-                                parentMap.Add(externalChild, cliCommandInput);
-                        }
-                }
-
-                /*
-                var sb = new CodeStringBuilder();
-                foreach (var type in typeMap.Keys)
-                {
-                    sb.AppendLine("// " + type.ToReferenceString());
-                }
-                sourceProductionContext.AddSource("_typeMap.g.cs", sb.ToString());
-
-                sb = new CodeStringBuilder();
-                foreach (var kvp in parentMap)
-                {
-                    sb.AppendLine("// " +  kvp.Key.Symbol.ToReferenceString() + " , " + kvp.Value.Symbol.ToReferenceString());
-                }
-                sourceProductionContext.AddSource("_parentMap.g.cs", sb.ToString());
-                */
-
-                foreach (var cliCommandInput in cliCommandInputs)
-                {
-                    //If parent tree is changed, this will set cliCommandInput.IsGenerated to false so that it is re-generated below
-                    cliCommandInput.UpdateParentTree(parentMap);
-
-                    if (!cliCommandInput.IsGenerated)
-                        GenerateCommandBuilderSourceCode(sourceProductionContext, cliCommandInput, analyzerConfigOptions);
-
-                    cliCommandInput.IsGenerated = true;
                 }
             }
             catch (Exception exception)
@@ -207,7 +142,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     return;
 
                 var sb = new CodeStringBuilder();
-                AppendGeneratedCodeHeader(sb, cliCommandInput.GeneratedClassFullName, analyzerConfigOptions);
+                AppendGeneratedCodeHeader(sb, cliCommandOutput.GeneratedClassFullName, analyzerConfigOptions);
                 cliCommandOutput.AppendCSharpDefineString(sb, true);
 
                 var generatedClassSourceCode = sb.ToString();
@@ -217,8 +152,8 @@ namespace DotMake.CommandLine.SourceGeneration
                 //Using class full name can still collide because AddSource uses OrdinalIgnoreCase,
                 //e.g. Namespace.Class1 and Namespace.class1 would collide
                 //https://github.com/dotnet/roslyn/issues/48833
-                var hash = cliCommandInput.GeneratedClassFullName.GetStableStringHashCode32();
-                var generatedFileName = $"{cliCommandInput.GeneratedClassName}-{hash}.g.cs";
+                var hash = cliCommandOutput.GeneratedClassFullName.GetStableStringHashCode32();
+                var generatedFileName = $"{cliCommandOutput.GeneratedClassName}-{hash}.g.cs";
 
                 sourceProductionContext.AddSource(generatedFileName, generatedClassSourceCode);
             }
@@ -251,12 +186,12 @@ namespace DotMake.CommandLine.SourceGeneration
                     return;
 
                 var sb = new CodeStringBuilder();
-                AppendGeneratedCodeHeader(sb, cliCommandAsDelegateInput.GeneratedClassFullName, analyzerConfigOptions);
+                AppendGeneratedCodeHeader(sb, cliCommandAsDelegateOutput.GeneratedClassFullName, analyzerConfigOptions);
                 cliCommandAsDelegateOutput.AppendCSharpDefineString(sb);
 
                 var generatedClassSourceCode = sb.ToString();
 
-                sourceProductionContext.AddSource($"{cliCommandAsDelegateInput.GeneratedClassName}.g.cs", generatedClassSourceCode);
+                sourceProductionContext.AddSource($"{cliCommandAsDelegateOutput.GeneratedClassName}.g.cs", generatedClassSourceCode);
 
                 //Parse generated class to generate a builder for it
                 var syntaxTree = CSharpSyntaxTree.ParseText(
@@ -264,7 +199,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     (CSharpParseOptions)cliCommandAsDelegateInput.SyntaxNode.SyntaxTree.Options
                 );
                 var compilation = cliCommandAsDelegateInput.SemanticModel.Compilation.AddSyntaxTrees(syntaxTree);
-                var generatedSymbol = compilation.GetTypeByMetadataName(cliCommandAsDelegateInput.GeneratedClassFullName);
+                var generatedSymbol = compilation.GetTypeByMetadataName(cliCommandAsDelegateOutput.GeneratedClassFullName);
                 var cliCommandInput = new CliCommandInput(
                     generatedSymbol,
                     generatedSymbol?.DeclaringSyntaxReferences.FirstOrDefault().GetSyntax(),

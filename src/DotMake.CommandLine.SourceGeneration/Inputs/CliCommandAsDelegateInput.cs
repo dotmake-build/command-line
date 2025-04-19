@@ -49,11 +49,6 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             }
 
             Hash = GenerateHash();
-            GeneratedClassName = "CliCommandAsDelegate_" + Hash;
-            GeneratedClassNamespace = CliCommandInput.GeneratedSubNamespace;
-            GeneratedClassFullName = string.IsNullOrEmpty(GeneratedClassNamespace)
-                ? GeneratedClassName
-                : GeneratedClassNamespace + "." + GeneratedClassName;
         }
 
         public static bool IsMatch(SyntaxNode syntaxNode)
@@ -176,13 +171,6 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         public bool ReturnsValue { get; }
 
         public string Hash { get; }
-
-        public string GeneratedClassName { get; }
-
-        public string GeneratedClassNamespace { get; }
-
-        public string GeneratedClassFullName { get; }
-        
 
         public bool Equals(CliCommandAsDelegateInput other)
         {

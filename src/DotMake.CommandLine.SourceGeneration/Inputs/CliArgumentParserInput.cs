@@ -8,7 +8,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 {
     public class CliArgumentParserInput : InputBase, IEquatable<CliArgumentParserInput>
     {
-        private static readonly HashSet<string> SupportedConverters = new HashSet<string>
+        private static readonly HashSet<string> SupportedConverters = new()
         {
             "System.String",
             "System.Boolean",

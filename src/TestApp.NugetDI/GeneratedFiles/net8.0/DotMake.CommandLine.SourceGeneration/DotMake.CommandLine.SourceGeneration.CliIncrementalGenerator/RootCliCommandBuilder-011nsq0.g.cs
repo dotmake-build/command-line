@@ -13,6 +13,7 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
         {
             DefinitionType = typeof(TestApp.NugetDI.Commands.RootCliCommand);
             ParentDefinitionType = null;
+            ChildDefinitionTypes = null;
             NameCasingConvention = null;
             NamePrefixConvention = null;
             ShortFormPrefixConvention = null;
@@ -21,10 +22,10 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
 
         private TestApp.NugetDI.Commands.RootCliCommand CreateInstance()
         {
-            var serviceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);
-            if (serviceProvider != null)
+            ServiceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);
+            if (ServiceProvider != null)
                 return Microsoft.Extensions.DependencyInjection.ActivatorUtilities
-                    .CreateInstance<TestApp.NugetDI.Commands.RootCliCommand>(serviceProvider);
+                    .CreateInstance<TestApp.NugetDI.Commands.RootCliCommand>(ServiceProvider);
 
             return System.Activator.CreateInstance<TestApp.NugetDI.Commands.RootCliCommand>();
         }
@@ -33,10 +34,10 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
         public override System.CommandLine.Command Build()
         {
             // Command for 'RootCliCommand' class
-            var rootCommand = new System.CommandLine.RootCommand()
-            {
-                Description = "A root cli command with dependency injection",
-            };
+            var command = IsRoot
+                ? new System.CommandLine.RootCommand()
+                : new System.CommandLine.Command(GetCommandName("Root"));
+            command.Description = "A root cli command with dependency injection";
 
             var defaultClass = CreateInstance();
 
@@ -55,7 +56,7 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
                 ),
             };
             AddShortFormAlias(option0);
-            rootCommand.Add(option0);
+            command.Add(option0);
 
             // Argument for 'Argument1' property
             var argument0 = new System.CommandLine.Argument<string>
@@ -69,7 +70,7 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
                     null
                 ),
             };
-            rootCommand.Add(argument0);
+            command.Add(argument0);
 
             Binder = (parseResult) =>
             {
@@ -86,7 +87,7 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
                 return targetClass;
             };
 
-            rootCommand.SetAction(parseResult =>
+            command.SetAction(parseResult =>
             {
                 var targetClass = (TestApp.NugetDI.Commands.RootCliCommand) Bind(parseResult);
 
@@ -94,10 +95,14 @@ namespace TestApp.NugetDI.Commands.GeneratedCode
                 var cliContext = new DotMake.CommandLine.CliContext(parseResult);
                 var exitCode = 0;
                 targetClass.Run();
+
+                if (ServiceProvider != null && ServiceProvider is System.IDisposable)
+                    ((System.IDisposable)ServiceProvider).Dispose();
+
                 return exitCode;
             });
 
-            return rootCommand;
+            return command;
         }
 
         [System.Runtime.CompilerServices.ModuleInitializerAttribute]

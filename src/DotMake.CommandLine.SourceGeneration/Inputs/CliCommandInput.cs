@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Util;
 using Microsoft.CodeAnalysis;
@@ -12,8 +11,6 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
     {
         public static readonly string AttributeFullName = typeof(CliCommandAttribute).FullName;
         public const string DiagnosticName = "CLI command";
-        public const string GeneratedSubNamespace = "GeneratedCode";
-        public const string GeneratedClassSuffix = "Builder";
 
         public CliCommandInput(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInput parent)
             : base(symbol, syntaxNode, semanticModel)
@@ -35,15 +32,10 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormAutoGenerate), out var shortFormAutoGenerateArgumentValue))
                 ShortFormAutoGenerate = (bool)shortFormAutoGenerateArgumentValue;
 
-            GeneratedClassName = symbol.Name + GeneratedClassSuffix;
-            GeneratedClassNamespace = symbol.GetNamespaceOrEmpty();
-            if (!GeneratedClassNamespace.EndsWith(GeneratedSubNamespace))
-                GeneratedClassNamespace = SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedSubNamespace);
-            GeneratedClassFullName = (symbol.ContainingType != null)
-                ? SymbolExtensions.CombineNameParts(
-                    symbol.RenameContainingTypesFullName(GeneratedSubNamespace, GeneratedClassSuffix),
-                    GeneratedClassName)
-                : SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
+            ParentSymbol = (Parent != null)
+                ? Parent.Symbol //Nested class for sub-command
+                : ParentArgument; //External class for sub-command
+
             
             CliReferenceDependantInput = (parent != null)
                 ? parent.CliReferenceDependantInput
@@ -96,6 +88,21 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                         }
                     }
 
+                    //Property with a type that refers to a parent command
+                    if (!addedPropertyNames.Contains(property.Name))
+                    {
+                        //Calculating parent tree is hard (across projects) and expensive in generator
+                        //so we only check if property type has CliCommand attribute
+                        var hasAttribute = property.Type.GetAttributes()
+                            .Any(a => a.AttributeClass.ToCompareString() == AttributeFullName);
+
+                        if (hasAttribute)
+                        {
+                            parentCommandAccessors.Add(new CliParentCommandAccessorInput(property, null, SemanticModel));
+                            addedPropertyNames.Add(property.Name);
+                        }
+                    }
+
                     if (!visitedProperties.ContainsKey(property.Name))
                         visitedProperties.Add(property.Name, property);
                 }
@@ -145,23 +152,9 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public CliCommandInput Parent { get; } //Nested parent
 
-        //Nested and external parents
-        //ParentTree will take into account, both ParentArgument and parent's ChildrenArgument
-        public List<CliCommandInput> ParentTree { get; private set; } = new();
+        public INamedTypeSymbol ParentSymbol { get; }
 
-        public bool IsParentCircular { get; private set; }
-
-        public INamedTypeSymbol NestedOrExternalParentSymbol => (Parent != null)
-            ? Parent.Symbol //Nested class for sub-command
-            : ParentTree.FirstOrDefault()?.Symbol; //External class for sub-command
-
-        public bool IsRoot => (Parent == null) && (ParentTree.Count == 0);
-
-        public bool IsExternalChild => (Parent == null) && (ParentTree.Count > 0);
-
-        public bool IsGenerated { get; internal set; }
-
-        
+       
         public AttributeArguments AttributeArguments { get; }
 
         public INamedTypeSymbol ParentArgument { get; }
@@ -178,12 +171,6 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
 
         public CliCommandHandlerInput Handler { get; }
-
-        public string GeneratedClassName { get; }
-
-        public string GeneratedClassNamespace { get; }
-
-        public string GeneratedClassFullName { get; }
 
         public CliReferenceDependantInput CliReferenceDependantInput { get; }
 
@@ -215,6 +202,39 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                         && (c.DeclaredAccessibility == Accessibility.Public || c.DeclaredAccessibility == Accessibility.Internal)
                     ))
                     AddDiagnostic(DiagnosticDescriptors.ErrorClassHasNotPublicDefaultConstructor, DiagnosticName);
+
+                //Calculating parent tree is hard (across projects) and expensive in generator so we will do some simple checks
+                //Full circular dependency can be detected at runtime
+                if (ParentArgument != null && Parent == null) //only check for external (non-nested) commands
+                {
+                    var hasAttribute = ParentArgument.GetAttributes()
+                        .Any(a => a.AttributeClass.ToCompareString() == AttributeFullName);
+
+                    if (!hasAttribute)
+                        AddDiagnostic(DiagnosticDescriptors.ErrorParentClassHasNotAttribute, DiagnosticName, nameof(CliCommandAttribute));
+
+                    if (ParentArgument.Equals(Symbol, SymbolEqualityComparer.Default))
+                        AddDiagnostic(DiagnosticDescriptors.ErrorClassCircularDependency, ParentArgument.Name);
+                }
+
+                if (ChildrenArgument != null)
+                {
+                    foreach (var child in ChildrenArgument)
+                    {
+                        var hasAttribute = child.GetAttributes()
+                            .Any(a => a.AttributeClass.ToCompareString() == AttributeFullName);
+
+                        if (!hasAttribute)
+                            AddDiagnostic(DiagnosticDescriptors.ErrorChildClassHasNotAttribute, DiagnosticName, nameof(CliCommandAttribute));
+
+                        if (child.Equals(Symbol, SymbolEqualityComparer.Default))
+                            AddDiagnostic(DiagnosticDescriptors.ErrorClassCircularDependency, child.Name);
+
+                        if (ParentArgument != null && Parent == null //only check for external (non-nested) commands
+                            && child.Equals(ParentArgument, SymbolEqualityComparer.Default))
+                            AddDiagnostic(DiagnosticDescriptors.ErrorClassCircularDependency, child.Name);
+                    }
+                }
             }
         }
 
@@ -226,111 +246,6 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 .Concat(Arguments.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(Subcommands.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(ParentCommandAccessors.SelectMany(c => c.GetAllDiagnostics()));
-        }
-
-        public void UpdateParentTree(Dictionary<CliCommandInput, CliCommandInput> parentMap)
-        {
-            //When attribute's Parent property is changed we will already get a new CliCommandInput.
-            //But when attribute's Children property is changed in a parent class, we will not get a new CliCommandInput
-            //for external child so we need to update parent tree and re-generate if parent tree is different.
-            //Parent map includes everything, collected commands and their nested sub-commands.
-
-            //Parent tree starts with immediate parent and ends with top parent, for example:
-            //Level3Parent -> Level2Parent -> Level1Parent
-
-            var newParentTree = new List<CliCommandInput>();
-            var visited = new HashSet<CliCommandInput>();
-
-            var currentCommand = this;
-            while (currentCommand != null)
-            {
-                visited.Add(currentCommand);
-                /*
-                CliCommandInput parentCommand;
-
-                if (currentCommand.Parent != null) //if nested, ignore external parent and children and add nested parent
-                    parentCommand = currentCommand.Parent;
-                else if (!parentMap.TryGetValue(currentCommand, out parentCommand))
-                    break;
-                */
-
-                if (!parentMap.TryGetValue(currentCommand, out var parentCommand))
-                    break;
-
-                if (visited.Contains(parentCommand)) //prevent circular dependency
-                {
-                    currentCommand.IsParentCircular = true;
-                    break;
-                }
-
-                newParentTree.Add(parentCommand);
-
-                currentCommand = parentCommand;
-            }
-
-            UpdateParentTree(newParentTree);
-
-            //Propagate tree change to nested sub-commands
-            foreach (var subcommand in subcommands)
-                subcommand.UpdateParentTree(parentMap);
-        }
-
-        public void UpdateParentTree(List<CliCommandInput> newParentTree)
-        {
-            if (!ParentTree.SequenceEqual(newParentTree))
-            {
-                ParentTree = newParentTree;
-                OnParentTreeUpdated();
-            }
-        }
-
-        private void OnParentTreeUpdated()
-        {
-            //ParentTree is changed so we will force re-generation by setting IsGenerated to false.
-            IsGenerated = false;
-
-            //Update inherited properties
-            NameCasingConvention ??= ParentTree.Select(p => p.NameCasingConvention).FirstOrDefault(v => v.HasValue)
-                                     ?? CliCommandAttribute.Default.NameCasingConvention;
-
-            NamePrefixConvention ??= ParentTree.Select(p => p.NamePrefixConvention).FirstOrDefault(v => v.HasValue)
-                                     ?? CliCommandAttribute.Default.NamePrefixConvention;
-
-            ShortFormPrefixConvention ??= ParentTree.Select(p => p.ShortFormPrefixConvention).FirstOrDefault(v => v.HasValue)
-                                          ?? CliCommandAttribute.Default.ShortFormPrefixConvention;
-
-            ShortFormAutoGenerate ??= ParentTree.Select(p => p.ShortFormAutoGenerate).FirstOrDefault(v => v.HasValue)
-                                      ?? CliCommandAttribute.Default.ShortFormAutoGenerate;
-
-            //We can be re-generating now, so remove parent related diagnostics and re-add new ones if required
-            RemoveDiagnostic(DiagnosticDescriptors.ErrorClassCircularDependency);
-            RemoveDiagnostic(DiagnosticDescriptors.ErrorParentClassHasNotAttribute);
-            var circularParent = ParentTree.FirstOrDefault(s => s.IsParentCircular);
-            if (circularParent != null)
-                AddDiagnostic(DiagnosticDescriptors.ErrorClassCircularDependency, circularParent.Symbol.Name);
-            else if (ParentArgument != null && ParentTree.Count == 0)
-                AddDiagnostic(DiagnosticDescriptors.ErrorParentClassHasNotAttribute, DiagnosticName, nameof(CliCommandAttribute));
-
-            //We can be re-generating now, so remove old parent accessors and re-add them
-            parentCommandAccessors.Clear();
-            var addedPropertyNames = new HashSet<string>(StringComparer.Ordinal);
-            var parentCommandsByType = ParentTree
-                .Select(p => p.Symbol)
-                .ToImmutableHashSet(SymbolEqualityComparer.Default);
-            //Loop through all own and then inherited members (not distinct)
-            foreach (var member in Symbol.GetAllMembers())
-            {
-                if (member is IPropertySymbol property)
-                {
-                    //Property with a type that refers to a parent command
-                    if (!addedPropertyNames.Contains(property.Name)
-                        && parentCommandsByType.Contains(property.Type))
-                    {
-                        parentCommandAccessors.Add(new CliParentCommandAccessorInput(property, null, SemanticModel));
-                        addedPropertyNames.Add(property.Name);
-                    }
-                }
-            }
         }
 
         public bool Equals(CliCommandInput other)
