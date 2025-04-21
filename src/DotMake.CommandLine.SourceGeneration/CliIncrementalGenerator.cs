@@ -27,7 +27,7 @@ namespace DotMake.CommandLine.SourceGeneration
             var analyzerConfigOptions = initializationContext.AnalyzerConfigOptionsProvider
                 .Select((provider, _) => provider.GlobalOptions);
 
-            var cliReferenceDependantInputs = initializationContext.CompilationProvider
+            var cliReferenceDependantInput = initializationContext.CompilationProvider
                 .Select((compilation, _) => new CliReferenceDependantInput(compilation));
 
             var cliCommandInputs = initializationContext.SyntaxProvider.ForAttributeWithMetadataName(
@@ -42,16 +42,16 @@ namespace DotMake.CommandLine.SourceGeneration
             );
 
             initializationContext.RegisterSourceOutput(
-                cliReferenceDependantInputs.Combine(analyzerConfigOptions),
+                cliReferenceDependantInput.Combine(analyzerConfigOptions),
                 static (sourceProductionContext, tuple) => GenerateReferenceDependantSourceCode(sourceProductionContext, tuple.Left, tuple.Right)
             );
             initializationContext.RegisterSourceOutput(
-                cliCommandInputs.Combine(analyzerConfigOptions),
-                static (sourceProductionContext, tuple) => GenerateCommandBuilderSourceCode(sourceProductionContext, tuple.Left, tuple.Right)
+                cliCommandInputs.Combine(cliReferenceDependantInput).Combine(analyzerConfigOptions),
+                static (sourceProductionContext, tuple) => GenerateCommandBuilderSourceCode(sourceProductionContext, tuple.Left.Left, tuple.Left.Right, tuple.Right)
             );
             initializationContext.RegisterSourceOutput(
-                cliCommandAsDelegateInputs.Combine(analyzerConfigOptions),
-                static (sourceProductionContext, tuple) => GenerateCliCommandAsDelegateSourceCode(sourceProductionContext, tuple.Left, tuple.Right)
+                cliCommandAsDelegateInputs.Combine(cliReferenceDependantInput).Combine(analyzerConfigOptions),
+                static (sourceProductionContext, tuple) => GenerateCliCommandAsDelegateSourceCode(sourceProductionContext, tuple.Left.Left, tuple.Left.Right, tuple.Right)
             );
         }
         
@@ -125,7 +125,7 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        private static void GenerateCommandBuilderSourceCode(SourceProductionContext sourceProductionContext, CliCommandInput cliCommandInput, AnalyzerConfigOptions analyzerConfigOptions)
+        private static void GenerateCommandBuilderSourceCode(SourceProductionContext sourceProductionContext, CliCommandInput cliCommandInput, CliReferenceDependantInput cliReferenceDependantInput, AnalyzerConfigOptions analyzerConfigOptions)
         {
             try
             {
@@ -135,10 +135,10 @@ namespace DotMake.CommandLine.SourceGeneration
                     || !CheckLanguageVersion(cliCommandInput.LanguageVersion))
                     return;
 
-                var cliCommandOutput = new CliCommandOutput(cliCommandInput);
+                var cliCommandOutput = new CliCommandOutput(cliCommandInput, cliReferenceDependantInput);
                 cliCommandOutput.ReportDiagnostics(sourceProductionContext);
 
-                if (cliCommandInput.HasProblem)
+                if (cliCommandInput.HasProblem) //This should be checked after creating CliCommandOutput, as we may add some problems there
                     return;
 
                 var sb = new CodeStringBuilder();
@@ -166,7 +166,7 @@ namespace DotMake.CommandLine.SourceGeneration
             }
         }
 
-        private static void GenerateCliCommandAsDelegateSourceCode(SourceProductionContext sourceProductionContext, CliCommandAsDelegateInput cliCommandAsDelegateInput, AnalyzerConfigOptions analyzerConfigOptions)
+        private static void GenerateCliCommandAsDelegateSourceCode(SourceProductionContext sourceProductionContext, CliCommandAsDelegateInput cliCommandAsDelegateInput, CliReferenceDependantInput cliReferenceDependantInput, AnalyzerConfigOptions analyzerConfigOptions)
         {
             try
             {
@@ -207,7 +207,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     compilation.GetSemanticModel(syntaxTree),
                     null
                     );
-                GenerateCommandBuilderSourceCode(sourceProductionContext, cliCommandInput, analyzerConfigOptions);
+                GenerateCommandBuilderSourceCode(sourceProductionContext, cliCommandInput, cliReferenceDependantInput, analyzerConfigOptions);
             }
             catch (Exception exception)
             {

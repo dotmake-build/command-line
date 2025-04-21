@@ -20,18 +20,24 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to latest daily build 2.0.0-beta5.25218.1 of System.CommandLine.
+      - Added: Custom completions for options and arguments support. Normally completions were automatically added for options or arguments with Enum types.
+        Now, you can add (or clear/modify) completions for any option or argument.
+        In your command class, inherit `ICliAddCompletions` and implement `AddCompletions` method.
+        This method will be called for every option and argument in your class.
+        In the  method, you should switch according to the property name
+        which corresponds to the option or argument whose completions will be modified.
 
-      - Fixed: New CliCommandAttribute.Children property did not work across projects.
+      - Added: We provide new interfaces `ICliRun`, `ICliRunWithReturn`, `ICliRunWithContext`, `ICliRunWithContextAndReturn`
+        and async versions `ICliRunAsync`, `ICliRunAsyncWithReturn`, `ICliRunAsyncWithContext`, `ICliRunAsyncWithContextAndReturn` 
+        that you can inherit in your command class.
+        Normally you don't need an interface for a handler method as the source generator can detect it automatically,
+        but the interfaces can be used to prevent your IDE complain about unused method in class.
 
-      - Improved: Calculating parent tree is hard (across projects) and expensive in generator so we removed
-        Collect and Re-generate logic in CliIncrementalGenerator that was added in v2.1.0.
-        We can already figure out whole command hierarchy at runtime.
-        - for parent command accessors, we will only check if property type has CliCommand attribute.
-        - for circular dependency, we will do some simple checks for types in Parent and Children attributes and class type itself.
-          Full circular dependency can be detected at runtime.
-        
-      - Fixed: ServiceProvider.Dispose() should be called at the end of the command execution.
+      - Fixed: ServiceProvider.Dispose() should be called in `AppDomain.CurrentDomain.ProcessExit` event, not at the end of the command execution.
+        As `Cli.Run` may be called multiple time, for example for testing purpose.
+
+      - Improved: `CliReferenceDependantInput` should be instantiated once per compilation change for performance optimization.
+        In older versions, it was re-instantiated in `CliCommandInput` for non-nested commands.
     </PackageReleaseNotes>
   </PropertyGroup>
 

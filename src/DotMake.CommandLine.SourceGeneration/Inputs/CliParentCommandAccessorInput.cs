@@ -15,7 +15,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             Analyze(symbol);
         }
 
-        public new IPropertySymbol Symbol;
+        public new IPropertySymbol Symbol { get; }
 
         public sealed override void Analyze(ISymbol symbol)
         {

@@ -14,7 +14,6 @@ namespace DotMake.CommandLine
     public static class CliServiceCollectionExtensions
     {
         private static readonly IServiceCollection ServiceCollection = new ServiceCollection();
-        private static IServiceProvider serviceProvider;
 
         /// <summary>
         /// Registers services into the <see cref="Cli"/>'s default service collection.
@@ -44,8 +43,14 @@ namespace DotMake.CommandLine
         /// <returns>A <see cref="IServiceProvider"/> instance.</returns>
         public static IServiceProvider GetServiceProviderOrDefault(this CliExtensions ext)
         {
-            return serviceProvider ??= CliServiceProviderExtensions.GetServiceProvider(null)
-                                       ?? ServiceCollection.BuildServiceProvider();
+            var serviceProvider = CliServiceProviderExtensions.GetServiceProvider(null);
+            if (serviceProvider == null)
+            {
+                serviceProvider = ServiceCollection.BuildServiceProvider();
+                CliServiceProviderExtensions.SetServiceProvider(null, serviceProvider);
+            }
+
+            return serviceProvider;
         }
     }
 }

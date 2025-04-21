@@ -11,7 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             Input = input;
         }
 
-        public new CliCommandHandlerInput Input { get; set; }
+        public new CliCommandHandlerInput Input { get; }
 
         public void AppendCSharpCallString(CodeStringBuilder sb, string varCliContext = null)
         {

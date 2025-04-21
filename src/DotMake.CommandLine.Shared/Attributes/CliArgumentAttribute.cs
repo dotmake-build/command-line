@@ -30,6 +30,7 @@ namespace DotMake.CommandLine
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass2']" />
     ///     <code source="..\TestApp\Commands\ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\AddCompletionsCliCommand.cs" region="AddCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliArgumentAttribute : Attribute

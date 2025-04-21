@@ -11,7 +11,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             Input = input;
         }
 
-        public InputBase Input { get; set; }
+        public InputBase Input { get; }
 
         public void ReportDiagnostics(SourceProductionContext sourceProductionContext)
         {

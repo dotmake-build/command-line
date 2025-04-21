@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotMake.CommandLine
@@ -14,6 +15,27 @@ namespace DotMake.CommandLine
     public static class CliServiceProviderExtensions
     {
         private static IServiceProvider serviceProvider;
+        private static readonly HashSet<IDisposable> Disposables = new();
+
+        static CliServiceProviderExtensions()
+        {
+            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+        }
+
+        private static void OnProcessExit(object sender, EventArgs e)
+        {
+            foreach (var disposable in Disposables)
+            {
+                try
+                {
+                    disposable.Dispose();
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the custom service provider.
@@ -35,6 +57,9 @@ namespace DotMake.CommandLine
         public static void SetServiceProvider(this CliExtensions ext, IServiceProvider customServiceProvider)
         {
             serviceProvider = customServiceProvider;
+
+            if (customServiceProvider is IDisposable disposable)
+                Disposables.Add(disposable);
         }
     }
 }

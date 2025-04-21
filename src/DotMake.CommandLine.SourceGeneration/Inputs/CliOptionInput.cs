@@ -55,7 +55,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public bool Required { get; }
 
-        public CliArgumentParserInput ArgumentParser { get; set; }
+        public CliArgumentParserInput ArgumentParser { get; }
 
         public sealed override void Analyze(ISymbol symbol)
         {

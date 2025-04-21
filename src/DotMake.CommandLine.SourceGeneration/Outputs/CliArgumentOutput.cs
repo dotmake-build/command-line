@@ -27,9 +27,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             Input = input;
         }
 
-        public new CliArgumentInput Input { get; set; }
+        public new CliArgumentInput Input { get; }
 
-        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultValue)
+        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultClass)
         {
             var argumentName = Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue)
                                && !string.IsNullOrWhiteSpace(nameValue.ToString())
@@ -66,7 +66,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
 
                 if (!Input.Required)
-                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultValue},");
+                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultClass}.{Input.Symbol.Name},");
 
                 var argumentParserOutput = new CliArgumentParserOutput(Input.ArgumentParser);
                 argumentParserOutput.AppendCSharpCallString(sb, "CustomParser", ",");
@@ -92,6 +92,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 && Input.ArgumentParser.ItemType != null //if it's a collection type
                 && !Input.AttributeArguments.ContainsKey(nameof(CliArgumentAttribute.Arity)))
                 sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
+
+            if (Input.Parent.HasAddCompletionsInterface)
+                sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
         }
     }
 }

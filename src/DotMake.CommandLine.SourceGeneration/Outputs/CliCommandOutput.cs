@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Util;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotMake.CommandLine.SourceGeneration.Outputs
@@ -20,10 +21,18 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             //{ nameof(CliCommandAttribute.Hidden), "IsHidden"}
         };
 
-        public CliCommandOutput(CliCommandInput input)
+        public CliCommandOutput(CliCommandInput input, CliReferenceDependantInput referenceDependantInput)
             : base(input)
         {
             Input = input;
+            ReferenceDependantInput = referenceDependantInput;
+
+            if (!referenceDependantInput.HasMsDependencyInjectionAbstractions
+                && !Input.Symbol.InstanceConstructors.Any(c =>
+                    c.Parameters.IsEmpty
+                    && (c.DeclaredAccessibility == Accessibility.Public || c.DeclaredAccessibility == Accessibility.Internal)
+                ))
+                Input.AddDiagnostic(DiagnosticDescriptors.ErrorClassHasNotPublicDefaultConstructor, CliCommandInput.DiagnosticName);
 
             GeneratedClassName = Input.Symbol.Name + GeneratedClassSuffix;
             GeneratedClassNamespace = Input.Symbol.GetNamespaceOrEmpty();
@@ -36,7 +45,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 : SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
         }
 
-        public new CliCommandInput Input { get; set; }
+        public new CliCommandInput Input { get; }
+
+        public CliReferenceDependantInput ReferenceDependantInput { get; }
 
         public string GeneratedClassName { get; }
 
@@ -116,9 +127,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
                 using (sb.AppendBlockStart($"private {definitionClass} CreateInstance()"))
                 {
-                    if (Input.CliReferenceDependantInput.HasMsDependencyInjectionAbstractions || Input.CliReferenceDependantInput.HasMsDependencyInjection)
+                    if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
                     {
-                        sb.AppendLine(Input.CliReferenceDependantInput.HasMsDependencyInjection
+                        sb.AppendLine(ReferenceDependantInput.HasMsDependencyInjection
                             ? "ServiceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
                             : "ServiceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
                         sb.AppendLine("if (ServiceProvider != null)");
@@ -156,8 +167,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliOptionInput = optionsWithoutProblem[index];
                         var cliOptionOutput = new CliOptionOutput(cliOptionInput);
                         var varOption = $"option{index}";
-                        cliOptionOutput.AppendCSharpCreateString(sb, varOption,
-                            $"{varDefaultClass}.{cliOptionInput.Symbol.Name}");
+                        cliOptionOutput.AppendCSharpCreateString(sb, varOption, varDefaultClass);
                         sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
 
@@ -168,8 +178,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliArgumentInput = argumentsWithoutProblem[index];
                         var cliArgumentOutput = new CliArgumentOutput(cliArgumentInput);
                         var varArgument = $"argument{index}";
-                        cliArgumentOutput.AppendCSharpCreateString(sb, varArgument,
-                            $"{varDefaultClass}.{cliArgumentInput.Symbol.Name}");
+                        cliArgumentOutput.AppendCSharpCreateString(sb, varArgument, varDefaultClass);
                         sb.AppendLine($"{varCommand}.Add({varArgument});");
                     }
 
@@ -261,15 +270,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             sb.AppendLine($"{varCliContext}.ShowHelp();");
                         }
 
-                        if (Input.CliReferenceDependantInput.HasMsDependencyInjectionAbstractions ||
-                            Input.CliReferenceDependantInput.HasMsDependencyInjection)
-                        {
-                            sb.AppendLine();
-                            sb.AppendLine("if (ServiceProvider != null && ServiceProvider is System.IDisposable)");
-                            sb.AppendIndent();
-                            sb.AppendLine("((System.IDisposable)ServiceProvider).Dispose();");
-                        }
-
                         sb.AppendLine();
                         sb.AppendLine("return exitCode;");
                     }
@@ -295,7 +295,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 {
                     sb.AppendLine();
 
-                    var nestedCliCommandOutput = new CliCommandOutput(nestedCliCommandInput);
+                    var nestedCliCommandOutput = new CliCommandOutput(nestedCliCommandInput, ReferenceDependantInput);
                     nestedCliCommandOutput.AppendCSharpDefineString(sb, false);
                 }
             }

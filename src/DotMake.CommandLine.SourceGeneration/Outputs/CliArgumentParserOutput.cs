@@ -12,7 +12,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             Input = input;
         }
 
-        public new CliArgumentParserInput Input { get; set; }
+        public new CliArgumentParserInput Input { get; }
 
         public void AppendCSharpCallString(CodeStringBuilder sb, string varCustomParser, string afterBlock)
         {

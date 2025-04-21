@@ -37,6 +37,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public Compilation Compilation { get; }
 
+
         public bool HasModuleInitializer { get; }
 
         public bool HasRequiredMember { get; }
@@ -48,6 +49,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         public bool HasCliServiceProviderExtensions { get; }
 
         public bool HasCliServiceCollectionExtensions { get; }
+
 
         public override void Analyze(ISymbol symbol)
         {

@@ -17,7 +17,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             GeneratedClassFullName = SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
         }
 
-        public new CliCommandAsDelegateInput Input { get; set; }
+        public new CliCommandAsDelegateInput Input { get; }
 
         public string GeneratedClassName { get; }
 

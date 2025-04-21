@@ -35,16 +35,15 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             ParentSymbol = (Parent != null)
                 ? Parent.Symbol //Nested class for sub-command
                 : ParentArgument; //External class for sub-command
-
             
-            CliReferenceDependantInput = (parent != null)
-                ? parent.CliReferenceDependantInput
-                : new CliReferenceDependantInput(semanticModel.Compilation);
-
             Analyze(symbol);
 
             if (HasProblem)
                 return;
+
+
+            // If type implements/extends IEnumerable<T>
+            HasAddCompletionsInterface = Symbol.AllInterfaces.Any(i => i.ToReferenceString() == "DotMake.CommandLine.ICliAddCompletions");
 
             var addedPropertyNames = new HashSet<string>(StringComparer.Ordinal);
             var visitedProperties = new Dictionary<string, ISymbol>(StringComparer.Ordinal);
@@ -161,18 +160,18 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public INamedTypeSymbol[] ChildrenArgument { get; }
 
-        public CliNameCasingConvention? NameCasingConvention { get; private set; }
+        public CliNameCasingConvention? NameCasingConvention { get; }
 
-        public CliNamePrefixConvention? NamePrefixConvention { get; private set; }
+        public CliNamePrefixConvention? NamePrefixConvention { get; }
 
-        public CliNamePrefixConvention? ShortFormPrefixConvention { get; private set; }
+        public CliNamePrefixConvention? ShortFormPrefixConvention { get; }
 
-        public bool? ShortFormAutoGenerate { get; private set; }
+        public bool? ShortFormAutoGenerate { get; }
 
 
         public CliCommandHandlerInput Handler { get; }
 
-        public CliReferenceDependantInput CliReferenceDependantInput { get; }
+        public bool HasAddCompletionsInterface { get; }
 
         public IReadOnlyList<CliOptionInput> Options => options;
         private readonly List<CliOptionInput> options = new();
@@ -195,13 +194,6 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             {
                 if (Symbol.IsAbstract || Symbol.IsGenericType)
                     AddDiagnostic(DiagnosticDescriptors.ErrorClassNotNonAbstractNonGeneric, DiagnosticName);
-
-                if (!CliReferenceDependantInput.HasMsDependencyInjectionAbstractions
-                    && !Symbol.InstanceConstructors.Any(c =>
-                        c.Parameters.IsEmpty
-                        && (c.DeclaredAccessibility == Accessibility.Public || c.DeclaredAccessibility == Accessibility.Internal)
-                    ))
-                    AddDiagnostic(DiagnosticDescriptors.ErrorClassHasNotPublicDefaultConstructor, DiagnosticName);
 
                 //Calculating parent tree is hard (across projects) and expensive in generator so we will do some simple checks
                 //Full circular dependency can be detected at runtime

@@ -51,11 +51,13 @@ try
     //Cli.Run<RecursiveOptionCliCommand>(args);
     //Cli.Run<ParentCommandAccessorCliCommand>(args);
     //Cli.Run<OptionBundlingCliCommand>(args);
+    //Cli.Run<AddCompletionsCliCommand>(args);
+
 
     //Using Cli.RunAsync:
     //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);
-    //await Cli.RunAsync<AsyncVoidReturnCliCommand>(args);
-    //await Cli.RunAsync<AsyncIntReturnCliCommand>(args);
+    //await Cli.RunAsync<RunAsyncCliCommand>(args);
+    //await Cli.RunAsync<RunAsyncWithReturnCliCommand>(args);
 
     //Using themes:
     //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Red });

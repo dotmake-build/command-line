@@ -30,13 +30,44 @@ namespace DotMake.CommandLine
     /// Subcommands can have their own subcommands. In <c>dotnet tool install</c>, <c>install</c> is a <c>subcommand</c> of tool.
     /// </para>
     /// <para>
-    /// When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
+    /// <b>Inheritance:</b> When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
     /// share them by inheriting that base class in other command classes.Interfaces are also supported !
     /// </para>
+    /// <para>
+    /// <b>Handler:</b> Add a method with name Run or RunAsync to make it the handler for the CLI command. The method can have one of the following signatures:
+    /// <list type="bullet">
+    ///     <item><c>void Run()</c></item>
+    ///     <item><c>int Run()</c></item>
+    ///     <item><c>async Task RunAsync()</c></item>
+    ///     <item><c>async Task&lt;int&gt; RunAsync()</c></item>
+    /// </list>
+    /// Optionally the method signature can have a <see cref="CliContext"/> parameter in case you need to access it:
+    /// <list type="bullet">
+    ///     <item><c>Run(CliContext context)</c></item>
+    ///     <item><c>RunAsync(CliContext context)</c></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// We also provide interfaces <see cref="ICliRun"/>, <see cref="ICliRunWithReturn"/>, <see cref="ICliRunWithContext"/>, <see cref="ICliRunWithContextAndReturn"/>
+    /// and async versions <see cref="ICliRunAsync"/>, <see cref="ICliRunAsyncWithReturn"/>, <see cref="ICliRunAsyncWithContext"/>, <see cref="ICliRunAsyncWithContextAndReturn"/> 
+    /// that you can inherit in your command class.
+    /// Normally you don't need an interface for a handler method as the source generator can detect it automatically,
+    /// but the interfaces can be used to prevent your IDE complain about unused method in class.
+    /// </para>
+    /// <para>
+    /// The signatures which return int value, sets the ExitCode of the app.
+    /// If no handler method is provided, then by default it will show help for the command.
+    /// This can be also controlled manually by extension method <see cref="CliContext.ShowHelp"/>.
+    /// Other extension methods <see cref="CliContext.IsEmptyCommand"/>, <see cref="CliContext.ShowValues"/> and <see cref="CliContext.ShowHierarchy"/> are also useful.
+    ///  </para>
     /// </summary>
     /// <example>
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass2']" />
+    ///     <code>
+    ///         <code source="..\TestApp\Commands\RunAsyncCliCommand.cs" region="RunAsyncCliCommand" language="cs" />
+    ///         <code source="..\TestApp\Commands\RunAsyncWithReturnCliCommand.cs" region="RunAsyncWithReturnCliCommand" language="cs" />
+    ///     </code>
     ///     <code source="..\TestApp\Commands\WriteFileCliCommand.cs" region="WriteFileCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ArgumentConverterCliCommand.cs" region="ArgumentConverterCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\EnumerableCliCommand.cs" region="EnumerableCliCommand" language="cs" />
@@ -56,6 +87,7 @@ namespace DotMake.CommandLine
     ///     <code source="..\TestApp\Commands\LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\AddCompletionsCliCommand.cs" region="AddCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CliCommandAttribute : Attribute

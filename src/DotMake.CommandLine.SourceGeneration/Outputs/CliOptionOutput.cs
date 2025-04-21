@@ -27,9 +27,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             Input = input;
         }
 
-        public new CliOptionInput Input { get; set; }
+        public new CliOptionInput Input { get; }
 
-        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultValue)
+        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultClass)
         {
             var optionName = Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue)
                              && !string.IsNullOrWhiteSpace(nameValue.ToString())
@@ -70,7 +70,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 //Required is special as it can be calculated when CliOptionAttribute.Required is missing (not forced)
                 sb.AppendLine($"Required = {Input.Required.ToString().ToLowerInvariant()},");
                 if (!Input.Required)
-                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultValue},");
+                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultClass}.{Input.Symbol.Name},");
 
                 var argumentParserOutput = new CliArgumentParserOutput(Input.ArgumentParser);
                 argumentParserOutput.AppendCSharpCallString(sb, "CustomParser", ",");
@@ -104,6 +104,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"AddAlias({varName}, \"{alias}\");");
                 }
             }
+
+            if (Input.Parent.HasAddCompletionsInterface)
+                sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
         }
     }
 }
