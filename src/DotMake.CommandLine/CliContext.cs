@@ -163,6 +163,8 @@ namespace DotMake.CommandLine
 
         private IEnumerable<Command> GetParentTree(Command rootCommand)
         {
+            // Use Stack (depth-first) for correct order here
+            // https://stackoverflow.com/questions/5804844/implementing-depth-first-search-into-c-sharp-using-list-and-stack
             var stack = new Stack<Command>();
             stack.Push(rootCommand);
 
@@ -172,6 +174,7 @@ namespace DotMake.CommandLine
 
                 yield return current;
 
+                // Reverse() is required for the left-to-right order in depth-first
                 foreach (var child in current.Subcommands.Reverse())
                 {
                     stack.Push(child);

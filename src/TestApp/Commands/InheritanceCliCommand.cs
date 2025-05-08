@@ -37,7 +37,7 @@ namespace TestApp.Commands
 
     public interface IDepartmentCommand
     {
-        [CliOption(Description = "Department of the identity performing the command (interface)")]
+        [CliArgument(Description = "Department of the identity performing the command (interface)")]
         string Department { get; set; }
     }
 

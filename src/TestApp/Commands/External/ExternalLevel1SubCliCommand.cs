@@ -9,7 +9,7 @@ namespace TestApp.Commands.External
         Description = "An external level 1 sub-command",
         Children = new[]
         {
-            typeof(ExternalLevel2SubCliCommand)
+            typeof(ExternalLevel2SubCliCommand),
         }
     )]
     public class ExternalLevel1SubCliCommand

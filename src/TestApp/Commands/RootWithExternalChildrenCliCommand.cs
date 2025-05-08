@@ -20,7 +20,7 @@ namespace TestApp.Commands
         Description = "A root cli command with external children",
         Children = new []
         {
-            typeof(ExternalLevel1SubCliCommand)
+            typeof(ExternalLevel1SubCliCommand),
         }
     )]
     public class RootWithExternalChildrenCliCommand

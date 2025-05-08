@@ -128,6 +128,16 @@ namespace DotMake.CommandLine.SourceGeneration.Util
             }
         }
 
+        public static IEnumerable<TMemberType> GetAllInherited<TMemberType>(this TMemberType member)
+            where TMemberType : ISymbol
+        {
+            return member.ContainingType
+                .AllInterfaces
+                .SelectMany(s => s.GetMembers())
+                .Where(m => m.Kind == member.Kind && m.Name == member.Name)
+                .Cast<TMemberType>();
+        }
+
         public static string GetNamespaceOrEmpty(this ISymbol symbol)
         {
             return symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace

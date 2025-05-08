@@ -42,68 +42,62 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 return;
 
 
-            // If type implements/extends IEnumerable<T>
+            //If type implements/extends ICliAddCompletions
             HasAddCompletionsInterface = Symbol.AllInterfaces.Any(i => i.ToReferenceString() == "DotMake.CommandLine.ICliAddCompletions");
 
-            var addedPropertyNames = new HashSet<string>(StringComparer.Ordinal);
-            var visitedProperties = new Dictionary<string, ISymbol>(StringComparer.Ordinal);
+            //Loop through own and inherited members.
+            //ITypeSymbol.GetMembers only returns explicitly declared members in that class.
+            //So we implemented extension method GetAllMembers which returns all own and then inherited members (not distinct).
+            //Group them by Kind and Name so the member order is preserved in each class layer.
+            var memberGroups = Symbol.GetAllMembers()
+                .GroupBy(s => (s.Kind, s.Name));
 
-            //Loop through all own and then inherited members (not distinct)
-            foreach (var member in Symbol.GetAllMembers())
+            foreach (var memberGroup in memberGroups)
             {
+                //First one is the most derived in the group
+                var member = memberGroup.First();
+
                 if (member is IPropertySymbol property)
                 {
-                    if (addedPropertyNames.Contains(property.Name))
-                        continue;
-
+                    //Try to find [CliOption] or [CliArgument] attribute in self or inherited property.
+                    //For example, property does not have an attribute in derived class but has one in a base class.
+                    //The property attribute and the property initializer from the most derived class in the hierarchy
+                    //will be used (they will override the base ones).
+                    //future note: non-existing property initializer in derived may be overriding an existing one in base
+                    var propertyAttributeData = memberGroup
+                        .SelectMany(s => s.GetAttributes())
+                        .FirstOrDefault(a =>
+                        {
+                            var attributeFullName = a.AttributeClass?.ToCompareString();
+                            return (attributeFullName == CliOptionInput.AttributeFullName
+                                    || attributeFullName == CliArgumentInput.AttributeFullName);
+                        });
+                   
                     //Property with [CliOption] or [CliArgument] attribute
-                    foreach (var propertyAttributeData in property.GetAttributes())
+                    if (propertyAttributeData != null)
                     {
                         var attributeFullName = propertyAttributeData.AttributeClass?.ToCompareString();
 
-                        //visitedProperty is used to inherit [CliOption] or [CliArgument] attribute
-                        //for example, property does not have an attribute in child class but has one in a parent class.
-                        //The property attribute and the property initializer from the most derived class in the hierarchy
-                        //will be used (they will override the base ones).
-                        //future note: non-existing property initializer in derived may be overriding an existing one in base
-                        visitedProperties.TryGetValue(property.Name, out var visitedProperty);
-
                         //having both attributes doesn't make sense as the binding would override the previous one's value
                         //user should better have separate properties for each attribute
-                        //so stop (break) when one of the attributes found first on a property.
+                        //so choose one of the attributes found first on a property.
                         if (attributeFullName == CliOptionInput.AttributeFullName)
-                        {
-                            options.Add(new CliOptionInput(visitedProperty ?? property, null, propertyAttributeData, semanticModel, this));
-                            addedPropertyNames.Add(property.Name);
-
-                            break; 
-                        }
-                        if (attributeFullName == CliArgumentInput.AttributeFullName)
-                        {
-                            arguments.Add(new CliArgumentInput(visitedProperty ?? property, null, propertyAttributeData, semanticModel, this));
-                            addedPropertyNames.Add(property.Name);
-
-                            break;
-                        }
+                            options.Add(new CliOptionInput(property, null, propertyAttributeData, semanticModel, this));
+                        else if (attributeFullName == CliArgumentInput.AttributeFullName)
+                            arguments.Add(new CliArgumentInput(property, null, propertyAttributeData, semanticModel, this));
                     }
-
                     //Property with a type that refers to a parent command
-                    if (!addedPropertyNames.Contains(property.Name))
+                    else
                     {
                         //Calculating parent tree is hard (across projects) and expensive in generator
-                        //so we only check if property type has CliCommand attribute
-                        var hasAttribute = property.Type.GetAttributes()
-                            .Any(a => a.AttributeClass.ToCompareString() == AttributeFullName);
+                        //so we only check if property type's class has CliCommand attribute
+                        var classHasAttribute = memberGroup
+                            .SelectMany(s => ((IPropertySymbol)s).Type.GetAttributes())
+                            .Any(a => a.AttributeClass?.ToCompareString() == AttributeFullName);
 
-                        if (hasAttribute)
-                        {
+                        if (classHasAttribute)
                             parentCommandAccessors.Add(new CliParentCommandAccessorInput(property, null, SemanticModel));
-                            addedPropertyNames.Add(property.Name);
-                        }
                     }
-
-                    if (!visitedProperties.ContainsKey(property.Name))
-                        visitedProperties.Add(property.Name, property);
                 }
                 else if (member is IMethodSymbol method)
                 {

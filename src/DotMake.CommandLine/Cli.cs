@@ -104,20 +104,21 @@ namespace DotMake.CommandLine
             var command = currentCommand!; //always non-null
 
             // Add nested or external registered children commands
-            var stack = new Stack<Tuple<CliCommandBuilder, Command>>();
-            stack.Push(Tuple.Create(commandBuilder, command));
-            while (stack.Count > 0)
+            // Use Queue (breadth-first) for correct order here
+            var queue = new Queue<Tuple<CliCommandBuilder, Command>>();
+            queue.Enqueue(Tuple.Create(commandBuilder, command));
+            while (queue.Count > 0)
             {
-                var currentTuple= stack.Pop();
+                var currentTuple = queue.Dequeue();
                 var current = currentTuple.Item1;
                 var currentCommand2 = currentTuple.Item2;
 
-                foreach (var child in current.Children.Reverse())
+                foreach (var child in current.Children)
                 {
                     child.InheritSettings(current); //should be before Build
                     var childCommand = child.Build();
                     currentCommand2.Add(childCommand);
-                    stack.Push(Tuple.Create(child, childCommand));
+                    queue.Enqueue(Tuple.Create(child, childCommand));
                 }
             }
 
