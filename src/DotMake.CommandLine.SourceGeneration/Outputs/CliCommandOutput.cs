@@ -125,6 +125,19 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
                 sb.AppendLine();
 
+                using (sb.AppendBlockStart($"private {definitionClass} CreateUninitializedInstance()"))
+                {
+                    sb.AppendLine($"return ({definitionClass})");
+                    sb.AppendLine("#if NET5_0_OR_GREATER");
+                    sb.AppendIndent();
+                    sb.AppendLine("System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(DefinitionType);");
+                    sb.AppendLine("#else");
+                    sb.AppendIndent();
+                    sb.AppendLine("System.Runtime.Serialization.FormatterServices.GetUninitializedObject(DefinitionType);");
+                    sb.AppendLine("#endif");
+                }
+                sb.AppendLine();
+
                 using (sb.AppendBlockStart($"private {definitionClass} CreateInstance()"))
                 {
                     if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
@@ -158,7 +171,10 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
                     sb.AppendLine();
                     var varDefaultClass = "defaultClass";
-                    sb.AppendLine($"var {varDefaultClass} = CreateInstance();");
+                    //No more using a default instance here to avoid IServiceProvider integration causing unnecessary instantiations.
+                    //Instead, we read the property initializer SyntaxNode, qualify symbols and then use that SyntaxNode for DefaultValueFactory.
+                    //However, we still need an uninitialized instance for being able to call AddCompletions method, for now.
+                    sb.AppendLine($"var {varDefaultClass} = CreateUninitializedInstance();");
 
                     for (var index = 0; index < optionsWithoutProblem.Length; index++)
                     {

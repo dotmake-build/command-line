@@ -52,6 +52,7 @@ try
     //Cli.Run<ParentCommandAccessorCliCommand>(args);
     //Cli.Run<OptionBundlingCliCommand>(args);
     //Cli.Run<AddCompletionsCliCommand>(args);
+    //Cli.Run<DefaultValuesCliCommand>(args);
 
 
     //Using Cli.RunAsync:

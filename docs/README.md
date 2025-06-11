@@ -1153,6 +1153,9 @@ public class AddCompletionsCliCommand : ICliAddCompletions
 
     public void AddCompletions(string propertyName, List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources)
     {
+        //This method will be called with an uninitialized instance (no constructor call),
+        //so do not use instance properties/fields with initializers here as they can come as null.
+
         switch (propertyName)
         {
             case nameof(DateOption):

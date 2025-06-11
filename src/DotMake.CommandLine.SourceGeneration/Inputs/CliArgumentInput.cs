@@ -32,7 +32,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 Required = (bool)requiredValue;
             else
                 Required = (SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax && propertyDeclarationSyntax.Initializer != null)
-                    ? propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.NullKeyword)
+                    ? propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.NullLiteralExpression)
                       || propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.SuppressNullableWarningExpression)
                     : Symbol.Type.IsReferenceType || Symbol.IsRequired;
         }

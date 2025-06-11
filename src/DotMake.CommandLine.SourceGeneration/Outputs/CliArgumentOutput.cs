@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Util;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotMake.CommandLine.SourceGeneration.Outputs
 {
@@ -66,7 +68,25 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
 
                 if (!Input.Required)
-                    sb.AppendLine($"DefaultValueFactory = _ => {varDefaultClass}.{Input.Symbol.Name},");
+                {
+                    //No more using a default instance here to avoid IServiceProvider integration causing unnecessary instantiations.
+                    //Instead, we read the property initializer SyntaxNode, qualify symbols and then use that SyntaxNode for DefaultValueFactory.
+                    //However, we still need an uninitialized instance for being able to call AddCompletions method, for now.
+                    //The uninitialized instance can not be used for property access, as the constructor is skipped, properties will come as null.
+                    //sb.AppendLine($"DefaultValueFactory = _ => {varDefaultClass}.{Input.Symbol.Name},");
+
+                    SyntaxNode valueExpression = null;
+                    if (Input.SyntaxNode is PropertyDeclarationSyntax propertyDeclarationSyntax
+                        && propertyDeclarationSyntax.Initializer != null)
+                    {
+                        valueExpression = new QualifiedSyntaxRewriter(Input.SemanticModel)
+                            .Visit(propertyDeclarationSyntax.Initializer.Value);
+
+                    }
+
+                    if (valueExpression != null)
+                        sb.AppendLine($"DefaultValueFactory = _ => {valueExpression},");
+                }
 
                 var argumentParserOutput = new CliArgumentParserOutput(Input.ArgumentParser);
                 argumentParserOutput.AppendCSharpCallString(sb, "CustomParser", ",");
