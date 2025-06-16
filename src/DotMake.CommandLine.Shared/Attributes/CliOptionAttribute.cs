@@ -46,7 +46,7 @@ namespace DotMake.CommandLine
     ///     <code source="..\TestApp\Commands\RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\OptionBundlingCliCommand.cs" region="OptionBundlingCliCommand" language="cs" />
-    ///     <code source="..\TestApp\Commands\AddCompletionsCliCommand.cs" region="AddCompletionsCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliOptionAttribute : Attribute

@@ -87,7 +87,7 @@ namespace DotMake.CommandLine
     ///     <code source="..\TestApp\Commands\LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
     ///     <code source="..\TestApp\Commands\ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
-    ///     <code source="..\TestApp\Commands\AddCompletionsCliCommand.cs" region="AddCompletionsCliCommand" language="cs" />
+    ///     <code source="..\TestApp\Commands\GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CliCommandAttribute : Attribute
