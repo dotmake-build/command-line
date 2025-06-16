@@ -98,16 +98,17 @@ namespace DotMake.CommandLine
 
 
     /// <summary>
-    /// An interface to add custom completions for options and arguments in a command class.
+    /// An interface to get custom completions for options and arguments in a command class.
     /// </summary>
-    public interface ICliAddCompletions
+    public interface ICliGetCompletions
     {
         /// <summary>
         /// This method will be called for every option and argument, you should switch according to the property name
-        /// which corresponds to the option or argument whose completions will be modified.
+        /// which corresponds to the option or argument whose completions will be retrieved.
         /// </summary>
         /// <param name="propertyName">The property name which corresponds to the current option or argument.</param>
-        /// <param name="completionSources">The completion sources for the current option or argument, which will be modified.</param>
-        void AddCompletions(string propertyName, List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources);
+        /// <param name="completionContext">The completion context.</param>
+        /// <returns>An enumerable list of <see cref="CompletionItem"/>.</returns>
+        IEnumerable<CompletionItem> GetCompletions(string propertyName, CompletionContext completionContext);
     }
 }

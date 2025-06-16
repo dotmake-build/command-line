@@ -12,6 +12,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         public const string RootCommandClassName = "RootCommand";
         public const string CommandClassName = "Command";
         public const string CommandClassNamespace = "System.CommandLine";
+        public const string CompletionsNamespace = "System.CommandLine.Completions";
         public const string GeneratedSubNamespace = "GeneratedCode";
         public const string GeneratedClassSuffix = "Builder";
         public static readonly string CommandBuilderFullName = "DotMake.CommandLine.CliCommandBuilder";
@@ -125,6 +126,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
                 sb.AppendLine();
 
+                /*
+                GetUninitializedObject causes IL2072 trimming warnings, so no longer use this,
+                Instead we will use Bind method to get cached definition instance and call GetCompletions method
                 using (sb.AppendBlockStart($"private {definitionClass} CreateUninitializedInstance()"))
                 {
                     sb.AppendLine($"return ({definitionClass})");
@@ -137,6 +141,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine("#endif");
                 }
                 sb.AppendLine();
+                */
 
                 using (sb.AppendBlockStart($"private {definitionClass} CreateInstance()"))
                 {
@@ -164,17 +169,38 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
                 sb.AppendLine();
 
+                if (Input.HasAddCompletionsInterface)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"private System.Collections.Generic.IEnumerable<{CompletionsNamespace}.CompletionItem> GetCompletions(");
+                    sb.AppendIndent();
+                    sb.AppendLine($"string propertyName, {CompletionsNamespace}.CompletionContext completionContext)");
+                    using (sb.AppendBlockStart())
+                    {
+                        var varTargetClass = "targetClass";
+
+                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) Bind(completionContext.ParseResult);");
+                        sb.AppendLine();
+
+                        sb.AppendLine("//  Call the interface method with property name of option or argument");
+                        sb.AppendLine($"return {varTargetClass}.GetCompletions(propertyName, completionContext);");
+                    }
+                    sb.AppendLine();
+                }
+
                 sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"public override {CommandClassNamespace}.{CommandClassName} Build()"))
                 {
                     AppendCSharpCreateString(sb, varCommand);
 
-                    sb.AppendLine();
                     var varDefaultClass = "defaultClass";
+                    /*
+                    sb.AppendLine();
                     //No more using a default instance here to avoid IServiceProvider integration causing unnecessary instantiations.
                     //Instead, we read the property initializer SyntaxNode, qualify symbols and then use that SyntaxNode for DefaultValueFactory.
                     //However, we still need an uninitialized instance for being able to call AddCompletions method, for now.
                     sb.AppendLine($"var {varDefaultClass} = CreateUninitializedInstance();");
+                    */
 
                     for (var index = 0; index < optionsWithoutProblem.Length; index++)
                     {

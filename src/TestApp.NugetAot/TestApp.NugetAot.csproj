@@ -6,7 +6,7 @@
     <Product>DotMake Command-Line TestApp.NugetAot</Product>
 
     <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
 
     <PublishDir
       Condition="'$(PublishTrimmed)' == 'true' AND '$(PublishAot)' != 'true' AND '$(PublishDir)' == ''">bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish-trimmed</PublishDir>

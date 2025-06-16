@@ -42,8 +42,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 return;
 
 
-            //If type implements/extends ICliAddCompletions
-            HasAddCompletionsInterface = Symbol.AllInterfaces.Any(i => i.ToReferenceString() == "DotMake.CommandLine.ICliAddCompletions");
+            //If type implements/extends ICliGetCompletions
+            HasAddCompletionsInterface = Symbol.AllInterfaces.Any(i => i.ToReferenceString() == "DotMake.CommandLine.ICliGetCompletions");
 
             //Loop through own and inherited members.
             //ITypeSymbol.GetMembers only returns explicitly declared members in that class.

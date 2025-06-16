@@ -5,10 +5,9 @@
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Product>DotMake Command-Line TestApp.NugetDI</Product>
+
     <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <!-- Prevent satellite resource DLL pollution (which come from System.CommandLine package) in bin folder, by setting a specific culture -->
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <ItemGroup>

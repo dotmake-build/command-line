@@ -20,18 +20,14 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Updated to daily build 2.0.0-beta5.25302.104 of System.CommandLine (cannot update beyond this version for now, as Help related classes are made internal).
-
-      - Improved: In previous versions,  for setting DefaultValueFactory of options and arguments,  a default instance of definition type was being created and its properties were being accessed.
-        However if you used dependency injection,  this caused unnecessary instantiations because every definition type in the hierarchy had to be instantiated for building the command hierarchy.
-        From now on,  CliCommandBuilder.Build method will not create a default instance of definition type to avoid IServiceProvider instantiations for other commands in the hierarchy.
-        Instead, we will read the property initializer's SyntaxNode, fully-qualify symbols and then use that SyntaxNode directly for setting DefaultValueFactory.
-        However, we still need an uninitialized instance for being able to call AddCompletions method that comes with ICliAddCompletions interface, for now.
-        The uninitialized instance can not be used for property access, as the constructor is skipped, properties will come as null but it can be used for calling method access.
-        Creating an uninitialized instance will not trigger dependency injection,  so the problem will be avoided.
-
-      - Fixed: Property initializers were being checked for `SyntaxKind.NullKeyword` where they should be checked for `SyntaxKind.NullLiteralExpression` instead
-        to auto-determine `Required = true` when it's not specified explicitly.
+      - Fixed: In previous version, using `System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject` caused `IL2072` trimming warnings.
+        We now changed handling of completions so that we never need an uninitialized instance of definition type, thus removed usage of `GetUninitializedObject`
+        to fix the issue:
+        - `ICliAddCompletions` interface is now renamed to `ICliGetCompletions`.
+        - `void AddCompletions(string propertyName, List&lt;Func&lt;CompletionContext, IEnumerable&lt;CompletionItem&gt;&gt;&gt; completionSources)` interface method
+          is now changed to `Enumerable&lt;CompletionItem&gt; GetCompletions(string propertyName, CompletionContext completionContext)`.
+        So now, instead we will use `Bind` method to get cached definition instance and call `GetCompletions` interface method.
+        The signature change also made implementing interface method more easy and straightforward.
     </PackageReleaseNotes>
   </PropertyGroup>
 

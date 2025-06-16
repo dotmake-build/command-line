@@ -1121,21 +1121,20 @@ Once the user does this, tab completion is automatic for static values in your a
 define by setting `CliOptionAttribute.AllowedValues` or `CliArgumentAttribute.AllowedValues`. 
 You can also customize the tab completion by getting values dynamically at runtime.
 
-In your command class, inherit `ICliAddCompletions` and implement `AddCompletions` method.
+In your command class, inherit `ICliGetCompletions` and implement `ICliGetCompletions` method.
 This method will be called for every option and argument in your class.
 In the  method, you should switch according to the property name
-which corresponds to the option or argument whose completions will be modified.
+which corresponds to the option or argument whose completions will be retrieved.
 
 ```c#
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
 using System.CommandLine.Completions;
 using System.Linq;
 using DotMake.CommandLine;
 
 [CliCommand(Description = "A root cli command with completions for options and arguments")]
-public class AddCompletionsCliCommand : ICliAddCompletions
+public class GetCompletionsCliCommand : ICliGetCompletions
 {
     [CliOption(Description = "Description for DateOption")]
     public DateTime DateOption { get; set; }
@@ -1151,33 +1150,30 @@ public class AddCompletionsCliCommand : ICliAddCompletions
             context.ShowValues();
     }
 
-    public void AddCompletions(string propertyName, List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources)
+    public IEnumerable<CompletionItem> GetCompletions(string propertyName, CompletionContext completionContext)
     {
-        //This method will be called with an uninitialized instance (no constructor call),
-        //so do not use instance properties/fields with initializers here as they can come as null.
-
         switch (propertyName)
         {
             case nameof(DateOption):
-                completionSources.Add(completionContext =>
+                var today = DateTime.Today;
+                var dates = new List<CompletionItem>();
+
+                foreach (var i in Enumerable.Range(1, 7))
                 {
-                    var today = System.DateTime.Today;
-                    var dates = new List<CompletionItem>();
-                    foreach (var i in Enumerable.Range(1, 7))
-                    {
-                        var date = today.AddDays(i);
-                        dates.Add(new CompletionItem(
-                            label: date.ToShortDateString(),
-                            sortText: $"{i:2}"));
-                    }
-                    return dates;
-                });
-                break;
+                    var date = today.AddDays(i);
+                    dates.Add(new CompletionItem(
+                        label: date.ToShortDateString(),
+                        sortText: $"{i:2}"));
+                }
+
+                return dates;
 
             case nameof(FruitArgument):
-                completionSources.Add("apple", "orange", "banana");
-                break;
+                return new [] { "apple", "orange", "banana" }
+                    .Select(value => new CompletionItem(value, "Value", null, null, null, null));
         }
+
+        return Enumerable.Empty<CompletionItem>();
     }
 }
 ```

@@ -51,7 +51,7 @@ try
     //Cli.Run<RecursiveOptionCliCommand>(args);
     //Cli.Run<ParentCommandAccessorCliCommand>(args);
     //Cli.Run<OptionBundlingCliCommand>(args);
-    //Cli.Run<AddCompletionsCliCommand>(args);
+    //Cli.Run<GetCompletionsCliCommand>(args);
     //Cli.Run<DefaultValuesCliCommand>(args);
 
 

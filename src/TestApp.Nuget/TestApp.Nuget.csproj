@@ -7,7 +7,7 @@
     <Product>DotMake Command-Line TestApp.Nuget</Product>
 
     <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
 
     <!--
       Starting with DotMake.CommandLine v1.9.0 package, we include a MSBuild .props file in the nuget package so projects
