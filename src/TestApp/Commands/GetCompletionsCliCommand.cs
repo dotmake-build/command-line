@@ -9,10 +9,18 @@ namespace TestApp.Commands
 {
     #region GetCompletionsCliCommand
 
-    // A root cli command with completions for options and arguments.
-    // After you inherit ICliGetCompletions, implement GetCompletions method which will be called for every option and argument,
-    // you should switch according to the property name
-    // which corresponds to the option or argument whose completions will be retrieved.
+    /*
+        Apps that use System.CommandLine have built-in support for tab completion in certain shells. 
+        To enable it, the end user has to [take a few steps once per shell](https://learn.microsoft.com/en-us/dotnet/standard/commandline/tab-completion#get-tab-completion-values-at-run-time). 
+        Once the user does this, tab completion is automatic for static values in your app, such as enum values or values you 
+        define by setting `CliOptionAttribute.AllowedValues` or `CliArgumentAttribute.AllowedValues`. 
+        You can also customize the tab completion by getting values dynamically at runtime.
+
+        In your command class, inherit `ICliGetCompletions` and implement `GetCompletions` method.
+        This method will be called for every option and argument in your class.
+        In the  method, you should switch according to the property name
+        which corresponds to the option or argument whose completions will be retrieved.
+     */
 
     [CliCommand(Description = "A root cli command with completions for options and arguments")]
     public class GetCompletionsCliCommand : ICliGetCompletions

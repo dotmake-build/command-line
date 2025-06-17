@@ -1156,7 +1156,7 @@ Once the user does this, tab completion is automatic for static values in your a
 define by setting `CliOptionAttribute.AllowedValues` or `CliArgumentAttribute.AllowedValues`. 
 You can also customize the tab completion by getting values dynamically at runtime.
 
-In your command class, inherit `ICliGetCompletions` and implement `ICliGetCompletions` method.
+In your command class, inherit `ICliGetCompletions` and implement `GetCompletions` method.
 This method will be called for every option and argument in your class.
 In the  method, you should switch according to the property name
 which corresponds to the option or argument whose completions will be retrieved.
