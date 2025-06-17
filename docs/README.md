@@ -227,7 +227,7 @@ If you have multiple `TargetFrameworks` in the project use this:
 dotnet publish -c Release -r win-x64 -f net8.0 -p:PublishAot=true;TargetFrameworks=net8.0
 ```
 
-The output will be generated in `bin\Release\net8.0\win-x64\publish-aot` folder.
+The output will be generated in `bin\Release\net8.0\win-x64\publish` folder.
 You will get a native and single executable file for the platform, which runs blazingly fast (e.g. a 4MB exe file).
 
 Note that for AOT, you need to make sure to install the "Desktop development with C++" workload from
