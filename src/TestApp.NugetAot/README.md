@@ -14,7 +14,7 @@ Used for testing trimming and AOT compilation.
 
 - Or use this command in project folder:
   ```
-  dotnet publish -c Release -r win-x64 -f net8.0 -p:PublishTrimmed=true;PublishSingleFile=true
+  dotnet publish -c Release -r win-x64 -p:PublishTrimmed=true;PublishSingleFile=true
   ```
 
 - The output will be generated in `bin\Release\net8.0\win-x64\publish-trimmed` folder.
@@ -31,14 +31,14 @@ Used for testing trimming and AOT compilation.
 
 - Or use this command in project folder:
   ```
-  dotnet publish -c Release -r win-x64 -f net8.0 -p:PublishAot=true
+  dotnet publish -c Release -r win-x64 -p:PublishAot=true
   ```
 
 - The output will be generated in `bin\Release\net8.0\win-x64\publish-aot` folder.
   We fix `$(PublishDir)` if not set, in .csproj file.
 
 Note that for AOT, you need to make sure to install the "Desktop development with C++" workload from
-Visual Studio 2022 installer. Without it you may see errors like error : Platform linker not found 
+Visual Studio 2022 installer. Without it you may see errors like error `Platform linker not found`.
 Installer may take a while, for example it may seem stuck at Microsoft.VisualCpp.Redist14 but
 wait a few minutes and it will complete.
 
