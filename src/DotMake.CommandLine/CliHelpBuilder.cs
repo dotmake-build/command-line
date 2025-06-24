@@ -311,7 +311,7 @@ namespace DotMake.CommandLine
         {
             if (!string.IsNullOrWhiteSpace(heading))
             {
-                heading = heading.ToCase(theme.HeadingCasing);
+                heading = heading.ToCase(theme.HeadingCasing, keepSpaces: true);
                 if (theme.HeadingNoColon)
                     heading = heading.TrimEnd(':');
                 ConsoleExtensions.SetColor(theme.HeadingColor, theme.DefaultColor);

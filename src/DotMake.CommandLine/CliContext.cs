@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Help;
@@ -65,6 +64,19 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
+        /// Gets a value indicating whether current command is specified without any commands, directives, options or arguments.
+        /// <para>
+        /// Note that arguments and options should be optional, if they are required (no default values),
+        /// then handler will not run and missing error message will be shown.
+        /// </para>
+        /// </summary>
+        /// <returns><see langword="true"/> if current command has no arguments or options, <see langword="false"/> if not.</returns>
+        public bool IsEmpty()
+        {
+            return (ParseResult.Tokens.Count == 0);
+        }
+
+        /// <summary>
         /// Shows help for current command.
         /// </summary>
         public void ShowHelp()
@@ -93,12 +105,12 @@ namespace DotMake.CommandLine
                 if (symbolResult is ArgumentResult argumentResult)
                 {
                     var value = CliCommandBuilder.GetValueForArgument(ParseResult, argumentResult.Argument);
-                    output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {FormatValue(value)}");
+                    output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {StringExtensions.FormatValue(value)}");
                 }
                 else if (symbolResult is OptionResult optionResult)
                 {
                     var value = CliCommandBuilder.GetValueForOption(ParseResult, optionResult.Option);
-                    output.WriteLine($"Option '{optionResult.Option.Name}' = {FormatValue(value)}");
+                    output.WriteLine($"Option '{optionResult.Option.Name}' = {StringExtensions.FormatValue(value)}");
                 }
             }
         }
@@ -204,36 +216,6 @@ namespace DotMake.CommandLine
                    && helpAction.Builder is CliHelpBuilder cliHelpBuilder
                 ? cliHelpBuilder.Theme
                 : CliTheme.Default;
-        }
-
-        private static string FormatValue(object value)
-        {
-            if (value == null)
-                return "null";
-
-            if (value is string stringValue)
-                return stringValue.ToLiteral();
-
-            if (value is char charValue)
-                return charValue.ToString().ToLiteral('\'');
-
-            if (value is bool boolValue)
-                return boolValue.ToString().ToLowerInvariant();
-
-            if (value is IFormattable)
-                return value.ToString();
-
-            if (value is IEnumerable enumerable)
-            {
-                var items = enumerable.Cast<object>().ToArray();
-
-                return "[" + string.Join(", ", items.Select(FormatValue)) + "]";
-            }
-
-            if (value.ToString() != value.GetType().ToString())
-                return value.ToString();
-
-            return "object";
         }
     }
 }

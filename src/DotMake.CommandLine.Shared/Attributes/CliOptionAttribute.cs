@@ -53,8 +53,10 @@ namespace DotMake.CommandLine
     {
         /// <summary>
         /// Gets or sets the name of the option that will be used on the command line to specify the option.
-        /// When manually setting a name (overriding target property’s name), you should specify the option name including the prefix (e.g. <c>--option</c>, <c>-option</c> or <c>/option</c>)
-        /// This will be displayed in usage help of the command line application.
+        /// <para>
+        /// When manually setting a name, if you don't specify a prefix, it will be prefixed automatically according to <see cref="CliCommandAttribute.NamePrefixConvention"/>
+        /// (e.g. <c>--option</c>, <c>-option</c> or <c>/option</c>) unless it's set to <see cref="CliNamePrefixConvention.None"/>.
+        /// </para>
         /// <para>
         /// If not set (or is empty/whitespace), the name of the property that this attribute is applied to, will be used to generate option name automatically:
         /// These suffixes will be stripped from the property name: <c>RootCliCommandOption, RootCommandOption, SubCliCommandOption, SubCommandOption, CliCommandOption, CommandOption, CliOption, Option</c>.
@@ -74,12 +76,25 @@ namespace DotMake.CommandLine
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the set of alternative strings that can be used on the command line to specify the option.
-        /// <para>The aliases will be also displayed in usage help of the command line application.</para>
+        /// Gets or sets the set of an alternative string that can be used on the command line to specify the option.
+        /// When set, this will override the auto-generated short form alias.
+        /// <para>If you want to set multiple aliases, you can use <see cref="Aliases"/>.</para>
         /// <para>
-        /// When manually setting an alias, you should specify the option name including the prefix
-        /// (e.g. <c>--option</c>, <c>-option</c> or <c>/option</c>)
+        /// When manually setting a short form alias, if you don't specify a prefix, it will be prefixed automatically according to <see cref="CliCommandAttribute.ShortFormPrefixConvention"/>
+        /// (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>) unless it's set to <see cref="CliNamePrefixConvention.None"/>.
         /// </para>
+        /// <para>The aliases will be also displayed in usage help of the command line application.</para>
+        /// </summary>
+        public string Alias { get; set; }
+
+        /// <summary>
+        /// Gets or sets the set of alternative strings that can be used on the command line to specify the option.
+        /// <para>If you want to set a single alias, you can use <see cref="Alias"/>.</para>
+        /// <para>
+        /// When manually setting an alias, if you don't specify a prefix, it will be prefixed automatically according to <see cref="CliCommandAttribute.NamePrefixConvention"/>
+        /// (e.g. <c>--option</c>, <c>-option</c> or <c>/option</c>) unless it's set to <see cref="CliNamePrefixConvention.None"/>.
+        /// </para>
+        /// <para>The aliases will be also displayed in usage help of the command line application.</para>
         /// </summary>
         public string[] Aliases { get; set; }
 

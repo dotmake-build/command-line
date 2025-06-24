@@ -15,8 +15,6 @@ namespace DotMake.CommandLine
     public abstract class CliCommandBuilder
     {
         private readonly ConcurrentDictionary<ParseResult, object> bindResults = new();
-        private readonly HashSet<string> usedAliases = new(StringComparer.Ordinal);
-        private readonly CliCommandAttribute defaults = CliCommandAttribute.Default;
 
         /// <summary>
         /// A delegate which is set by the source generator to be called from <see cref="Bind(ParseResult)"/> method.
@@ -52,25 +50,30 @@ namespace DotMake.CommandLine
         public Type[] ChildDefinitionTypes { get; protected set; }
 
         /// <summary>
-        /// Gets the character casing convention used for automatically generated command, option and argument names.
+        /// Gets a value which indicates whether names are automatically generated for commands, directives, options and arguments.
+        /// </summary>
+        public CliNameAutoGenerate? NameAutoGenerate { get; protected set; }
+
+        /// <summary>
+        /// Gets the character casing convention to use for automatically generated names of commands, directives, options and arguments.
         /// </summary>
         public CliNameCasingConvention? NameCasingConvention { get; protected set; }
 
         /// <summary>
-        /// Gets the prefix convention used for automatically generated option names.
+        /// Gets the prefix convention to use for automatically generated names of options.
         /// </summary>
         public CliNamePrefixConvention? NamePrefixConvention { get; protected set; }
 
         /// <summary>
-        /// Gets the prefix convention used for automatically generated short form option aliases.
+        /// Gets a value which indicates whether short form aliases are automatically generated names of commands and options.
         /// </summary>
-        public CliNamePrefixConvention? ShortFormPrefixConvention { get; protected set; }
+        public CliNameAutoGenerate? ShortFormAutoGenerate { get; protected set; }
 
         /// <summary>
-        /// Gets a value which indicates whether short form aliases were automatically generated for options.
+        /// Gets the prefix convention to use for automatically generated short form aliases of options.
         /// </summary>
-        public bool? ShortFormAutoGenerate { get; protected set; }
-
+        public CliNamePrefixConvention? ShortFormPrefixConvention { get; protected set; }
+        
         /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
         /// </summary>
@@ -131,7 +134,6 @@ namespace DotMake.CommandLine
                     if (childDefinitionType != null)
                         RegisterAsChild(DefinitionType, childDefinitionType);
                 }
-
         }
 
         /// <summary>
@@ -148,75 +150,6 @@ namespace DotMake.CommandLine
             ShortFormPrefixConvention ??= parent.ShortFormPrefixConvention;
             ShortFormAutoGenerate ??= parent.ShortFormAutoGenerate;
         }
-
-        /// <summary>
-        /// Gets the command name for a property by using current <see cref="NameCasingConvention"/>.
-        /// </summary>
-        public string GetCommandName(string commandName)
-        {
-            return commandName.ToCase(NameCasingConvention ?? defaults.NameCasingConvention);
-        }
-
-        /// <summary>
-        /// Gets the argument name for a property by using current <see cref="NameCasingConvention"/>.
-        /// </summary>
-        public string GetArgumentName(string propertyName)
-        {
-            return propertyName.ToCase(NameCasingConvention ?? defaults.NameCasingConvention);
-        }
-
-        /// <summary>
-        /// Gets the option name for a property by using current <see cref="NameCasingConvention"/> and <see cref="NamePrefixConvention"/>.
-        /// </summary>
-        public string GetOptionName(string propertyName)
-        {
-            return propertyName.ToCase(NameCasingConvention ?? defaults.NameCasingConvention)
-                .AddPrefix(NamePrefixConvention ?? defaults.NamePrefixConvention);
-        }
-
-        /// <summary>
-        /// Adds an alias to an option. Tracks used aliases and only adds if not already used.
-        /// </summary>
-        public void AddAlias(Option option, string alias)
-        {
-            if (!string.IsNullOrWhiteSpace(alias) && !usedAliases.Contains(alias))
-            {
-                option.Aliases.Add(alias);
-                usedAliases.Add(alias);
-            }
-        }
-
-        /// <summary>
-        /// Adds an alias to a command. Tracks used aliases and only adds if not already used.
-        /// </summary>
-        public void AddAlias(Command command, string alias)
-        {
-            if (!string.IsNullOrWhiteSpace(alias) && !usedAliases.Contains(alias))
-            {
-                command.Aliases.Add(alias);
-                usedAliases.Add(alias);
-            }
-        }
-
-        /// <summary>
-        /// Adds a short form alias for an option name for a property by using current <see cref="ShortFormAutoGenerate"/> and <see cref="ShortFormPrefixConvention"/>.
-        /// Short form alias is added only when current <see cref="ShortFormAutoGenerate"/> is <see langword="true"/> and option name without prefix is longer than 1 character.
-        /// </summary>
-        public void AddShortFormAlias(Option option)
-        {
-            var optionNameWithoutPrefix = option.Name.RemovePrefix();
-
-            if ((ShortFormAutoGenerate ?? defaults.ShortFormAutoGenerate)
-                && optionNameWithoutPrefix.Length > 1)
-            {
-                var shortForm = optionNameWithoutPrefix[0]
-                    .ToString()
-                    .AddPrefix(ShortFormPrefixConvention ?? defaults.ShortFormPrefixConvention);
-
-                AddAlias(option, shortForm);
-            }
-        }
-
 
 
         #region Static
@@ -441,6 +374,53 @@ namespace DotMake.CommandLine
                     ? (TArgument)value
                     : default;
             };
+        }
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified directive.
+        /// <para>
+        /// Extended version for DotMake CLI which can bind custom classes,
+        /// does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
+        /// </para>
+        /// </summary>
+        /// <param name="parseResult">The parse result.</param>
+        /// <param name="directive">The directive for which to get a value.</param>
+        /// <typeparam name="T">The option type.</typeparam>
+        /// <returns>The parsed value or a configured default.</returns>
+        public static T GetValueForDirective<T>(ParseResult parseResult, Directive directive)
+        {
+            var result = parseResult.GetResult(directive);
+            if (result != null)
+            {
+                var type = typeof(T).GetNullableUnderlyingTypeOrSelf();
+                if (type == typeof(bool))
+                    return (T)(object)true;
+                if (type == typeof(string))
+                    return (T)(object)(result.Values.FirstOrDefault() ?? string.Empty);
+                if (type == typeof(string[]))
+                    return (T)(object)result.Values.ToArray();
+
+                throw new Exception("Currently only 'bool', 'string' and 'string[]' types are supported for [CliDirective] properties.");
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(typeof(T));
+        }
+
+        /// <inheritdoc cref="GetValueForOption{T}"/>
+        public static object GetValueForDirective(ParseResult parseResult, Directive directive)
+        {
+            /*
+            var result = parseResult.GetResult(directive);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<object>();
+                if (value != null)
+                    return value;
+            }
+
+            return ArgumentConverter.GetDefaultValue(directive.GetArgument().ValueType);
+            */
+            return GetValueForDirective<object>(parseResult, directive);
         }
 
         /// <summary>

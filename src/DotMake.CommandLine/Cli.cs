@@ -163,11 +163,13 @@ namespace DotMake.CommandLine
                 foreach (var option in rootCommand.Options.Where(option => option is HelpOption or VersionOption).ToArray())
                     rootCommand.Options.Remove(option);
 
-                var defaults = CliCommandAttribute.Default;
+                var namePrefixConvention = commandBuilder.NamePrefixConvention ?? CliCommandAttribute.Default.NamePrefixConvention;
+                var shortFormPrefixConvention = commandBuilder.ShortFormPrefixConvention ?? CliCommandAttribute.Default.ShortFormPrefixConvention;
+                var shortFormAutoGenerate = commandBuilder.ShortFormAutoGenerate ?? CliCommandAttribute.Default.ShortFormAutoGenerate;
 
                 var helpOption = new HelpOption(
-                    "help".AddPrefix(commandBuilder.NamePrefixConvention ?? defaults.NamePrefixConvention),
-                    //Regardless of convention, add all short-form aliases as help is a special option
+                    "help".AddPrefix(namePrefixConvention),
+                    //Regardless of convention, add all short form aliases as help is a special option
                     "-h", "/h", "-?", "/?"
                 )
                 {
@@ -179,9 +181,9 @@ namespace DotMake.CommandLine
                 rootCommand.Options.Add(helpOption);
 
                 var versionOption = new VersionOption(
-                    "version".AddPrefix(commandBuilder.NamePrefixConvention ?? defaults.NamePrefixConvention),
-                    (commandBuilder.ShortFormAutoGenerate ?? defaults.ShortFormAutoGenerate)
-                        ? new []{ "v".AddPrefix(commandBuilder.ShortFormPrefixConvention ?? defaults.ShortFormPrefixConvention) }
+                    "version".AddPrefix(namePrefixConvention),
+                    (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options))
+                        ? new []{ "v".AddPrefix(shortFormPrefixConvention) }
                         : Array.Empty<string>()
                 )
                 {

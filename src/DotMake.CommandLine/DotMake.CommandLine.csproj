@@ -20,15 +20,95 @@
     <Description>Declarative syntax for System.CommandLine via attributes for easy, fast, strongly-typed (no reflection) usage. Includes a source generator which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments.</Description>
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
-      - Fixed: In previous version, using `System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject` caused `IL2072` trimming warnings.
-        We now changed handling of completions so that we never need an uninitialized instance of definition type, thus removed usage of `GetUninitializedObject`
-        to fix the issue:
-        - `ICliAddCompletions` interface is now renamed to `ICliGetCompletions`.
-        - `void AddCompletions(string propertyName, List&lt;Func&lt;CompletionContext, IEnumerable&lt;CompletionItem&gt;&gt;&gt; completionSources)` interface method
-          is now changed to `Enumerable&lt;CompletionItem&gt; GetCompletions(string propertyName, CompletionContext completionContext)`.
-        So now, instead we will use `Bind` method to get cached definition instance and call `GetCompletions` interface method.
-        The signature change also made implementing interface method more easy and straightforward.
-    </PackageReleaseNotes>
+      <![CDATA[
+        - Added: `[CliDirective]` attribute for properties to define custom directives:
+          ```c#
+          [CliCommand(Description = "A root cli command with directives")]
+          public class DirectiveCliCommand
+          {
+              [CliDirective]
+              public bool Debug { get; set; }
+
+              [CliDirective]
+              public string Directive2 { get; set; }
+
+              [CliDirective]
+              public string[] Vars { get; set; }
+
+              public void Run(CliContext context)
+              {
+                  if (context.IsEmpty())
+                      context.ShowHelp();
+                  else
+                  {
+                      Console.WriteLine($"Directive '{nameof(Debug)}' = {StringExtensions.FormatValue(Debug)}");
+                      Console.WriteLine($"Directive '{nameof(Directive2)}' = {StringExtensions.FormatValue(Directive2)}");
+                      Console.WriteLine($"Directive '{nameof(Vars)}' = {StringExtensions.FormatValue(Vars)}");
+                  }
+              }
+          }
+          ```
+          Currently only `bool`, `string` and `string[]` types are supported for `[CliDirective]` properties.
+          Here is sample usage and output:
+          ```console
+          src\TestApp\bin\Debug\net8.0>TestApp [debug] [directive-2:val1] [vars:val2] [vars:val3]
+          Directive 'Debug' = true
+          Directive 'Directive2' = "val1"
+          Directive 'Vars' = ["val2", "val3"]
+          ```
+
+        - Improved: `CliNameCasingConvention` will now generate better CLI identifiers, i.e. it will treat unicode letter casing
+          and unicode numbers in class and property names correctly. `StringExtensions.ToCase()` will handle strings that contain
+          unicode space and punctuation characters correctly.
+
+        - Improved: Smarter auto-generated short form aliases. In previous versions, only first letter was added as short form
+          if it wasn't already used. Now letters of every word in the option name will be used to reduce conflicts.
+          Also short form aliases will now also be generated for commands.
+          ```c#
+          public class ShortFormCliCommand
+          {
+                  [CliOption(Alias = "o2")]
+                  public string Oauth2GrantType { get; set; } = "";
+
+                  [CliOption]
+                  public string Oauth2TokenUrl { get; set; } = "";
+
+                  [CliOption]
+                  public string Oauth2ClientId { get; set; } = "";
+
+                  [CliOption]
+                  public string Oauth2ClientSecret { get; set; } = "";
+
+                  [CliOption]
+                  public string Sha256 { get; set; } = "";
+          }
+          ```
+
+          ```console
+          Options:
+            -o2, --oauth-2-grant-type
+            -o2tu, --oauth-2-token-url
+            -o2ci, --oauth-2-client-id
+            -o2cs, --oauth-2-client-secret
+            -s256, --sha-256
+          ```
+
+        - Added: `Alias` property to `CliCommand` and `CliOption` attributes in addition to existing `Aliases` property.
+          `Alias` property is more useful, as most of the time you will want to add a single alias which is usually a short form alias.
+          When this property is set, it will override the auto-generated short form alias so when you are not happy with a specific
+          auto-generated alias you can override it instead of disabling all via `ShortFormAutoGenerate = false`.
+
+          When manually setting this property, if you don't specify a prefix, it will be prefixed automatically according
+          to `ShortFormPrefixConvention` (e.g. `-o` or `--o` or `/o`) unless it's set to newly added `CliNamePrefixConvention.None`.
+          This will now be also same for existing `Aliases` property but except, aliases without prefix will be prefixed automatically
+          according to `NamePrefixConvention` instead.
+
+        - Added: `CliNameAutoGenerate` enum and changed type of `[CliCommand].ShortFormAutoGenerate` from `bool` to this enum.
+          Added new`[CliCommand].NameAutoGenerate` property with same enum.
+          Auto-generated names can be disabled for all or specific CLI symbol types via `[CliCommand].NameAutoGenerate`.
+          Auto-generated short form aliases can be disabled for all or specific CLI symbol types via `[CliCommand].ShortFormAutoGenerate`.
+      ]]>
+     </PackageReleaseNotes>
   </PropertyGroup>
 
   <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />

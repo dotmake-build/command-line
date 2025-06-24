@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,6 +13,126 @@ namespace DotMake.CommandLine
     /// </summary>
     public static class StringExtensions
     {
+        private static readonly Regex SplitWordsRegex = new Regex(@"
+            (?<=[\p{Ll}\p{Lm}\p{Lo}])(?=[\p{Lu}\p{Lt}]) # split on what precedes is a lowercase or modifier or other letter
+                                                        # and what follows is an uppercase or title-case letter
+
+            |(?<=[\p{N}])(?=[\p{L}])                    # or split on what precedes is a numeric character
+                                                        # and what follows is a letter (or vice versa)
+            |(?<=[\p{L}])(?=[\p{N}])
+
+            |([\p{Z}\p{P}]+)                            # or split on any kind of whitespace or invisible separator
+                                                        # or on any kind of punctuation character.
+        ", RegexOptions.IgnorePatternWhitespace);
+
+        private static readonly Regex WordSpacesRegex = new Regex(
+            @"^$|[\p{Z}\p{P}]+"
+        );
+
+        /// <summary>
+        /// Splits a string in to words.
+        /// </summary>
+        /// <param name="value">A string instance.</param>
+        /// <param name="keepSpaces">Whether to keep a single space between words if there were any whitespace or punctuation in the original.</param>
+        /// <returns>An array of strings.</returns>
+        public static string[] SplitWords(this string value, bool keepSpaces = false)
+        {
+            var words = SplitWordsRegex.Split(value);
+
+            if (keepSpaces)
+            {
+                var newWords = new List<string>();
+                for (var index = 0; index < words.Length; index++)
+                {
+                    var word = words[index];
+
+                    var nextIndex = index + 1;
+                    if (WordSpacesRegex.IsMatch(word) && (nextIndex < words.Length))
+                    {
+                        var nextWord = words[nextIndex];
+                        if (!WordSpacesRegex.IsMatch(nextWord) && newWords.Count > 0)
+                            newWords.Add(" ");
+                    }
+                    else
+                        newWords.Add(word);
+                }
+
+                if (newWords.Count > 0)
+                {
+                    var lastIndex = newWords.Count - 1;
+                    var word = newWords[lastIndex];
+                    if (WordSpacesRegex.IsMatch(word))
+                        newWords.RemoveAt(lastIndex);
+                }
+
+                return newWords.ToArray();
+            }
+
+            return words.Where(w => !WordSpacesRegex.IsMatch(w)).ToArray();
+        }
+
+
+        /// <summary>
+        /// Converts the string to a specific case.
+        /// </summary>
+        /// <param name="value">A string instance.</param>
+        /// <param name="nameCasingConvention">The name casing convention to convert to.</param>
+        /// <param name="culture">An object that supplies culture-specific casing rules. If <paramref name="culture" /> is <see langword="null" />, the invariant culture is used.</param>
+        /// <param name="keepSpaces">
+        /// Whether to keep a single space between words if there were any whitespace or punctuation in the original.
+        /// This works only for LowerCase, UpperCase, TitleCase which allows spaces.
+        /// </param>
+        /// <returns>A new <see cref="string" /> instance.</returns>
+        public static string ToCase(this string value, CliNameCasingConvention nameCasingConvention, CultureInfo culture = null, bool keepSpaces = false)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value;
+
+            culture ??= CultureInfo.InvariantCulture;
+            var textInfo = culture.TextInfo;
+
+            switch (nameCasingConvention)
+            {
+                case CliNameCasingConvention.LowerCase:
+                    return string.Concat(
+                        SplitWords(value, keepSpaces: keepSpaces)
+                            .Select(word => textInfo.ToLower(word))
+                    );
+                case CliNameCasingConvention.UpperCase:
+                    return string.Concat(
+                        SplitWords(value, keepSpaces: keepSpaces)
+                            .Select(word => textInfo.ToUpper(word))
+                    );
+                case CliNameCasingConvention.TitleCase:
+                    return string.Concat(
+                        SplitWords(value, keepSpaces: keepSpaces)
+                            .Select(word => textInfo.ToTitleCase(textInfo.ToLower(word)))
+                    );
+                case CliNameCasingConvention.PascalCase:
+                    return string.Concat(
+                        SplitWords(value)
+                            .Select(word => textInfo.ToTitleCase(textInfo.ToLower(word)))
+                    );
+                case CliNameCasingConvention.CamelCase:
+                    return string.Concat(
+                        SplitWords(value)
+                            .Select((word, index) => (index == 0) ? textInfo.ToLower(word) : textInfo.ToTitleCase(textInfo.ToLower(word)))
+                    );
+                case CliNameCasingConvention.KebabCase:
+                    return string.Join("-",
+                        SplitWords(value)
+                            .Select(word => textInfo.ToLower(word))
+                    );
+                case CliNameCasingConvention.SnakeCase:
+                    return string.Join("_",
+                        SplitWords(value)
+                            .Select(word => textInfo.ToLower(word))
+                    );
+                default:
+                    return value;
+            }
+        }
+
         /// <summary>
         /// Strips specific suffixes from the string.
         /// </summary>
@@ -37,67 +158,6 @@ namespace DotMake.CommandLine
             return value;
         }
 
-        private static readonly Regex SplitWordsRegex = new Regex(
-            @"(?<=[a-z])(?=[A-Z])" //what precedes is a lowercase, and what follows is an uppercase
-            + @"|(?<=[0-9])(?=[A-Za-z])" //what precedes is a digit and what follows is a letter (or vice-versa)
-            + @"|(?<=[A-Za-z])(?=[0-9])");
-
-        /// <summary>
-        /// Converts the string to a specific case.
-        /// </summary>
-        /// <param name="value">A string instance.</param>
-        /// <param name="nameCasingConvention">The name casing convention to convert to.</param>
-        /// <returns>A new <see cref="string" /> instance.</returns>
-        public static string ToCase(this string value, CliNameCasingConvention nameCasingConvention)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return value;
-
-            switch (nameCasingConvention)
-            {
-                case CliNameCasingConvention.LowerCase:
-                    return value.ToLowerInvariant();
-                case CliNameCasingConvention.UpperCase:
-                    return value.ToUpperInvariant();
-                case CliNameCasingConvention.TitleCase:
-                    return string.Concat(
-                        SplitWordsRegex.Split(value)
-                            .Select(word => word.ToLowerInvariant().ToTitleCase())
-                    );
-                case CliNameCasingConvention.PascalCase:
-                    return string.Concat(
-                        SplitWordsRegex.Split(value.Trim())
-                            .Select(word => Regex.Replace(word.ToLowerInvariant().ToTitleCase(), @"\s+", ""))
-                    );
-                case CliNameCasingConvention.CamelCase:
-                    return string.Concat(
-                        SplitWordsRegex.Split(value.Trim())
-                            .Select((word, index) =>
-                            {
-                                word = (index == 0) ? word.ToLowerInvariant() : word.ToLowerInvariant().ToTitleCase();
-                                return Regex.Replace(word, @"\s+", "");
-                            })
-                    );
-                case CliNameCasingConvention.KebabCase:
-                    return string.Join("-",
-                        SplitWordsRegex.Split(value.Trim())
-                            .Select(word => Regex.Replace(word.ToLowerInvariant(), @"\s+", "-"))
-                    );
-                case CliNameCasingConvention.SnakeCase:
-                    return string.Join("_",
-                        SplitWordsRegex.Split(value.Trim())
-                            .Select(word => Regex.Replace(word.ToLowerInvariant(), @"\s+", "_"))
-                    );
-                default:
-                    return value;
-            }
-        }
-
-        private static string ToTitleCase(this string value)
-        {
-            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value);
-        }
-
         /// <summary>
         /// Adds a specific prefix to the string.
         /// </summary>
@@ -106,6 +166,9 @@ namespace DotMake.CommandLine
         /// <returns>A new <see cref="string" /> instance.</returns>
         public static string AddPrefix(this string alias, CliNamePrefixConvention namePrefixConvention)
         {
+            if (namePrefixConvention == CliNamePrefixConvention.None)
+                return alias;
+
             var prefixLength = alias.GetPrefixLength();
 
             if (prefixLength > 0) //Has prefix
@@ -177,6 +240,42 @@ namespace DotMake.CommandLine
 
             return (null, rawAlias);
         }
+
+        /// <summary>
+        /// Formats a value as a printable string
+        /// </summary>
+        /// <param name="value">An object value.</param>
+        /// <returns>A string.</returns>
+        public static string FormatValue(object value)
+        {
+            if (value == null)
+                return "null";
+
+            if (value is string stringValue)
+                return stringValue.ToLiteral();
+
+            if (value is char charValue)
+                return charValue.ToString().ToLiteral('\'');
+
+            if (value is bool boolValue)
+                return boolValue.ToString().ToLowerInvariant();
+
+            if (value is IFormattable)
+                return value.ToString();
+
+            if (value is IEnumerable enumerable)
+            {
+                var items = enumerable.Cast<object>().ToArray();
+
+                return "[" + string.Join(", ", items.Select(FormatValue)) + "]";
+            }
+
+            if (value.ToString() != value.GetType().ToString())
+                return value.ToString();
+
+            return "object";
+        }
+
 
         /// <summary>
         /// Gets a stable hash code (int). 

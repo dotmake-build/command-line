@@ -6,6 +6,11 @@ namespace DotMake.CommandLine
     public enum CliNamePrefixConvention
     {
         /// <summary>
+        /// Option name is kept as it is (not prefixed).
+        /// </summary>
+        None = 0,
+
+        /// <summary>
         /// Option name is prefixed with one hyphen (<c>-</c>) which is POSIX prefix convention, usually used for short form option aliases (e.g. <c>-o</c> or <c>-option</c>).
         /// </summary>
         SingleHyphen,
@@ -18,6 +23,6 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Option name is prefixed with a forward slash (<c>/</c>) which is Windows prefix convention (e.g. <c>/o</c> or <c>/option</c>).
         /// </summary>
-        ForwardSlash,
+        ForwardSlash
     }
 }

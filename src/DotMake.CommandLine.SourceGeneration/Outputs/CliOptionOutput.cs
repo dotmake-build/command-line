@@ -31,17 +31,21 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliOptionInput Input { get; }
 
-        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultClass)
+        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer)
         {
-            var optionName = Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue)
-                             && !string.IsNullOrWhiteSpace(nameValue.ToString())
-                ? $"\"{nameValue.ToString().Trim()}\""
-                : $"GetOptionName(\"{Input.Symbol.Name.StripSuffixes(Suffixes)}\")";
+            var hasSpecificName = Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue)
+                                  && !string.IsNullOrWhiteSpace(nameValue.ToString());
+            var baseName = hasSpecificName
+                ? nameValue.ToString().Trim()
+                : Input.Symbol.Name.StripSuffixes(Suffixes);
+
+            var varNameParameter = $"{varName}Name";
 
             sb.AppendLine($"// Option for '{Input.Symbol.Name}' property");
+            sb.AppendLine($"var {varNameParameter} = {varNamer}.GetOptionName(\"{baseName}\", {hasSpecificName.ToString().ToLowerInvariant()});");
             using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"{optionName}");
+                sb.AppendLine($"{varNameParameter}");
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -110,22 +114,25 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
             }
 
-            sb.AppendLine($"AddShortFormAlias({varName});");
+            var hasSpecificAlias = Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Alias), out var aliasValue)
+                                   && !string.IsNullOrWhiteSpace(aliasValue.ToString());
+            var baseAlias = hasSpecificAlias
+                ? $"\"{aliasValue.ToString().Trim()}\""
+                : varNameParameter;
+            sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, {baseAlias}, {hasSpecificAlias.ToString().ToLowerInvariant()});");
 
             if (Input.AttributeArguments.TryGetValues(nameof(CliOptionAttribute.Aliases), out var aliasesValues))
             {
-                foreach (var aliasValue in aliasesValues)
+                foreach (string alias in aliasesValues)
                 {
-                    if (aliasValue == null)
+                    if (string.IsNullOrWhiteSpace(alias))
                         continue;
 
-                    var alias = aliasValue.ToString().Trim();
-
-                    sb.AppendLine($"AddAlias({varName}, \"{alias}\");");
+                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{alias.Trim()}\");");
                 }
             }
 
-            if (Input.Parent.HasAddCompletionsInterface)
+            if (Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
                 sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", completionContext));");
         }

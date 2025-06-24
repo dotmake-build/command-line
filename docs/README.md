@@ -243,42 +243,48 @@ When you run the app via
 - `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net8.0`)
 - or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
-- You see this usage help:
-    ```console
-    DotMake Command-Line TestApp v1.6.0
-    Copyright © 2023-2024 DotMake
+You see this usage help:
+```console
+DotMake Command-Line TestApp v2.5.0
+Copyright © 2023-2025 DotMake
 
-    A root cli command
+A root cli command
 
-    Usage:
-      TestApp <argument-1> [options]
+Usage:
+  TestApp <argument-1> [options]
 
-    Arguments:
-      <argument-1>  Description for Argument1 [required]
+Arguments:
+  <argument-1>  Description for Argument1 [required]
 
-    Options:
-      -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
-      -v, --version              Show version information
-      -?, -h, --help             Show help and usage information
-    ```
+Options:
+  -o1, --option-1  Description for Option1 [default: DefaultForOption1]
+  -?, -h, --help   Show help and usage information
+  -v, --version    Show version information
+```
+
+Note the header:
 - First line comes from `AssemblyProductAttribute` or `AssemblyName` (`<Product>` tag in your .csproj file).  
   Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`
   (`<InformationalVersion>` or `<FileVersion >` or `<Version>` tag in your .csproj file).
 - Second line comes from `AssemblyCopyrightAttribute` (`<Copyright>` tag in your .csproj file).
-- Third line comes from `Description` property of `[CliCommand]` or for root commands, `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file).
+- Third line comes from `[CliCommand].Description` property or for root commands, `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file).
 
-Note, how command/option/argument names, descriptions and default values are automatically populated.
+Note, how command/directive/option/argument names, descriptions and default values are automatically populated.
 
-By default,  command/option/argument names are generated as follows;
+By default, command/option/argument names are generated as follows;
 - First the following suffixes are stripped out from class and property names:
     - For commands:
       "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli"
-    - For options: 
-     "RootCommandOption", "SubCliCommandOption", "SubCommandOption", "CliCommandOption", "CommandOption", "CliOption", "Option"
-    - For arguments: 
-    "RootCliCommandArgument", "RootCommandArgument", "SubCliCommandArgument", "SubCommandArgument", "CliCommandArgument", "CommandArgument", "CliArgument", "Argument"
+    - For directives:
+      "Directive" or above command suffixes followed by "Directive", e.g. "CommandDirective" 
+    - For options:
+      "Option" or above command suffixes followed by "Option", e.g. "CommandOption" 
+    - For arguments:
+      "Argument" or above command suffixes followed by "Argument", e.g. "CommandArgument" 
     
-- Then the names are converted to **kebab-case**, this can be changed by setting `NameCasingConvention`  property of the `CliCommand` attribute to one of the following values:
+- Then the names are converted to **kebab-case**.  
+  (e.g. `Info` -> `info`,`ServerPort` -> `server-port`,  `Option1` -> `option-1`)  
+  This can be changed by setting `[CliCommand].NameCasingConvention` property  to one of the following values:
   - `CliNameCasingConvention.None`
   - `CliNameCasingConvention.LowerCase`
   - `CliNameCasingConvention.UpperCase`
@@ -288,12 +294,29 @@ By default,  command/option/argument names are generated as follows;
   - `CliNameCasingConvention.KebabCase`
   - `CliNameCasingConvention.SnakeCase`
   
-- For options, double hyphen/dash prefix is added to the name (e.g. `--option`), this can be changed by setting `NamePrefixConvention`  (default: DoubleHyphen) property of the `CliCommand` attribute to one of the following values:
+  For options, double hyphen/dash prefix is added to the name.   
+  (e.g. `Info` -> `--info`,`ServerPort` -> `--server-port`,  `Option1` -> `--option-1`)  
+  This can be changed by setting `[CliCommand].NamePrefixConvention` property (default: DoubleHyphen) 
+  to one of the following values:
+  - `CliNamePrefixConvention.None`
   - `CliNamePrefixConvention.SingleHyphen`
   - `CliNamePrefixConvention.DoubleHyphen`
   - `CliNamePrefixConvention.ForwardSlash`
   
-- For options, short-form alias with first letter (e.g. `-o`) is automatically added. This can be changed by setting `ShortFormAutoGenerate` (default: true) and `ShortFormPrefixConvention` (default: SingleHyphen) properties of the `CliCommand` attribute.
+  When you set a specific name via `[CliXXX].Name` property, that will be used intead of a auto-generated name.  
+  Auto-generated names can be disabled for all or specific CLI symbol types via `[CliCommand].NameAutoGenerate`.
+  
+- For commands and options, a short form alias is automatically added.
+  First letters of every word in the name will be used to create short form to reduce conflicts.
+  These first letters are converted according to `[CliCommand].NameCasingConvention` property.  
+  (e.g. `Info` -> `i`,`ServerPort` -> `sp`,  `Option1` -> `o1`)  
+    
+  For options, single hyphen/dash prefix is added to the short form.  
+  (e.g. `Info` -> `-i`,`ServerPort` -> `-sp`,  `Option1` -> `-o1`)  
+  This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
+
+  When you set a specific alias via `[CliXXX].Alias` property, that will be used intead of a auto-generated short form alias.  
+  Auto-generated short form aliases can be disabled for all or specific CLI symbol types via `[CliCommand].ShortFormAutoGenerate`.
 
 ---
 For example, change the name casing and prefix convention:
@@ -326,10 +349,10 @@ public class RootSnakeSlashCliCommand
 ```
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v1.6.0
-Copyright © 2023-2024 DotMake
+DotMake Command-Line TestApp v2.5.0
+Copyright © 2023-2025 DotMake
 
-A cli command with snake_case name casing and forward slash prefix conventions
+A cli command with snake_case convention
 
 Usage:
   TestApp <argument_1> [options]
@@ -338,11 +361,12 @@ Arguments:
   <argument_1>  Description for Argument1 [required]
 
 Options:
-  /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
-  /v, /version              Show version information
-  -?, -h, /help             Show help and usage information
+  -o1, --option_1  Description for Option1 [default: DefaultForOption1]
+  -?, -h, --help   Show help and usage information
+  -v, --version    Show version information
 ```
-Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`. By the way, as `help` is a special option, which allows user to discover your app, we still add short-form aliases with other prefix to prevent confusion.
+Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`.
+By the way, as `help` is a special option, which allows user to discover your app, we still add short form aliases with other prefix to prevent confusion.
 
 ### Themes
 
@@ -799,20 +823,22 @@ so that default value will be used.
 The properties for `CliCommand` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
 - Name
 - Description
+- Alias
 - Aliases
 - Hidden
 - Parent
 - TreatUnmatchedTokensAsErrors
-- NameCasingConvention *(inherited by child options, child arguments and subcommands)*
-- NamePrefixConvention *(inherited by child options and subcommands)*
-- ShortFormPrefixConvention *(inherited by child options and subcommands)*
-- ShortFormAutoGenerate *(inherited by child options and subcommands)*
+- NameAutoGenerate *(inherited by subcommands, used for child commands, directives, options and arguments)*
+- NameCasingConvention *(inherited by subcommands, used for child commands, directives, options and arguments)*
+- NamePrefixConvention *(inherited by subcommands, used for child options)*
+- ShortFormAutoGenerate *(inherited by subcommands, used for child commands and options)*
+- ShortFormPrefixConvention *(inherited by subcommands, used for child options)*
 
 ## Options
 
 An option is a named parameter that can be passed to a command. [POSIX](https://en.wikipedia.org/wiki/POSIX) CLIs typically prefix the option name with two hyphens (`--`). The following example shows two options:
 
-```dotnetcli
+```console
 dotnet tool update dotnet-suggest --verbosity quiet --global
                                   ^---------^       ^------^
 ```
@@ -839,6 +865,7 @@ Note that if you have an explicit option named "-abc" then it will win over bund
 The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
 - Name
 - Description
+- Alias
 - Aliases
 - HelpName
 - Hidden
@@ -867,7 +894,7 @@ dotnet build myapp.csproj
 
 Arguments can have default values that apply if no argument is explicitly provided. For example, many options are implicitly Boolean parameters with a default of `true` when the option name is in the command line. The following command-line examples are equivalent:
 
-```dotnetcli
+```console
 dotnet tool update dotnet-suggest --global
                                   ^------^
 
@@ -879,11 +906,11 @@ Some options have required arguments. For example in the .NET CLI, `--output` re
 
 Arguments can have expected types, and `System.CommandLine` displays an error message if an argument can't be parsed into the expected type. For example, the following command errors because "silent" isn't one of the valid values for `--verbosity`:
 
-```dotnetcli
+```console
 dotnet build --verbosity silent
 ```
 
-```output
+```console
 Cannot parse argument 'silent' for option '-v' as expected type 'Microsoft.DotNet.Cli.VerbosityOptions'. Did you mean one of the following?
 Detailed
 Diagnostic
@@ -1205,7 +1232,7 @@ public class GetCompletionsCliCommand : ICliGetCompletions
 
             case nameof(FruitArgument):
                 return new [] { "apple", "orange", "banana" }
-                    .Select(value => new CompletionItem(value, "Value", null, null, null, null));
+                    .Select(value => new CompletionItem(value));
         }
 
         return Enumerable.Empty<CompletionItem>();
@@ -1216,7 +1243,7 @@ public class GetCompletionsCliCommand : ICliGetCompletions
 The dynamic tab completion list created by this code also appears in help output:
 
 ```console
-DotMake Command-Line TestApp v2.3.0
+DotMake Command-Line TestApp v2.5.0
 Copyright © 2023-2025 DotMake
 
 A root cli command with completions for options and arguments
@@ -1361,7 +1388,7 @@ To use a response file, enter the file name prefixed by an `@` sign wherever in 
 
 The following lines are equivalent:
 
-```dotnetcli
+```console
 dotnet build --no-restore --output ./build-output/
 dotnet @sample1.rsp
 dotnet build @sample2.rsp --output ./build-output/
@@ -1394,12 +1421,12 @@ Here are syntax rules that determine how the text in a response file is interpre
 
 `System.CommandLine` introduces a syntactic element called a *directive*. The `[diagram]` directive is an example. When you include `[diagram]` after the app's name, `System.CommandLine` displays a diagram of the parse result instead of invoking the command-line app:
 
-```dotnetcli
+```console
 dotnet [diagram] build --no-restore --output ./build-output/
-       ^-----^
+       ^-------^
 ```
-
-```output
+Output:
+```console
 [ dotnet [ build [ --no-restore <True> ] [ --output <./build-output/> ] ] ]
 ```
 
@@ -1413,7 +1440,49 @@ A directive must conform to the following syntax rules:
 
 An unrecognized directive is ignored without causing a parsing error.
 
-A directive can include an argument, separated from the directive name by a colon.
+A directive can include an argument, separated from the directive name by a colon (`:`).
+```console
+myapp [directive:value]
+```
+```console
+myapp [directive:value1] [directive:value2]
+```
+
+You can define custom directives like below:
+```c#
+[CliCommand(Description = "A root cli command with directives")]
+public class DirectiveCliCommand
+{
+    [CliDirective]
+    public bool Debug { get; set; }
+
+    [CliDirective]
+    public string Directive2 { get; set; }
+
+    [CliDirective]
+    public string[] Vars { get; set; }
+
+    public void Run(CliContext context)
+    {
+        if (context.IsEmpty())
+            context.ShowHelp();
+        else
+        {
+            Console.WriteLine($"Directive '{nameof(Debug)}' = {StringExtensions.FormatValue(Debug)}");
+            Console.WriteLine($"Directive '{nameof(Directive2)}' = {StringExtensions.FormatValue(Directive2)}");
+            Console.WriteLine($"Directive '{nameof(Vars)}' = {StringExtensions.FormatValue(Vars)}");
+        }
+    }
+}
+```
+Currently only `bool`, `string` and `string[]` types are supported for `[CliDirective]` properties.
+Here is sample usage and output:
+```console
+src\TestApp\bin\Debug\net8.0>TestApp [debug] [directive-2:val1] [vars:val2] [vars:val3]
+Directive 'Debug' = true
+Directive 'Directive2' = "val1"
+Directive 'Vars' = ["val2", "val3"]
+```
 
 The following directives are built in:
 
@@ -1427,7 +1496,7 @@ Both users and developers may find it useful to see how an app will interpret a 
 myapp [diagram] --delay not-an-int --interactive --file filename.txt extra
 ```
 
-```output
+```console
 ![ myapp [ --delay !<not-an-int> ] [ --interactive <True> ] [ --file <filename.txt> ] *[ --fgcolor <White> ] ]   ???--> extra
 ```
 
@@ -1444,21 +1513,28 @@ This directive is enabled by default and can be disabled with `CliSettings.Enabl
 
 The `[suggest]` directive lets you search for commands when you don't know the exact command.
 
-```dotnetcli
+```console
 dotnet [suggest] buil
 ```
 
-```output
+```console
 build
 build-server
 msbuild
 ```
 
-### The environment variables directive
+### The `[env]` directive
 
 This directive can be enabled with `CliSettings.EnableEnvironmentVariablesDirective`.
 
-Enables the use of the `[env:key=value]` directive, allowing environment variables to be set from the command line during invocation.
+The `[env]` directive allows environment variables to be set from the command line during invocation:
+```console
+myapp [env:key=value]
+```
+```console
+myapp [env:key1=value1] [env:key2=value2]
+```
+
 
 ## Additional documentation
 - [DotMake Command-Line API docs](https://dotmake.build/api/)

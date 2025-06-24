@@ -20,6 +20,8 @@ namespace TestApp.Commands
         This method will be called for every option and argument in your class.
         In the  method, you should switch according to the property name
         which corresponds to the option or argument whose completions will be retrieved.
+
+        The dynamic tab completion list created by this code also appears in help output:
      */
 
     [CliCommand(Description = "A root cli command with completions for options and arguments")]
@@ -59,7 +61,7 @@ namespace TestApp.Commands
 
                 case nameof(FruitArgument):
                     return new [] { "apple", "orange", "banana" }
-                        .Select(value => new CompletionItem(value, "Value", null, null, null, null));
+                        .Select(value => new CompletionItem(value));
             }
 
             return Enumerable.Empty<CompletionItem>();

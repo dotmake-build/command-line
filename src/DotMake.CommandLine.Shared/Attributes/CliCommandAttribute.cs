@@ -114,7 +114,16 @@ namespace DotMake.CommandLine
         public string Description { get; set; }
 
         /// <summary>
+        /// Gets or sets the set of an alternative string that can be used on the command line to specify the command.
+        /// When set, this will override the auto-generated short form alias.
+        /// <para>If you want to set multiple aliases, you can use <see cref="Aliases"/>.</para>
+        /// <para>The aliases will be also displayed in usage help of the command line application.</para>
+        /// </summary>
+        public string Alias { get; set; }
+
+        /// <summary>
         /// Gets or sets the set of alternative strings that can be used on the command line to specify the command.
+        /// <para>If you want to set a single alias, you can use <see cref="Alias"/>.</para>
         /// <para>The aliases will be also displayed in usage help of the command line application.</para>
         /// </summary>
         public string[] Aliases { get; set; }
@@ -151,40 +160,74 @@ namespace DotMake.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the character casing convention to use for automatically generated command, option and argument names.
-        /// This setting will be inherited by child options, child arguments and subcommands.
+        /// Gets or sets a value which indicates whether names are automatically generated for commands, directives, options and arguments.
+        /// <para>Names are converted according to <see cref="NameCasingConvention"/>.</para>
+        /// <para>
+        /// For options, names typically have a leading delimiter (e.g. <c>--option</c>, <c>-option</c> or <c>/option</c>).
+        /// Default delimiter (e.g. <c>--option</c>) is changed via <see cref="NamePrefixConvention"/>.
+        /// </para>
+        /// <para>
+        /// This setting will be inherited by subcommands.
         /// This setting can be overriden by a subcommand in the inheritance chain.
+        /// </para>
+        /// <para>Default is <see cref="CliNameAutoGenerate.All"/>.</para>
+        /// </summary>
+        public CliNameAutoGenerate NameAutoGenerate { get; set; } = CliNameAutoGenerate.All;
+
+        /// <summary>
+        /// Gets or sets the character casing convention to use for automatically generated names of commands, directives, options and arguments.
+        /// <para>
+        /// This setting will be inherited by subcommands.
+        /// This setting can be overriden by a subcommand in the inheritance chain.
+        /// </para>
         /// <para>Default is <see cref="CliNameCasingConvention.KebabCase"/> (e.g. <c>kebab-case</c>).</para>
         /// </summary>
         public CliNameCasingConvention NameCasingConvention { get; set; } = CliNameCasingConvention.KebabCase;
 
         /// <summary>
-        /// Gets or sets the prefix convention to use for automatically generated option names.
-        /// This setting will be inherited by child options and subcommands.
+        /// Gets or sets the prefix convention to use for automatically generated names of options.
+        /// <para>
+        /// For options, names typically have a leading delimiter (e.g. <c>--option</c>, <c>-option</c> or <c>/option</c>).
+        /// </para>
+        /// <para>
+        /// This setting will be inherited by subcommands.
         /// This setting can be overriden by a subcommand in the inheritance chain.
+        /// </para>
         /// <para>Default is <see cref="CliNamePrefixConvention.DoubleHyphen"/> (e.g. <c>--option</c>).</para>
         /// </summary>
         public CliNamePrefixConvention NamePrefixConvention { get; set; } = CliNamePrefixConvention.DoubleHyphen;
 
         /// <summary>
-        /// Gets or sets the prefix convention to use for automatically generated short form option aliases.
-        /// Short forms typically have a leading delimiter followed by a single character (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>).
-        /// This setting will be inherited by child options and subcommands.
+        /// Gets or sets a value which indicates whether short form aliases are automatically generated names of commands and options.
+        /// <para>
+        /// First letters of every word in the name will be used to create short form to reduce conflicts.
+        /// These first letters are converted according to <see cref="NameCasingConvention"/>.
+        /// </para>
+        /// <para>
+        /// For options, short forms typically have a leading delimiter (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>).
+        /// Default delimiter (e.g. <c>-o</c>) is changed via <see cref="ShortFormPrefixConvention"/>.
+        /// </para>
+        /// <para>
+        /// This setting will be inherited by subcommands.
         /// This setting can be overriden by a subcommand in the inheritance chain.
+        /// </para>
+        /// <para>Default is <see cref="CliNameAutoGenerate.All"/>.</para>
+        /// </summary>
+        public CliNameAutoGenerate ShortFormAutoGenerate { get; set; } = CliNameAutoGenerate.All;
+
+        /// <summary>
+        /// Gets or sets the prefix convention to use for automatically generated short form aliases of options.
+        /// <para>
+        /// For options, short forms typically have a leading delimiter (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>).
+        /// </para>
+        /// <para>
+        /// This setting will be inherited by subcommands.
+        /// This setting can be overriden by a subcommand in the inheritance chain.
+        /// </para>
         /// <para>Default is <see cref="CliNamePrefixConvention.SingleHyphen"/> (e.g. <c>-o</c>).</para>
         /// </summary>
         public CliNamePrefixConvention ShortFormPrefixConvention { get; set; } = CliNamePrefixConvention.SingleHyphen;
-
-        /// <summary>
-        /// Gets or sets a value which indicates whether short form aliases are automatically generated for options.
-        /// Short forms typically have a leading delimiter followed by a single character (e.g. <c>-o</c> or <c>--o</c> or <c>/o</c>).
-        /// Default delimiter (e.g. <c>-o</c>) is changed via <see cref="ShortFormPrefixConvention"/>.
-        /// This setting will be inherited by child options and subcommands.
-        /// This setting can be overriden by a subcommand in the inheritance chain.
-        /// <para>Default is <see langword="true" />.</para>
-        /// </summary>
-        public bool ShortFormAutoGenerate { get; set; } = true;
-
+        
         internal static CliCommandAttribute Default { get; } = new();
     }
 }

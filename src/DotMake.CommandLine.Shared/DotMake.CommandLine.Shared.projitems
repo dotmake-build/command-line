@@ -13,6 +13,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliArgumentAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNameCasingConvention.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliCommandAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliDirectiveAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNameAutoGenerate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliOptionAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNamePrefixConvention.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliValidationRules.cs" />

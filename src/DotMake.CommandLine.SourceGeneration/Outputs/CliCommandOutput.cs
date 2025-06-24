@@ -58,6 +58,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpDefineString(CodeStringBuilder sb, bool addNamespaceBlock)
         {
+            var directivesWithoutProblem = Input.Directives.Where(c => !c.HasProblem).ToArray();
             var optionsWithoutProblem = Input.Options.Where(c => !c.HasProblem).ToArray();
             var argumentsWithoutProblem = Input.Arguments.Where(c => !c.HasProblem).ToArray();
             var subcommandsWithoutProblem = Input.Subcommands.Where(c => !c.HasProblem).ToArray();
@@ -74,7 +75,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             sb.AppendLine("/// <inheritdoc />");
             using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
-                var varCommand = "command";
                 var definitionClass = Input.Symbol.ToReferenceString();
 
                 sb.AppendLine("/// <inheritdoc />");
@@ -103,6 +103,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             }
                         }
 
+                    var nameAutoGenerate = (Input.NameAutoGenerate.HasValue)
+                        ? EnumUtil<CliNameAutoGenerate>.ToFullName(Input.NameAutoGenerate.Value)
+                        : "null";
+                    sb.AppendLine($"NameAutoGenerate = {nameAutoGenerate};");
+
                     var nameCasingConvention = (Input.NameCasingConvention.HasValue)
                         ? EnumUtil<CliNameCasingConvention>.ToFullName(Input.NameCasingConvention.Value)
                         : "null";
@@ -113,16 +118,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         : "null";
                     sb.AppendLine($"NamePrefixConvention = {namePrefixConvention};");
 
+                    var shortFormAutoGenerate = (Input.ShortFormAutoGenerate.HasValue)
+                        ? EnumUtil<CliNameAutoGenerate>.ToFullName(Input.ShortFormAutoGenerate.Value)
+                        : "null";
+                    sb.AppendLine($"ShortFormAutoGenerate = {shortFormAutoGenerate};");
+
                     var shortFormPrefixConvention = (Input.ShortFormPrefixConvention.HasValue)
                         ? EnumUtil<CliNamePrefixConvention>.ToFullName(Input.ShortFormPrefixConvention.Value)
                         : "null";
                     sb.AppendLine($"ShortFormPrefixConvention = {shortFormPrefixConvention};");
-
-                    var shortFormAutoGenerate = (Input.ShortFormAutoGenerate.HasValue)
-                        ? Input.ShortFormAutoGenerate.Value.ToString().ToLowerInvariant()
-                        : "null";
-                    sb.AppendLine($"ShortFormAutoGenerate = {shortFormAutoGenerate};");
-
                 }
                 sb.AppendLine();
 
@@ -169,7 +173,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
                 sb.AppendLine();
 
-                if (Input.HasAddCompletionsInterface)
+                if (Input.HasGetCompletionsInterface)
                 {
                     sb.AppendLine();
                     sb.AppendLine($"private System.Collections.Generic.IEnumerable<{CompletionsNamespace}.CompletionItem> GetCompletions(");
@@ -191,16 +195,40 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"public override {CommandClassNamespace}.{CommandClassName} Build()"))
                 {
-                    AppendCSharpCreateString(sb, varCommand);
+                    var varNamer = "namer";
+                    using (sb.AppendParamsBlockStart($"var {varNamer} = new DotMake.CommandLine.CliNamer", ";"))
+                    {
+                        sb.AppendLine("NameAutoGenerate,");
+                        sb.AppendLine("NameCasingConvention,");
+                        sb.AppendLine("NamePrefixConvention,");
+                        sb.AppendLine("ShortFormAutoGenerate,");
+                        sb.AppendLine("ShortFormPrefixConvention");
+                    }
+                    sb.AppendLine();
 
-                    var varDefaultClass = "defaultClass";
+                    var varCommand = "command";
+                    var varRootCommand = "rootCommand";
+                    AppendCSharpCreateString(sb, varCommand, varRootCommand, varNamer);
+
                     /*
+                    var varDefaultClass = "defaultClass";
                     sb.AppendLine();
                     //No more using a default instance here to avoid IServiceProvider integration causing unnecessary instantiations.
                     //Instead, we read the property initializer SyntaxNode, qualify symbols and then use that SyntaxNode for DefaultValueFactory.
                     //However, we still need an uninitialized instance for being able to call AddCompletions method, for now.
                     sb.AppendLine($"var {varDefaultClass} = CreateUninitializedInstance();");
                     */
+
+                    for (var index = 0; index < directivesWithoutProblem.Length; index++)
+                    {
+                        sb.AppendLine();
+
+                        var cliDirectiveInput = directivesWithoutProblem[index];
+                        var cliDirectiveOutput = new CliDirectiveOutput(cliDirectiveInput);
+                        var varDirective = $"directive{index}";
+                        cliDirectiveOutput.AppendCSharpCreateString(sb, varDirective, varNamer);
+                        sb.AppendLine($"{varRootCommand}?.Add({varDirective});");
+                    }
 
                     for (var index = 0; index < optionsWithoutProblem.Length; index++)
                     {
@@ -209,7 +237,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliOptionInput = optionsWithoutProblem[index];
                         var cliOptionOutput = new CliOptionOutput(cliOptionInput);
                         var varOption = $"option{index}";
-                        cliOptionOutput.AppendCSharpCreateString(sb, varOption, varDefaultClass);
+                        cliOptionOutput.AppendCSharpCreateString(sb, varOption, varNamer);
                         sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
 
@@ -220,7 +248,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliArgumentInput = argumentsWithoutProblem[index];
                         var cliArgumentOutput = new CliArgumentOutput(cliArgumentInput);
                         var varArgument = $"argument{index}";
-                        cliArgumentOutput.AppendCSharpCreateString(sb, varArgument, varDefaultClass);
+                        cliArgumentOutput.AppendCSharpCreateString(sb, varArgument, varNamer);
                         sb.AppendLine($"{varCommand}.Add({varArgument});");
                     }
 
@@ -243,6 +271,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var varTargetClass = "targetClass";
 
                         sb.AppendLine($"var {varTargetClass} = CreateInstance();");
+
+                        sb.AppendLine();
+                        sb.AppendLine("//  Set the parsed or default values for the directives");
+                        for (var index = 0; index < directivesWithoutProblem.Length; index++)
+                        {
+                            var cliDirectiveInput = directivesWithoutProblem[index];
+                            var varDirective = $"directive{index}";
+                            sb.AppendLine($"{varTargetClass}.{cliDirectiveInput.Symbol.Name} = GetValueForDirective<{cliDirectiveInput.Symbol.Type.ToReferenceString()}>({varParseResult}, {varDirective});");
+                        }
 
                         sb.AppendLine();
                         sb.AppendLine("//  Set the parsed or default values for the options");
@@ -343,23 +380,28 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             }
         }
 
-        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName)
+        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varRootName, string varNamer)
         {
-            var commandName = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue)
-                              && !string.IsNullOrWhiteSpace(nameValue.ToString())
-                ? $"\"{nameValue.ToString().Trim()}\""
-                : $"GetCommandName(\"{Input.Symbol.Name.StripSuffixes(Suffixes)}\")";
+            var hasSpecificName = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue)
+                          && !string.IsNullOrWhiteSpace(nameValue.ToString());
+            var baseName = hasSpecificName
+                ? nameValue.ToString().Trim()
+                : Input.Symbol.Name.StripSuffixes(Suffixes);
+
+            var varNameParameter = $"{varName}Name";
 
             sb.AppendLine($"// Command for '{Input.Symbol.Name}' class");
             //sb.AppendLine($"// Parent tree: '{string.Join(" -> ", Input.ParentTree.Select(p=> p.Symbol))}'");
-
+            sb.AppendLine($"var {varNameParameter} = {varNamer}.GetCommandName(\"{baseName}\", {hasSpecificName.ToString().ToLowerInvariant()});");
             using (sb.AppendBlockStart($"var {varName} = IsRoot", null, null, null))
             {
                 //Cannot set name for a RootCommand, it's the executable name by default
                 sb.AppendLine($"? new {CommandClassNamespace}.{RootCommandClassName}()");
-                sb.AppendLine($": new {CommandClassNamespace}.{CommandClassName}({commandName});");                
+                sb.AppendLine($": new {CommandClassNamespace}.{CommandClassName}({varNameParameter});");                
             }
-            
+
+            sb.AppendLine($"var {varRootName} = {varName} as {CommandClassNamespace}.{RootCommandClassName};");
+
             foreach (var kvp in Input.AttributeArguments)
             {
                 switch (kvp.Key)
@@ -378,13 +420,21 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
             }
 
+            var hasSpecificAlias = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Alias), out var aliasValue)
+                                  && !string.IsNullOrWhiteSpace(aliasValue.ToString());
+            var baseAlias = hasSpecificAlias
+                ? $"\"{aliasValue.ToString().Trim()}\""
+                : varNameParameter;
+            sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, {baseAlias}, {hasSpecificAlias.ToString().ToLowerInvariant()});");
+
             if (Input.AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues))
             {
-                foreach (var aliasValue in aliasesValues)
+                foreach (string alias in aliasesValues)
                 {
-                    var alias = aliasValue?.ToString().Trim();
+                    if (string.IsNullOrWhiteSpace(alias))
+                        continue;
 
-                    sb.AppendLine($"AddAlias({varName}, \"{alias}\");");
+                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{alias.Trim()}\");");
                 }
             }
         }

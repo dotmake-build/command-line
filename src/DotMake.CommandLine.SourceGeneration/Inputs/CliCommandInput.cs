@@ -23,14 +23,16 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 ParentArgument = (INamedTypeSymbol)parentValue;
             if (AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Children), out var childrenValue))
                 ChildrenArgument = childrenValue.Cast<INamedTypeSymbol>().ToArray();
+            if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.NameAutoGenerate), out var nameAutoGenerateValue))
+                NameAutoGenerate = (CliNameAutoGenerate)nameAutoGenerateValue;
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.NameCasingConvention), out var nameCasingValue))
                 NameCasingConvention = (CliNameCasingConvention)nameCasingValue;
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.NamePrefixConvention), out var namePrefixValue))
                 NamePrefixConvention = (CliNamePrefixConvention)namePrefixValue;
+            if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormAutoGenerate), out var shortFormAutoGenerateValue))
+                ShortFormAutoGenerate = (CliNameAutoGenerate)shortFormAutoGenerateValue;
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormPrefixConvention), out var shortFormPrefixValue))
                 ShortFormPrefixConvention = (CliNamePrefixConvention)shortFormPrefixValue;
-            if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormAutoGenerate), out var shortFormAutoGenerateArgumentValue))
-                ShortFormAutoGenerate = (bool)shortFormAutoGenerateArgumentValue;
 
             ParentSymbol = (Parent != null)
                 ? Parent.Symbol //Nested class for sub-command
@@ -43,7 +45,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
 
             //If type implements/extends ICliGetCompletions
-            HasAddCompletionsInterface = Symbol.AllInterfaces.Any(i => i.ToReferenceString() == "DotMake.CommandLine.ICliGetCompletions");
+            HasGetCompletionsInterface = Symbol.AllInterfaces.Any(i => i.ToReferenceString() == "DotMake.CommandLine.ICliGetCompletions");
 
             //Loop through own and inherited members.
             //ITypeSymbol.GetMembers only returns explicitly declared members in that class.
@@ -69,7 +71,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                         .FirstOrDefault(a =>
                         {
                             var attributeFullName = a.AttributeClass?.ToCompareString();
-                            return (attributeFullName == CliOptionInput.AttributeFullName
+                            return (attributeFullName == CliDirectiveInput.AttributeFullName
+                                    || attributeFullName == CliOptionInput.AttributeFullName
                                     || attributeFullName == CliArgumentInput.AttributeFullName);
                         });
                    
@@ -81,7 +84,9 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                         //having both attributes doesn't make sense as the binding would override the previous one's value
                         //user should better have separate properties for each attribute
                         //so choose one of the attributes found first on a property.
-                        if (attributeFullName == CliOptionInput.AttributeFullName)
+                        if (attributeFullName == CliDirectiveInput.AttributeFullName)
+                            directives.Add(new CliDirectiveInput(property, null, propertyAttributeData, semanticModel, this));
+                        else if (attributeFullName == CliOptionInput.AttributeFullName)
                             options.Add(new CliOptionInput(property, null, propertyAttributeData, semanticModel, this));
                         else if (attributeFullName == CliArgumentInput.AttributeFullName)
                             arguments.Add(new CliArgumentInput(property, null, propertyAttributeData, semanticModel, this));
@@ -154,18 +159,23 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public INamedTypeSymbol[] ChildrenArgument { get; }
 
+        public CliNameAutoGenerate? NameAutoGenerate { get; }
+
         public CliNameCasingConvention? NameCasingConvention { get; }
 
         public CliNamePrefixConvention? NamePrefixConvention { get; }
 
+        public CliNameAutoGenerate? ShortFormAutoGenerate { get; }
+
         public CliNamePrefixConvention? ShortFormPrefixConvention { get; }
-
-        public bool? ShortFormAutoGenerate { get; }
-
+        
 
         public CliCommandHandlerInput Handler { get; }
 
-        public bool HasAddCompletionsInterface { get; }
+        public bool HasGetCompletionsInterface { get; }
+
+        public IReadOnlyList<CliDirectiveInput> Directives => directives;
+        private readonly List<CliDirectiveInput> directives = new();
 
         public IReadOnlyList<CliOptionInput> Options => options;
         private readonly List<CliOptionInput> options = new();
@@ -227,11 +237,12 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         public override IEnumerable<Diagnostic> GetAllDiagnostics()
         {
             return base.GetAllDiagnostics() //self
-                .Concat(Handler?.GetAllDiagnostics() ?? Enumerable.Empty<Diagnostic>())
+                .Concat(Directives.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(Options.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(Arguments.SelectMany(c => c.GetAllDiagnostics()))
-                .Concat(Subcommands.SelectMany(c => c.GetAllDiagnostics()))
-                .Concat(ParentCommandAccessors.SelectMany(c => c.GetAllDiagnostics()));
+                .Concat(ParentCommandAccessors.SelectMany(c => c.GetAllDiagnostics()))
+                .Concat(Handler?.GetAllDiagnostics() ?? Enumerable.Empty<Diagnostic>())
+                .Concat(Subcommands.SelectMany(c => c.GetAllDiagnostics()));
         }
 
         public bool Equals(CliCommandInput other)

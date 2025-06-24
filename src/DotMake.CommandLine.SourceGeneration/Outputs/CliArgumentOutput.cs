@@ -31,17 +31,21 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliArgumentInput Input { get; }
 
-        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varDefaultClass)
+        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer)
         {
-            var argumentName = Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue)
-                               && !string.IsNullOrWhiteSpace(nameValue.ToString())
-                ? $"\"{nameValue.ToString().Trim()}\""
-                : $"GetArgumentName(\"{Input.Symbol.Name.StripSuffixes(Suffixes)}\")";
+            var hasSpecificName = Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue)
+                                  && !string.IsNullOrWhiteSpace(nameValue.ToString());
+            var baseName = hasSpecificName
+                ? nameValue.ToString().Trim()
+                : Input.Symbol.Name.StripSuffixes(Suffixes);
+
+            var varNameParameter = $"{varName}Name";
 
             sb.AppendLine($"// Argument for '{Input.Symbol.Name}' property");
+            sb.AppendLine($"var {varNameParameter} = {varNamer}.GetArgumentName(\"{baseName}\", {hasSpecificName.ToString().ToLowerInvariant()});");
             using (sb.AppendParamsBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"{argumentName}");
+                sb.AppendLine($"{varNameParameter}");
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -113,7 +117,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 && !Input.AttributeArguments.ContainsKey(nameof(CliArgumentAttribute.Arity)))
                 sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
 
-            if (Input.Parent.HasAddCompletionsInterface)
+            if (Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
                 sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", completionContext));");
 
