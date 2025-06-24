@@ -152,7 +152,7 @@ if (parseResult.Errors.Count > 0)
     ```c#
     Run(CliContext context)
     ```
-  -
+  - 
     ```c#  
     RunAsync(CliContext context)
     ```
@@ -956,6 +956,7 @@ An option/argument will be considered optional when
 - There is a property initializer, and it's not initialized with `null` or `null!` (SuppressNullableWarningExpression)
   (e.g. `public string Arg { get; set; } = "Default";`).
 - If it's forced via attribute property `Required` (e.g. `[CliArgument(Required = false)]`).
+
 ---
 When you run,
 ```console
@@ -971,6 +972,7 @@ Handler for 'TestApp.Commands.RootCliCommand' is run:
 Value for Option1 property is 'DefaultForOption1'
 Value for Argument1 property is 'NewValueForArgument1'
 ```
+
 ---
 ### Supported types
 Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
