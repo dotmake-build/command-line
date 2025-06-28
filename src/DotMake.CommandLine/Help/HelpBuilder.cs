@@ -431,8 +431,8 @@ namespace DotMake.CommandLine.Help
             {
                 var firstColumnText = customization?.GetFirstColumn?.Invoke(context)
                     ?? (symbol is Option option
-                            ? CliHelpBuilder.Default.GetOptionUsageLabel(option)
-                            : CliHelpBuilder.Default.GetCommandUsageLabel((Command)symbol));
+                            ? Default.GetOptionUsageLabel(option)
+                            : Default.GetCommandUsageLabel((Command)symbol));
 
                 var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
 
@@ -452,10 +452,10 @@ namespace DotMake.CommandLine.Help
             TwoColumnHelpRow GetCommandArgumentRow(Argument argument)
             {
                 var firstColumnText =
-                    customization?.GetFirstColumn?.Invoke(context) ?? CliHelpBuilder.Default.GetArgumentUsageLabel(argument);
+                    customization?.GetFirstColumn?.Invoke(context) ?? Default.GetArgumentUsageLabel(argument);
 
                 var argumentDescription =
-                    customization?.GetSecondColumn?.Invoke(context) ?? CliHelpBuilder.Default.GetArgumentDescription(argument);
+                    customization?.GetSecondColumn?.Invoke(context) ?? Default.GetArgumentDescription(argument);
 
                 var defaultValueDescription =
                     argument.HasDefaultValue

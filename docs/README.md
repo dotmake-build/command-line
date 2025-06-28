@@ -251,15 +251,15 @@ Copyright © 2023-2025 DotMake
 A root cli command
 
 Usage:
-  TestApp <argument-1> [options]
+  TestApp <argument_1> [options]
 
 Arguments:
-  <argument-1>  Description for Argument1 [required]
+  <argument_1>  Description for Argument1 [required]
 
 Options:
-  -o1, --option-1  Description for Option1 [default: DefaultForOption1]
-  -?, -h, --help   Show help and usage information
-  -v, --version    Show version information
+  /o1, /option_1  Description for Option1 [default: DefaultForOption1]
+  -?, -h, /help   Show help and usage information
+  /v, /version    Show version information
 ```
 
 Note the header:
@@ -267,7 +267,8 @@ Note the header:
   Version comes from `AssemblyInformationalVersionAttribute` or `AssemblyFileVersionAttribute` or `AssemblyVersionAttribute`
   (`<InformationalVersion>` or `<FileVersion >` or `<Version>` tag in your .csproj file).
 - Second line comes from `AssemblyCopyrightAttribute` (`<Copyright>` tag in your .csproj file).
-- Third line comes from `[CliCommand].Description` property or for root commands, `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file).
+- Third line comes from `AssemblyDescriptionAttribute` (`<Description>` tag in your .csproj file) for root commands
+  or from `[CliCommand].Description` property for subcommands.
 
 Note, how command/directive/option/argument names, descriptions and default values are automatically populated.
 
@@ -303,7 +304,7 @@ By default, command/option/argument names are generated as follows;
   - `CliNamePrefixConvention.DoubleHyphen`
   - `CliNamePrefixConvention.ForwardSlash`
   
-  When you set a specific name via `[CliXXX].Name` property, that will be used intead of a auto-generated name.  
+  When you set a specific name via `[CliXXX].Name` property, that will be used instead of a auto-generated name.  
   Auto-generated names can be disabled for all or specific CLI symbol types via `[CliCommand].NameAutoGenerate`.
   
 - For commands and options, a short form alias is automatically added.
@@ -315,7 +316,7 @@ By default, command/option/argument names are generated as follows;
   (e.g. `Info` -> `-i`,`ServerPort` -> `-sp`,  `Option1` -> `-o1`)  
   This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
 
-  When you set a specific alias via `[CliXXX].Alias` property, that will be used intead of a auto-generated short form alias.  
+  When you set a specific alias via `[CliXXX].Alias` property, that will be used instead of a auto-generated short form alias.  
   Auto-generated short form aliases can be disabled for all or specific CLI symbol types via `[CliCommand].ShortFormAutoGenerate`.
 
 ---

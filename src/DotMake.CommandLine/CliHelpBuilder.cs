@@ -668,8 +668,8 @@ namespace DotMake.CommandLine
 
             string GetSymbolDefaultValue(Symbol symbol)
             {
-                IList<Argument> arguments = symbol.Arguments();
-                var defaultArguments = arguments.Where(x => !x.Hidden && x.HasDefaultValue).ToArray();
+                var arguments = symbol.GetParameters();
+                var defaultArguments = arguments.Where(x => !x.Hidden && (x is Argument { HasDefaultValue: true } || x is Option { HasDefaultValue: true })).ToArray();
 
                 if (defaultArguments.Length == 0) return "";
 
@@ -684,13 +684,13 @@ namespace DotMake.CommandLine
 
         private string GetArgumentDefaultValue(
             Symbol parent,
-            Argument argument,
+            Symbol parameter,
             bool displayArgumentName,
             HelpContext context)
         {
             string label = displayArgumentName
                 ? LocalizationResources.HelpArgumentDefaultValueLabel()
-                : argument.Name;
+                : parameter.Name;
 
             string displayedDefaultValue = null;
 
@@ -701,14 +701,14 @@ namespace DotMake.CommandLine
                 {
                     displayedDefaultValue = parentDefaultValue;
                 }
-                else if (_customizationsBySymbol.TryGetValue(argument, out customization) &&
+                else if (_customizationsBySymbol.TryGetValue(parameter, out customization) &&
                          customization.GetDefaultValue?.Invoke(context) is { } ownDefaultValue)
                 {
                     displayedDefaultValue = ownDefaultValue;
                 }
             }
 
-            displayedDefaultValue ??= Default.GetArgumentDefaultValue(argument);
+            displayedDefaultValue ??= Default.GetArgumentDefaultValue(parameter);
 
             if (string.IsNullOrWhiteSpace(displayedDefaultValue))
             {
@@ -726,9 +726,9 @@ namespace DotMake.CommandLine
             /// <summary>
             /// Gets an argument's default value to be displayed in help.
             /// </summary>
-            /// <param name="argument">The argument to get the default value for.</param>
+            /// <param name="parameter">The argument to get the default value for.</param>
             /// <returns>Argument default value.</returns>
-            public static string GetArgumentDefaultValue(Argument argument) => HelpBuilder.Default.GetArgumentDefaultValue(argument);
+            public static string GetArgumentDefaultValue(Symbol parameter) => HelpBuilder.Default.GetArgumentDefaultValue(parameter);
 
             /// <summary>
             /// Gets the description for an argument (typically used in the second column text in the arguments section).
@@ -740,9 +740,9 @@ namespace DotMake.CommandLine
             /// <summary>
             /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
             /// </summary>
-            /// <param name="argument">The argument to get the default value for.</param>
+            /// <param name="parameter">The argument to get the default value for.</param>
             /// <returns>Argument usage label.</returns>
-            public static string GetArgumentUsageLabel(Argument argument) => HelpBuilder.Default.GetArgumentUsageLabel(argument);
+            public static string GetArgumentUsageLabel(Symbol parameter) => HelpBuilder.Default.GetArgumentUsageLabel(parameter);
 
             /// <summary>
             /// Gets the usage label for the specified symbol (typically used as the first column text in help output).
@@ -775,7 +775,7 @@ namespace DotMake.CommandLine
                     return firstColumnText;
                 /*MODIFY*/
 
-                foreach (var argument in symbol.Arguments())
+                foreach (var argument in symbol.GetParameters())
                 {
                     if (!argument.Hidden)
                     {
