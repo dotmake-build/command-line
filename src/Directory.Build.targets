@@ -40,7 +40,7 @@
     <None Include="GeneratedFiles\**\*.cs" />
   </ItemGroup>
   <Target Name="CleanSourceGeneratedFiles" BeforeTargets="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn)"
-          Condition="$(EmitCompilerGeneratedFiles) == 'true'">
+          Condition="$(EmitCompilerGeneratedFiles) == 'true' AND $(TargetFramework) != ''">
     <RemoveDir Directories="GeneratedFiles\$(TargetFramework)" />
   </Target>
   
