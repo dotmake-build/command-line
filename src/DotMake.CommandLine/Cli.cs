@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using DotMake.CommandLine.Help;
 
 namespace DotMake.CommandLine
 {
@@ -173,7 +174,7 @@ namespace DotMake.CommandLine
                     "-h", "/h", "-?", "/?"
                 )
                 {
-                    Action = new HelpAction
+                    Action = new CustomHelpAction
                     {
                         Builder = new CliHelpBuilder(settings.Theme, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
                     }

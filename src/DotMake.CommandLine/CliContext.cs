@@ -7,6 +7,7 @@ using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using DotMake.CommandLine.Help;
 
 namespace DotMake.CommandLine
 {
@@ -201,7 +202,7 @@ namespace DotMake.CommandLine
                 ?? ParseResult.CommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
                 ?? new HelpOption
                 {
-                    Action = new HelpAction
+                    Action = new CustomHelpAction
                     {
                         Builder = new CliHelpBuilder(CliTheme.Default, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
                     }
@@ -212,7 +213,7 @@ namespace DotMake.CommandLine
 
         private CliTheme GetThemeOrDefault()
         {
-            return GetHelpOptionOrDefault().Action is HelpAction helpAction
+            return GetHelpOptionOrDefault().Action is CustomHelpAction helpAction
                    && helpAction.Builder is CliHelpBuilder cliHelpBuilder
                 ? cliHelpBuilder.Theme
                 : CliTheme.Default;

@@ -26,10 +26,18 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             //SymbolNamespace = symbol.GetNamespaceOrEmpty();
             //SymbolFullName = symbol.ToReferenceString();
             Symbol = symbol;
-            SemanticModel = semanticModel;
 
             //Note that SyntaxNode seems to include applied attribute to a symbol (so changes reflected)
             SyntaxNode = syntaxNode ?? symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+
+            //Important: semanticModel from parent symbol can be different for a child symbol, especially for nested classes in a partial class.
+            //So to avoid 'Syntax node is not within syntax tree' errors, e.g. with semanticModel.GetSymbolInfo in QualifiedSyntaxRewriter
+            //check if SyntaxTree is same for current semanticModel and SyntaxNode
+            //if not, get a new semanticModel from SyntaxNode.SyntaxTree
+            //https://github.com/dotnet/roslyn/issues/18730#issuecomment-294314178
+            SemanticModel = (SyntaxNode == null || semanticModel.SyntaxTree == SyntaxNode.SyntaxTree)
+                ? semanticModel
+                : semanticModel.Compilation.GetSemanticModel(SyntaxNode.SyntaxTree);
 
             //Location = syntaxNode?.GetLocation();
             Location = symbol.Locations.FirstOrDefault();

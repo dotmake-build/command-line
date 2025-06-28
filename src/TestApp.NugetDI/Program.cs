@@ -2,6 +2,8 @@
 using DotMake.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 #endregion
+using System;
+using System.Diagnostics;
 using TestApp.NugetDI.Commands;
 
 #region ConfigureServices
@@ -20,3 +22,9 @@ Cli.Ext.ConfigureServices(services =>
 Cli.Run<RootCliCommand>();
 
 #endregion
+
+if (!Debugger.IsAttached)
+{
+    Console.WriteLine(@"Press any key to exit...");
+    Console.ReadKey(true);
+}

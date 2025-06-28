@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Help;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DotMake.CommandLine.Help;
 
 namespace DotMake.CommandLine
 {

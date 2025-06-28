@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
@@ -126,3 +127,8 @@ var configuration = Cli.GetConfiguration<RootCliCommand>(new CliSettings());
 configuration.Invoke(args);
 */
 
+if (!Debugger.IsAttached)
+{
+    Console.WriteLine(@"Press any key to exit...");
+    Console.ReadKey(true);
+}

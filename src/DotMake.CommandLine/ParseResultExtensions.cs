@@ -38,5 +38,7 @@ namespace DotMake.CommandLine
 
             return commandBuilder.Bind(parseResult);
         }
+
+        internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
     }
 }

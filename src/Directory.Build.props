@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generateassemblyinfo -->
-    <VersionPrefix>2.5.0</VersionPrefix>
+    <VersionPrefix>2.5.5</VersionPrefix>
     <Product>DotMake Command-Line</Product>
     <Company>DotMake</Company>
     <!-- Copyright is also used for NuGet metadata -->
@@ -21,8 +21,10 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <!--
     <PackageOutputPath>$(RepositoryRootPath)publish</PackageOutputPath>
     <PackageOutputPath Condition="'$(Configuration)' != 'Release'">$(PackageOutputPath)\$(Configuration)</PackageOutputPath>
+    -->
   </PropertyGroup>
 
   <!-- Include default NuGet package custom files in projects except sandcastle help file builder projects -->

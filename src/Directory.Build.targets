@@ -12,7 +12,7 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     SourceRevisionId comes empty in that case.
     -->
-  <Target Name="SetCutomAssemblyMetadata" AfterTargets="InitializeSourceControlInformation" BeforeTargets="GetAssemblyAttributes">
+  <Target Name="SetCustomAssemblyMetadata" AfterTargets="InitializeSourceControlInformation" BeforeTargets="GetAssemblyAttributes">
     <ItemGroup>
       <AssemblyMetadata Include="RepositoryCommit" Value="$(SourceRevisionId)" />
     </ItemGroup>
