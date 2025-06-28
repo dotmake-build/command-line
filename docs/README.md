@@ -251,15 +251,15 @@ Copyright © 2023-2025 DotMake
 A root cli command
 
 Usage:
-  TestApp <argument_1> [options]
+  TestApp <argument-1> [options]
 
 Arguments:
-  <argument_1>  Description for Argument1 [required]
+  <argument-1>  Description for Argument1 [required]
 
 Options:
-  /o1, /option_1  Description for Option1 [default: DefaultForOption1]
-  -?, -h, /help   Show help and usage information
-  /v, /version    Show version information
+  -o1, --option-1  Description for Option1 [default: DefaultForOption1]
+  -?, -h, --help   Show help and usage information
+  -v, --version    Show version information
 ```
 
 Note the header:
@@ -362,9 +362,9 @@ Arguments:
   <argument_1>  Description for Argument1 [required]
 
 Options:
-  -o1, --option_1  Description for Option1 [default: DefaultForOption1]
-  -?, -h, --help   Show help and usage information
-  -v, --version    Show version information
+  /o1, /option_1  Description for Option1 [default: DefaultForOption1]
+  -?, -h, /help   Show help and usage information
+  /v, /version    Show version information
 ```
 Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`.
 By the way, as `help` is a special option, which allows user to discover your app, we still add short form aliases with other prefix to prevent confusion.
