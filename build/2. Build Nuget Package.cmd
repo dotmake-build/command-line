@@ -1,9 +1,10 @@
 @echo off
 
 set projectName=DotMake.CommandLine
-set publishFolder=.\publish
+set srcFolder=..\src
+set publishFolder=..\publish
 
-dotnet pack src\%projectName%\%projectName%.csproj --configuration Release --output %publishFolder%
+dotnet pack %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --output %publishFolder%
 
 @echo off
 if %ERRORLEVEL% EQU 0 (

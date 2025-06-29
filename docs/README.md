@@ -1538,6 +1538,33 @@ myapp [env:key=value]
 myapp [env:key1=value1] [env:key2=value2]
 ```
 
+## Building
+We provide some `.cmd` batch scripts in `build` folder for easier building:
+```console
+1. Build TestApp.cmd
+2. Build Nuget Package.cmd
+3.1. Build TestApp.Nuget.cmd
+3.2. Build TestApp.NugetDI.cmd
+3.3. Build TestApp.NugetAot.cmd
+4. Build Api Docs WebSite.cmd         
+```
+
+Output results can be found in `publish` folder, for example:
+```console
+TestApp-net472
+TestApp-net8.0
+
+DotMake.CommandLine.2.5.6.nupkg
+
+TestApp.Nuget-net472
+TestApp.Nuget-net8.0
+
+TestApp.NugetDI-net472
+TestApp.NugetDI-net8.0
+
+TestApp.NugetAot-win-x64-native
+TestApp.NugetAot-win-x64-trimmed
+```
 
 ## Additional documentation
 - [DotMake Command-Line API docs](https://dotmake.build/api/)

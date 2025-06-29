@@ -54,8 +54,8 @@ namespace TestApp.Commands.GeneratedCode
                 option0Name
             )
             {
-                Recursive = true,
                 Description = "This is a global option (Recursive option on the root command), it can appear anywhere on the command line",
+                Recursive = true,
                 Required = false,
                 DefaultValueFactory = _ => "DefaultForGlobalOption1",
                 CustomParser = GetArgumentParser<string>
@@ -172,8 +172,8 @@ namespace TestApp.Commands.GeneratedCode
                     option0Name
                 )
                 {
-                    Recursive = true,
                     Description = "This is global for all sub commands (it can appear anywhere after the level-1 verb)",
+                    Recursive = true,
                     Required = false,
                     DefaultValueFactory = _ => "DefaultForLevel1RecursiveOption1",
                     CustomParser = GetArgumentParser<string>

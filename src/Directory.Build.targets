@@ -29,19 +29,42 @@
     generate files (the in-memory generated files in VS Analyzers node is still not updated but at least we have files on disk).
     CompilerGeneratedFilesOutputPath defaults to obj\Debug\net6.0\generated but we set a folder inside project to easily
     examine the files, however we exclude the files from Compile below (and add to None) to prevent class conflict errors.
-    We also use CleanSourceGeneratedFiles target below to clean all generated files before build so that we don't have 
+    We also use PreCleanCompilerGeneratedFiles target below to clean all generated files before build so that we don't have 
     outdated files (e.g. for renamed classes).
   -->
   <PropertyGroup>
-    <CompilerGeneratedFilesOutputPath Condition="$(EmitCompilerGeneratedFiles) == 'true'">GeneratedFiles\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
+    <CompilerGeneratedFilesBasePath>GeneratedFiles</CompilerGeneratedFilesBasePath>
+    <CompilerGeneratedFilesOutputPath Condition="'$(EmitCompilerGeneratedFiles)' == 'true' AND '$(TargetFramework)' != ''">$(CompilerGeneratedFilesBasePath)\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
-  <ItemGroup Condition="$(EmitCompilerGeneratedFiles) == 'true'">
-    <Compile Remove="GeneratedFiles\**\*.cs" />
-    <None Include="GeneratedFiles\**\*.cs" />
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <Compile Remove="$(CompilerGeneratedFilesBasePath)\**\*.cs" />
+    <None Include="$(CompilerGeneratedFilesBasePath)\**\*.cs" />
   </ItemGroup>
-  <Target Name="CleanSourceGeneratedFiles" BeforeTargets="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn)"
-          Condition="$(EmitCompilerGeneratedFiles) == 'true' AND $(TargetFramework) != ''">
-    <RemoveDir Directories="GeneratedFiles\$(TargetFramework)" />
-  </Target>
+  <!--
+  As there is no easy way to hook before CoreCompile (actual run), this is not useful.
+  When compile is skipped, this will still run, and we lose previously generated files.
+  So just delete generated files on Clean target for now.
+  There is TargetsTriggeredByCompilation which is run after only if CoreCompile was triggered,
+  but there is no TargetsTriggeredBeforeCompilation which is run before:
+  https://github.com/dotnet/roslyn/issues/24053
   
+  <Target Name="PreCleanCompilerGeneratedFiles" BeforeTargets="CreateCompilerGeneratedFilesOutputPath"
+          Condition="'$(EmitCompilerGeneratedFiles)' == 'true' AND '$(TargetFramework)' != '' AND '$(BuildingProject)' == 'true'">
+    <RemoveDir Directories="$(CompilerGeneratedFilesOutputPath)" />
+  </Target>
+  -->
+  <Target Name="CleanCompilerGeneratedFiles" AfterTargets="Clean"
+          Condition="'$(EmitCompilerGeneratedFiles)' == 'true' AND '$(TargetFramework)' != ''">
+    <RemoveDir Directories="$(CompilerGeneratedFilesOutputPath)" />
+  </Target>
+
+  <!--
+    A useful target for deleting the package with the same version in local or global Nuget cache before creating a new one.
+    So that when you rebuild a project that depends on this package, Nuget will be forced to re-cache the new package
+    and use that even if the version was not changed.
+  -->
+  <Target Name="DeleteLocalOrGlobalNugetPackage" BeforeTargets="Pack"
+          Condition="'$(NugetPackageRoot)' != ''">
+    <RemoveDir Directories="$(NugetPackageRoot)/$(PackageId.ToLowerInvariant())/$(Version)"/>
+  </Target>
 </Project>

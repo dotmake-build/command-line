@@ -1,7 +1,8 @@
 @echo off
 
 set projectName=TestApp.NugetAot
-set publishFolder=.\publish
+set srcFolder=..\src
+set publishFolder=..\publish
 
 for %%r in (
   win-x64
@@ -9,7 +10,7 @@ for %%r in (
   setlocal EnableDelayedExpansion
   set outputFolder=%publishFolder%\%projectName%-%%r-trimmed
   
-  dotnet publish src\%projectName%\%projectName%.csproj --configuration Release --runtime %%r -p:PublishTrimmed=true;PublishSingleFile=true --output !outputFolder!
+  dotnet publish %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --runtime %%r -p:PublishTrimmed=true;PublishSingleFile=true --output !outputFolder!
   
   if %ERRORLEVEL% EQU 0 (
     echo:
@@ -22,7 +23,7 @@ for %%r in (
   
   set outputFolder=%publishFolder%\%projectName%-%%r-native
   
-  dotnet publish src\%projectName%\%projectName%.csproj --configuration Release --runtime %%r -p:PublishAot=true --output !outputFolder!
+  dotnet publish %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --runtime %%r -p:PublishAot=true --output !outputFolder!
   
   if %ERRORLEVEL% EQU 0 (
     echo:

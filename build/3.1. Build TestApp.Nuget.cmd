@@ -1,7 +1,8 @@
 @echo off
 
 set projectName=TestApp.Nuget
-set publishFolder=.\publish
+set srcFolder=..\src
+set publishFolder=..\publish
 
 for %%f in (
   net472
@@ -10,7 +11,7 @@ for %%f in (
   setlocal EnableDelayedExpansion
   set outputFolder=%publishFolder%\%projectName%-%%f
   
-  dotnet publish src\%projectName%\%projectName%.csproj --configuration Release --framework %%f --output !outputFolder!
+  dotnet publish %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --framework %%f --output !outputFolder!
   
   if %ERRORLEVEL% EQU 0 (
     echo:
