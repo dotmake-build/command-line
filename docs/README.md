@@ -203,7 +203,7 @@ And that's it! You now have a fully working command-line app.
 
 ### Trim self-contained deployment
 
-Use this command in project folder, e.g. for `win-x64` platform:
+Use this command in your project folder, e.g. for `win-x64` platform:
 ```
 dotnet publish -c Release -r win-x64 -p:PublishTrimmed=true;PublishSingleFile=true
 ```
@@ -218,7 +218,7 @@ You will get a trimmed and single executable file which does not require .NET ru
 
 ### Native AOT deployment
 
-Use this command in project folder, e.g. for `win-x64` platform:
+Use this command in your project folder, e.g. for `win-x64` platform:
 ```
 dotnet publish -c Release -r win-x64 -p:PublishAot=true
 ```
@@ -305,6 +305,9 @@ By default, command/option/argument names are generated as follows;
   - `CliNamePrefixConvention.ForwardSlash`
   
   When you set a specific name via `[CliXXX].Name` property, that will be used instead of a auto-generated name.  
+  For options, if you don't specify a prefix, it will be prefixed automatically according to `[CliCommand].NamePrefixConvention`  
+  (e.g. `--option`, `-option` or `/option`) unless it's set to `CliNamePrefixConvention.None`.
+
   Auto-generated names can be disabled for all or specific CLI symbol types via `[CliCommand].NameAutoGenerate`.
   
 - For commands and options, a short form alias is automatically added.
@@ -317,6 +320,9 @@ By default, command/option/argument names are generated as follows;
   This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
 
   When you set a specific alias via `[CliXXX].Alias` property, that will be used instead of a auto-generated short form alias.  
+  For options,  if you don't specify a prefix, it will be prefixed automatically according to `[CliCommand].ShortFormPrefixConvention`  
+  (e.g. `-o` or `--o` or `/o`) unless it's set to `CliNamePrefixConvention.None`.
+  
   Auto-generated short form aliases can be disabled for all or specific CLI symbol types via `[CliCommand].ShortFormAutoGenerate`.
 
 ---
@@ -853,8 +859,20 @@ msbuild /version
         ^------^
 ```
 
-Both POSIX and Windows prefix conventions are supported.
-When manually setting a name (overriding decorated property's name), you should specify the option name including the prefix (e.g. `--option`, `-o`, `-option` or `/option`).
+Both POSIX and Windows prefix conventions are supported (e.g. `--option`, `-o`, `-option` or `/option`).
+
+It's allowed to use a space, `=`, or `:` as the delimiter between an option name and its argument.
+For example, the following commands are equivalent:
+```console
+dotnet build -v quiet
+dotnet build -v=quiet
+dotnet build -v:quiet
+```
+A POSIX convention lets you omit the delimiter when you are specifying a single-character option alias. For example, the following commands are equivalent:
+```console
+myapp -vquiet
+myapp -v quiet
+```
 
 Bundling of single-character options are supported, also known as stacking.
 Bundled options are single-character option aliases specified together after a single hyphen prefix.
@@ -1506,7 +1524,7 @@ myapp [diagram] --delay not-an-int --interactive --file filename.txt extra
 In the preceding example:
 
 * The command (`myapp`), its child options, and the arguments to those options are grouped using square brackets.
-* For the option result `[ --delay !<not-an-int> ]`, the `!` indicates a parsing error. The value `not-an-int` for an `int` option can't be parsed to the expected type. The error is also flagged by `!` in front of the command that contains the errored option: `![ myapp...`.
+* For the option result `[ --delay !<not-an-int> ]`, the `!` indicates a parsing error. The value `not-an-int` for an `int` option can't be parsed to the expected type. The error is also flagged by `!` in front of the command that contains the error-ed option: `![ myapp...`.
 * For the option result `*[ --fgcolor <White> ]`, the option wasn't specified on the command line, so the configured default was used. `White` is the effective value for this option. The asterisk indicates that the value is the default.
 * `???-->` points to input that wasn't matched to any of the app's commands or options.
 
