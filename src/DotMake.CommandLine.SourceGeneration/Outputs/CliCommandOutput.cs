@@ -273,6 +273,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         sb.AppendLine($"var {varTargetClass} = CreateInstance();");
 
                         sb.AppendLine();
+                        sb.AppendLine("//  Set the values for the parent command accessors");
+                        foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
+                        {
+                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = DotMake.CommandLine.ParseResultExtensions");
+                            sb.AppendIndent();
+                            sb.AppendLine($".Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
+                        }
+
+                        sb.AppendLine();
                         sb.AppendLine("//  Set the parsed or default values for the directives");
                         for (var index = 0; index < directivesWithoutProblem.Length; index++)
                         {
@@ -297,15 +306,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             var cliArgumentInfo = argumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
                             sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument({varParseResult}, {varArgument});");
-                        }
-
-                        sb.AppendLine();
-                        sb.AppendLine("//  Set the values for the parent command accessors");
-                        foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
-                        {
-                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = DotMake.CommandLine.ParseResultExtensions");
-                            sb.AppendIndent();
-                            sb.AppendLine($".Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
                         }
 
                         sb.AppendLine();
@@ -397,7 +397,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             {
                 //Cannot set name for a RootCommand, it's the executable name by default
                 sb.AppendLine($"? new {CommandClassNamespace}.{RootCommandClassName}()");
-                sb.AppendLine($": new {CommandClassNamespace}.{CommandClassName}({varNameParameter});");                
+                sb.AppendLine($": new {CommandClassNamespace}.{CommandClassName}({varNameParameter});");
             }
 
             sb.AppendLine($"var {varRootName} = {varName} as {CommandClassNamespace}.{RootCommandClassName};");
