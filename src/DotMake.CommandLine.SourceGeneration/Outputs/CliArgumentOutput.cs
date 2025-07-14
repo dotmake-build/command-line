@@ -33,16 +33,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer)
         {
-            var hasSpecificName = Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue)
-                                  && !string.IsNullOrWhiteSpace(nameValue.ToString());
-            var baseName = hasSpecificName
-                ? nameValue.ToString().Trim()
-                : Input.Symbol.Name.StripSuffixes(Suffixes);
-
             var varNameParameter = $"{varName}Name";
 
             sb.AppendLine($"// Argument for '{Input.Symbol.Name}' property");
-            sb.AppendLine($"var {varNameParameter} = {varNamer}.GetArgumentName(\"{baseName}\", {hasSpecificName.ToString().ToLowerInvariant()});");
+
+            if (Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue))
+                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetArgumentName(\"{Input.Symbol.Name}\", \"{nameValue}\");");
+            else
+                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetArgumentName(\"{Input.Symbol.Name}\");");
+
             using (sb.AppendParamsBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
                 sb.AppendLine($"{varNameParameter}");
@@ -97,7 +96,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             }
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.AllowedValues), out var allowedValuesTypedConstant))
-                sb.AppendLine($"{varName}.AcceptOnlyFromAmong(new[] {allowedValuesTypedConstant.ToCSharpString()});");
+                sb.AppendLine($"{ArgumentClassNamespace}.ArgumentValidation.AcceptOnlyFromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.ValidationRules), out var validationRulesTypedConstant))
                 sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationRulesTypedConstant.ToCSharpString()});");

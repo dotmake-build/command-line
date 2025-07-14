@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.Linq;
 
 namespace DotMake.CommandLine
 {
@@ -14,7 +15,22 @@ namespace DotMake.CommandLine
         private readonly CliNamePrefixConvention namePrefixConvention;
         private readonly CliNamePrefixConvention shortFormPrefixConvention;
         private readonly CliNameAutoGenerate shortFormAutoGenerate;
-        private readonly HashSet<string> usedNames = new(StringComparer.Ordinal);
+        private readonly CliNamer parentNamer;
+        private readonly Dictionary<string, Tuple<TokenType, string>> usedTokens = new(StringComparer.Ordinal);
+
+        private static readonly string[] CommandSuffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
+        private static readonly string[] DirectiveSuffixes = CommandSuffixes
+            .Select(s => s + "Directive")
+            .Append("Directive")
+            .ToArray();
+        private static readonly string[] OptionSuffixes = CommandSuffixes
+            .Select(s => s + "Option")
+            .Append("Option")
+            .ToArray();
+        private static readonly string[] ArgumentSuffixes = CommandSuffixes
+            .Select(s => s + "Argument")
+            .Append("Argument")
+            .ToArray();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliNamer" /> class.
@@ -24,116 +40,140 @@ namespace DotMake.CommandLine
         /// <param name="namePrefixConvention">The prefix convention used for automatically generated option names.</param>
         /// <param name="shortFormPrefixConvention">The prefix convention used for automatically generated short form option aliases.</param>
         /// <param name="shortFormAutoGenerate">A value which indicates whether short form aliases are automatically generated for commands and options.</param>
+        /// <param name="parentNamer">The parent namer used to check names and aliases of sub-commands.</param>
         public CliNamer(
             CliNameAutoGenerate? nameAutoGenerate = null,
             CliNameCasingConvention? nameCasingConvention = null,
             CliNamePrefixConvention? namePrefixConvention = null,
             CliNameAutoGenerate? shortFormAutoGenerate = null,
-            CliNamePrefixConvention? shortFormPrefixConvention = null)
+            CliNamePrefixConvention? shortFormPrefixConvention = null,
+            CliNamer parentNamer = null)
         {
             this.nameAutoGenerate = nameAutoGenerate ?? CliCommandAttribute.Default.NameAutoGenerate;
             this.nameCasingConvention = nameCasingConvention ?? CliCommandAttribute.Default.NameCasingConvention;
             this.namePrefixConvention = namePrefixConvention ?? CliCommandAttribute.Default.NamePrefixConvention;
             this.shortFormAutoGenerate = shortFormAutoGenerate ?? CliCommandAttribute.Default.ShortFormAutoGenerate;
             this.shortFormPrefixConvention = shortFormPrefixConvention ?? CliCommandAttribute.Default.ShortFormPrefixConvention;
+            this.parentNamer = parentNamer;
         }
 
         /// <summary>
         /// Gets the command name for a property by using current <see cref="nameCasingConvention"/>.
         /// </summary>
-        public string GetCommandName(string baseName, bool isSpecificName)
+        public string GetCommandName(string symbolName, string specificName = null)
         {
             //Commands are added with name in ValidTokens so commands can conflict with options without prefix.
 
             //Note that currently this method is only called for the command itself in the Build method because children commands
             //are not yet known at the time (as CliNamer scoped to Build method, can not add children)
 
-            if (isSpecificName || !nameAutoGenerate.HasFlag(CliNameAutoGenerate.Commands))
+            if (!string.IsNullOrWhiteSpace(specificName))
             {
-                usedNames.Add(baseName);
-                return baseName;
+                specificName = specificName.Trim();
+                AddTokenOrThrow(specificName, TokenType.CommandName, symbolName);
+                return specificName;
             }
 
-            var name = FindAutoName(baseName, false);
-            usedNames.Add(name);
+            var baseName = symbolName.Trim().StripSuffixes(CommandSuffixes);
+
+            var name = nameAutoGenerate.HasFlag(CliNameAutoGenerate.Commands)
+                ? FindAutoName(baseName, false)
+                : baseName;
+            AddTokenOrThrow(name, TokenType.CommandName, symbolName);
             return name;
         }
 
         /// <summary>
         /// Gets the directive name for a property by using current <see cref="nameCasingConvention"/>.
         /// </summary>
-        public string GetDirectiveName(string baseName, bool isSpecificName)
+        public string GetDirectiveName(string symbolName, string specificName = null)
         {
-            //Directives are added with [] around name in ValidTokens so they won't conflict with other symbols.
+            //Directives are added with [] around name in ValidTokens so they can conflict with other symbols with [].
 
-            if (isSpecificName || !nameAutoGenerate.HasFlag(CliNameAutoGenerate.Directives))
-                return baseName;
+            if (!string.IsNullOrWhiteSpace(specificName))
+            {
+                specificName = specificName.Trim();
+                AddTokenOrThrow(specificName, TokenType.DirectiveName, symbolName);
+                return specificName;
+            }
 
-            return baseName.ToCase(nameCasingConvention);
+            var baseName = symbolName.Trim().StripSuffixes(DirectiveSuffixes);
+
+            var name = nameAutoGenerate.HasFlag(CliNameAutoGenerate.Directives)
+                ? baseName.ToCase(nameCasingConvention)
+                : baseName;
+            AddTokenOrThrow(name, TokenType.DirectiveName, symbolName);
+            return name;
         }
 
         /// <summary>
         /// Gets the option name for a property by using current <see cref="nameCasingConvention"/> and <see cref="namePrefixConvention"/>.
         /// </summary>
-        public string GetOptionName(string baseName, bool isSpecificName)
+        public string GetOptionName(string symbolName, string specificName = null)
         {
             //Options are added with name in ValidTokens so options without prefix can conflict with commands.
 
-            if (isSpecificName || !nameAutoGenerate.HasFlag(CliNameAutoGenerate.Options))
+            if (!string.IsNullOrWhiteSpace(specificName))
             {
-                baseName = baseName.AddPrefix(namePrefixConvention); //will ignore if already has a prefix
-                usedNames.Add(baseName);
-                return baseName;
+                specificName = specificName.Trim();
+                specificName = specificName.AddPrefix(namePrefixConvention); //will ignore if already has a prefix
+                AddTokenOrThrow(specificName, TokenType.OptionName, symbolName);
+                return specificName;
             }
 
-            var name = FindAutoName(baseName, true);
-            usedNames.Add(name);
+            var baseName = symbolName.Trim().StripSuffixes(OptionSuffixes);
+
+            var name = nameAutoGenerate.HasFlag(CliNameAutoGenerate.Options)
+                ? FindAutoName(baseName, true)
+                : baseName;
+            AddTokenOrThrow(name, TokenType.OptionName, symbolName);
             return name;
         }
 
         /// <summary>
         /// Gets the argument name for a property by using current <see cref="nameCasingConvention"/>.
         /// </summary>
-        public string GetArgumentName(string baseName, bool isSpecificName)
+        public string GetArgumentName(string symbolName, string specificName = null)
         {
             //Arguments are not added in ValidTokens so they won't conflict with other symbols.
 
-            if (isSpecificName || !nameAutoGenerate.HasFlag(CliNameAutoGenerate.Arguments))
-                return baseName;
+            if (!string.IsNullOrWhiteSpace(specificName))
+            {
+                specificName = specificName.Trim();
+                return specificName;
+            }
 
-            return baseName.ToCase(nameCasingConvention);
+            var baseName = symbolName.Trim().StripSuffixes(ArgumentSuffixes);
+
+            return nameAutoGenerate.HasFlag(CliNameAutoGenerate.Arguments)
+                ? baseName.ToCase(nameCasingConvention)
+                : baseName;
         }
 
         /// <summary>
         /// Adds an alias to a command. Tracks used aliases and only adds if not already used.
         /// </summary>
-        public void AddAlias(Command command, string alias)
+        public void AddAlias(Command command, string symbolName, string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
                 return;
 
-            if (!usedNames.Contains(alias))
-            {
-                command.Aliases.Add(alias);
-                usedNames.Add(alias);
-            }
+            AddTokenOrThrow(alias, TokenType.CommandAlias, symbolName);
+            command.Aliases.Add(alias);
         }
 
         /// <summary>
         /// Adds an alias to an option. Tracks used aliases and only adds if not already used.
         /// </summary>
-        public void AddAlias(Option option, string alias)
+        public void AddAlias(Option option, string symbolName, string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
                 return;
 
             alias = alias.AddPrefix(namePrefixConvention); //will ignore if already has a prefix
 
-            if (!usedNames.Contains(alias))
-            {
-                option.Aliases.Add(alias);
-                usedNames.Add(alias);
-            }
+            AddTokenOrThrow(alias, TokenType.OptionAlias, symbolName);
+            option.Aliases.Add(alias);
         }
 
         /// <summary>
@@ -143,18 +183,23 @@ namespace DotMake.CommandLine
         /// and it is shorter than command name.
         /// </para>
         /// </summary>
-        public void AddShortFormAlias(Command command, string baseName, bool isSpecificName)
+        public void AddShortFormAlias(Command command, string symbolName, string specificAlias = null)
         {
-            if (isSpecificName || !shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Commands))
+            if (!string.IsNullOrWhiteSpace(specificAlias))
             {
-                AddAlias(command, baseName);
+                specificAlias = specificAlias.Trim();
+                AddAlias(command, symbolName, specificAlias);
             }
             else
             {
-                var shortForm = FindAutoShortForm(baseName, false);
+                var baseName = symbolName.Trim().StripSuffixes(CommandSuffixes);
+
+                var shortForm = shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Commands)
+                    ? FindAutoShortForm(baseName, false)
+                    : baseName;
 
                 if (shortForm.Length != 0 && shortForm.Length < command.Name.Length)
-                    AddAlias(command, shortForm);
+                    AddAlias(command, symbolName, shortForm);
             }
         }
 
@@ -165,19 +210,24 @@ namespace DotMake.CommandLine
         /// and it is shorter than option name.
         /// </para>
         /// </summary>
-        public void AddShortFormAlias(Option option, string baseName, bool isSpecificName)
+        public void AddShortFormAlias(Option option, string symbolName, string specificAlias = null)
         {
-            if (isSpecificName || !shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options))
+            if (!string.IsNullOrWhiteSpace(specificAlias))
             {
-                baseName = baseName.AddPrefix(shortFormPrefixConvention); //will ignore if already has a prefix
-                AddAlias(option, baseName);
+                specificAlias = specificAlias.Trim();
+                specificAlias = specificAlias.AddPrefix(shortFormPrefixConvention); //will ignore if already has a prefix
+                AddAlias(option, symbolName, specificAlias);
             }
             else
             {
-                var shortForm = FindAutoShortForm(baseName, true);
+                var baseName = symbolName.Trim().StripSuffixes(OptionSuffixes);
+
+                var shortForm = shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options)
+                    ? FindAutoShortForm(baseName, true)
+                    : baseName;
 
                 if (shortForm.Length != 0 && shortForm.Length < option.Name.Length)
-                    AddAlias(option, shortForm);
+                    AddAlias(option, symbolName, shortForm);
             }
         }
 
@@ -192,7 +242,7 @@ namespace DotMake.CommandLine
                 if (withPrefix)
                     name = name.AddPrefix(namePrefixConvention);
 
-                if (usedNames.Contains(name))
+                if (usedTokens.ContainsKey(name))
                     continue;
 
                 return name;
@@ -217,6 +267,43 @@ namespace DotMake.CommandLine
                 shortForm = shortForm.AddPrefix(shortFormPrefixConvention);
 
             return shortForm;
+        }
+
+        private void AddTokenOrThrow(string token, TokenType tokenType, string symbolName)
+        {
+            if (tokenType == TokenType.DirectiveName)
+                token = $"[{token}]";
+
+            if (usedTokens.TryGetValue(token, out var tuple))
+            {
+                var existingTokenType = tuple.Item1;
+                var existingSymbolName = tuple.Item2;
+                throw new Exception(
+                    $"{tokenType} '{token}' for '{symbolName}' conflicts with {existingTokenType} for '{existingSymbolName}'!"
+                );
+            }
+
+            if (parentNamer != null
+                && (tokenType == TokenType.CommandName || tokenType == TokenType.CommandAlias)
+                && parentNamer.usedTokens.TryGetValue(token, out var tuple2))
+            {
+                var existingTokenType = tuple2.Item1;
+                var existingSymbolName = tuple2.Item2;
+                throw new Exception(
+                    $"{tokenType} '{token}' for '{symbolName}' conflicts with parent {existingTokenType} for '{existingSymbolName}'!"
+                );
+            }
+
+            usedTokens.Add(token, Tuple.Create(tokenType, symbolName));
+        }
+
+        private enum TokenType
+        {
+            DirectiveName,
+            CommandName,
+            CommandAlias,
+            OptionName,
+            OptionAlias
         }
     }
 }

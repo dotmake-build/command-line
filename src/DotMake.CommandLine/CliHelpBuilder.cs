@@ -763,7 +763,8 @@ namespace DotMake.CommandLine
                     : new[] { symbol.Name }.Concat(aliasSet)
                                     .Select(r => r.SplitPrefix())
                                     .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
-                                    .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
+                                    .ThenBy(r => r.Alias.Length) /*MODIFY*/
+                                    //.ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase) /*MODIFY*/
                                     .GroupBy(t => t.Alias)
                                     .Select(t => t.First())
                                     .Select(t => $"{t.Prefix}{t.Alias}");

@@ -49,6 +49,7 @@ namespace DotMake.CommandLine
         /// </summary>
         public Type[] ChildDefinitionTypes { get; protected set; }
 
+
         /// <summary>
         /// Gets a value which indicates whether names are automatically generated for commands, directives, options and arguments.
         /// </summary>
@@ -73,7 +74,20 @@ namespace DotMake.CommandLine
         /// Gets the prefix convention to use for automatically generated short form aliases of options.
         /// </summary>
         public CliNamePrefixConvention? ShortFormPrefixConvention { get; protected set; }
-        
+
+        /// <summary>
+        /// Gets the namer for generating CLI names and aliases while tracking already used ones.
+        /// This will be available after <see cref="Build"/> call.
+        /// </summary>
+        public CliNamer Namer { get; protected set; }
+
+        /// <summary>
+        /// Gets the parent namer for generating CLI names and aliases while tracking already used ones.
+        /// This will be available after <see cref="Build"/> call.
+        /// </summary>
+        public CliNamer ParentNamer { get; protected set; }
+
+
         /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
         /// </summary>
@@ -89,11 +103,121 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool IsRoot => !RegisteredChildMap.ContainsKey(DefinitionType);
 
+
         /// <summary>
-        /// Builds a <see cref="Command"/> instance, populated with sub-commands, options, arguments and settings.
+        /// Builds a <see cref="Command"/> instance with full hierarchy, populated with parent-commands, sub-commands, directives, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
-        public abstract Command Build();
+        public Command BuildWithHierarchy()
+        {
+            var commandBuilder = this;
+
+            CliCommandBuilder parent = null;
+            Command parentCommand = null;
+            Command currentCommand = null;
+
+            // Add nested or external registered parent commands
+            foreach (var current in commandBuilder.Parents.Reverse().Append(commandBuilder))
+            {
+                currentCommand = current.BuildWithParent(parent);
+                parentCommand?.Add(currentCommand);
+
+                parent = current;
+                parentCommand = currentCommand;
+            }
+            var command = currentCommand!; //always non-null
+
+            // Add nested or external registered children commands
+            // Use Queue (breadth-first) for correct order here
+            var queue = new Queue<Tuple<CliCommandBuilder, Command>>();
+            queue.Enqueue(Tuple.Create(commandBuilder, command));
+            while (queue.Count > 0)
+            {
+                var parentTuple = queue.Dequeue();
+                parent = parentTuple.Item1;
+                parentCommand = parentTuple.Item2;
+
+                foreach (var current in parent.Children)
+                {
+                    currentCommand = current.BuildWithParent(parent);
+                    parentCommand?.Add(currentCommand);
+
+                    queue.Enqueue(Tuple.Create(current, currentCommand));
+                }
+            }
+
+
+            /*
+            //Testing command hierarchy
+            var topCommandBuilder = commandBuilder.Parents.LastOrDefault() ?? commandBuilder;
+            var queue2 = new Queue<CliCommandBuilder>();
+            queue2.Enqueue(topCommandBuilder);
+            while (queue2.Count > 0)
+            {
+                var current = queue2.Dequeue();
+
+                var depth = current.Parents.Count();
+                Console.Write(new string(' ', 2 * depth));
+                Console.WriteLine($@"{current.DefinitionType.Name} (depth: {depth})");
+
+                foreach (var child in current.Children)
+                {
+                    queue2.Enqueue(child);
+                }
+            }
+            */
+
+            return command;
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Command"/> instance by inheriting parent settings, populated with directives, options, arguments and settings.
+        /// </summary>
+        /// <returns>A populated <see cref="Command"/> instance.</returns>
+        public Command BuildWithParent(CliCommandBuilder parent)
+        {
+            if (parent == null) //if no parent, treat as single command build
+                return Build(); 
+
+            //Should be before Build
+            //Inherit settings from a parent command builder.
+            //If a setting is not null in this command builder, then that will be used instead.
+            Namer = new CliNamer
+            (
+                NameAutoGenerate ?? parent.NameAutoGenerate,
+                NameCasingConvention ?? parent.NameCasingConvention,
+                NamePrefixConvention ?? parent.NamePrefixConvention,
+                ShortFormAutoGenerate ?? parent.ShortFormAutoGenerate,
+                ShortFormPrefixConvention ?? parent.ShortFormPrefixConvention,
+                parent.Namer //Use the parent namer to check names and aliases of sub-commands.
+            );
+
+            return DoBuild();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Command"/> instance, populated with directives, options, arguments and settings.
+        /// </summary>
+        /// <returns>A populated <see cref="Command"/> instance.</returns>
+        public Command Build()
+        {
+            Namer = new CliNamer
+            (
+                NameAutoGenerate,
+                NameCasingConvention,
+                NamePrefixConvention,
+                ShortFormAutoGenerate,
+                ShortFormPrefixConvention
+            );
+
+            return DoBuild();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Command"/> instance, populated with directives, options, arguments and settings.
+        /// </summary>
+        /// <returns>A populated <see cref="Command"/> instance.</returns>
+        protected abstract Command DoBuild();
 
         /// <summary>
         /// Creates a new instance of the command definition class and binds/populates the properties from the parse result.

@@ -193,19 +193,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
 
                 sb.AppendLine("/// <inheritdoc />");
-                using (sb.AppendBlockStart($"public override {CommandClassNamespace}.{CommandClassName} Build()"))
+                using (sb.AppendBlockStart($"protected override {CommandClassNamespace}.{CommandClassName} DoBuild()"))
                 {
-                    var varNamer = "namer";
-                    using (sb.AppendParamsBlockStart($"var {varNamer} = new DotMake.CommandLine.CliNamer", ";"))
-                    {
-                        sb.AppendLine("NameAutoGenerate,");
-                        sb.AppendLine("NameCasingConvention,");
-                        sb.AppendLine("NamePrefixConvention,");
-                        sb.AppendLine("ShortFormAutoGenerate,");
-                        sb.AppendLine("ShortFormPrefixConvention");
-                    }
-                    sb.AppendLine();
-
+                    var varNamer = "Namer";
                     var varCommand = "command";
                     var varRootCommand = "rootCommand";
                     AppendCSharpCreateString(sb, varCommand, varRootCommand, varNamer);
@@ -273,6 +263,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         sb.AppendLine($"var {varTargetClass} = CreateInstance();");
 
                         sb.AppendLine();
+                        sb.AppendLine("//  Set the values for the parent command accessors");
+                        foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
+                        {
+                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = DotMake.CommandLine.ParseResultExtensions");
+                            sb.AppendIndent();
+                            sb.AppendLine($".Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
+                        }
+
+                        sb.AppendLine();
                         sb.AppendLine("//  Set the parsed or default values for the directives");
                         for (var index = 0; index < directivesWithoutProblem.Length; index++)
                         {
@@ -297,15 +296,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             var cliArgumentInfo = argumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
                             sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument({varParseResult}, {varArgument});");
-                        }
-
-                        sb.AppendLine();
-                        sb.AppendLine("//  Set the values for the parent command accessors");
-                        foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
-                        {
-                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = DotMake.CommandLine.ParseResultExtensions");
-                            sb.AppendIndent();
-                            sb.AppendLine($".Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
                         }
 
                         sb.AppendLine();
@@ -382,17 +372,16 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varRootName, string varNamer)
         {
-            var hasSpecificName = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue)
-                          && !string.IsNullOrWhiteSpace(nameValue.ToString());
-            var baseName = hasSpecificName
-                ? nameValue.ToString().Trim()
-                : Input.Symbol.Name.StripSuffixes(Suffixes);
-
             var varNameParameter = $"{varName}Name";
 
             sb.AppendLine($"// Command for '{Input.Symbol.Name}' class");
             //sb.AppendLine($"// Parent tree: '{string.Join(" -> ", Input.ParentTree.Select(p=> p.Symbol))}'");
-            sb.AppendLine($"var {varNameParameter} = {varNamer}.GetCommandName(\"{baseName}\", {hasSpecificName.ToString().ToLowerInvariant()});");
+
+            if (Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue))
+                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetCommandName(\"{Input.Symbol.Name}\", \"{nameValue}\");");
+            else
+                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetCommandName(\"{Input.Symbol.Name}\");");
+
             using (sb.AppendBlockStart($"var {varName} = IsRoot", null, null, null))
             {
                 //Cannot set name for a RootCommand, it's the executable name by default
@@ -420,12 +409,10 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
             }
 
-            var hasSpecificAlias = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Alias), out var aliasValue)
-                                  && !string.IsNullOrWhiteSpace(aliasValue.ToString());
-            var baseAlias = hasSpecificAlias
-                ? $"\"{aliasValue.ToString().Trim()}\""
-                : varNameParameter;
-            sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, {baseAlias}, {hasSpecificAlias.ToString().ToLowerInvariant()});");
+            if (Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Alias), out var aliasValue))
+                sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, \"{Input.Symbol.Name}\", \"{aliasValue}\");");
+            else
+                sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, \"{Input.Symbol.Name}\");");
 
             if (Input.AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues))
             {
@@ -434,7 +421,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     if (string.IsNullOrWhiteSpace(alias))
                         continue;
 
-                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{alias.Trim()}\");");
+                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias.Trim()}\");");
                 }
             }
         }

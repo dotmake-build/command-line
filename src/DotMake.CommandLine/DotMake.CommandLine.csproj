@@ -21,34 +21,35 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Improved: Switched back to using official NuGet feed from DotNet Daily Builds feed for System.CommandLine as now `2.0.0-beta5.25306.1` is released.
-          Now the DLL will no more be packed into our package and System.CommandLine will appear as NuGet dependency.
-          
-        - Fixed: Error `DMCLI01: DotMake.CommandLine.SourceGeneration -> System.ArgumentException: Syntax node is not within syntax tree`
-          when using partial class for a command which has a nested class for a subcommand.
-          Reason: SemanticModel from parent symbol can be different for a child symbol, especially for nested classes in a partial class.
-          Solution: Check if SyntaxTree is same for current SemanticModel and SyntaxNode, if not, get a new SemanticModel
-          via `semanticModel.Compilation.GetSemanticModel(syntaxNode.SyntaxTree)`.
-          
-        - Fixed: The new enum `CliNameAutoGenerate` in v2.5.0 is a `[Flags]` enum and it was not translated to C# code correctly
-          when multiple flags were combined:
-          ```c#
-          [CliCommand(
-              ShortFormAutoGenerate = CliNameAutoGenerate.Options | CliNameAutoGenerate.Arguments
-          )]
-          public class RootHelpOnEmptyCliCommand
-          ```
-
-        - Improved: Added `.cmd` batch scripts to repository root for easier building:
+        - Improved: CliNamer to support a parent CliNamer. Unique names were only checked within the command builder
+          so the current command was not aware of names of sibling commands. This is now fixed.
+          And from now on, we will throw an explanatory exception when there is a name or alias conflict like this:
           ```console
-          1. Build TestApp.cmd
-          2. Build Nuget Package.cmd
-          3.1. Build TestApp.Nuget.cmd
-          3.2. Build TestApp.NugetDI.cmd
-          3.3. Build TestApp.NugetAot.cmd
-          4. Build Api Docs WebSite.cmd         
+          System.Exception: CommandAlias 'c' for 'createschema' conflicts with parent CommandAlias for 'checkfornewtools'!
           ```
-          Output results can be found in `publish` folder.
+          This is because System.CommandLine threw a vague exception when there was a conflict during parsing:
+          ```console
+          System.ArgumentException: An item with the same key has already been added. Key: c
+          ```
+          Unique names are checked for DirectiveName (surrounded with []), CommandName, CommandAlias, OptionName, OptionAlias.
+          Auto short form aliases will be always derived from symbol name even when a specific name was specified,
+          because if user specifies a specific name with all lowercase like `checkfornewtools`, we cannot split word boundaries.
+          Help output will show short aliases first consistently especially for commands (order by prefix and then by length).
+          
+        - Improved: Set the values for the parent command accessors before directive, option and argument properties so that
+          property get accessors can access them:
+          ```c#
+          public class DefaultSettingsCliCommand
+          {
+              [CliOption]
+              public string SettingsFile => RootCommand.SettingsFile; // <-- Avoid Error Here
+
+              public RootCliCommand RootCommand { get; set; }
+          }          
+          ```
+          
+        - Fixed: Usage of `[CliArgument].AllowedValues` caused compiler error CS1061 because `Argument<T>.AcceptOnlyFromAmong(...)`
+          was moved to extension method `System.CommandLine.ArgumentValidation.AcceptOnlyFromAmong(...)` in latest System.CommandLine.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>

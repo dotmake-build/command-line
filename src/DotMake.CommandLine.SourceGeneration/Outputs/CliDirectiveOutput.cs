@@ -32,16 +32,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer)
         {
-            var hasSpecificName = Input.AttributeArguments.TryGetValue(nameof(CliDirectiveAttribute.Name), out var nameValue)
-                                  && !string.IsNullOrWhiteSpace(nameValue.ToString());
-            var baseName = hasSpecificName
-                ? nameValue.ToString().Trim()
-                : Input.Symbol.Name.StripSuffixes(Suffixes);
-
             var varNameParameter = $"{varName}Name";
 
             sb.AppendLine($"// Directive for '{Input.Symbol.Name}' property");
-            sb.AppendLine($"var {varNameParameter} = {varNamer}.GetDirectiveName(\"{baseName}\", {hasSpecificName.ToString().ToLowerInvariant()});");
+
+            if (Input.AttributeArguments.TryGetValue(nameof(CliDirectiveAttribute.Name), out var nameValue))
+                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetDirectiveName(\"{Input.Symbol.Name}\", \"{nameValue}\");");
+            else
+                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetDirectiveName(\"{Input.Symbol.Name}\");");
+
             using (sb.AppendParamsBlockStart($"var {varName} = new {DirectiveClassNamespace}.{DirectiveClassName}"))
             {
                 sb.AppendLine($"{varNameParameter}");

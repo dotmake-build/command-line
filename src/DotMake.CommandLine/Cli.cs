@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
@@ -84,67 +83,10 @@ namespace DotMake.CommandLine
         public static CommandLineConfiguration GetConfiguration(Type definitionType, CliSettings settings = null)
         {
             var commandBuilder = CliCommandBuilder.Get(definitionType);
-
-            // Add nested or external registered parent commands
-            CliCommandBuilder parent = null;
-            Command parentCommand = null;
-            Command currentCommand = null;
-            foreach (var current in commandBuilder.Parents.Reverse().Append(commandBuilder))
-            {
-                if (parent != null)
-                    current.InheritSettings(parent); //should be before Build
-
-                currentCommand = current.Build();
-
-                if (parentCommand != null)
-                    parentCommand.Add(currentCommand);
-
-                parent = current;
-                parentCommand = currentCommand;
-            }
-            var command = currentCommand!; //always non-null
-
-            // Add nested or external registered children commands
-            // Use Queue (breadth-first) for correct order here
-            var queue = new Queue<Tuple<CliCommandBuilder, Command>>();
-            queue.Enqueue(Tuple.Create(commandBuilder, command));
-            while (queue.Count > 0)
-            {
-                var currentTuple = queue.Dequeue();
-                var current = currentTuple.Item1;
-                var currentCommand2 = currentTuple.Item2;
-
-                foreach (var child in current.Children)
-                {
-                    child.InheritSettings(current); //should be before Build
-                    var childCommand = child.Build();
-                    currentCommand2.Add(childCommand);
-                    queue.Enqueue(Tuple.Create(child, childCommand));
-                }
-            }
-
-
-            /*
-            //Testing command hierarchy
-            var topCommandBuilder = commandBuilder.Parents.LastOrDefault() ?? commandBuilder;
-            var queue2 = new Queue<CliCommandBuilder>();
-            queue2.Enqueue(topCommandBuilder);
-            while (queue2.Count > 0)
-            {
-                var current = queue2.Dequeue();
-
-                var depth = current.Parents.Count();
-                Console.Write(new string(' ', 2 * depth));
-                Console.WriteLine($@"{current.DefinitionType.Name} (depth: {depth})");
-
-                foreach (var child in current.Children)
-                {
-                    queue2.Enqueue(child);
-                }
-            }
-            */
+            var command = commandBuilder.BuildWithHierarchy();
 
             settings ??= new CliSettings();
+
             var configuration = new CommandLineConfiguration(command)
             {
                 EnablePosixBundling = settings.EnablePosixBundling,
@@ -152,7 +94,6 @@ namespace DotMake.CommandLine
                 ProcessTerminationTimeout = settings.ProcessTerminationTimeout,
                 ResponseFileTokenReplacer = settings.ResponseFileTokenReplacer
             };
-
             if (settings.Output != null) //Console.Out is NOT being used
                 configuration.Output = settings.Output;
             if (settings.Error != null) //Console.Error is NOT being used
