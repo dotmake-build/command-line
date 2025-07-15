@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {
@@ -58,7 +59,11 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Gets the command name for a property by using current <see cref="nameCasingConvention"/>.
+        /// Gets an auto or a specific command name for a symbol by using current <see cref="nameCasingConvention"/>.
+        /// Tracks used names and aliases and throws if name already exists.
+        /// <para>
+        /// Auto name is generated only when current <see cref="nameAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Commands"/>.
+        /// </para>
         /// </summary>
         public string GetCommandName(string symbolName, string specificName = null)
         {
@@ -66,6 +71,11 @@ namespace DotMake.CommandLine
 
             //Note that currently this method is only called for the command itself in the Build method because children commands
             //are not yet known at the time (as CliNamer scoped to Build method, can not add children)
+
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
 
             if (!string.IsNullOrWhiteSpace(specificName))
             {
@@ -84,11 +94,20 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Gets the directive name for a property by using current <see cref="nameCasingConvention"/>.
+        /// Gets an auto or a specific directive name for a symbol by using current <see cref="nameCasingConvention"/>.
+        /// Tracks used names and aliases and throws if name already exists.
+        /// <para>
+        /// Auto name is generated only when current <see cref="nameAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Directives"/>.
+        /// </para>
         /// </summary>
         public string GetDirectiveName(string symbolName, string specificName = null)
         {
             //Directives are added with [] around name in ValidTokens so they can conflict with other symbols with [].
+
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
 
             if (!string.IsNullOrWhiteSpace(specificName))
             {
@@ -107,11 +126,20 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Gets the option name for a property by using current <see cref="nameCasingConvention"/> and <see cref="namePrefixConvention"/>.
+        /// Gets an auto or a specific option name for a symbol by using current <see cref="nameCasingConvention"/> and <see cref="namePrefixConvention"/>.
+        /// Tracks used names and aliases and throws if name already exists.
+        /// <para>
+        /// Auto name is generated only when current <see cref="nameAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Options"/>.
+        /// </para>
         /// </summary>
         public string GetOptionName(string symbolName, string specificName = null)
         {
             //Options are added with name in ValidTokens so options without prefix can conflict with commands.
+
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
 
             if (!string.IsNullOrWhiteSpace(specificName))
             {
@@ -131,11 +159,20 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Gets the argument name for a property by using current <see cref="nameCasingConvention"/>.
+        /// Gets an auto or a specific argument name for a symbol by using current <see cref="nameCasingConvention"/>.
+        /// Does not throw if name already exists.
+        /// <para>
+        /// Auto name is generated only when current <see cref="nameAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Arguments"/>.
+        /// </para>
         /// </summary>
         public string GetArgumentName(string symbolName, string specificName = null)
         {
             //Arguments are not added in ValidTokens so they won't conflict with other symbols.
+
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
 
             if (!string.IsNullOrWhiteSpace(specificName))
             {
@@ -151,12 +188,20 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Adds an alias to a command. Tracks used aliases and only adds if not already used.
+        /// Adds an alias to a command.
+        /// Tracks used names and aliases and throws if alias already exists.
         /// </summary>
         public void AddAlias(Command command, string symbolName, string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
                 return;
+
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
+
+            alias = alias.Trim();
 
             AddTokenOrThrow(alias, TokenType.CommandAlias, symbolName);
             command.Aliases.Add(alias);
@@ -164,12 +209,19 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Adds an alias to an option. Tracks used aliases and only adds if not already used.
+        /// Tracks used names and aliases and throws if alias already exists.
         /// </summary>
         public void AddAlias(Option option, string symbolName, string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
                 return;
 
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
+            
+            alias = alias.Trim();
             alias = alias.AddPrefix(namePrefixConvention); //will ignore if already has a prefix
 
             AddTokenOrThrow(alias, TokenType.OptionAlias, symbolName);
@@ -177,57 +229,73 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Adds a short form alias for a command name for a property by using current <see cref="nameCasingConvention"/>.
+        /// Adds an auto or a specific short form alias for a command name for a property by using current <see cref="nameCasingConvention"/>.
         /// <para>
-        /// Short form alias is added only when current <see cref="shortFormAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Commands"/>
+        /// Auto short form alias is added only when current <see cref="shortFormAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Commands"/>
         /// and it is shorter than command name.
         /// </para>
         /// </summary>
         public void AddShortFormAlias(Command command, string symbolName, string specificAlias = null)
         {
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
+
             if (!string.IsNullOrWhiteSpace(specificAlias))
             {
                 specificAlias = specificAlias.Trim();
-                AddAlias(command, symbolName, specificAlias);
+                AddTokenOrThrow(specificAlias, TokenType.CommandAlias, symbolName);
+                command.Aliases.Add(specificAlias);
             }
-            else
+            else if (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Commands))
             {
                 var baseName = symbolName.Trim().StripSuffixes(CommandSuffixes);
 
-                var shortForm = shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Commands)
-                    ? FindAutoShortForm(baseName, false)
-                    : baseName;
+                var shortForm = FindAutoShortForm(baseName, false);
 
-                if (shortForm.Length != 0 && shortForm.Length < command.Name.Length)
-                    AddAlias(command, symbolName, shortForm);
+                if (!usedTokens.ContainsKey(shortForm)
+                    && shortForm.Length != 0 && shortForm.Length < command.Name.Length)
+                {
+                    AddTokenOrThrow(shortForm, TokenType.CommandAlias, symbolName);
+                    command.Aliases.Add(shortForm);
+                }
             }
         }
 
         /// <summary>
-        /// Adds a short form alias for an option name for a property by using current <see cref="nameCasingConvention"/> and <see cref="shortFormPrefixConvention"/>.
+        /// Adds an auto or a specific short form alias for an option name for a property by using current <see cref="nameCasingConvention"/> and <see cref="shortFormPrefixConvention"/>.
         /// <para>
-        /// Short form alias is added only when current <see cref="shortFormAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Options"/>
+        /// Auto short form alias is added only when current <see cref="shortFormAutoGenerate"/> contains <see cref="CliNameAutoGenerate.Options"/>
         /// and it is shorter than option name.
         /// </para>
         /// </summary>
         public void AddShortFormAlias(Option option, string symbolName, string specificAlias = null)
         {
+            if (symbolName == null)
+                throw ExceptionUtil.ParameterNull(nameof(symbolName));
+            if (string.IsNullOrWhiteSpace(symbolName))
+                throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
+
             if (!string.IsNullOrWhiteSpace(specificAlias))
             {
                 specificAlias = specificAlias.Trim();
                 specificAlias = specificAlias.AddPrefix(shortFormPrefixConvention); //will ignore if already has a prefix
-                AddAlias(option, symbolName, specificAlias);
+                AddTokenOrThrow(specificAlias, TokenType.OptionAlias, symbolName);
+                option.Aliases.Add(specificAlias);
             }
-            else
+            else if (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options))
             {
                 var baseName = symbolName.Trim().StripSuffixes(OptionSuffixes);
 
-                var shortForm = shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options)
-                    ? FindAutoShortForm(baseName, true)
-                    : baseName;
+                var shortForm = FindAutoShortForm(baseName, true);
 
-                if (shortForm.Length != 0 && shortForm.Length < option.Name.Length)
-                    AddAlias(option, symbolName, shortForm);
+                if (!usedTokens.ContainsKey(shortForm)
+                    && shortForm.Length != 0 && shortForm.Length < option.Name.Length)
+                {
+                    AddTokenOrThrow(shortForm, TokenType.OptionAlias, symbolName);
+                    option.Aliases.Add(shortForm);
+                }
             }
         }
 

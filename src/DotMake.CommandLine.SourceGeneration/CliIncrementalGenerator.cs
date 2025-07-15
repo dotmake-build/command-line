@@ -11,6 +11,7 @@ using System.Text;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Outputs;
 using DotMake.CommandLine.SourceGeneration.Util;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine.SourceGeneration
 {

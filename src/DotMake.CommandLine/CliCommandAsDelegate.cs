@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {

@@ -1,6 +1,7 @@
 #pragma warning disable CS1591
 using System;
 using DotMake.CommandLine;
+using DotMake.CommandLine.Util;
 
 namespace TestApp.Commands
 {

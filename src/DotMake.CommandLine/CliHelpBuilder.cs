@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using DotMake.CommandLine.Help;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {

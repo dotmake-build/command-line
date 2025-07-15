@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using DotMake.CommandLine.Help;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {

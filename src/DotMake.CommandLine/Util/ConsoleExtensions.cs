@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace DotMake.CommandLine
+namespace DotMake.CommandLine.Util
 {
     internal static class ConsoleExtensions
     {

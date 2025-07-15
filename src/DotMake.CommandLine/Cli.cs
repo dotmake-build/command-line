@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DotMake.CommandLine.Help;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {
@@ -83,7 +84,7 @@ namespace DotMake.CommandLine
         public static CommandLineConfiguration GetConfiguration(Type definitionType, CliSettings settings = null)
         {
             var commandBuilder = CliCommandBuilder.Get(definitionType);
-            var command = commandBuilder.BuildWithHierarchy();
+            var command = commandBuilder.BuildWithHierarchy(out var rootCommand);
 
             settings ??= new CliSettings();
 
@@ -99,7 +100,7 @@ namespace DotMake.CommandLine
             if (settings.Error != null) //Console.Error is NOT being used
                 configuration.Error = settings.Error;
 
-            if (command is RootCommand rootCommand)
+            if (rootCommand != null)
             {
                 //CliRootCommand constructor already adds HelpOption and VersionOption so remove them
                 foreach (var option in rootCommand.Options.Where(option => option is HelpOption or VersionOption).ToArray())

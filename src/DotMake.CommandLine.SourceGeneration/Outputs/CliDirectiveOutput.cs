@@ -1,10 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Util;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotMake.CommandLine.SourceGeneration.Outputs
 {
@@ -13,10 +10,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         public const string DirectiveClassName = "Directive";
         public const string DirectiveClassNamespace = "System.CommandLine";
 
-        public static readonly string[] Suffixes = CliCommandOutput.Suffixes
-            .Select(s => s + "Directive")
-            .Append("Directive")
-            .ToArray();
         public static readonly Dictionary<string, string> PropertyMappings = new()
         {
             //{ nameof(CliArgumentAttribute.Hidden), "IsHidden"},

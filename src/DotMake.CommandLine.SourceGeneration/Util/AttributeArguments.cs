@@ -50,6 +50,7 @@ namespace DotMake.CommandLine.SourceGeneration.Util
             if (dictionary.TryGetValue(argumentName, out var argumentTypedConstant))
             {
                 argumentValues = argumentTypedConstant.Values
+                    .Where(elementTypeConstant => !elementTypeConstant.IsNull) //skip null elements
                     .Select(elementTypeConstant => elementTypeConstant.Value)
                     .ToArray();
 

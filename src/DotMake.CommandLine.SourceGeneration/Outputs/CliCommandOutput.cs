@@ -16,7 +16,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         public const string GeneratedSubNamespace = "GeneratedCode";
         public const string GeneratedClassSuffix = "Builder";
         public static readonly string CommandBuilderFullName = "DotMake.CommandLine.CliCommandBuilder";
-        public static readonly string[] Suffixes = { "RootCliCommand", "RootCommand", "SubCliCommand", "SubCommand", "CliCommand", "Command", "Cli" };
         public static readonly Dictionary<string, string> PropertyMappings = new()
         {
             //{ nameof(CliCommandAttribute.Hidden), "IsHidden"}
@@ -417,12 +416,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             if (Input.AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues))
             {
                 foreach (string alias in aliasesValues)
-                {
-                    if (string.IsNullOrWhiteSpace(alias))
-                        continue;
-
-                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias.Trim()}\");");
-                }
+                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias}\");");
             }
         }
     }

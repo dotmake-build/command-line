@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace DotMake.CommandLine
+namespace DotMake.CommandLine.Util
 {
     /// <summary>
     /// Provides a set of <see langword="static"/> methods for querying objects that implement <see cref="IEnumerable"/>.
@@ -33,7 +33,7 @@ namespace DotMake.CommandLine
             }
         }
 
-        internal static IEnumerable<T> RecurseWhileNotNull<T>(
+        internal static IEnumerable<T> WhileNotNull<T>(
             this T source,
             Func<T, T> next)
             where T : class

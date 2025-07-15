@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {

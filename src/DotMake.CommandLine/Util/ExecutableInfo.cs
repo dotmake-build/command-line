@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace DotMake.CommandLine
+namespace DotMake.CommandLine.Util
 {
     internal static class ExecutableInfo
     {
@@ -37,13 +37,13 @@ namespace DotMake.CommandLine
             }
 
             var assemblyProduct = Assembly.GetCustomAttribute<AssemblyProductAttribute>();
-            Product = (assemblyProduct != null) ? assemblyProduct.Product : AssemblyName.Name;
+            Product = assemblyProduct != null ? assemblyProduct.Product : AssemblyName.Name;
 
             var assemblyCopyright = Assembly.GetCustomAttribute<AssemblyCopyrightAttribute>();
-            Copyright = (assemblyCopyright != null) ? assemblyCopyright.Copyright : "";
+            Copyright = assemblyCopyright != null ? assemblyCopyright.Copyright : "";
 
             var assemblyDescription = Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>();
-            Description = (assemblyDescription != null) ? assemblyDescription.Description : "";
+            Description = assemblyDescription != null ? assemblyDescription.Description : "";
         }
 
         public static Assembly Assembly { get; }

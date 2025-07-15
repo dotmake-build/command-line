@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace DotMake.CommandLine
+namespace DotMake.CommandLine.Util
 {
     /// <summary>
     /// Provides extension methods for <see cref="string" />.
@@ -222,6 +222,7 @@ namespace DotMake.CommandLine
             return 0;
         }
 
+        /*
         internal static (string Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
             if (rawAlias[0] == '/')
@@ -240,6 +241,7 @@ namespace DotMake.CommandLine
 
             return (null, rawAlias);
         }
+        */
 
         /// <summary>
         /// Formats a value as a printable string

@@ -34,7 +34,7 @@ namespace TestApp.Commands
         [CliOption(Aliases = null)]
         public string Option1Option { get; set; } = "";
 
-        [CliOption(Alias = "-o2", Aliases = new[] { "/opt2", null })]
+        [CliOption(Alias = "-o2o", Aliases = new[] { "/opt2", null })]
         public string Option2 { get; set; } = "";
 
         [CliOption(Name = "opt3", Alias = "/opt3", Aliases = new[] { "-opt3", null })]
@@ -56,7 +56,7 @@ namespace TestApp.Commands
 
         }
 
-        [CliCommand(Aliases = new []{"op1"})]
+        [CliCommand(Aliases = new []{"op1"} /*, Name = "-o2"*/)]
         public class Option1Command
         {
             

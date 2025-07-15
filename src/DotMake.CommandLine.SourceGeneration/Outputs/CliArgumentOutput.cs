@@ -14,10 +14,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         public const string ArgumentClassNamespace = "System.CommandLine";
         public const string ArgumentArityClassName = "ArgumentArity";
 
-        public static readonly string[] Suffixes = CliCommandOutput.Suffixes
-            .Select(s => s + "Argument")
-            .Append("Argument")
-            .ToArray();
         public static readonly Dictionary<string, string> PropertyMappings = new()
         {
             //{ nameof(CliArgumentAttribute.Hidden), "IsHidden"},

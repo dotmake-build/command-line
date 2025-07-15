@@ -21,35 +21,23 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Improved: CliNamer to support a parent CliNamer. Unique names were only checked within the command builder
-          so the current command was not aware of names of sibling commands. This is now fixed.
-          And from now on, we will throw an explanatory exception when there is a name or alias conflict like this:
-          ```console
-          System.Exception: CommandAlias 'c' for 'createschema' conflicts with parent CommandAlias for 'checkfornewtools'!
-          ```
-          This is because System.CommandLine threw a vague exception when there was a conflict during parsing:
-          ```console
-          System.ArgumentException: An item with the same key has already been added. Key: c
-          ```
-          Unique names are checked for DirectiveName (surrounded with []), CommandName, CommandAlias, OptionName, OptionAlias.
-          Auto short form aliases will be always derived from symbol name even when a specific name was specified,
-          because if user specifies a specific name with all lowercase like `checkfornewtools`, we cannot split word boundaries.
-          Help output will show short aliases first consistently especially for commands (order by prefix and then by length).
-          
-        - Improved: Set the values for the parent command accessors before directive, option and argument properties so that
-          property get accessors can access them:
-          ```c#
-          public class DefaultSettingsCliCommand
-          {
-              [CliOption]
-              public string SettingsFile => RootCommand.SettingsFile; // <-- Avoid Error Here
+        - Fixed: With v2.5.8, auto short form aliases were still being added even when they already existed, causing the unnecessary conflict error.
 
-              public RootCliCommand RootCommand { get; set; }
-          }          
+        - Fixed: When calling `Cli.Run<>` with sub-commands but not a root command, help output did not include our custom changes.
+          This happened because we were not adding our settings like HelpOption with CustomHelpAction, when the command was not a root command.
+          For example, help output showed (as System.CommandLine default output):
+          ```console
+          --settingsfile (REQUIRED)  Path to settings file
           ```
-          
-        - Fixed: Usage of `[CliArgument].AllowedValues` caused compiler error CS1061 because `Argument<T>.AcceptOnlyFromAmong(...)`
-          was moved to extension method `System.CommandLine.ArgumentValidation.AcceptOnlyFromAmong(...)` in latest System.CommandLine.
+          where it should show:
+          ```console
+          --settingsfile  Path to settings file [required]
+          ```
+          So now, even if it's a sub-command, its root command should be found and those settings should be added there.
+
+          Additionaly, the fix introduced first in v2.0.0 `System.CommandLine.RootCommand returned by Cli.GetConfiguration should have correct parents.`
+          turns out it disabled help output if you used `Cli.Run<>` with level-2 sub-commands or above,
+          due to a subtle bug (root folder was not being populated so help option was lost).
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>

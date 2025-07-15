@@ -13,10 +13,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         public const string OptionClassName = "Option";
         public const string OptionClassNamespace = "System.CommandLine";
 
-        public static readonly string[] Suffixes = CliCommandOutput.Suffixes
-            .Select(s => s + "Option")
-            .Append("Option")
-            .ToArray();
         public static readonly Dictionary<string, string> PropertyMappings = new()
         {
             //{ nameof(CliOptionAttribute.HelpName), "ArgumentHelpName"},
@@ -121,12 +117,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             if (Input.AttributeArguments.TryGetValues(nameof(CliOptionAttribute.Aliases), out var aliasesValues))
             {
                 foreach (string alias in aliasesValues)
-                {
-                    if (string.IsNullOrWhiteSpace(alias))
-                        continue;
-
-                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias.Trim()}\");");
-                }
+                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias}\");");
             }
 
             if (Input.Parent.HasGetCompletionsInterface)

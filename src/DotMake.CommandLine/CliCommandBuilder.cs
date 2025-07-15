@@ -6,6 +6,7 @@ using System.CommandLine.Parsing;
 using System.Linq;
 using System.Reflection;
 using DotMake.CommandLine.Binding;
+using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {
@@ -81,12 +82,6 @@ namespace DotMake.CommandLine
         /// </summary>
         public CliNamer Namer { get; protected set; }
 
-        /// <summary>
-        /// Gets the parent namer for generating CLI names and aliases while tracking already used ones.
-        /// This will be available after <see cref="Build"/> call.
-        /// </summary>
-        public CliNamer ParentNamer { get; protected set; }
-
 
         /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
@@ -108,10 +103,11 @@ namespace DotMake.CommandLine
         /// Builds a <see cref="Command"/> instance with full hierarchy, populated with parent-commands, sub-commands, directives, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
-        public Command BuildWithHierarchy()
+        public Command BuildWithHierarchy(out RootCommand rootCommand)
         {
             var commandBuilder = this;
 
+            rootCommand = null;
             CliCommandBuilder parent = null;
             Command parentCommand = null;
             Command currentCommand = null;
@@ -121,6 +117,9 @@ namespace DotMake.CommandLine
             {
                 currentCommand = current.BuildWithParent(parent);
                 parentCommand?.Add(currentCommand);
+
+                if (parent == null)
+                    rootCommand = currentCommand as RootCommand;
 
                 parent = current;
                 parentCommand = currentCommand;
@@ -260,21 +259,6 @@ namespace DotMake.CommandLine
                 }
         }
 
-        /// <summary>
-        /// Inherits settings from a parent command builder.
-        /// If a setting is not null in this command builder, then that will be used instead.
-        /// </summary>
-        public void InheritSettings(CliCommandBuilder parent)
-        {
-            if (parent == null)
-                return;
-
-            NameCasingConvention ??= parent.NameCasingConvention;
-            NamePrefixConvention ??= parent.NamePrefixConvention;
-            ShortFormPrefixConvention ??= parent.ShortFormPrefixConvention;
-            ShortFormAutoGenerate ??= parent.ShortFormAutoGenerate;
-        }
-
 
         #region Static
 
@@ -330,7 +314,7 @@ namespace DotMake.CommandLine
                 if (definitionType.GetCustomAttribute<CliCommandAttribute>() == null)
                     throw new Exception($"The class '{definitionType.Name}' should have [CliCommand] attribute.");
 
-                var parentWithoutAttribute = definitionType.RecurseWhileNotNull(t => t.DeclaringType)
+                var parentWithoutAttribute = definitionType.WhileNotNull(t => t.DeclaringType)
                     .FirstOrDefault(t => t.GetCustomAttribute<CliCommandAttribute>() == null);
                 if (parentWithoutAttribute != null) //nested
                     throw new Exception($"The parent class '{parentWithoutAttribute.Name}' of nested class '{definitionType.Name}' should have [CliCommand] attribute.");
@@ -440,7 +424,7 @@ namespace DotMake.CommandLine
                 {
                     yield return parentCommandBuilder;
 
-                    definitionType = parentCommandBuilder.ParentDefinitionType;
+                    definitionType = parentCommandBuilder.DefinitionType;
                 }
                 else
                     yield break;
