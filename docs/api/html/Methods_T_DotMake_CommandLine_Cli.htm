@@ -6,14 +6,14 @@
             i.e. returns the same as the special variable <span class="code">args</span> available in <span class="code">Program.cs</span> (new style with top-level statements)
             or as the string array passed to the program's <span class="code">Main</span> method (old style).
             </p><p>Also on Windows platform, backslash + double quote (<span class="code">\"</span>) at the end of an argument,
-            is usually a path separator and not an escape for double quote, so it will be trimmed to prevent unnecessary path errors.</p></td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetConfiguration.htm">GetConfiguration(Type, CliSettings)</a></td><td>
-            Gets a CLI configuration for the indicated command.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetConfiguration__1.htm">GetConfiguration<span id="LST266F5259_1" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LST266F5259_2" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(CliSettings)</a></td><td>
-            Gets a CLI configuration for the indicated command.
+            is usually a path separator and not an escape for double quote, so it will be trimmed to prevent unnecessary path errors.</p></td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetParser.htm">GetParser(Type, CliSettings)</a></td><td>
+            Gets a CLI parser configured for the indicated command.
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_GetParser__1.htm">GetParser<span id="LST266F5259_1" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LST266F5259_2" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(CliSettings)</a></td><td>
+            Gets a CLI parser configured for the indicated command.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_Parse__1.htm">Parse<span id="LST266F5259_3" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LST266F5259_4" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(String, CliSettings)</a></td><td>
-            Parses a command line string and returns the parse result.
+            Parses a command line string and returns the parse result for the indicated command.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_Parse__1_1.htm">Parse<span id="LST266F5259_5" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LST266F5259_6" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(<span id="LST266F5259_7" data-languageSpecificText="cpp=array&lt;"></span>String<span id="LST266F5259_8" data-languageSpecificText="cpp=&gt;|cs=[]|vb=()|nu=[]|fs=[]"></span>, CliSettings)</a></td><td>
-            Parses a command line string array and returns the parse result.
+            Parses a command line string array and returns the parse result for the indicated command.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_Run.htm">Run(Delegate, CliSettings)</a></td><td>
              Parses the command line arguments and runs the indicated command as delegate.
              </td></tr><tr><td><a href="M_DotMake_CommandLine_Cli_Run__1.htm">Run<span id="LST266F5259_9" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LST266F5259_10" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(String, CliSettings)</a></td><td>
