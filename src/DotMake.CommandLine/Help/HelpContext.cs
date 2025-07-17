@@ -25,7 +25,7 @@ namespace DotMake.CommandLine.Help
             HelpBuilder = helpBuilder ?? throw new ArgumentNullException(nameof(helpBuilder));
             Command = command ?? throw new ArgumentNullException(nameof(command));
             Output = output ?? throw new ArgumentNullException(nameof(output));
-            ParseResult = parseResult ?? ParseResultExtensions.Empty();
+            ParseResult = parseResult ?? new RootCommand().Parse(Array.Empty<string>());
         }
 
         /// <summary>

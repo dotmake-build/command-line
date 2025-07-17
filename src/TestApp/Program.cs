@@ -107,24 +107,25 @@ catch (Exception e)
 
 //Using Cli.Parse:
 /*
-var parseResult = Cli.Parse<RootCliCommand>(args);
-if (parseResult.Errors.Count > 0)
+var result = Cli.Parse<RootCliCommand>(args);
+if (result.ParseResult.Errors.Count > 0)
 {
-    foreach (var error in parseResult.Errors)
+    foreach (var error in result.ParseResult.Errors)
         Console.WriteLine(error);
 }
 else
 {
-    var rootCliCommand = parseResult.Bind<RootCliCommand>();
+    var rootCliCommand = result.Bind<RootCliCommand>();
     Console.WriteLine($@"Value for {nameof(rootCliCommand.Option1)} property is '{rootCliCommand.Option1}'");
     Console.WriteLine($@"Value for {nameof(rootCliCommand.Argument1)} property is '{rootCliCommand.Argument1}'");
 }
 */
 
-//Using CliConfiguration:
+//Using CliParser:
 /*
-var configuration = Cli.GetConfiguration<RootCliCommand>(new CliSettings());
-configuration.Invoke(args);
+var parser = Cli.GetParser<RootCliCommand>(new CliSettings());
+var result = parser.Parse(args);
+parser.Run(args);
 */
 
 if (!Debugger.IsAttached)

@@ -17,23 +17,28 @@ namespace DotMake.CommandLine
     /// </summary>
     public class CliContext
     {
+        private readonly ParseResult parseResult;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CliContext" /> class.
         /// </summary>
-        /// <param name="parseResult">The parse result for the current invocation.</param>
+        /// <param name="bindingContext">The context used during binding of commands.</param>
+        /// <param name="parseResult">The result providing details about the parse operation.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        public CliContext(ParseResult parseResult, CancellationToken cancellationToken = default)
+        public CliContext(CliBindingContext bindingContext, ParseResult parseResult, CancellationToken cancellationToken = default)
         {
-            ParseResult = parseResult;
+            Result = new CliResult(bindingContext, parseResult);
+            this.parseResult = parseResult;
+
             Output = parseResult.Configuration.Output;
             Error = parseResult.Configuration.Error;
             CancellationToken = cancellationToken;
         }
 
         /// <summary>
-        /// Gets the parse result for the current invocation.
+        /// Gets the result providing details about the parse operation and methods for binding.
         /// </summary>
-        public ParseResult ParseResult { get; }
+        public CliResult Result { get; }
 
         /// <summary>
         /// Gets the standard output, to which non-error information should be written during the current invocation.
@@ -62,7 +67,7 @@ namespace DotMake.CommandLine
         /// <returns><see langword="true"/> if current command has no arguments or options, <see langword="false"/> if not.</returns>
         public bool IsEmptyCommand()
         {
-            return (ParseResult.CommandResult.Tokens.Count == 0);
+            return (parseResult.CommandResult.Tokens.Count == 0);
         }
 
         /// <summary>
@@ -75,7 +80,7 @@ namespace DotMake.CommandLine
         /// <returns><see langword="true"/> if current command has no arguments or options, <see langword="false"/> if not.</returns>
         public bool IsEmpty()
         {
-            return (ParseResult.Tokens.Count == 0);
+            return (parseResult.Tokens.Count == 0);
         }
 
         /// <summary>
@@ -87,7 +92,7 @@ namespace DotMake.CommandLine
 
             var action = (SynchronousCommandLineAction)helpOption.Action;
 
-            action?.Invoke(ParseResult);
+            action?.Invoke(parseResult);
         }
 
         /// <summary>
@@ -95,23 +100,23 @@ namespace DotMake.CommandLine
         /// </summary>
         public void ShowValues()
         {
-            var output = ParseResult.Configuration.Output;
+            var output = parseResult.Configuration.Output;
 
-            var command = ParseResult.CommandResult.Command;
+            var command = parseResult.CommandResult.Command;
             var isRoot = (command.Parents.FirstOrDefault() == null);
 
             output.WriteLine($"Command = \"{command.Name}\" [{(isRoot ? "Root command" : "Sub-command")}]");
 
-            foreach (var symbolResult in ParseResult.CommandResult.Children)
+            foreach (var symbolResult in parseResult.CommandResult.Children)
             {
                 if (symbolResult is ArgumentResult argumentResult)
                 {
-                    var value = CliCommandBuilder.GetValueForArgument(ParseResult, argumentResult.Argument);
+                    var value = CliCommandBuilder.GetValueForArgument(parseResult, argumentResult.Argument);
                     output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {StringExtensions.FormatValue(value)}");
                 }
                 else if (symbolResult is OptionResult optionResult)
                 {
-                    var value = CliCommandBuilder.GetValueForOption(ParseResult, optionResult.Option);
+                    var value = CliCommandBuilder.GetValueForOption(parseResult, optionResult.Option);
                     output.WriteLine($"Option '{optionResult.Option.Name}' = {StringExtensions.FormatValue(value)}");
                 }
             }
@@ -124,7 +129,7 @@ namespace DotMake.CommandLine
         public void ShowHierarchy(bool showLevel = false)
         {
             var theme = GetThemeOrDefault();
-            var rootCommand = ParseResult.Configuration.RootCommand;
+            var rootCommand = parseResult.Configuration.RootCommand;
 
             foreach (var command in GetParentTree(rootCommand))
             {
@@ -199,8 +204,8 @@ namespace DotMake.CommandLine
         private HelpOption GetHelpOptionOrDefault()
         {
             var option =
-                ParseResult.RootCommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
-                ?? ParseResult.CommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
+                parseResult.RootCommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
+                ?? parseResult.CommandResult.Command.Options.FirstOrDefault(option => option is HelpOption)
                 ?? new HelpOption
                 {
                     Action = new CustomHelpAction

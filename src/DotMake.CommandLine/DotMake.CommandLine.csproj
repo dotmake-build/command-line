@@ -21,23 +21,40 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Fixed: With v2.5.8, auto short form aliases were still being added even when they already existed, causing the unnecessary conflict error.
-
-        - Fixed: When calling `Cli.Run<>` with sub-commands but not a root command, help output did not include our custom changes.
-          This happened because we were not adding our settings like HelpOption with CustomHelpAction, when the command was not a root command.
-          For example, help output showed (as System.CommandLine default output):
-          ```console
-          --settingsfile (REQUIRED)  Path to settings file
+        - Changed: Renamed `Cli.GetConfiguration()` to `Cli.GetParser()` and changed return type from `CommandLineConfiguration`
+          to new class `CliParser`.
+          This method returns a CLI parser configured for the indicated command and you can call `Parse` or `Run` methods on it.
+          So you can reuse the same `CliParser` for parsing and running.
+          ```c#
+          var parser = Cli.GetParser<RootCliCommand>();
+          
+          var result = parser.Parse(args);
+          
+          parser.Run(args);
           ```
-          where it should show:
-          ```console
-          --settingsfile  Path to settings file [required]
-          ```
-          So now, even if it's a sub-command, its root command should be found and those settings should be added there.
 
-          Additionaly, the fix introduced first in v2.0.0 `System.CommandLine.RootCommand returned by Cli.GetConfiguration should have correct parents.`
-          turns out it disabled help output if you used `Cli.Run<>` with level-2 sub-commands or above,
-          due to a subtle bug (root folder was not being populated so help option was lost).
+          Changed return type of `Cli.Parse` methods from `ParseResult` to new class `CliResult` which
+          describes the results of parsing a command line input based on a specific parser configuration
+          and provides methods for binding the result to definition classes.
+          ```c#
+          var result = Cli.Parse<RootCliCommand>(args);
+
+          var rootCliCommand = result.Bind<RootCliCommand>();
+          
+          if (result.ParseResult.Errors.Count > 0)
+          {
+          }
+          ```
+          
+        - Improved: More robust command binding. Introduced `CliBindingContext` for internally encapsulating binders per command build and configuration.
+          For example, in previous versions, the below code worked incorrectly, i.e. second call to `Cli.Parse` with same definition type,
+          overwrote the binder so the later `Bind` call did not work correctly.
+          ```c#
+          var result = Cli.Parse<RootCliCommand>(args);
+          var result2 = Cli.Parse<RootCliCommand>(args);
+          
+          var rootCommand = result.Bind<RootCliCommand>();
+          ```
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>

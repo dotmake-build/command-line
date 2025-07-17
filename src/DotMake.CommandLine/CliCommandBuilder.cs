@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
@@ -15,19 +14,6 @@ namespace DotMake.CommandLine
     /// </summary>
     public abstract class CliCommandBuilder
     {
-        private readonly ConcurrentDictionary<ParseResult, object> bindResults = new();
-
-        /// <summary>
-        /// A delegate which is set by the source generator to be called from <see cref="Bind(ParseResult)"/> method.
-        /// </summary>
-        protected Func<ParseResult, object> Binder;
-
-        /// <summary>
-        /// The service provider if it is used. This will be disposed at the end of the execution.
-        /// </summary>
-        protected IServiceProvider ServiceProvider;
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CliCommandBuilder" /> class.
         /// </summary>
@@ -103,7 +89,7 @@ namespace DotMake.CommandLine
         /// Builds a <see cref="Command"/> instance with full hierarchy, populated with parent-commands, sub-commands, directives, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
-        public Command BuildWithHierarchy(out RootCommand rootCommand)
+        public Command BuildWithHierarchy(CliBindingContext bindingContext, out RootCommand rootCommand)
         {
             var commandBuilder = this;
 
@@ -115,7 +101,7 @@ namespace DotMake.CommandLine
             // Add nested or external registered parent commands
             foreach (var current in commandBuilder.Parents.Reverse().Append(commandBuilder))
             {
-                currentCommand = current.BuildWithParent(parent);
+                currentCommand = current.BuildWithParent(bindingContext, parent);
                 parentCommand?.Add(currentCommand);
 
                 if (parent == null)
@@ -138,7 +124,7 @@ namespace DotMake.CommandLine
 
                 foreach (var current in parent.Children)
                 {
-                    currentCommand = current.BuildWithParent(parent);
+                    currentCommand = current.BuildWithParent(bindingContext, parent);
                     parentCommand?.Add(currentCommand);
 
                     queue.Enqueue(Tuple.Create(current, currentCommand));
@@ -173,10 +159,10 @@ namespace DotMake.CommandLine
         /// Builds a <see cref="Command"/> instance by inheriting parent settings, populated with directives, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
-        public Command BuildWithParent(CliCommandBuilder parent)
+        public Command BuildWithParent(CliBindingContext bindingContext, CliCommandBuilder parent)
         {
             if (parent == null) //if no parent, treat as single command build
-                return Build(); 
+                return Build(bindingContext); 
 
             //Should be before Build
             //Inherit settings from a parent command builder.
@@ -191,14 +177,14 @@ namespace DotMake.CommandLine
                 parent.Namer //Use the parent namer to check names and aliases of sub-commands.
             );
 
-            return DoBuild();
+            return DoBuild(bindingContext);
         }
 
         /// <summary>
         /// Builds a <see cref="Command"/> instance, populated with directives, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
-        public Command Build()
+        public Command Build(CliBindingContext bindingContext)
         {
             Namer = new CliNamer
             (
@@ -209,35 +195,15 @@ namespace DotMake.CommandLine
                 ShortFormPrefixConvention
             );
 
-            return DoBuild();
+            return DoBuild(bindingContext);
         }
 
         /// <summary>
         /// Builds a <see cref="Command"/> instance, populated with directives, options, arguments and settings.
         /// </summary>
         /// <returns>A populated <see cref="Command"/> instance.</returns>
-        protected abstract Command DoBuild();
+        protected abstract Command DoBuild(CliBindingContext bindingContext);
 
-        /// <summary>
-        /// Creates a new instance of the command definition class and binds/populates the properties from the parse result.
-        /// Note that binding will be done only once, so calling this method consecutively will return the cached result.
-        /// <para>
-        /// If the command line input is not for this definition class (e.g. it's for a sub-command but not for
-        /// this root command or vice versa), then the returned instance would be empty (i.e. properties would have default values).
-        /// </para>
-        /// </summary>
-        /// <param name="parseResult">A parse result describing the outcome of the parse operation.</param>
-        /// <returns>An instance of the definition class whose properties were bound/populated from the parse result.</returns>
-        public object Bind(ParseResult parseResult)
-        {
-            return bindResults.GetOrAdd(parseResult, pr =>
-            {
-                if (Binder == null)
-                    throw new Exception("Binder is not set. Ensure Build method is called first.");
-
-                return Binder(pr);
-            });
-        }
 
         /// <summary>
         /// Registers this command builder so that it can be found by the definition class,
@@ -405,8 +371,7 @@ namespace DotMake.CommandLine
 
             return GetParents(definitionType);
         }
-
-
+        
         /// <summary>
         /// Gets the command builders that are registered as nested/external parents of a child definition.
         /// </summary>
@@ -431,6 +396,7 @@ namespace DotMake.CommandLine
             }
         }
 
+
         /// <summary>
         /// Gets an argument parser method for an argument type, if it's a collection type.
         /// <para>
@@ -450,8 +416,7 @@ namespace DotMake.CommandLine
 
             return GetArgumentParser<TCollection>();
         }
-
-
+        
         /// <summary>
         /// Gets an argument parser method for an argument type.
         /// <para>
@@ -484,6 +449,7 @@ namespace DotMake.CommandLine
             };
         }
 
+        
         /// <summary>
         /// Gets the parsed or default value for the specified directive.
         /// <para>
@@ -547,6 +513,7 @@ namespace DotMake.CommandLine
             var result = parseResult.GetResult(option);
             if (result != null)
             {
+                //Note that there is a result when there is a DefaultValueFactory and if there is no error (e.g. other required options are not missing)
                 var value = result.GetValueOrDefault<T>();
                 if (value != null)
                     return value;
@@ -585,6 +552,7 @@ namespace DotMake.CommandLine
             var result = parseResult.GetResult(argument);
             if (result != null)
             {
+                //Note that there is a result when there is a DefaultValueFactory and if there is no error (e.g. other required options are not missing)
                 var value = result.GetValueOrDefault<T>();
                 if (value != null)
                     return value;

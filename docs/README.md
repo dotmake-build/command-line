@@ -112,13 +112,13 @@ Cli.Run<RootCliCommand>(args, new CliSettings { EnableDefaultExceptionHandler = 
 ```
 If you need to simply parse the command-line arguments without invocation, use this:
 ```c#
-var parseResult = Cli.Parse<RootCliCommand>(args);
-var rootCliCommand = parseResult.Bind<RootCliCommand>();
+var result = Cli.Parse<RootCliCommand>(args);
+var rootCliCommand = result.Bind<RootCliCommand>();
 ```
 If you need to examine the parse result, such as errors:
 ```c#
-var parseResult = Cli.Parse<RootCliCommand>(args);
-if (parseResult.Errors.Count > 0)
+var result = Cli.Parse<RootCliCommand>(args);
+if (result.ParseResult.Errors.Count > 0)
 {
 
 }

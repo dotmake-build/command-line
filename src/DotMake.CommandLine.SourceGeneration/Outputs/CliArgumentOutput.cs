@@ -114,7 +114,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
             if (Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
-                sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", completionContext));");
+                sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", bindingContext, completionContext));");
 
         }
     }

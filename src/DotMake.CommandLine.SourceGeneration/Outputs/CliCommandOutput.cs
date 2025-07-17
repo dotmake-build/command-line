@@ -151,15 +151,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
                     {
                         sb.AppendLine(ReferenceDependantInput.HasMsDependencyInjection
-                            ? "ServiceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
-                            : "ServiceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
-                        sb.AppendLine("if (ServiceProvider != null)");
+                            ? "var serviceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
+                            : "var serviceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
+                        sb.AppendLine("if (serviceProvider != null)");
                         sb.AppendIndent();
                         sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
                         sb.AppendIndent();
                         sb.AppendIndent();
-                        sb.AppendLine($".CreateInstance<{definitionClass}>(ServiceProvider);");
-                        //in case ServiceProvider is null (i.e. not set with SetServiceProvider)
+                        sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
+                        //in case serviceProvider is null (i.e. not set with SetServiceProvider)
                         //call Activator.CreateInstance which will throw exception if class has no default constructor
                         //but at least it avoids compile time error in generated code with new()
                         sb.AppendLine();
@@ -177,22 +177,22 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine();
                     sb.AppendLine($"private System.Collections.Generic.IEnumerable<{CompletionsNamespace}.CompletionItem> GetCompletions(");
                     sb.AppendIndent();
-                    sb.AppendLine($"string propertyName, {CompletionsNamespace}.CompletionContext completionContext)");
+                    sb.AppendLine($"string propertyName, DotMake.CommandLine.CliBindingContext bindingContext, {CompletionsNamespace}.CompletionContext completionContext)");
                     using (sb.AppendBlockStart())
                     {
                         var varTargetClass = "targetClass";
 
-                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) Bind(completionContext.ParseResult);");
+                        sb.AppendLine($"var {varTargetClass} = bindingContext.Bind<{definitionClass}>(completionContext.ParseResult);");
                         sb.AppendLine();
 
-                        sb.AppendLine("//  Call the interface method with property name of option or argument");
+                        sb.AppendLine("// Call the interface method with property name of option or argument");
                         sb.AppendLine($"return {varTargetClass}.GetCompletions(propertyName, completionContext);");
                     }
                     sb.AppendLine();
                 }
 
                 sb.AppendLine("/// <inheritdoc />");
-                using (sb.AppendBlockStart($"protected override {CommandClassNamespace}.{CommandClassName} DoBuild()"))
+                using (sb.AppendBlockStart($"protected override {CommandClassNamespace}.{CommandClassName} DoBuild(DotMake.CommandLine.CliBindingContext bindingContext)"))
                 {
                     var varNamer = "Namer";
                     var varCommand = "command";
@@ -242,7 +242,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     }
 
                     /*
-                    From now on, we will handle this in Cli.GetConfiguration where Build() is called and command is created.
+                    From now on, we will handle this in Cli.GetParser() where Build() is called and command is created.
                     We don't want it to be recursive here, because we will also create the parents.
 
                     sb.AppendLine();
@@ -255,23 +255,21 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
                     sb.AppendLine();
                     var varParseResult = "parseResult";
-                    using (sb.AppendBlockStart($"Binder = ({varParseResult}) =>", ";"))
+                    using (sb.AppendBlockStart($"bindingContext.Binders[DefinitionType] = ({varParseResult}) =>", ";"))
                     {
                         var varTargetClass = "targetClass";
 
                         sb.AppendLine($"var {varTargetClass} = CreateInstance();");
-
+                        
                         sb.AppendLine();
-                        sb.AppendLine("//  Set the values for the parent command accessors");
+                        sb.AppendLine("// Set the values for the parent command accessors");
                         foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
                         {
-                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = DotMake.CommandLine.ParseResultExtensions");
-                            sb.AppendIndent();
-                            sb.AppendLine($".Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
+                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = bindingContext.Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
                         }
-
+                        
                         sb.AppendLine();
-                        sb.AppendLine("//  Set the parsed or default values for the directives");
+                        sb.AppendLine("// Set the parsed or default values for the directives");
                         for (var index = 0; index < directivesWithoutProblem.Length; index++)
                         {
                             var cliDirectiveInput = directivesWithoutProblem[index];
@@ -280,7 +278,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         }
 
                         sb.AppendLine();
-                        sb.AppendLine("//  Set the parsed or default values for the options");
+                        sb.AppendLine("// Set the parsed or default values for the options");
                         for (var index = 0; index < optionsWithoutProblem.Length; index++)
                         {
                             var cliOptionInfo = optionsWithoutProblem[index];
@@ -289,7 +287,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         }
 
                         sb.AppendLine();
-                        sb.AppendLine("//  Set the parsed or default values for the arguments");
+                        sb.AppendLine("// Set the parsed or default values for the arguments");
                         for (var index = 0; index < argumentsWithoutProblem.Length; index++)
                         {
                             var cliArgumentInfo = argumentsWithoutProblem[index];
@@ -312,13 +310,13 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     {
                         var varTargetClass = "targetClass";
 
-                        sb.AppendLine($"var {varTargetClass} = ({definitionClass}) Bind({varParseResult});");
+                        sb.AppendLine($"var {varTargetClass} = bindingContext.Bind<{definitionClass}>({varParseResult});");
                         sb.AppendLine();
 
-                        sb.AppendLine("//  Call the command handler");
+                        sb.AppendLine("// Call the command handler");
                         sb.AppendLine(isAsync
-                            ? $"var {varCliContext} = new DotMake.CommandLine.CliContext({varParseResult}, {varCancellationToken});"
-                            : $"var {varCliContext} = new DotMake.CommandLine.CliContext({varParseResult});");
+                            ? $"var {varCliContext} = new DotMake.CommandLine.CliContext(bindingContext, {varParseResult}, {varCancellationToken});"
+                            : $"var {varCliContext} = new DotMake.CommandLine.CliContext(bindingContext, {varParseResult});");
                         sb.AppendLine("var exitCode = 0;");
                         if (handlerWithoutProblem != null)
                         {

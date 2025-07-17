@@ -23,7 +23,7 @@ namespace TestApp.Commands
 
             public async Task RunAsync(CliContext context)
             {
-                var parent = context.ParseResult.Bind<RecursiveOptionCliCommand>();
+                var parent = context.Result.Bind<RecursiveOptionCliCommand>();
 
                 await Console.Out.WriteLineAsync($"RecursiveOption = {parent.RecursiveOption}, Argument1 = {Argument1}");
             }

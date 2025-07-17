@@ -120,8 +120,8 @@ namespace TestApp
             #region CliParse
 
             //If you need to simply parse the command-line arguments without invocation, use this:
-            var parseResult = Cli.Parse<RootCliCommand>(args);
-            var rootCliCommand = parseResult.Bind<RootCliCommand>();
+            var result = Cli.Parse<RootCliCommand>(args);
+            var rootCliCommand = result.Bind<RootCliCommand>();
 
             #endregion
         }
@@ -131,8 +131,8 @@ namespace TestApp
             #region CliParseString
 
             //If you need to simply parse the command-line string without invocation, use this:
-            var parseResult = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
-            var rootCliCommand = parseResult.Bind<RootCliCommand>();
+            var result = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
+            var rootCliCommand = result.Bind<RootCliCommand>();
 
             #endregion
         }
@@ -142,8 +142,8 @@ namespace TestApp
             #region CliParseWithResult
 
             //If you need to examine the parse result, such as errors:
-            var parseResult = Cli.Parse<RootCliCommand>(args);
-            if (parseResult.Errors.Count > 0)
+            var result = Cli.Parse<RootCliCommand>(args);
+            if (result.ParseResult.Errors.Count > 0)
             {
 
             }
@@ -156,8 +156,8 @@ namespace TestApp
             #region CliParseStringWithResult
 
             //If you need to examine the parse result, such as errors:
-            var parseResult = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
-            if (parseResult.Errors.Count > 0)
+            var result = Cli.Parse<RootCliCommand>("NewValueForArgument1 --option-1 NewValueForOption1");
+            if (result.ParseResult.Errors.Count > 0)
             {
 
             }
