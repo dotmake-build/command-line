@@ -787,6 +787,28 @@ public class ParentCommandAccessorCliCommand
 }
 ```
 
+Command accessor properties can also be safely used for child commands and not only parent commands.
+Circular dependency errors will be prevented, for example when parent and child has command accessors that point to each other.
+
+```c#
+[CliCommand(Description = "A root cli command")]
+public class RootCliCommand
+{
+    //This will be non-null only when the called command was this sub-command
+    //For example you can check sub-command accessors for null to determine
+    //which one was called
+    public SubCliCommand SubCliCommandAccessor { get; set; }
+
+    [CliCommand(Description = "A sub-command")]
+    public class SubCliCommand
+    {
+        //This will be always non-null because if sub-command was called,
+        //its parent-command should also have been called
+        public RootCliCommand RootCliCommandAccessor { get; set; }
+    }
+}
+```
+
 ### Command Inheritance
 
 When you have repeating/common options and arguments for your commands, you can define them once in a base class and then 
@@ -993,6 +1015,55 @@ Value for Argument1 property is 'NewValueForArgument1'
 ```
 
 ---
+
+### Manual binding
+When using `Cli.Parse`, you can do manual binding by calling methods of the returned `CliResult` object.
+These methods are also available in `CliContext.Result` which can be accessed in `Run` command handler.
+
+
+```c#
+var result = Cli.Parse<RootCliCommand>(args);
+
+//Bind returns null if the command line input does not contain
+//the indicated definition class (as self or as a parent)
+var subCommand = result.Bind<SubCliCommand>();
+//unless you set new returnEmpty parameter to true
+var subCommand2 = result.Bind<SubCliCommand>(true);
+
+//You can get an object for called command
+//without specifying the definition class
+var command = result.BindCalled();
+if (command is SubCliCommand subCommand3)
+{
+
+}
+//Or get an array of objects for all contained commands
+//(self and parents) without specifying the definition class
+var commands = result.BindAll();
+if (commands[0] is SubCliCommand subCommand4)
+{
+
+}
+
+//You can check if the command line input is
+//for the indicated definition class
+if (result.IsCalled<SubCliCommand>())
+{
+
+}
+//You can check if the command line input contains
+//the indicated definition class (as self or as a parent)
+if (result.Contains<SubCliCommand>())
+{
+
+}
+
+//You can create a new instance of the command definition class
+//but without any binding. This is useful for example when you need to
+//instantiate a definition class when using dependency injection.
+var subCommand5 = result.Create<SubCliCommand>();
+```
+
 ### Supported types
 Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
 ```c#

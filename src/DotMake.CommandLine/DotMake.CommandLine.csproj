@@ -21,39 +21,70 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Changed: Renamed `Cli.GetConfiguration()` to `Cli.GetParser()` and changed return type from `CommandLineConfiguration`
-          to new class `CliParser`.
-          This method returns a CLI parser configured for the indicated command and you can call `Parse` or `Run` methods on it.
-          So you can reuse the same `CliParser` for parsing and running.
-          ```c#
-          var parser = Cli.GetParser<RootCliCommand>();
-          
-          var result = parser.Parse(args);
-          
-          parser.Run(args);
-          ```
-
-          Changed return type of `Cli.Parse` methods from `ParseResult` to new class `CliResult` which
-          describes the results of parsing a command line input based on a specific parser configuration
-          and provides methods for binding the result to definition classes.
+        - Improved: Even more robust command binding. Added `Create`, `BindCalled`, `BindAll`, `IsCalled`, `Contains` methods  to `CliResult`.
+          These methods are also available in `CliContext.Result` which can be accessed in `Run` command handler.
           ```c#
           var result = Cli.Parse<RootCliCommand>(args);
 
-          var rootCliCommand = result.Bind<RootCliCommand>();
-          
-          if (result.ParseResult.Errors.Count > 0)
+          //Bind now returns null if the command line input does not contain
+          //the indicated definition class (as self or as a parent)
+          var subCommand = result.Bind<SubCliCommand>();
+          //unless you set new returnEmpty parameter to true
+          var subCommand2 = result.Bind<SubCliCommand>(true);
+
+          //You can get an object for called command
+          //without specifying the definition class
+          var command = result.BindCalled();
+          if (command is SubCliCommand subCommand3)
           {
+
           }
+          //Or get an array of objects for all contained commands
+          //(self and parents) without specifying the definition class
+          var commands = result.BindAll();
+          if (commands[0] is SubCliCommand subCommand4)
+          {
+
+          }
+
+          //You can check if the command line input is
+          //for the indicated definition class
+          if (result.IsCalled<SubCliCommand>())
+          {
+
+          }
+          //You can check if the command line input contains
+          //the indicated definition class (as self or as a parent)
+          if (result.Contains<SubCliCommand>())
+          {
+
+          }
+
+          //You can create a new instance of the command definition class
+          //but without any binding. This is useful for example when you need to
+          //instantiate a definition class when using dependency injection.
+          var subCommand5 = result.Create<SubCliCommand>();
           ```
           
-        - Improved: More robust command binding. Introduced `CliBindingContext` for internally encapsulating binders per command build and configuration.
-          For example, in previous versions, the below code worked incorrectly, i.e. second call to `Cli.Parse` with same definition type,
-          overwrote the binder so the later `Bind` call did not work correctly.
+        - Improved: Command accessor properties can now be safely used for child commands and not only parent commands.
+          Circular dependency errors will be prevented, for example when parent and child has command accessors that point to each other.
           ```c#
-          var result = Cli.Parse<RootCliCommand>(args);
-          var result2 = Cli.Parse<RootCliCommand>(args);
-          
-          var rootCommand = result.Bind<RootCliCommand>();
+          [CliCommand(Description = "A root cli command")]
+          public class RootCliCommand
+          {
+              //This will be non-null only when the called command was this sub-command
+              //For example you can check sub-command accessors for null to determine
+              //which one was called
+              public SubCliCommand SubCliCommandAccessor { get; set; }
+
+              [CliCommand(Description = "A sub-command")]
+              public class SubCliCommand
+              {
+                  //This will be always non-null because if sub-command was called,
+                  //it's parent-command should also have been called
+                  public RootCliCommand RootCliCommandAccessor { get; set; }
+              }
+          }
           ```
       ]]>
      </PackageReleaseNotes>

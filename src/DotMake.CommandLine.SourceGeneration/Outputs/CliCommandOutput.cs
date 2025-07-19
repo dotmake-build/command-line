@@ -61,11 +61,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             var optionsWithoutProblem = Input.Options.Where(c => !c.HasProblem).ToArray();
             var argumentsWithoutProblem = Input.Arguments.Where(c => !c.HasProblem).ToArray();
             var subcommandsWithoutProblem = Input.Subcommands.Where(c => !c.HasProblem).ToArray();
-            var parentCommandAccessorsWithoutProblem = Input.ParentCommandAccessors.Where(c => !c.HasProblem).ToArray();
+            var commandAccessorsWithoutProblem = Input.CommandAccessors.Where(c => !c.HasProblem).ToArray();
             var handlerWithoutProblem = (Input.Handler != null && !Input.Handler.HasProblem) ? Input.Handler : null;
             var memberHasRequiredModifier = optionsWithoutProblem.Any(o => o.Symbol.IsRequired)
                                             || argumentsWithoutProblem.Any(a => a.Symbol.IsRequired)
-                                            || parentCommandAccessorsWithoutProblem.Any(r => r.Symbol.IsRequired);
+                                            || commandAccessorsWithoutProblem.Any(r => r.Symbol.IsRequired);
 
             if (string.IsNullOrEmpty(GeneratedClassNamespace))
                 addNamespaceBlock = false;
@@ -75,6 +75,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CommandBuilderFullName}"))
             {
                 var definitionClass = Input.Symbol.ToReferenceString();
+                var varDefinitionInstance = "definitionInstance";
 
                 sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"public {GeneratedClassName}()"))
@@ -146,32 +147,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 sb.AppendLine();
                 */
 
-                using (sb.AppendBlockStart($"private {definitionClass} CreateInstance()"))
-                {
-                    if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
-                    {
-                        sb.AppendLine(ReferenceDependantInput.HasMsDependencyInjection
-                            ? "var serviceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
-                            : "var serviceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
-                        sb.AppendLine("if (serviceProvider != null)");
-                        sb.AppendIndent();
-                        sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
-                        sb.AppendIndent();
-                        sb.AppendIndent();
-                        sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
-                        //in case serviceProvider is null (i.e. not set with SetServiceProvider)
-                        //call Activator.CreateInstance which will throw exception if class has no default constructor
-                        //but at least it avoids compile time error in generated code with new()
-                        sb.AppendLine();
-                        sb.AppendLine($"return System.Activator.CreateInstance<{definitionClass}>();");
-                    }
-                    else
-                        sb.AppendLine(memberHasRequiredModifier
-                            ? $"return System.Activator.CreateInstance<{definitionClass}>();"
-                            : $"return new {definitionClass}();");
-                }
-                sb.AppendLine();
-
                 if (Input.HasGetCompletionsInterface)
                 {
                     sb.AppendLine();
@@ -180,13 +155,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"string propertyName, DotMake.CommandLine.CliBindingContext bindingContext, {CompletionsNamespace}.CompletionContext completionContext)");
                     using (sb.AppendBlockStart())
                     {
-                        var varTargetClass = "targetClass";
-
-                        sb.AppendLine($"var {varTargetClass} = bindingContext.Bind<{definitionClass}>(completionContext.ParseResult);");
+                        sb.AppendLine($"var {varDefinitionInstance} = bindingContext.Bind<{definitionClass}>(completionContext.ParseResult);");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the interface method with property name of option or argument");
-                        sb.AppendLine($"return {varTargetClass}.GetCompletions(propertyName, completionContext);");
+                        sb.AppendLine($"return {varDefinitionInstance}.GetCompletions(propertyName, completionContext);");
                     }
                     sb.AppendLine();
                 }
@@ -254,49 +227,69 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     */
 
                     sb.AppendLine();
-                    var varParseResult = "parseResult";
-                    using (sb.AppendBlockStart($"bindingContext.Binders[DefinitionType] = ({varParseResult}) =>", ";"))
+                    sb.AppendLine($"bindingContext.CommandMap[{varCommand}] = DefinitionType;");
+                    using (sb.AppendBlockStart($"bindingContext.CreatorMap[DefinitionType] = () =>", ";"))
                     {
-                        var varTargetClass = "targetClass";
-
-                        sb.AppendLine($"var {varTargetClass} = CreateInstance();");
-                        
-                        sb.AppendLine();
-                        sb.AppendLine("// Set the values for the parent command accessors");
-                        foreach (var cliParentCommandAccessorInfo in parentCommandAccessorsWithoutProblem)
+                        if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
                         {
-                            sb.AppendLine($"{varTargetClass}.{cliParentCommandAccessorInfo.Symbol.Name} = bindingContext.Bind<{cliParentCommandAccessorInfo.Symbol.Type.ToReferenceString()}>({varParseResult});");
+                            sb.AppendLine(ReferenceDependantInput.HasMsDependencyInjection
+                                ? "var serviceProvider = DotMake.CommandLine.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
+                                : "var serviceProvider = DotMake.CommandLine.CliServiceProviderExtensions.GetServiceProvider(null);");
+                            sb.AppendLine("if (serviceProvider != null)");
+                            sb.AppendIndent();
+                            sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
+                            sb.AppendIndent();
+                            sb.AppendIndent();
+                            sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
+                            //in case serviceProvider is null (i.e. not set with SetServiceProvider)
+                            //call Activator.CreateInstance which will throw exception if class has no default constructor
+                            //but at least it avoids compile time error in generated code with new()
+                            sb.AppendLine();
+                            sb.AppendLine($"return System.Activator.CreateInstance<{definitionClass}>();");
                         }
-                        
+                        else
+                            sb.AppendLine(memberHasRequiredModifier
+                                ? $"return System.Activator.CreateInstance<{definitionClass}>();"
+                                : $"return new {definitionClass}();");
+                    }
+                    var varParseResult = "parseResult";
+                    using (sb.AppendBlockStart($"bindingContext.BinderMap[DefinitionType] = (instance, {varParseResult}) =>", ";"))
+                    {
+                        sb.AppendLine($"var {varDefinitionInstance} = ({definitionClass})instance;");
+
+                        sb.AppendLine();
+                        sb.AppendLine("// Set the values for the command accessors");
+                        foreach (var cliCommandAccessorInput in commandAccessorsWithoutProblem)
+                        {
+                            sb.AppendLine($"{varDefinitionInstance}.{cliCommandAccessorInput.Symbol.Name} = bindingContext.Bind<{cliCommandAccessorInput.Symbol.Type.ToReferenceString()}>({varParseResult});");
+                        }
+
                         sb.AppendLine();
                         sb.AppendLine("// Set the parsed or default values for the directives");
                         for (var index = 0; index < directivesWithoutProblem.Length; index++)
                         {
                             var cliDirectiveInput = directivesWithoutProblem[index];
                             var varDirective = $"directive{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliDirectiveInput.Symbol.Name} = GetValueForDirective<{cliDirectiveInput.Symbol.Type.ToReferenceString()}>({varParseResult}, {varDirective});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliDirectiveInput.Symbol.Name} = GetValueForDirective<{cliDirectiveInput.Symbol.Type.ToReferenceString()}>({varParseResult}, {varDirective});");
                         }
 
                         sb.AppendLine();
                         sb.AppendLine("// Set the parsed or default values for the options");
                         for (var index = 0; index < optionsWithoutProblem.Length; index++)
                         {
-                            var cliOptionInfo = optionsWithoutProblem[index];
+                            var cliOptionInput = optionsWithoutProblem[index];
                             var varOption = $"option{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliOptionInfo.Symbol.Name} = GetValueForOption({varParseResult}, {varOption});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliOptionInput.Symbol.Name} = GetValueForOption({varParseResult}, {varOption});");
                         }
 
                         sb.AppendLine();
                         sb.AppendLine("// Set the parsed or default values for the arguments");
                         for (var index = 0; index < argumentsWithoutProblem.Length; index++)
                         {
-                            var cliArgumentInfo = argumentsWithoutProblem[index];
+                            var cliArgumentInput = argumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
-                            sb.AppendLine($"{varTargetClass}.{cliArgumentInfo.Symbol.Name} = GetValueForArgument({varParseResult}, {varArgument});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliArgumentInput.Symbol.Name} = GetValueForArgument({varParseResult}, {varArgument});");
                         }
-
-                        sb.AppendLine();
-                        sb.AppendLine($"return {varTargetClass};");
                     }
 
                     sb.AppendLine();
@@ -308,9 +301,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                : $"{varCommand}.SetAction({varParseResult} =>",
                     ");"))
                     {
-                        var varTargetClass = "targetClass";
-
-                        sb.AppendLine($"var {varTargetClass} = bindingContext.Bind<{definitionClass}>({varParseResult});");
+                        sb.AppendLine($"var {varDefinitionInstance} = bindingContext.Bind<{definitionClass}>({varParseResult});");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the command handler");
@@ -325,7 +316,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                 sb.Append("exitCode = ");
                             if (handlerWithoutProblem.IsAsync)
                                 sb.Append("await ");
-                            sb.Append($"{varTargetClass}.");
+                            sb.Append($"{varDefinitionInstance}.");
                             var handlerOutput = new CliCommandHandlerOutput(handlerWithoutProblem);
                             handlerOutput.AppendCSharpCallString(sb, varCliContext);
                             sb.Append(";");

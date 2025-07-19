@@ -3,11 +3,11 @@ using Microsoft.CodeAnalysis;
 
 namespace DotMake.CommandLine.SourceGeneration.Inputs
 {
-    public class CliParentCommandAccessorInput : InputBase, IEquatable<CliParentCommandAccessorInput>
+    public class CliCommandAccessorInput : InputBase, IEquatable<CliCommandAccessorInput>
     {
-        public const string DiagnosticName = "CLI parent command accessor";
+        public const string DiagnosticName = "CLI command accessor";
 
-        public CliParentCommandAccessorInput(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
+        public CliCommandAccessorInput(ISymbol symbol, SyntaxNode syntaxNode, SemanticModel semanticModel)
             : base(symbol, syntaxNode, semanticModel)
         {
             Symbol = (IPropertySymbol)symbol;
@@ -34,7 +34,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             }
         }
 
-        public bool Equals(CliParentCommandAccessorInput other)
+        public bool Equals(CliCommandAccessorInput other)
         {
             return base.Equals(other);
         }

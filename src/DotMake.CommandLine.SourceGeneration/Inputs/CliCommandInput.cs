@@ -101,7 +101,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                             .Any(a => a.AttributeClass?.ToCompareString() == AttributeFullName);
 
                         if (classHasAttribute)
-                            parentCommandAccessors.Add(new CliParentCommandAccessorInput(property, null, SemanticModel));
+                            commandAccessors.Add(new CliCommandAccessorInput(property, null, SemanticModel));
                     }
                 }
                 else if (member is IMethodSymbol method)
@@ -186,8 +186,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         public IReadOnlyList<CliCommandInput> Subcommands => subcommands; //Only nested subcommands
         private readonly List<CliCommandInput> subcommands = new();
 
-        public IReadOnlyList<CliParentCommandAccessorInput> ParentCommandAccessors => parentCommandAccessors;
-        private readonly List<CliParentCommandAccessorInput> parentCommandAccessors = new();
+        public IReadOnlyList<CliCommandAccessorInput> CommandAccessors => commandAccessors;
+        private readonly List<CliCommandAccessorInput> commandAccessors = new();
 
         public sealed override void Analyze(ISymbol symbol)
         {
@@ -240,7 +240,7 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 .Concat(Directives.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(Options.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(Arguments.SelectMany(c => c.GetAllDiagnostics()))
-                .Concat(ParentCommandAccessors.SelectMany(c => c.GetAllDiagnostics()))
+                .Concat(CommandAccessors.SelectMany(c => c.GetAllDiagnostics()))
                 .Concat(Handler?.GetAllDiagnostics() ?? Enumerable.Empty<Diagnostic>())
                 .Concat(Subcommands.SelectMany(c => c.GetAllDiagnostics()));
         }
