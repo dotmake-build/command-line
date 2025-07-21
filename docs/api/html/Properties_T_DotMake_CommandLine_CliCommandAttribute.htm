@@ -42,7 +42,9 @@
             </p><p>
             This setting will be inherited by subcommands.
             This setting can be overriden by a subcommand in the inheritance chain.
-            </p><p>Default is <a href="T_DotMake_CommandLine_CliNamePrefixConvention.htm">DoubleHyphen</a> (e.g. <span class="code">--option</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Parent.htm">Parent</a></td><td>
+            </p><p>Default is <a href="T_DotMake_CommandLine_CliNamePrefixConvention.htm">DoubleHyphen</a> (e.g. <span class="code">--option</span>).</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Order.htm">Order</a></td><td>
+            Gets or sets the order of the command.
+            <p>The order is used when printing the symbols in help and for arguments additionally effects the parsing order.</p><p>When not set (or is <span class="code">0</span> - the default value), the symbol order is determined based on source code ordering.</p></td></tr><tr><td><a href="P_DotMake_CommandLine_CliCommandAttribute_Parent.htm">Parent</a></td><td>
             Gets or sets the parent of the command. This property is used when you prefer to use a non-nested class for a subcommand,
             i.e. when you want to separate root command and subcommands into different classes/files.
             If the class that this attribute is applied to, is already a nested class, then this property will be ignored.

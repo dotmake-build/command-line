@@ -10,64 +10,24 @@
             Gets the command builder registered for the definition class.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_Get__1.htm">Get<span id="LSTC481EEC6_0" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LSTC481EEC6_1" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_2" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
             Gets the command builder registered for the definition class.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetArgumentParser__1.htm">GetArgumentParser<span id="LSTC481EEC6_3" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TArgument<span id="LSTC481EEC6_4" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(Func<span id="LSTC481EEC6_5" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>String, TArgument<span id="LSTC481EEC6_6" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>)</a></td><td>
-            Gets an argument parser method for an argument type.
-            <p>
-            This is mainly used for adding support for binding custom types which have a public constructor
-            or a static <span class="code">Parse</span> method with a string parameter (other parameters, if any, should be optional).
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetArgumentParser__2.htm">GetArgumentParser<span id="LSTC481EEC6_7" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TCollection, TItem<span id="LSTC481EEC6_8" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(Func<span id="LSTC481EEC6_9" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>Array, TCollection<span id="LSTC481EEC6_10" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>, Func<span id="LSTC481EEC6_11" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>String, TItem<span id="LSTC481EEC6_12" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>)</a></td><td>
-            Gets an argument parser method for an argument type, if it's a collection type.
-            <p>
-            This is mainly used for adding support for all <a href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1" target="_blank" rel="noopener noreferrer">IEnumerable<span id="LSTC481EEC6_13" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>T<span id="LSTC481EEC6_14" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a> compatible types which have
-            a public constructor with a <a href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1" target="_blank" rel="noopener noreferrer">IEnumerable<span id="LSTC481EEC6_15" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>T<span id="LSTC481EEC6_16" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a> or <a href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ilist-1" target="_blank" rel="noopener noreferrer">IList<span id="LSTC481EEC6_17" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'"></span>T<span id="LSTC481EEC6_18" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"></span></a> parameter (other parameters, if any, should be optional).
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetChildren.htm">GetChildren(Type)</a></td><td>
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetChildren.htm">GetChildren(Type)</a></td><td>
             Gets the command builders that are registered as nested/external children of a parent definition.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetChildren__1.htm">GetChildren<span id="LSTC481EEC6_19" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TParentDefinition<span id="LSTC481EEC6_20" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_21" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetChildren__1.htm">GetChildren<span id="LSTC481EEC6_3" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TParentDefinition<span id="LSTC481EEC6_4" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_5" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
             Gets the command builders that are registered as nested/external children of a parent definition.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetParents.htm">GetParents(Type)</a></td><td>
             Gets the command builders that are registered as nested/external parents of a child definition.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetParents__1.htm">GetParents<span id="LSTC481EEC6_22" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LSTC481EEC6_23" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_24" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetParents__1.htm">GetParents<span id="LSTC481EEC6_6" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LSTC481EEC6_7" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_8" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
             Gets the command builders that are registered as nested/external parents of a child definition.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetValueForArgument.htm">GetValueForArgument(ParseResult, Argument)</a></td><td>
-            Gets the parsed or default value for the specified argument.
-            <p>
-            Extended version for DotMake CLI which can bind custom classes,
-            does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetValueForArgument__1.htm">GetValueForArgument<span id="LSTC481EEC6_25" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>T<span id="LSTC481EEC6_26" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(ParseResult, Argument<span id="LSTC481EEC6_27" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>T<span id="LSTC481EEC6_28" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>)</a></td><td>
-            Gets the parsed or default value for the specified argument.
-            <p>
-            Extended version for DotMake CLI which can bind custom classes,
-            does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetValueForDirective.htm">GetValueForDirective(ParseResult, Directive)</a></td><td>
-            Gets the parsed or default value for the specified option.
-            <p>
-            Extended version for DotMake CLI which can bind custom classes,
-            does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetValueForDirective__1.htm">GetValueForDirective<span id="LSTC481EEC6_29" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>T<span id="LSTC481EEC6_30" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(ParseResult, Directive)</a></td><td>
-            Gets the parsed or default value for the specified directive.
-            <p>
-            Extended version for DotMake CLI which can bind custom classes,
-            does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetValueForOption.htm">GetValueForOption(ParseResult, Option)</a></td><td>
-            Gets the parsed or default value for the specified option.
-            <p>
-            Extended version for DotMake CLI which can bind custom classes,
-            does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_GetValueForOption__1.htm">GetValueForOption<span id="LSTC481EEC6_31" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>T<span id="LSTC481EEC6_32" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(ParseResult, Option<span id="LSTC481EEC6_33" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>T<span id="LSTC481EEC6_34" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>)</a></td><td>
-            Gets the parsed or default value for the specified option.
-            <p>
-            Extended version for DotMake CLI which can bind custom classes,
-            does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
-            </p></td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_Register.htm">Register<span id="LSTC481EEC6_35" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_Register.htm">Register<span id="LSTC481EEC6_9" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
             Registers this command builder so that it can be found by the definition class,
             and it can be found by the parent definition class if it's a nested/external child.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_Register_1.htm">Register(Type, CliCommandBuilder)</a></td><td>
             Registers a command builder so that it can be found by the definition class.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_Register__1.htm">Register<span id="LSTC481EEC6_36" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LSTC481EEC6_37" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(CliCommandBuilder)</a></td><td>
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_Register__1.htm">Register<span id="LSTC481EEC6_10" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TDefinition<span id="LSTC481EEC6_11" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span>(CliCommandBuilder)</a></td><td>
             Registers a command builder so that it can be found by the definition class.
             </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_RegisterAsChild.htm">RegisterAsChild(Type, Type)</a></td><td>
             Registers a command builder as a nested/external child so that it can be found by the parent definition class.
-            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_RegisterAsChild__2.htm">RegisterAsChild<span id="LSTC481EEC6_38" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TParentDefinition, TChildDefinition<span id="LSTC481EEC6_39" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_40" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
+            </td></tr><tr><td><a href="M_DotMake_CommandLine_CliCommandBuilder_RegisterAsChild__2.htm">RegisterAsChild<span id="LSTC481EEC6_12" data-languageSpecificText="cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=("></span>TParentDefinition, TChildDefinition<span id="LSTC481EEC6_13" data-languageSpecificText="cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"></span><span id="LSTC481EEC6_14" data-languageSpecificText="cs=()|vb=|cpp=()|nu=()|fs=()"></span></a></td><td>
             Registers a command builder as a nested/external child so that it can be found by the parent definition class.
             </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>See Also</h2><div id="seeAlsoSection"><h4>Reference</h4><div><a href="T_DotMake_CommandLine_CliCommandBuilder.htm">CliCommandBuilder Class</a></div><div><a href="N_DotMake_CommandLine.htm">DotMake.CommandLine Namespace</a></div></div></div><div id="InThisArticleColumn" class="column is-hidden-mobile"><nav class="menu sticky is-hidden"><p class="menu-label"><strong>In This Article</strong></p><ul id="InThisArticleMenu" class="menu-list"><li><a class="quickLink">Methods</a></li><li><a class="quickLink">See Also</a></li></ul></nav></div></div></div><footer id="PageFooter" class="footer border-top py-3 fixedFooter"><div class="columns"><div id="FooterContent" class="column"><p>Copyright © 2023-2025 DotMake</p> 
 				</div></div></footer></div><script>$(function(){
