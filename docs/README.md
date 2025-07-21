@@ -124,9 +124,9 @@ if (result.ParseResult.Errors.Count > 0)
 }
 ```
 #### Summary
-- Mark the class with `CliCommand` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
-- Mark a property with `CliOption` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
-- Mark a property with `CliArgument` attribute to make it a CLI argument (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
+- Mark the class with `[CliCommand]` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+- Mark a property with `[CliOption]` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+- Mark a property with `[CliArgument]` attribute to make it a CLI argument (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
 - Add a method with name `Run` or `RunAsync` to make it the handler for the CLI command. The method can have one of the following signatures: 
   
   - 
@@ -192,9 +192,9 @@ And that's it! You now have a fully working command-line app.
 #### Summary
 - Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
 - A parameter is by default considered as a CLI option but you can;
-  - Mark a parameter with `CliArgument` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
-  - Mark a parameter with `CliOption` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
-  - Mark the delegate itself with `CliCommand` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+  - Mark a parameter with `[CliArgument]` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
+  - Mark a parameter with `[CliOption]` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+  - Mark the delegate itself with `[CliCommand]` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
   - Note that for being able to mark a parameter with an attribute in an anonymous lambda function, 
     if your target framework is below net6.0, you also need `<LangVersion>10.0</LangVersion>` tag (minimum) in your .csproj file.
 - Set a default value for a parameter if you want it to be optional (not required to be specified on the command-line).
@@ -497,7 +497,7 @@ Subcommands can have their own subcommands. In `dotnet tool install`, `install` 
 ### Command Hierarchy
 
 Defining sub-commands in DotMake.Commandline is very easy. We simply use nested classes to create a hierarchy.
-Just make sure you apply `CliCommand` attribute to the nested classes as well:
+Just make sure you apply `[CliCommand]` attribute to the nested classes as well:
 ```c#
 /*
     Command hierarchy in below example is:
@@ -558,7 +558,7 @@ public class RootWithNestedChildrenCliCommand
 
 Another way to create hierarchy between commands, especially if you want to use standalone classes,  
 is to 
-- Use `Children` property of `CliCommand` attribute to specify array of `typeof` child classes:
+- Use `Children` property of `[CliCommand]` attribute to specify array of `typeof` child classes:
 ```c#
 /*
     Command hierarchy in below example is:
@@ -630,7 +630,7 @@ public class ExternalLevel2SubCliCommand
 
 ```
 
-- Use `Parent` property of `CliCommand` attribute to specify `typeof` parent class:
+- Use `Parent` property of `[CliCommand]` attribute to specify `typeof` parent class:
 ```c#
 /*
     Command hierarchy in below example is:
@@ -698,7 +698,7 @@ public class ExternalLevel2WithParentSubCliCommand
 
 ```
 
-The class that `CliCommand` attribute is applied to,
+The class that `[CliCommand]` attribute is applied to,
 - will be a root command if the class is not a nested class and other's `Children` property and self's `Parent` property is not set.
 - will be a sub command if the class is a nested class or other's `Children` property or self's `Parent` property is set.
 
@@ -717,7 +717,7 @@ is higher priority. A nested child can use `Children` property to refer non-nest
 #### Accessing parent commands
 
 Sub-commands can get a reference to the parent command by adding a property of the parent command type.  
-Alternatively `ParseResult.Bind<TDefinition>` method can be called to manually get reference to a parent command.  
+Alternatively `CliContext.Result.Bind<TDefinition>` method can be called to manually get reference to a parent command.  
 Note that binding will be done only once per definition class, so calling this method consecutively
 for the same definition class will return the cached result.
 
@@ -849,12 +849,13 @@ option `Department` from an interface. Note that the property initializer for `D
 so that default value will be used.
 
 ---
-The properties for `CliCommand` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
+The properties for `[CliCommand]` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
 - Name
 - Description
+- Hidden
+- Order
 - Alias
 - Aliases
-- Hidden
 - Parent
 - TreatUnmatchedTokensAsErrors
 - NameAutoGenerate *(inherited by subcommands, used for child commands, directives, options and arguments)*
@@ -903,13 +904,14 @@ Only the last option can specify an argument.
 Note that if you have an explicit option named "-abc" then it will win over bundled options.
 
 ---
-The properties for `CliOption` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
+The properties for `[CliOption]` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
 - Name
 - Description
+- Hidden
+- Order
 - Alias
 - Aliases
 - HelpName
-- Hidden
 - Required
 - Recursive
 - Arity
@@ -961,11 +963,12 @@ Quiet
 ```
 
 ---
-The properties for `CliArgument` attribute (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
+The properties for `[CliArgument]` attribute (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
 - Name
 - Description
-- HelpName
 - Hidden
+- Order
+- HelpName
 - Required
 - Arity
 - AllowedValues
@@ -1065,7 +1068,7 @@ var subCommand5 = result.Create<SubCliCommand>();
 ```
 
 ### Supported types
-Note that you can have a specific type (other than `string`) for a property which a `CliOption` or `CliArgument` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
+Note that you can have a specific type (other than `string`) for a property which a `[CliOption]` or `[CliArgument]` attribute is applied to, for example these properties will be parsed and bound/populated automatically:
 ```c#
 [CliCommand]
 public class WriteFileCliCommand
@@ -1272,7 +1275,7 @@ public class ValidationCliCommand
 Apps that use System.CommandLine have built-in support for tab completion in certain shells. 
 To enable it, the end user has to [take a few steps once per shell](https://learn.microsoft.com/en-us/dotnet/standard/commandline/tab-completion#get-tab-completion-values-at-run-time). 
 Once the user does this, tab completion is automatic for static values in your app, such as enum values or values you 
-define by setting `CliOptionAttribute.AllowedValues` or `CliArgumentAttribute.AllowedValues`. 
+define by setting `[CliOption].AllowedValues` or `[CliArgument].AllowedValues`. 
 You can also customize the tab completion by getting values dynamically at runtime.
 
 In your command class, inherit `ICliGetCompletions` and implement `GetCompletions` method.
@@ -1540,7 +1543,7 @@ myapp [directive:value]
 myapp [directive:value1] [directive:value2]
 ```
 
-You can define custom directives like below:
+You can define custom directives with `[CliDirective]` attribute like below:
 ```c#
 [CliCommand(Description = "A root cli command with directives")]
 public class DirectiveCliCommand

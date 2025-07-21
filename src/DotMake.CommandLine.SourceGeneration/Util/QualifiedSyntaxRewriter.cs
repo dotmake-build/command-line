@@ -12,7 +12,6 @@ namespace DotMake.CommandLine.SourceGeneration.Util
         {
             this.semanticModel = semanticModel;
         }
-
         
         public override SyntaxNode VisitIdentifierName(IdentifierNameSyntax node)
         {

@@ -10,6 +10,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
     public class CliCommandInput : InputBase, IEquatable<CliCommandInput>
     {
         public static readonly string AttributeFullName = typeof(CliCommandAttribute).FullName;
+        public static readonly string AttributeName = nameof(CliCommandAttribute);
+        public static readonly string AttributeName2 = AttributeName.Substring(0, AttributeName.Length - "Attribute".Length);
         public const string DiagnosticName = "CLI command";
 
         public CliCommandInput(ISymbol symbol, SyntaxNode syntaxNode, AttributeData attributeData, SemanticModel semanticModel, CliCommandInput parent)
@@ -19,6 +21,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             Parent = parent;
 
             AttributeArguments = new AttributeArguments(attributeData, semanticModel);
+            if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Order), out var order))
+                Order = (int)order;
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Parent), out var parentValue))
                 ParentArgument = (INamedTypeSymbol)parentValue;
             if (AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Children), out var childrenValue))
@@ -134,7 +138,17 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         {
             return syntaxNode is ClassDeclarationSyntax
                    //skip nested classes as they will be handled by the parent classes
-                   && !(syntaxNode.Parent is TypeDeclarationSyntax);
+                   && (!(syntaxNode.Parent is TypeDeclarationSyntax)
+                       //but allow nested classes whose parent does not have attribute
+                       || (syntaxNode.Parent is ClassDeclarationSyntax parentClass
+                           && !parentClass.AttributeLists.Any(
+                               l => l.Attributes.Any(
+                                   a => a.Name.ToString().EndsWith(AttributeName2)
+                                                    || a.Name.ToString().EndsWith(AttributeName)
+                                )
+                               )
+                           )
+                     );
         }
 
         public static CliCommandInput From(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -154,6 +168,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
        
         public AttributeArguments AttributeArguments { get; }
+
+        public int Order { get; }
 
         public INamedTypeSymbol ParentArgument { get; }
 

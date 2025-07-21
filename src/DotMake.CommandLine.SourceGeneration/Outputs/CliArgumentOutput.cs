@@ -27,7 +27,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliArgumentInput Input { get; }
 
-        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer)
+        public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer, string varBindingContext)
         {
             var varNameParameter = $"{varName}Name";
 
@@ -88,7 +88,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
 
                 var argumentParserOutput = new CliArgumentParserOutput(Input.ArgumentParser);
-                argumentParserOutput.AppendCSharpCallString(sb, "CustomParser", ",");
+                argumentParserOutput.AppendCSharpCallString(sb, "CustomParser", varBindingContext, ",");
             }
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.AllowedValues), out var allowedValuesTypedConstant))
@@ -114,7 +114,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
             if (Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
-                sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", bindingContext, completionContext));");
+                sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", {varBindingContext}, completionContext));");
 
         }
     }

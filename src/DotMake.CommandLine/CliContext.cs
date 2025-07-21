@@ -104,6 +104,7 @@ namespace DotMake.CommandLine
 
             var command = parseResult.CommandResult.Command;
             var isRoot = (command.Parents.FirstOrDefault() == null);
+            var bindingContext = new CliBindingContext();
 
             output.WriteLine($"Command = \"{command.Name}\" [{(isRoot ? "Root command" : "Sub-command")}]");
 
@@ -111,13 +112,13 @@ namespace DotMake.CommandLine
             {
                 if (symbolResult is ArgumentResult argumentResult)
                 {
-                    var value = CliCommandBuilder.GetValueForArgument(parseResult, argumentResult.Argument);
-                    output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {StringExtensions.FormatValue(value)}");
+                    var value = bindingContext.GetValue(parseResult, argumentResult.Argument);
+                    output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {CliStringUtil.FormatValue(value)}");
                 }
                 else if (symbolResult is OptionResult optionResult)
                 {
-                    var value = CliCommandBuilder.GetValueForOption(parseResult, optionResult.Option);
-                    output.WriteLine($"Option '{optionResult.Option.Name}' = {StringExtensions.FormatValue(value)}");
+                    var value = bindingContext.GetValue(parseResult, optionResult.Option);
+                    output.WriteLine($"Option '{optionResult.Option.Name}' = {CliStringUtil.FormatValue(value)}");
                 }
             }
         }

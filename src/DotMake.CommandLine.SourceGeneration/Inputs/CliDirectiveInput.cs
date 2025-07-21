@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Util;
 using Microsoft.CodeAnalysis;
 
@@ -25,6 +24,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 return;
 
             AttributeArguments = new AttributeArguments(attributeData, semanticModel);
+            if (AttributeArguments.TryGetValue(nameof(CliDirectiveAttribute.Order), out var order))
+                Order = (int)order;
         }
 
         public CliDirectiveInput(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -39,9 +40,13 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public new IPropertySymbol Symbol { get; }
 
+        public CliCommandInput Parent { get; }
+
+
         public AttributeArguments AttributeArguments { get; }
 
-        public CliCommandInput Parent { get; }
+        public int Order { get; }
+
 
         //public CliArgumentParserInput ArgumentParser { get; }
 

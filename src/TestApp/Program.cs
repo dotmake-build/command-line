@@ -38,6 +38,7 @@ Cli.Run<RootHelpOnEmptyCliCommand>(args);
 //Cli.Run<DefaultValuesCliCommand>(args);
 //Cli.Run<ShortFormCliCommand>(args);
 //Cli.Run<DirectiveCliCommand>(args);
+//Cli.Run<OrderedCliCommand>(args);
 
 //Using Cli.RunAsync:
 //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);

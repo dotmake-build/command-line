@@ -56,11 +56,6 @@ namespace DotMake.CommandLine
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the argument when displayed in help.
-        /// </summary>
-        public string HelpName { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the argument is hidden.
         /// <para>
         /// You might want to support a command, option, or argument, but avoid making it easy to discover.
@@ -70,6 +65,18 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool Hidden { get; set; }
 
+        /// <summary>
+        /// Gets or sets the order of the argument.
+        /// <para>The order is used when printing the symbols in help and for arguments additionally effects the parsing order.</para>
+        /// <para>When not set (or is <c>0</c> - the default value), the symbol order is determined based on source code ordering.</para>
+        /// </summary>
+        public int Order { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the argument when displayed in help.
+        /// </summary>
+        public string HelpName { get; set; }
+        
         /// <summary>
         /// Gets or sets a value indicating whether the argument is required when its parent command is invoked.
         /// Default is auto-detected.

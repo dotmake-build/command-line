@@ -136,7 +136,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     || !CheckLanguageVersion(cliCommandInput.LanguageVersion))
                     return;
 
-                var cliCommandOutput = new CliCommandOutput(cliCommandInput, cliReferenceDependantInput);
+                var cliCommandOutput = new CliCommandOutput(cliCommandInput, cliReferenceDependantInput, null);
                 cliCommandOutput.ReportDiagnostics(sourceProductionContext);
 
                 if (cliCommandInput.HasProblem) //This should be checked after creating CliCommandOutput, as we may add some problems there
@@ -153,7 +153,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 //Using class full name can still collide because AddSource uses OrdinalIgnoreCase,
                 //e.g. Namespace.Class1 and Namespace.class1 would collide
                 //https://github.com/dotnet/roslyn/issues/48833
-                var hash = cliCommandOutput.GeneratedClassFullName.GetStableStringHashCode32();
+                var hash = HashUtil.GetStableStringHashCode32(cliCommandOutput.GeneratedClassFullName);
                 var generatedFileName = $"{cliCommandOutput.GeneratedClassName}-{hash}.g.cs";
 
                 sourceProductionContext.AddSource(generatedFileName, generatedClassSourceCode);

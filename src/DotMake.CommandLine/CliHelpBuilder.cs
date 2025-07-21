@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -312,7 +313,7 @@ namespace DotMake.CommandLine
         {
             if (!string.IsNullOrWhiteSpace(heading))
             {
-                heading = heading.ToCase(theme.HeadingCasing, keepSpaces: true);
+                heading = CliStringUtil.ToCase(heading, theme.HeadingCasing, keepSpaces: true);
                 if (theme.HeadingNoColon)
                     heading = heading.TrimEnd(':');
                 ConsoleExtensions.SetColor(theme.HeadingColor, theme.DefaultColor);
@@ -787,6 +788,20 @@ namespace DotMake.CommandLine
                         {
                             firstColumnText += $" {argumentFirstColumnText}";
                         }
+                        /*MODIFY*/
+                        //Fix if there is no HelpName for option and if option is not a flag, show the <argument>, for example
+                        //-settingsfile <settingsfile> Path to settings file
+                        //GetArgumentUsageLabel does not return <argument> if there are no completions
+                        //
+                        else if (
+                            argument is Option option
+                            && !(option.ValueType == typeof(bool) || option.ValueType == typeof(bool?))
+                            && option.Arity.MaximumNumberOfValues > 0) // allowing zero arguments means we don't need to show usage
+                        {
+                            firstColumnText += $" <{CliStringUtil.RemovePrefix(option.Name)}>";
+
+                        }
+                        /*MODIFY*/
                     }
                 }
 

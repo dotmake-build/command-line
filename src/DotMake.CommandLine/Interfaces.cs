@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.Threading.Tasks;

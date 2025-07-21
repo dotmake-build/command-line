@@ -1,7 +1,6 @@
 #pragma warning disable CS1591
 using System;
 using DotMake.CommandLine;
-using DotMake.CommandLine.Util;
 
 namespace TestApp.Commands
 {
@@ -28,9 +27,9 @@ namespace TestApp.Commands
                 context.ShowHelp();
             else
             {
-                Console.WriteLine($"Directive '{nameof(Debug)}' = {StringExtensions.FormatValue(Debug)}");
-                Console.WriteLine($"Directive '{nameof(Directive2)}' = {StringExtensions.FormatValue(Directive2)}");
-                Console.WriteLine($"Directive '{nameof(Vars)}' = {StringExtensions.FormatValue(Vars)}");
+                Console.WriteLine($"Directive '{nameof(Debug)}' = {CliStringUtil.FormatValue(Debug)}");
+                Console.WriteLine($"Directive '{nameof(Directive2)}' = {CliStringUtil.FormatValue(Directive2)}");
+                Console.WriteLine($"Directive '{nameof(Vars)}' = {CliStringUtil.FormatValue(Vars)}");
             }
         }
     }

@@ -14,11 +14,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliArgumentParserInput Input { get; }
 
-        public void AppendCSharpCallString(CodeStringBuilder sb, string varCustomParser, string afterBlock)
+        public void AppendCSharpCallString(CodeStringBuilder sb, string varCustomParser, string varBindingContext, string afterBlock)
         {
             if (Input.ItemType != null)
             {
-                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetArgumentParser<{Input.Type.ToReferenceString()}, {Input.ItemType.ToReferenceString()}>", afterBlock))
+                using (sb.AppendParamsBlockStart($"{varCustomParser} = {varBindingContext}.GetArgumentParser<{Input.Type.ToReferenceString()}, {Input.ItemType.ToReferenceString()}>", afterBlock))
                 {
                     if (Input.Converter == null)
                         sb.AppendLine("null,");
@@ -46,7 +46,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             {
                 //Even if argument type does not need a converter, use a ParseArgument method,
                 //so that our custom converter is used for supporting all collection compatible types.
-                using (sb.AppendParamsBlockStart($"{varCustomParser} = GetArgumentParser<{Input.Type.ToReferenceString()}>", afterBlock))
+                using (sb.AppendParamsBlockStart($"{varCustomParser} = {varBindingContext}.GetArgumentParser<{Input.Type.ToReferenceString()}>", afterBlock))
                 {
                     if (Input.Converter == null)
                         sb.AppendLine("null");

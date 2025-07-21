@@ -21,7 +21,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             //{ nameof(CliCommandAttribute.Hidden), "IsHidden"}
         };
 
-        public CliCommandOutput(CliCommandInput input, CliReferenceDependantInput referenceDependantInput)
+        public CliCommandOutput(CliCommandInput input, CliReferenceDependantInput referenceDependantInput, CliCommandOutput parentOutput)
             : base(input)
         {
             Input = input;
@@ -38,9 +38,16 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             GeneratedClassNamespace = Input.Symbol.GetNamespaceOrEmpty();
             if (!GeneratedClassNamespace.EndsWith(GeneratedSubNamespace))
                 GeneratedClassNamespace = SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedSubNamespace);
+            /*
             GeneratedClassFullName = (Input.Symbol.ContainingType != null)
                 ? SymbolExtensions.CombineNameParts(
                     Input.Symbol.RenameContainingTypesFullName(GeneratedSubNamespace, GeneratedClassSuffix),
+                    GeneratedClassName)
+                : SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
+            */
+            GeneratedClassFullName = (parentOutput != null)
+                ? SymbolExtensions.CombineNameParts(
+                    parentOutput.GeneratedClassFullName,
                     GeneratedClassName)
                 : SymbolExtensions.CombineNameParts(GeneratedClassNamespace, GeneratedClassName);
         }
@@ -57,11 +64,25 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpDefineString(CodeStringBuilder sb, bool addNamespaceBlock)
         {
-            var directivesWithoutProblem = Input.Directives.Where(c => !c.HasProblem).ToArray();
-            var optionsWithoutProblem = Input.Options.Where(c => !c.HasProblem).ToArray();
-            var argumentsWithoutProblem = Input.Arguments.Where(c => !c.HasProblem).ToArray();
-            var subcommandsWithoutProblem = Input.Subcommands.Where(c => !c.HasProblem).ToArray();
-            var commandAccessorsWithoutProblem = Input.CommandAccessors.Where(c => !c.HasProblem).ToArray();
+            var directivesWithoutProblem = Input.Directives
+                .Where(c => !c.HasProblem)
+                .OrderBy(c => c.Order)
+                .ToArray();
+            var optionsWithoutProblem = Input.Options
+                .Where(c => !c.HasProblem)
+                .OrderBy(c => c.Order)
+                .ToArray();
+            var argumentsWithoutProblem = Input.Arguments
+                .Where(c => !c.HasProblem)
+                .OrderBy(c => c.Order)
+                .ToArray();
+            var subcommandsWithoutProblem = Input.Subcommands
+                .Where(c => !c.HasProblem)
+                .OrderBy(c => c.Order)
+                .ToArray();
+            var commandAccessorsWithoutProblem = Input.CommandAccessors
+                .Where(c => !c.HasProblem)
+                .ToArray();
             var handlerWithoutProblem = (Input.Handler != null && !Input.Handler.HasProblem) ? Input.Handler : null;
             var memberHasRequiredModifier = optionsWithoutProblem.Any(o => o.Symbol.IsRequired)
                                             || argumentsWithoutProblem.Any(a => a.Symbol.IsRequired)
@@ -146,16 +167,16 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
                 sb.AppendLine();
                 */
-
+                var varBindingContext = "bindingContext";
                 if (Input.HasGetCompletionsInterface)
                 {
                     sb.AppendLine();
                     sb.AppendLine($"private System.Collections.Generic.IEnumerable<{CompletionsNamespace}.CompletionItem> GetCompletions(");
                     sb.AppendIndent();
-                    sb.AppendLine($"string propertyName, DotMake.CommandLine.CliBindingContext bindingContext, {CompletionsNamespace}.CompletionContext completionContext)");
+                    sb.AppendLine($"string propertyName, DotMake.CommandLine.CliBindingContext {varBindingContext}, {CompletionsNamespace}.CompletionContext completionContext)");
                     using (sb.AppendBlockStart())
                     {
-                        sb.AppendLine($"var {varDefinitionInstance} = bindingContext.Bind<{definitionClass}>(completionContext.ParseResult);");
+                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<{definitionClass}>(completionContext.ParseResult);");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the interface method with property name of option or argument");
@@ -165,7 +186,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
 
                 sb.AppendLine("/// <inheritdoc />");
-                using (sb.AppendBlockStart($"protected override {CommandClassNamespace}.{CommandClassName} DoBuild(DotMake.CommandLine.CliBindingContext bindingContext)"))
+                using (sb.AppendBlockStart($"protected override {CommandClassNamespace}.{CommandClassName} DoBuild(DotMake.CommandLine.CliBindingContext {varBindingContext})"))
                 {
                     var varNamer = "Namer";
                     var varCommand = "command";
@@ -199,7 +220,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliOptionInput = optionsWithoutProblem[index];
                         var cliOptionOutput = new CliOptionOutput(cliOptionInput);
                         var varOption = $"option{index}";
-                        cliOptionOutput.AppendCSharpCreateString(sb, varOption, varNamer);
+                        cliOptionOutput.AppendCSharpCreateString(sb, varOption, varNamer, varBindingContext);
                         sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
 
@@ -210,7 +231,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliArgumentInput = argumentsWithoutProblem[index];
                         var cliArgumentOutput = new CliArgumentOutput(cliArgumentInput);
                         var varArgument = $"argument{index}";
-                        cliArgumentOutput.AppendCSharpCreateString(sb, varArgument, varNamer);
+                        cliArgumentOutput.AppendCSharpCreateString(sb, varArgument, varNamer, varBindingContext);
                         sb.AppendLine($"{varCommand}.Add({varArgument});");
                     }
 
@@ -227,8 +248,8 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     */
 
                     sb.AppendLine();
-                    sb.AppendLine($"bindingContext.CommandMap[{varCommand}] = DefinitionType;");
-                    using (sb.AppendBlockStart($"bindingContext.CreatorMap[DefinitionType] = () =>", ";"))
+                    sb.AppendLine($"{varBindingContext}.CommandMap[{varCommand}] = DefinitionType;");
+                    using (sb.AppendBlockStart($"{varBindingContext}.CreatorMap[DefinitionType] = () =>", ";"))
                     {
                         if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
                         {
@@ -253,7 +274,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                 : $"return new {definitionClass}();");
                     }
                     var varParseResult = "parseResult";
-                    using (sb.AppendBlockStart($"bindingContext.BinderMap[DefinitionType] = (instance, {varParseResult}) =>", ";"))
+                    using (sb.AppendBlockStart($"{varBindingContext}.BinderMap[DefinitionType] = (instance, {varParseResult}) =>", ";"))
                     {
                         sb.AppendLine($"var {varDefinitionInstance} = ({definitionClass})instance;");
 
@@ -261,7 +282,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         sb.AppendLine("// Set the values for the command accessors");
                         foreach (var cliCommandAccessorInput in commandAccessorsWithoutProblem)
                         {
-                            sb.AppendLine($"{varDefinitionInstance}.{cliCommandAccessorInput.Symbol.Name} = bindingContext.Bind<{cliCommandAccessorInput.Symbol.Type.ToReferenceString()}>({varParseResult});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliCommandAccessorInput.Symbol.Name} = {varBindingContext}.Bind<{cliCommandAccessorInput.Symbol.Type.ToReferenceString()}>({varParseResult});");
                         }
 
                         sb.AppendLine();
@@ -270,7 +291,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         {
                             var cliDirectiveInput = directivesWithoutProblem[index];
                             var varDirective = $"directive{index}";
-                            sb.AppendLine($"{varDefinitionInstance}.{cliDirectiveInput.Symbol.Name} = GetValueForDirective<{cliDirectiveInput.Symbol.Type.ToReferenceString()}>({varParseResult}, {varDirective});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliDirectiveInput.Symbol.Name} = {varBindingContext}.GetValue<{cliDirectiveInput.Symbol.Type.ToReferenceString()}>({varParseResult}, {varDirective});");
                         }
 
                         sb.AppendLine();
@@ -279,7 +300,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         {
                             var cliOptionInput = optionsWithoutProblem[index];
                             var varOption = $"option{index}";
-                            sb.AppendLine($"{varDefinitionInstance}.{cliOptionInput.Symbol.Name} = GetValueForOption({varParseResult}, {varOption});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliOptionInput.Symbol.Name} = {varBindingContext}.GetValue({varParseResult}, {varOption});");
                         }
 
                         sb.AppendLine();
@@ -288,7 +309,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         {
                             var cliArgumentInput = argumentsWithoutProblem[index];
                             var varArgument = $"argument{index}";
-                            sb.AppendLine($"{varDefinitionInstance}.{cliArgumentInput.Symbol.Name} = GetValueForArgument({varParseResult}, {varArgument});");
+                            sb.AppendLine($"{varDefinitionInstance}.{cliArgumentInput.Symbol.Name} = {varBindingContext}.GetValue({varParseResult}, {varArgument});");
                         }
                     }
 
@@ -301,13 +322,13 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                : $"{varCommand}.SetAction({varParseResult} =>",
                     ");"))
                     {
-                        sb.AppendLine($"var {varDefinitionInstance} = bindingContext.Bind<{definitionClass}>({varParseResult});");
+                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<{definitionClass}>({varParseResult});");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the command handler");
                         sb.AppendLine(isAsync
-                            ? $"var {varCliContext} = new DotMake.CommandLine.CliContext(bindingContext, {varParseResult}, {varCancellationToken});"
-                            : $"var {varCliContext} = new DotMake.CommandLine.CliContext(bindingContext, {varParseResult});");
+                            ? $"var {varCliContext} = new DotMake.CommandLine.CliContext({varBindingContext}, {varParseResult}, {varCancellationToken});"
+                            : $"var {varCliContext} = new DotMake.CommandLine.CliContext({varBindingContext}, {varParseResult});");
                         sb.AppendLine("var exitCode = 0;");
                         if (handlerWithoutProblem != null)
                         {
@@ -352,7 +373,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 {
                     sb.AppendLine();
 
-                    var nestedCliCommandOutput = new CliCommandOutput(nestedCliCommandInput, ReferenceDependantInput);
+                    var nestedCliCommandOutput = new CliCommandOutput(nestedCliCommandInput, ReferenceDependantInput, this);
                     nestedCliCommandOutput.AppendCSharpDefineString(sb, false);
                 }
             }

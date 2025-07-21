@@ -52,7 +52,7 @@ namespace DotMake.CommandLine
                 var shortFormAutoGenerate = commandBuilder.ShortFormAutoGenerate ?? CliCommandAttribute.Default.ShortFormAutoGenerate;
 
                 var helpOption = new HelpOption(
-                    "help".AddPrefix(namePrefixConvention),
+                    CliStringUtil.AddPrefix("help", namePrefixConvention),
                     //Regardless of convention, add all short form aliases as help is a special option
                     "-h", "/h", "-?", "/?"
                 )
@@ -65,9 +65,9 @@ namespace DotMake.CommandLine
                 rootCommand.Options.Add(helpOption);
 
                 var versionOption = new VersionOption(
-                    "version".AddPrefix(namePrefixConvention),
+                    CliStringUtil.AddPrefix("version", namePrefixConvention),
                     (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options))
-                        ? new[] { "v".AddPrefix(shortFormPrefixConvention) }
+                        ? new[] { CliStringUtil.AddPrefix("v", shortFormPrefixConvention) }
                         : Array.Empty<string>()
                 )
                 {

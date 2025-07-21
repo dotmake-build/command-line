@@ -27,6 +27,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 return;
 
             AttributeArguments = new AttributeArguments(attributeData, semanticModel);
+            if (AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Order), out var order))
+                Order = (int)order;
 
             if (AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Required), out var requiredValue))
                 Required = (bool)requiredValue;
@@ -48,11 +50,15 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public new IPropertySymbol Symbol { get; }
 
-        public AttributeArguments AttributeArguments { get; }
-
         public CliCommandInput Parent { get; }
 
+
+        public AttributeArguments AttributeArguments { get; }
+
+        public int Order { get; }
+
         public bool Required { get; }
+
 
         public CliArgumentParserInput ArgumentParser { get; }
 

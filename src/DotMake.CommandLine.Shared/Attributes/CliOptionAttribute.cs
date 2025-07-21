@@ -76,6 +76,23 @@ namespace DotMake.CommandLine
         public string Description { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the option is hidden.
+        /// <para>
+        /// You might want to support a command, option, or argument, but avoid making it easy to discover.
+        /// For example, it might be a deprecated or administrative or preview feature.
+        /// Use the <see cref="Hidden"/> property to prevent users from discovering such features by using tab completion or help.
+        /// </para>
+        /// </summary>
+        public bool Hidden { get; set; }
+
+        /// <summary>
+        /// Gets or sets the order of the option.
+        /// <para>The order is used when printing the symbols in help and for arguments additionally effects the parsing order.</para>
+        /// <para>When not set (or is <c>0</c> - the default value), the symbol order is determined based on source code ordering.</para>
+        /// </summary>
+        public int Order { get; set; }
+
+        /// <summary>
         /// Gets or sets the set of an alternative string that can be used on the command line to specify the option.
         /// When set, this will override the auto-generated short form alias.
         /// <para>If you want to set multiple aliases, you can use <see cref="Aliases"/>.</para>
@@ -102,17 +119,7 @@ namespace DotMake.CommandLine
         /// Gets or sets the name of the option's argument when displayed in help.
         /// </summary>
         public string HelpName { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the option is hidden.
-        /// <para>
-        /// You might want to support a command, option, or argument, but avoid making it easy to discover.
-        /// For example, it might be a deprecated or administrative or preview feature.
-        /// Use the <see cref="Hidden"/> property to prevent users from discovering such features by using tab completion or help.
-        /// </para>
-        /// </summary>
-        public bool Hidden { get; set; }
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether the option is required when its parent command is invoked.
         /// Default is auto-detected.

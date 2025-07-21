@@ -69,7 +69,7 @@ namespace DotMake.CommandLine
 
         private static string GenerateHash(Delegate cliCommandAsDelegate)
         {
-            return GenerateString(cliCommandAsDelegate).GetStableStringHashCode32();
+            return HashUtil.GetStableStringHashCode32(GenerateString(cliCommandAsDelegate));
         }
 
         //The generated string should match the one generated in DotMake.CommandLine.SourceGeneration.CliCommandAsDelegateInfo

@@ -19,7 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliNamePrefixConvention.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CliValidationRules.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util\ExceptionUtil.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Util\StringExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\HashUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Util\" />

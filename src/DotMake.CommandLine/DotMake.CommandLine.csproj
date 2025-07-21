@@ -21,70 +21,48 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Improved: Even more robust command binding. Added `Create`, `BindCalled`, `BindAll`, `IsCalled`, `Contains` methods  to `CliResult`.
-          These methods are also available in `CliContext.Result` which can be accessed in `Run` command handler.
-          ```c#
-          var result = Cli.Parse<RootCliCommand>(args);
-
-          //Bind now returns null if the command line input does not contain
-          //the indicated definition class (as self or as a parent)
-          var subCommand = result.Bind<SubCliCommand>();
-          //unless you set new returnEmpty parameter to true
-          var subCommand2 = result.Bind<SubCliCommand>(true);
-
-          //You can get an object for called command
-          //without specifying the definition class
-          var command = result.BindCalled();
-          if (command is SubCliCommand subCommand3)
-          {
-
-          }
-          //Or get an array of objects for all contained commands
-          //(self and parents) without specifying the definition class
-          var commands = result.BindAll();
-          if (commands[0] is SubCliCommand subCommand4)
-          {
-
-          }
-
-          //You can check if the command line input is
-          //for the indicated definition class
-          if (result.IsCalled<SubCliCommand>())
-          {
-
-          }
-          //You can check if the command line input contains
-          //the indicated definition class (as self or as a parent)
-          if (result.Contains<SubCliCommand>())
-          {
-
-          }
-
-          //You can create a new instance of the command definition class
-          //but without any binding. This is useful for example when you need to
-          //instantiate a definition class when using dependency injection.
-          var subCommand5 = result.Create<SubCliCommand>();
-          ```
+        - Updated to version 2.0.0-beta6.25358.103 of System.CommandLine.
+          Also use exact version match with [] for PackageReference as future beta versions can break API.
           
-        - Improved: Command accessor properties can now be safely used for child commands and not only parent commands.
-          Circular dependency errors will be prevented, for example when parent and child has command accessors that point to each other.
+        - Added: `Order` property to `[CliCommand]`, `[CliDirective]`, `[CliOption]` and `[CliArgument]` attributes.
+          The order is used when printing the symbols in help and for arguments additionally effects the parsing order.
+          When not set (or is `0` - the default value), the symbol order is determined based on source code ordering.
           ```c#
-          [CliCommand(Description = "A root cli command")]
-          public class RootCliCommand
+          [CliCommand(Description = "A root cli command with custom order")]
+          public class OrderedCliCommand
           {
-              //This will be non-null only when the called command was this sub-command
-              //For example you can check sub-command accessors for null to determine
-              //which one was called
-              public SubCliCommand SubCliCommandAccessor { get; set; }
+              [CliOption(Description = "Description for Option1", Order = 2)]
+              public string Option1 { get; set; } = "DefaultForOption1";
 
-              [CliCommand(Description = "A sub-command")]
-              public class SubCliCommand
+              [CliOption(Description = "Description for Option2", Order = 1)]
+              public string Option2 { get; set; } = "DefaultForOption2";
+
+              [CliArgument(Description = "Description for Argument1", Order = 2)]
+              public string Argument1 { get; set; } = "DefaultForArgument1";
+
+              [CliArgument(Description = "Description for Argument2", Order = 1)]
+              public string Argument2 { get; set; } = "DefaultForArgument2";
+
+              [CliCommand(Description = "Description for sub-command1", Order = 2)]
+              public class Sub1CliCommand
               {
-                  //This will be always non-null because if sub-command was called,
-                  //it's parent-command should also have been called
-                  public RootCliCommand RootCliCommandAccessor { get; set; }
+
+              }
+
+              [CliCommand(Description = "Description for sub-command2", Order = 1)]
+              public class Sub2CliCommand
+              {
+
               }
           }
+          ```
+          
+        - Improved: Nested classes with container class not having `[CliCommand]` attribute, can now be used.
+
+        - Fixed: If there is no HelpName for option and if option is not a flag, show the `<argument>` next to it, for example:
+          ```console
+          Options:
+            --settingsfile <settingsfile>  Path to settings file [required]
           ```
       ]]>
      </PackageReleaseNotes>
@@ -93,7 +71,8 @@
   <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
+    <!-- use exact version match with [] for now as future beta versions can break API -->
+    <PackageReference Include="System.CommandLine" Version="[2.0.0-beta6.25358.103]" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
+using System.Linq;
+using DotMake.CommandLine.Binding;
 
 namespace DotMake.CommandLine
 {
@@ -212,6 +214,185 @@ namespace DotMake.CommandLine
             }
 
             return false;
+        }
+
+
+        /// <summary>
+        /// Gets an argument parser method for an argument type, if it's a collection type.
+        /// <para>
+        /// This is mainly used for adding support for all <see cref="IEnumerable{T}"/> compatible types which have
+        /// a public constructor with a <see cref="IEnumerable{T}"/> or <see cref="IList{T}"/> parameter (other parameters, if any, should be optional).
+        /// </para>
+        /// </summary>
+        /// <param name="convertFromArray">A delegate which creates an instance of collection type from an array.</param>
+        /// <param name="convertFromString">A delegate which creates an instance of item type from a string.</param>
+        /// <typeparam name="TCollection">The collection type, the argument type itself.</typeparam>
+        /// <typeparam name="TItem">The item type, e.g. if argument type is IEnumerable&lt;T&gt;, item type will be T.</typeparam>
+        /// <returns>A delegate which can be passed to an option or argument.</returns>
+        public Func<ArgumentResult, TCollection> GetArgumentParser<TCollection, TItem>(Func<Array, TCollection> convertFromArray, Func<string, TItem> convertFromString = null)
+        {
+            ArgumentConverter.RegisterCollectionConverter(convertFromArray);
+            ArgumentConverter.RegisterStringConverter(convertFromString);
+
+            return GetArgumentParser<TCollection>();
+        }
+
+        /// <summary>
+        /// Gets an argument parser method for an argument type.
+        /// <para>
+        /// This is mainly used for adding support for binding custom types which have a public constructor
+        /// or a static <c>Parse</c> method with a string parameter (other parameters, if any, should be optional).
+        /// </para>
+        /// </summary>
+        /// <param name="convertFromString">A delegate which creates an instance of custom type from a string.</param>
+        /// <typeparam name="TArgument">The argument type.</typeparam>
+        /// <returns>A delegate which can be passed to an option or argument.</returns>
+        public Func<ArgumentResult, TArgument> GetArgumentParser<TArgument>(Func<string, TArgument> convertFromString = null)
+        {
+            ArgumentConverter.RegisterStringConverter(convertFromString);
+
+            return (result) =>
+            {
+                var tryConvertArgument = ArgumentConverter.GetConverter(result.Argument);
+
+                if (tryConvertArgument == null)
+                {
+                    result.AddError($"No argument converter found for type '{result.Argument.ValueType}'");
+                    return default; // Ignored.
+                }
+
+                tryConvertArgument(result, out var value);
+
+                return value != null
+                    ? (TArgument)value
+                    : default;
+            };
+        }
+
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified directive.
+        /// <para>
+        /// Extended version for DotMake CLI which can bind custom classes,
+        /// does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
+        /// </para>
+        /// </summary>
+        /// <param name="parseResult">The parse result.</param>
+        /// <param name="directive">The directive for which to get a value.</param>
+        /// <typeparam name="T">The option type.</typeparam>
+        /// <returns>The parsed value or a configured default.</returns>
+        public T GetValue<T>(ParseResult parseResult, Directive directive)
+        {
+            var result = parseResult.GetResult(directive);
+            if (result != null)
+            {
+                var type = typeof(T).GetNullableUnderlyingTypeOrSelf();
+                if (type == typeof(bool))
+                    return (T)(object)true;
+                if (type == typeof(string))
+                    return (T)(object)(result.Values.FirstOrDefault() ?? string.Empty);
+                if (type == typeof(string[]))
+                    return (T)(object)result.Values.ToArray();
+
+                throw new Exception("Currently only 'bool', 'string' and 'string[]' types are supported for [CliDirective] properties.");
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(typeof(T));
+        }
+
+        /// <inheritdoc cref="GetValue{T}(ParseResult, Directive)"/>
+        public object GetValue(ParseResult parseResult, Directive directive)
+        {
+            /*
+            var result = parseResult.GetResult(directive);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<object>();
+                if (value != null)
+                    return value;
+            }
+
+            return ArgumentConverter.GetDefaultValue(directive.GetArgument().ValueType);
+            */
+            return GetValue<object>(parseResult, directive);
+        }
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified option.
+        /// <para>
+        /// Extended version for DotMake CLI which can bind custom classes,
+        /// does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
+        /// </para>
+        /// </summary>
+        /// <param name="parseResult">The parse result.</param>
+        /// <param name="option">The option for which to get a value.</param>
+        /// <typeparam name="T">The option type.</typeparam>
+        /// <returns>The parsed value or a configured default.</returns>
+        public T GetValue<T>(ParseResult parseResult, Option<T> option)
+        {
+            var result = parseResult.GetResult(option);
+            if (result != null)
+            {
+                //Note that there is a result when there is a DefaultValueFactory and if there is no error (e.g. other required options are not missing)
+                var value = result.GetValueOrDefault<T>();
+                if (value != null)
+                    return value;
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(typeof(T));
+        }
+
+        /// <inheritdoc cref="GetValue{T}(ParseResult, Option{T})"/>
+        public object GetValue(ParseResult parseResult, Option option)
+        {
+            var result = parseResult.GetResult(option);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<object>();
+                if (value != null)
+                    return value;
+            }
+
+            return ArgumentConverter.GetDefaultValue(option.GetArgument().ValueType);
+        }
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified argument.
+        /// <para>
+        /// Extended version for DotMake CLI which can bind custom classes,
+        /// does not fall back to internal ArgumentConverter.GetDefaultValue which does not support all IList compatible types.
+        /// </para>
+        /// </summary>
+        /// <param name="parseResult">The parse result.</param>
+        /// <param name="argument">The argument for which to get a value.</param>
+        /// <typeparam name="T">The argument type.</typeparam>
+        /// <returns>The parsed value or a configured default.</returns>
+        public T GetValue<T>(ParseResult parseResult, Argument<T> argument)
+        {
+            var result = parseResult.GetResult(argument);
+            if (result != null)
+            {
+                //Note that there is a result when there is a DefaultValueFactory and if there is no error (e.g. other required options are not missing)
+                var value = result.GetValueOrDefault<T>();
+                if (value != null)
+                    return value;
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(typeof(T));
+        }
+
+        /// <inheritdoc cref="GetValue{T}(ParseResult, Argument{T})"/>
+        public object GetValue(ParseResult parseResult, Argument argument)
+        {
+            var result = parseResult.GetResult(argument);
+            if (result != null)
+            {
+                var value = result.GetValueOrDefault<object>();
+                if (value != null)
+                    return value;
+            }
+
+            return ArgumentConverter.GetDefaultValue(argument.ValueType);
         }
     }
 }

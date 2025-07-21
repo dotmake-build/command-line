@@ -84,7 +84,7 @@ namespace DotMake.CommandLine
                 return specificName;
             }
 
-            var baseName = symbolName.Trim().StripSuffixes(CommandSuffixes);
+            var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), CommandSuffixes);
 
             var name = nameAutoGenerate.HasFlag(CliNameAutoGenerate.Commands)
                 ? FindAutoName(baseName, false)
@@ -116,10 +116,10 @@ namespace DotMake.CommandLine
                 return specificName;
             }
 
-            var baseName = symbolName.Trim().StripSuffixes(DirectiveSuffixes);
+            var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), DirectiveSuffixes);
 
             var name = nameAutoGenerate.HasFlag(CliNameAutoGenerate.Directives)
-                ? baseName.ToCase(nameCasingConvention)
+                ? CliStringUtil.ToCase(baseName, nameCasingConvention)
                 : baseName;
             AddTokenOrThrow(name, TokenType.DirectiveName, symbolName);
             return name;
@@ -144,12 +144,12 @@ namespace DotMake.CommandLine
             if (!string.IsNullOrWhiteSpace(specificName))
             {
                 specificName = specificName.Trim();
-                specificName = specificName.AddPrefix(namePrefixConvention); //will ignore if already has a prefix
+                specificName = CliStringUtil.AddPrefix(specificName, namePrefixConvention); //will ignore if already has a prefix
                 AddTokenOrThrow(specificName, TokenType.OptionName, symbolName);
                 return specificName;
             }
 
-            var baseName = symbolName.Trim().StripSuffixes(OptionSuffixes);
+            var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), OptionSuffixes);
 
             var name = nameAutoGenerate.HasFlag(CliNameAutoGenerate.Options)
                 ? FindAutoName(baseName, true)
@@ -180,10 +180,10 @@ namespace DotMake.CommandLine
                 return specificName;
             }
 
-            var baseName = symbolName.Trim().StripSuffixes(ArgumentSuffixes);
+            var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), ArgumentSuffixes);
 
             return nameAutoGenerate.HasFlag(CliNameAutoGenerate.Arguments)
-                ? baseName.ToCase(nameCasingConvention)
+                ? CliStringUtil.ToCase(baseName, nameCasingConvention)
                 : baseName;
         }
 
@@ -222,7 +222,7 @@ namespace DotMake.CommandLine
                 throw ExceptionUtil.ParameterEmptyString(nameof(symbolName));
             
             alias = alias.Trim();
-            alias = alias.AddPrefix(namePrefixConvention); //will ignore if already has a prefix
+            alias = CliStringUtil.AddPrefix(alias, namePrefixConvention); //will ignore if already has a prefix
 
             AddTokenOrThrow(alias, TokenType.OptionAlias, symbolName);
             option.Aliases.Add(alias);
@@ -250,7 +250,7 @@ namespace DotMake.CommandLine
             }
             else if (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Commands))
             {
-                var baseName = symbolName.Trim().StripSuffixes(CommandSuffixes);
+                var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), CommandSuffixes);
 
                 var shortForm = FindAutoShortForm(baseName, false);
 
@@ -280,13 +280,13 @@ namespace DotMake.CommandLine
             if (!string.IsNullOrWhiteSpace(specificAlias))
             {
                 specificAlias = specificAlias.Trim();
-                specificAlias = specificAlias.AddPrefix(shortFormPrefixConvention); //will ignore if already has a prefix
+                specificAlias = CliStringUtil.AddPrefix(specificAlias, shortFormPrefixConvention); //will ignore if already has a prefix
                 AddTokenOrThrow(specificAlias, TokenType.OptionAlias, symbolName);
                 option.Aliases.Add(specificAlias);
             }
             else if (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Options))
             {
-                var baseName = symbolName.Trim().StripSuffixes(OptionSuffixes);
+                var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), OptionSuffixes);
 
                 var shortForm = FindAutoShortForm(baseName, true);
 
@@ -306,9 +306,9 @@ namespace DotMake.CommandLine
                 var name = (i == 0)
                     ? baseName
                     : baseName + "-" + (i + 1);
-                name = name.ToCase(nameCasingConvention);
+                name = CliStringUtil.ToCase(name, nameCasingConvention);
                 if (withPrefix)
-                    name = name.AddPrefix(namePrefixConvention);
+                    name = CliStringUtil.AddPrefix(name, namePrefixConvention);
 
                 if (usedTokens.ContainsKey(name))
                     continue;
@@ -316,23 +316,23 @@ namespace DotMake.CommandLine
                 return name;
             }
 
-            return baseName.ToCase(nameCasingConvention);
+            return CliStringUtil.ToCase(baseName, nameCasingConvention);
         }
 
         private string FindAutoShortForm(string baseName, bool withPrefix)
         {
-            var words = baseName.SplitWords();
+            var words = CliStringUtil.SplitWords(baseName);
 
             var shortForm = "";
             foreach (var word in words)
             {
                 shortForm += int.TryParse(word, out var number) //treat numbers as special, e.g. 256 should not be reduced to 2
                     ? number.ToString()
-                    : word?[0].ToString().ToCase(nameCasingConvention);
+                    : CliStringUtil.ToCase(word?[0].ToString(), nameCasingConvention);
             }
 
             if (withPrefix)
-                shortForm = shortForm.AddPrefix(shortFormPrefixConvention);
+                shortForm = CliStringUtil.AddPrefix(shortForm, shortFormPrefixConvention);
 
             return shortForm;
         }

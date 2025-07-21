@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace DotMake.CommandLine.Util
+namespace DotMake.CommandLine
 {
     /// <summary>
-    /// Provides extension methods for <see cref="string" />.
+    /// Provides CLI related <see cref="string" /> methods.
     /// </summary>
-    public static class StringExtensions
+    public static class CliStringUtil
     {
         private static readonly Regex SplitWordsRegex = new Regex(@"
             (?<=[\p{Ll}\p{Lm}\p{Lo}])(?=[\p{Lu}\p{Lt}]) # split on what precedes is a lowercase or modifier or other letter
@@ -35,7 +35,7 @@ namespace DotMake.CommandLine.Util
         /// <param name="value">A string instance.</param>
         /// <param name="keepSpaces">Whether to keep a single space between words if there were any whitespace or punctuation in the original.</param>
         /// <returns>An array of strings.</returns>
-        public static string[] SplitWords(this string value, bool keepSpaces = false)
+        public static string[] SplitWords(string value, bool keepSpaces = false)
         {
             var words = SplitWordsRegex.Split(value);
 
@@ -71,7 +71,6 @@ namespace DotMake.CommandLine.Util
             return words.Where(w => !WordSpacesRegex.IsMatch(w)).ToArray();
         }
 
-
         /// <summary>
         /// Converts the string to a specific case.
         /// </summary>
@@ -83,7 +82,7 @@ namespace DotMake.CommandLine.Util
         /// This works only for LowerCase, UpperCase, TitleCase which allows spaces.
         /// </param>
         /// <returns>A new <see cref="string" /> instance.</returns>
-        public static string ToCase(this string value, CliNameCasingConvention nameCasingConvention, CultureInfo culture = null, bool keepSpaces = false)
+        public static string ToCase(string value, CliNameCasingConvention nameCasingConvention, CultureInfo culture = null, bool keepSpaces = false)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return value;
@@ -140,7 +139,7 @@ namespace DotMake.CommandLine.Util
         /// <param name="suffixes">Suffix strings to remove.</param>
         /// <param name="ignoreCase">Whether to ignore case.</param>
         /// <returns>A new <see cref="string" /> instance.</returns>
-        public static string StripSuffixes(this string value, IEnumerable<string> suffixes, bool ignoreCase = true)
+        public static string StripSuffixes(string value, IEnumerable<string> suffixes, bool ignoreCase = true)
         {
             if (string.IsNullOrEmpty(value))
                 return value;
@@ -158,18 +157,19 @@ namespace DotMake.CommandLine.Util
             return value;
         }
 
+
         /// <summary>
         /// Adds a specific prefix to the string.
         /// </summary>
         /// <param name="alias">A string instance.</param>
         /// <param name="namePrefixConvention">The prefix convention to use.</param>
         /// <returns>A new <see cref="string" /> instance.</returns>
-        public static string AddPrefix(this string alias, CliNamePrefixConvention namePrefixConvention)
+        public static string AddPrefix(string alias, CliNamePrefixConvention namePrefixConvention)
         {
             if (namePrefixConvention == CliNamePrefixConvention.None)
                 return alias;
 
-            var prefixLength = alias.GetPrefixLength();
+            var prefixLength = GetPrefixLength(alias);
 
             if (prefixLength > 0) //Has prefix
                 return alias;
@@ -191,9 +191,9 @@ namespace DotMake.CommandLine.Util
         /// </summary>
         /// <param name="alias">A string instance.</param>
         /// <returns>A new <see cref="string" /> instance.</returns>
-        public static string RemovePrefix(this string alias)
+        public static string RemovePrefix(string alias)
         {
-            var prefixLength = alias.GetPrefixLength();
+            var prefixLength = GetPrefixLength(alias);
 
             if (prefixLength > 0) //Has prefix
                 return alias.Substring(prefixLength);
@@ -201,7 +201,12 @@ namespace DotMake.CommandLine.Util
             return alias;
         }
 
-        private static int GetPrefixLength(this string alias)
+        /// <summary>
+        /// Gets the prefix (-, --, /) length from the string.
+        /// </summary>
+        /// <param name="alias">A string instance.</param>
+        /// <returns>A new <see cref="string" /> instance.</returns>
+        public static int GetPrefixLength(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
                 return 0;
@@ -222,8 +227,12 @@ namespace DotMake.CommandLine.Util
             return 0;
         }
 
-        /*
-        internal static (string Prefix, string Alias) SplitPrefix(this string rawAlias)
+        /// <summary>
+        /// Splits prefixes (-, --, /) from the string.
+        /// </summary>
+        /// <param name="rawAlias">A string instance.</param>
+        /// <returns>A new <see cref="string" /> instance.</returns>
+        public static (string Prefix, string Alias) SplitPrefix(string rawAlias)
         {
             if (rawAlias[0] == '/')
             {
@@ -241,13 +250,13 @@ namespace DotMake.CommandLine.Util
 
             return (null, rawAlias);
         }
-        */
+
 
         /// <summary>
-        /// Formats a value as a printable string
+        /// Formats a value as a printable string.
         /// </summary>
         /// <param name="value">An object value.</param>
-        /// <returns>A string.</returns>
+        /// <returns>A new <see cref="string" /> instance.</returns>
         public static string FormatValue(object value)
         {
             if (value == null)
@@ -276,77 +285,6 @@ namespace DotMake.CommandLine.Util
                 return value.ToString();
 
             return "object";
-        }
-
-
-        /// <summary>
-        /// Gets a stable hash code (int). 
-        /// </summary>
-        /// <param name="source">A string instance.</param>
-        /// <returns>A <see cref="int" /> hash value.</returns>
-        public static int GetStableHashCode32(this string source)
-        {
-            var span = source.AsSpan();
-
-            // FNV-1a
-            // For its performance, collision resistance, and outstanding distribution:
-            // https://softwareengineering.stackexchange.com/a/145633
-            unchecked
-            {
-                // Inspiration: https://gist.github.com/RobThree/25d764ea6d4849fdd0c79d15cda27d61
-                // Confirmation: https://gist.github.com/StephenCleary/4f6568e5ab5bee7845943fdaef8426d2
-
-                const uint fnv32Offset = 2166136261;
-                const uint fnv32Prime = 16777619;
-
-                var result = fnv32Offset;
-
-                foreach (var t in span)
-                    result = (result ^ t) * fnv32Prime;
-
-                return (int)result;
-            }
-        }
-
-        /// <summary>
-        /// Gets a stable int hash code as string.
-        /// </summary>
-        /// <param name="source">A string instance.</param>
-        /// <returns>A base32 encoded <see cref="string" /> hash value.</returns>
-        public static string GetStableStringHashCode32(this string source)
-        {
-            var hashCode = source.GetStableHashCode32();
-
-            var bytes = new byte[8];
-
-            for (var i = 0; i < 4; i++)
-                bytes[i] = (byte)(hashCode >> 8 * i);
-
-            var chars = new char[13];
-            ToBase32Chars8(bytes, chars.AsSpan());
-            var result = new string(chars, 0, 7);
-
-            return result;
-        }
-
-        private static char[] Base32Alphabet { get; } = "0123456789abcdefghjkmnpqrstvwxyz".ToCharArray();
-
-        /// <summary>
-        /// Converts the given 8 bytes to 13 base32 chars.
-        /// </summary>
-        private static void ToBase32Chars8(ReadOnlySpan<byte> bytes, Span<char> chars)
-        {
-            var ulongValue = 0UL;
-            for (var i = 0; i < 8; i++) ulongValue = (ulongValue << 8) | bytes[i];
-
-            // Can encode 8 bytes as 13 chars
-            for (var i = 13 - 1; i >= 0; i--)
-            {
-                var quotient = ulongValue / 32UL;
-                var remainder = ulongValue - 32UL * quotient;
-                ulongValue = quotient;
-                chars[i] = Base32Alphabet[(int)remainder];
-            }
         }
 
         /// <summary>
@@ -382,7 +320,7 @@ namespace DotMake.CommandLine.Util
                         if (c >= 0x20 && c <= 0x7e)
                         {
                             literal.Append(c);
-                            
+
                         }
                         // UTF16 control characters
                         else if (char.GetUnicodeCategory(c) == UnicodeCategory.Control)

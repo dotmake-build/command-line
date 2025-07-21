@@ -82,6 +82,12 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool Hidden { get; set; }
 
+        /// <summary>
+        /// Gets or sets the order of the directive.
+        /// <para>The order is used when printing the symbols in help and for arguments additionally effects the parsing order.</para>
+        /// <para>When not set (or is <c>0</c> - the default value), the symbol order is determined based on source code ordering.</para>
+        /// </summary>
+        public int Order { get; set; }
 
         internal static CliDirectiveAttribute Default { get; } = new CliDirectiveAttribute();
     }
