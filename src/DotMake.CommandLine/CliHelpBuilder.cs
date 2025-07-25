@@ -766,7 +766,7 @@ namespace DotMake.CommandLine
                                     .Select(r => r.SplitPrefix())
                                     .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
                                     .ThenBy(r => r.Alias.Length) /*MODIFY*/
-                                    //.ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase) /*MODIFY*/
+                                    .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
                                     .GroupBy(t => t.Alias)
                                     .Select(t => t.First())
                                     .Select(t => $"{t.Prefix}{t.Alias}");

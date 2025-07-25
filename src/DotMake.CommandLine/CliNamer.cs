@@ -50,11 +50,11 @@ namespace DotMake.CommandLine
             CliNamePrefixConvention? shortFormPrefixConvention = null,
             CliNamer parentNamer = null)
         {
-            this.nameAutoGenerate = nameAutoGenerate ?? CliCommandAttribute.Default.NameAutoGenerate;
-            this.nameCasingConvention = nameCasingConvention ?? CliCommandAttribute.Default.NameCasingConvention;
-            this.namePrefixConvention = namePrefixConvention ?? CliCommandAttribute.Default.NamePrefixConvention;
-            this.shortFormAutoGenerate = shortFormAutoGenerate ?? CliCommandAttribute.Default.ShortFormAutoGenerate;
-            this.shortFormPrefixConvention = shortFormPrefixConvention ?? CliCommandAttribute.Default.ShortFormPrefixConvention;
+            this.nameAutoGenerate = nameAutoGenerate ?? parentNamer?.nameAutoGenerate ?? CliCommandAttribute.Default.NameAutoGenerate;
+            this.nameCasingConvention = nameCasingConvention ?? parentNamer?.nameCasingConvention ?? CliCommandAttribute.Default.NameCasingConvention;
+            this.namePrefixConvention = namePrefixConvention ?? parentNamer ?.namePrefixConvention ?? CliCommandAttribute.Default.NamePrefixConvention;
+            this.shortFormAutoGenerate = shortFormAutoGenerate ?? parentNamer ?.shortFormAutoGenerate ?? CliCommandAttribute.Default.ShortFormAutoGenerate;
+            this.shortFormPrefixConvention = shortFormPrefixConvention ?? parentNamer?.shortFormPrefixConvention ?? CliCommandAttribute.Default.ShortFormPrefixConvention;
             this.parentNamer = parentNamer;
         }
 

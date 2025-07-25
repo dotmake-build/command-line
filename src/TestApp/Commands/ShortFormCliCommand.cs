@@ -9,7 +9,7 @@ namespace TestApp.Commands
 
     [CliCommand(
         //NameAutoGenerate = CliNameAutoGenerate.Options
-        //,ShortFormAutoGenerate = CliNameAutoGenerate.Options
+        //ShortFormAutoGenerate = CliNameAutoGenerate.Options | CliNameAutoGenerate.Arguments
     )]
     public class ShortFormCliCommand
     {
@@ -53,7 +53,11 @@ namespace TestApp.Commands
         [CliCommand]
         public class TestCommand
         {
+            [CliCommand]
+            public class Test2SubCommand
+            {
 
+            }
         }
 
         [CliCommand(Aliases = new []{"op1"} /*, Name = "-o2"*/)]

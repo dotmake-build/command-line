@@ -167,12 +167,12 @@ namespace DotMake.CommandLine
             //If a setting is not null in this command builder, then that will be used instead.
             Namer = new CliNamer
             (
-                NameAutoGenerate ?? parent.NameAutoGenerate,
-                NameCasingConvention ?? parent.NameCasingConvention,
-                NamePrefixConvention ?? parent.NamePrefixConvention,
-                ShortFormAutoGenerate ?? parent.ShortFormAutoGenerate,
-                ShortFormPrefixConvention ?? parent.ShortFormPrefixConvention,
-                parent.Namer //Use the parent namer to check names and aliases of sub-commands.
+                NameAutoGenerate,
+                NameCasingConvention,
+                NamePrefixConvention,
+                ShortFormAutoGenerate,
+                ShortFormPrefixConvention,
+                parent.Namer //Use the parent namer to check names and aliases of sub-commands and cascade settings inheritance.
             );
 
             return DoBuild(bindingContext);

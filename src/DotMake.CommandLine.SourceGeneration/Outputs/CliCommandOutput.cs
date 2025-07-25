@@ -176,7 +176,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"string propertyName, DotMake.CommandLine.CliBindingContext {varBindingContext}, {CompletionsNamespace}.CompletionContext completionContext)");
                     using (sb.AppendBlockStart())
                     {
-                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<{definitionClass}>(completionContext.ParseResult);");
+                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<{definitionClass}>(completionContext.ParseResult, true);");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the interface method with property name of option or argument");

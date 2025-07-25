@@ -21,49 +21,9 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Updated to version 2.0.0-beta6.25358.103 of System.CommandLine.
-          Also use exact version match with [] for PackageReference as future beta versions can break API.
+        - Fixed: Naming related settings were not being inherited correctly after level-2 sub-commands or above.
           
-        - Added: `Order` property to `[CliCommand]`, `[CliDirective]`, `[CliOption]` and `[CliArgument]` attributes.
-          The order is used when printing the symbols in help and for arguments additionally effects the parsing order.
-          When not set (or is `0` - the default value), the symbol order is determined based on source code ordering.
-          ```c#
-          [CliCommand(Description = "A root cli command with custom order")]
-          public class OrderedCliCommand
-          {
-              [CliOption(Description = "Description for Option1", Order = 2)]
-              public string Option1 { get; set; } = "DefaultForOption1";
-
-              [CliOption(Description = "Description for Option2", Order = 1)]
-              public string Option2 { get; set; } = "DefaultForOption2";
-
-              [CliArgument(Description = "Description for Argument1", Order = 2)]
-              public string Argument1 { get; set; } = "DefaultForArgument1";
-
-              [CliArgument(Description = "Description for Argument2", Order = 1)]
-              public string Argument2 { get; set; } = "DefaultForArgument2";
-
-              [CliCommand(Description = "Description for sub-command1", Order = 2)]
-              public class Sub1CliCommand
-              {
-
-              }
-
-              [CliCommand(Description = "Description for sub-command2", Order = 1)]
-              public class Sub2CliCommand
-              {
-
-              }
-          }
-          ```
-          
-        - Improved: Nested classes with container class not having `[CliCommand]` attribute, can now be used.
-
-        - Fixed: If there is no HelpName for option and if option is not a flag, show the `<argument>` next to it, for example:
-          ```console
-          Options:
-            --settingsfile <settingsfile>  Path to settings file [required]
-          ```
+        - Fixed: NullReferenceException when invoking help output for a sub-command that had completions.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
