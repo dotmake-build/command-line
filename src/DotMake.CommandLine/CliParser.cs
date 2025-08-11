@@ -29,6 +29,8 @@ namespace DotMake.CommandLine
             settings ??= new CliSettings();
             this.settings = settings;
 
+            Command = command;
+
             configuration = new CommandLineConfiguration(command)
             {
                 EnablePosixBundling = settings.EnablePosixBundling,
@@ -43,6 +45,8 @@ namespace DotMake.CommandLine
 
             if (rootCommand != null)
             {
+                RootCommand = rootCommand;
+
                 //CliRootCommand constructor already adds HelpOption and VersionOption so remove them
                 foreach (var option in rootCommand.Options.Where(option => option is HelpOption or VersionOption).ToArray())
                     rootCommand.Options.Remove(option);
@@ -88,6 +92,17 @@ namespace DotMake.CommandLine
             }
         }
 
+        /// <summary>
+        /// The command that is used to parse the command line input.
+        /// </summary>
+        public Command Command { get; }
+
+        /// <summary>
+        /// The root of the command that is used to parse the command line input.
+        /// If <see cref="Command"/> is already a root command, this will be same instance.
+        /// If it's a sub-command, it will be the root of that sub-command.
+        /// </summary>
+        public RootCommand RootCommand { get; }
 
         /// <summary>
         /// Parses a command line string array and returns the parse result for the indicated command.

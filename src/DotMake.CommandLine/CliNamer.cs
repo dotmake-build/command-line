@@ -250,6 +250,10 @@ namespace DotMake.CommandLine
             }
             else if (shortFormAutoGenerate.HasFlag(CliNameAutoGenerate.Commands))
             {
+                //Do not add auto alias for root commands as it can unnecessarily conflict with children
+                if (command is RootCommand)
+                    return;
+
                 var baseName = CliStringUtil.StripSuffixes(symbolName.Trim(), CommandSuffixes);
 
                 var shortForm = FindAutoShortForm(baseName, false);
@@ -347,7 +351,7 @@ namespace DotMake.CommandLine
                 var existingTokenType = tuple.Item1;
                 var existingSymbolName = tuple.Item2;
                 throw new Exception(
-                    $"{tokenType} '{token}' for '{symbolName}' conflicts with {existingTokenType} for '{existingSymbolName}'!"
+                    $"{tokenType} \"{token}\" for \"{symbolName}\" conflicts with {existingTokenType} for \"{existingSymbolName}\" !"
                 );
             }
 
@@ -358,7 +362,7 @@ namespace DotMake.CommandLine
                 var existingTokenType = tuple2.Item1;
                 var existingSymbolName = tuple2.Item2;
                 throw new Exception(
-                    $"{tokenType} '{token}' for '{symbolName}' conflicts with parent {existingTokenType} for '{existingSymbolName}'!"
+                    $"{tokenType} \"{token}\" for \"{symbolName}\" conflicts with parent {existingTokenType} for \"{existingSymbolName}\" !"
                 );
             }
 

@@ -129,6 +129,7 @@ var result = parser.Parse(args);
 parser.Run(args);
 */
 
+
 if (!Debugger.IsAttached)
 {
     Console.WriteLine(@"Press any key to exit...");

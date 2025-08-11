@@ -29,18 +29,14 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer, string varBindingContext)
         {
-            var varNameParameter = $"{varName}Name";
-
             sb.AppendLine($"// Option for '{Input.Symbol.Name}' property");
-
-            if (Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue))
-                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetOptionName(\"{Input.Symbol.Name}\", \"{nameValue}\");");
-            else
-                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetOptionName(\"{Input.Symbol.Name}\");");
 
             using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
-                sb.AppendLine($"{varNameParameter}");
+                if (Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue))
+                    sb.AppendLine($"{varNamer}.GetOptionName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
+                else
+                    sb.AppendLine($"{varNamer}.GetOptionName(\"{Input.Symbol.Name}\")");
             }
             using (sb.AppendBlockStart(null, ";"))
             {

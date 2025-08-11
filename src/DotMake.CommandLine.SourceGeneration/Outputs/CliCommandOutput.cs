@@ -381,21 +381,20 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varRootName, string varNamer)
         {
-            var varNameParameter = $"{varName}Name";
-
             sb.AppendLine($"// Command for '{Input.Symbol.Name}' class");
             //sb.AppendLine($"// Parent tree: '{string.Join(" -> ", Input.ParentTree.Select(p=> p.Symbol))}'");
-
-            if (Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue))
-                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetCommandName(\"{Input.Symbol.Name}\", \"{nameValue}\");");
-            else
-                sb.AppendLine($"var {varNameParameter} = {varNamer}.GetCommandName(\"{Input.Symbol.Name}\");");
 
             using (sb.AppendBlockStart($"var {varName} = IsRoot", null, null, null))
             {
                 //Cannot set name for a RootCommand, it's the executable name by default
                 sb.AppendLine($"? new {CommandClassNamespace}.{RootCommandClassName}()");
-                sb.AppendLine($": new {CommandClassNamespace}.{CommandClassName}({varNameParameter});");                
+                using (sb.AppendParamsBlockStart($": new {CommandClassNamespace}.{CommandClassName}", ";"))
+                {
+                    if (Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue))
+                        sb.AppendLine($"{varNamer}.GetCommandName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
+                    else
+                        sb.AppendLine($"{varNamer}.GetCommandName(\"{Input.Symbol.Name}\")");
+                }
             }
 
             sb.AppendLine($"var {varRootName} = {varName} as {CommandClassNamespace}.{RootCommandClassName};");
