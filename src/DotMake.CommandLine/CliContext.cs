@@ -30,8 +30,8 @@ namespace DotMake.CommandLine
             Result = new CliResult(bindingContext, parseResult);
             this.parseResult = parseResult;
 
-            Output = parseResult.Configuration.Output;
-            Error = parseResult.Configuration.Error;
+            Output = parseResult.InvocationConfiguration.Output;
+            Error = parseResult.InvocationConfiguration.Error;
             CancellationToken = cancellationToken;
         }
 
@@ -100,25 +100,23 @@ namespace DotMake.CommandLine
         /// </summary>
         public void ShowValues()
         {
-            var output = parseResult.Configuration.Output;
-
             var command = parseResult.CommandResult.Command;
             var isRoot = (command.Parents.FirstOrDefault() == null);
             var bindingContext = new CliBindingContext();
 
-            output.WriteLine($"Command = \"{command.Name}\" [{(isRoot ? "Root command" : "Sub-command")}]");
+            Output.WriteLine($"Command = \"{command.Name}\" [{(isRoot ? "Root command" : "Sub-command")}]");
 
             foreach (var symbolResult in parseResult.CommandResult.Children)
             {
                 if (symbolResult is ArgumentResult argumentResult)
                 {
                     var value = bindingContext.GetValue(parseResult, argumentResult.Argument);
-                    output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {CliStringUtil.FormatValue(value)}");
+                    Output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {CliStringUtil.FormatValue(value)}");
                 }
                 else if (symbolResult is OptionResult optionResult)
                 {
                     var value = bindingContext.GetValue(parseResult, optionResult.Option);
-                    output.WriteLine($"Option '{optionResult.Option.Name}' = {CliStringUtil.FormatValue(value)}");
+                    Output.WriteLine($"Option '{optionResult.Option.Name}' = {CliStringUtil.FormatValue(value)}");
                 }
             }
         }
@@ -130,7 +128,7 @@ namespace DotMake.CommandLine
         public void ShowHierarchy(bool showLevel = false)
         {
             var theme = GetThemeOrDefault();
-            var rootCommand = parseResult.Configuration.RootCommand;
+            var rootCommand = parseResult.RootCommandResult.Command;
 
             foreach (var command in GetParentTree(rootCommand))
             {

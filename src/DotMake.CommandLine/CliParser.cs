@@ -19,7 +19,8 @@ namespace DotMake.CommandLine
     {
         private readonly CliBindingContext bindingContext = new();
         private readonly CliSettings settings;
-        private readonly CommandLineConfiguration configuration;
+        private readonly ParserConfiguration parserConfiguration;
+        private readonly InvocationConfiguration invocationConfiguration;
 
         internal CliParser(Type definitionType, CliSettings settings = null)
         {
@@ -31,17 +32,21 @@ namespace DotMake.CommandLine
 
             Command = command;
 
-            configuration = new CommandLineConfiguration(command)
+            parserConfiguration = new ParserConfiguration
             {
                 EnablePosixBundling = settings.EnablePosixBundling,
-                EnableDefaultExceptionHandler = settings.EnableDefaultExceptionHandler,
-                ProcessTerminationTimeout = settings.ProcessTerminationTimeout,
                 ResponseFileTokenReplacer = settings.ResponseFileTokenReplacer
             };
+
+            invocationConfiguration = new InvocationConfiguration
+            {
+                EnableDefaultExceptionHandler = settings.EnableDefaultExceptionHandler,
+                ProcessTerminationTimeout = settings.ProcessTerminationTimeout,
+            };
             if (settings.Output != null) //Console.Out is NOT being used
-                configuration.Output = settings.Output;
+                invocationConfiguration.Output = settings.Output;
             if (settings.Error != null) //Console.Error is NOT being used
-                configuration.Error = settings.Error;
+                invocationConfiguration.Error = settings.Error;
 
             if (rootCommand != null)
             {
@@ -121,7 +126,7 @@ namespace DotMake.CommandLine
         */
         public CliResult Parse(string[] args = null)
         {
-            var parseResult = configuration.Parse(FixArgs(args) ?? GetArgs());
+            var parseResult = Command.Parse(FixArgs(args) ?? GetArgs(), parserConfiguration);
             return new CliResult(bindingContext, parseResult);
         }
 
@@ -137,7 +142,7 @@ namespace DotMake.CommandLine
         */
         public CliResult Parse(string commandLine)
         {
-            var parseResult = configuration.Parse(commandLine);
+            var parseResult = Command.Parse(commandLine, parserConfiguration);
             return new CliResult(bindingContext, parseResult);
         }
 
@@ -156,7 +161,8 @@ namespace DotMake.CommandLine
         public int Run(string[] args = null)
         {
             using (new CliSession(settings))
-                return configuration.Invoke(FixArgs(args) ?? GetArgs());
+                return Command.Parse(FixArgs(args) ?? GetArgs(), parserConfiguration)
+                    .Invoke(invocationConfiguration);
         }
 
         /// <summary>
@@ -173,7 +179,8 @@ namespace DotMake.CommandLine
         public int Run(string commandLine)
         {
             using (new CliSession(settings))
-                return configuration.Invoke(commandLine);
+                return Command.Parse(commandLine, parserConfiguration)
+                    .Invoke(invocationConfiguration);
         }
 
         /// <summary>
@@ -191,7 +198,8 @@ namespace DotMake.CommandLine
         public async Task<int> RunAsync(string[] args = null, CancellationToken cancellationToken = default)
         {
             using (new CliSession(settings))
-                return await configuration.InvokeAsync(FixArgs(args) ?? GetArgs(), cancellationToken);
+                return await Command.Parse(FixArgs(args) ?? GetArgs(), parserConfiguration)
+                    .InvokeAsync(invocationConfiguration, cancellationToken);
         }
 
         /// <summary>
@@ -209,7 +217,8 @@ namespace DotMake.CommandLine
         public async Task<int> RunAsync(string commandLine, CancellationToken cancellationToken = default)
         {
             using (new CliSession(settings))
-                return await configuration.InvokeAsync(commandLine, cancellationToken);
+                return await Command.Parse(commandLine, parserConfiguration)
+                    .InvokeAsync(invocationConfiguration, cancellationToken);
         }
 
 
@@ -267,7 +276,7 @@ namespace DotMake.CommandLine
         {
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.Configuration.Output.WriteLine(ExecutableInfo.Version);
+                parseResult.InvocationConfiguration.Output.WriteLine(ExecutableInfo.Version);
                 return 0;
             }
         }

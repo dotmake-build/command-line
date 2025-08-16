@@ -16,7 +16,7 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="value"><see langword="true" /> to parse POSIX bundles; otherwise, <see langword="false" />.</param>
         /// <remarks>
-        /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="P:System.CommandLine.CliConfiguration.EnablePosixBundling" /> is set to <see langword="true" />, the following command lines are equivalent:
+        /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling" /> is set to <see langword="true" />, the following command lines are equivalent:
         ///
         /// <code>
         /// &gt; myapp -a -b -c
@@ -24,7 +24,7 @@ namespace DotMake.CommandLine
         /// </code>
         ///
         /// If an argument is provided after an option bundle, it applies to the last option in the bundle.
-        /// When <see cref="P:System.CommandLine.CliConfiguration.EnablePosixBundling" /> is set to <see langword="true" />,
+        /// When <see cref="EnablePosixBundling" /> is set to <see langword="true" />,
         /// all of the following command lines are equivalent:
         /// <code>
         /// &gt; myapp -a -b -c arg
@@ -65,7 +65,7 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="T:System.Threading.CancellationToken" /> 
-        /// that can be passed to a <see cref="T:System.CommandLine.Invocation.CliAction" /> during invocation.
+        /// that can be passed to a <see cref="T:System.CommandLine.Invocation.CommandLineAction" /> during invocation.
         /// If not provided, a default timeout of 2 seconds is enforced.
         /// </summary>
         public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2.0);
@@ -78,7 +78,7 @@ namespace DotMake.CommandLine
         /// When enabled, any token prefixed with <c>@</c> can be replaced with zero or more other tokens.
         /// This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
-        public TryReplaceToken ResponseFileTokenReplacer { get; set; } = DefaultConfiguration.ResponseFileTokenReplacer;
+        public TryReplaceToken ResponseFileTokenReplacer { get; set; } = DefaultParserConfiguration.ResponseFileTokenReplacer;
 
         /// <summary>
         /// Gets or sets the standard output. Used by Help and other facilities that write non-error information.
@@ -102,6 +102,6 @@ namespace DotMake.CommandLine
         /// </summary>
         public CliTheme Theme { get; set; } = CliTheme.Default;
 
-        private static readonly CommandLineConfiguration DefaultConfiguration = new CommandLineConfiguration(new RootCommand());
+        private static readonly ParserConfiguration DefaultParserConfiguration = new ();
     }
 }

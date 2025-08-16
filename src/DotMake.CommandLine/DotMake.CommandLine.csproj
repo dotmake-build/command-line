@@ -21,22 +21,7 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Added: `Command` and `RootCommand` properties to `CliParser` class:
-          ```c#
-          var parser = Cli.GetParser<RootCliCommand>();
-
-          //Access the command that is used to parse the command line input.
-          var command = parser.Command;
-
-          //Access the root of the command that is used to parse the command line input.
-          //If parser.Command is already a root command, this will be same instance.
-          //If it's a sub-command, it will be the root of that sub-command.
-          var rootCommand = parser.RootCommand;
-          ```
-          
-        - Fixed: SourceGenerator sometimes triggers a concurrency exception. Use `ConcurrentDictionary` for `GenerationCounts`.
-
-        - Fixed: Do not add auto name or alias for root commands as it can unnecessarily conflict with children.
+        - Updated to version 2.0.0-beta7.25380.108 of System.CommandLine.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -45,7 +30,7 @@
 
   <ItemGroup>
     <!-- use exact version match with [] for now as future beta versions can break API -->
-    <PackageReference Include="System.CommandLine" Version="[2.0.0-beta6.25358.103]" />
+    <PackageReference Include="System.CommandLine" Version="[2.0.0-beta7.25380.108]" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.
