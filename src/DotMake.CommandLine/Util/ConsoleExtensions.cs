@@ -79,9 +79,9 @@ namespace DotMake.CommandLine.Util
             if (backgroundColor == (ConsoleColor)(-1))
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    foregroundColor = ConsoleColor.Black;
+                    backgroundColor = ConsoleColor.Black;
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    foregroundColor = ConsoleColor.White;
+                    backgroundColor = ConsoleColor.White;
             }
 
             if (foregroundColor == null)
