@@ -21,7 +21,7 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - Updated to version 2.0.0-beta7.25380.108 of System.CommandLine.
+        - **Fixed:** Foreground color is always white on macOS regardless of theme settings.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
