@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,10 +27,27 @@ namespace DotMake.CommandLine
         /// </summary>
         /// <param name="theme">The theme to use for help output</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        public CliHelpBuilder(CliTheme theme, int maxWidth = int.MaxValue)
-            : base(maxWidth)
+        public CliHelpBuilder(CliTheme theme, int maxWidth = -1)
+            : base(EnsureMaxWidth(maxWidth))
         {
             this.theme = theme;
+        }
+
+        private static int EnsureMaxWidth(int maxWidth)
+        {
+            if (maxWidth < 0)
+            {
+                try
+                {
+                    return Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth;
+                }
+                catch (Exception)
+                {
+                    return int.MaxValue;
+                }
+            }
+
+            return maxWidth;
         }
 
         /// <summary>

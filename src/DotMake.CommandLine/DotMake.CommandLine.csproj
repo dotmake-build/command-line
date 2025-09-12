@@ -21,7 +21,9 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Fixed:** Foreground color is always white on macOS regardless of theme settings.
+        - **Improved:** Updated to version `2.0.0-rc.1.25451.107` of System.CommandLine.
+        - **Added:** `MaxWidth`property to `CustomHelpAction`
+          and ensure correct `maxWidth` parameter in `CliHelpBuilder` constructor if not specified.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -30,7 +32,7 @@
 
   <ItemGroup>
     <!-- use exact version match with [] for now as future beta versions can break API -->
-    <PackageReference Include="System.CommandLine" Version="[2.0.0-beta7.25380.108]" />
+    <PackageReference Include="System.CommandLine" Version="[2.0.0-rc.1.25451.107]" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.

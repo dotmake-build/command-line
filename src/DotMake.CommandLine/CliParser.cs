@@ -68,7 +68,7 @@ namespace DotMake.CommandLine
                 {
                     Action = new CustomHelpAction
                     {
-                        Builder = new CliHelpBuilder(settings.Theme, Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth)
+                        Builder = new CliHelpBuilder(settings.Theme)
                     }
                 };
                 rootCommand.Options.Add(helpOption);

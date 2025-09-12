@@ -12,13 +12,47 @@ namespace DotMake.CommandLine.Help
     public sealed class CustomHelpAction : SynchronousCommandLineAction
     {
         private HelpBuilder? builder;
+        private int maxWidth = -1;
+
+        /// <summary>
+        /// The maximum width in characters after which help output is wrapped.
+        /// </summary>
+        /// <remarks>It defaults to <see cref="Console.WindowWidth"/> if output is not redirected.</remarks>
+        public int MaxWidth
+        {
+            get
+            {
+                if (maxWidth < 0)
+                {
+                    try
+                    {
+                        maxWidth = Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth;
+                    }
+                    catch (Exception)
+                    {
+                        maxWidth = int.MaxValue;
+                    }
+                }
+
+                return maxWidth;
+            }
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                maxWidth = value;
+            }
+        }
 
         /// <summary>
         /// Specifies an <see cref="Builder"/> to be used to format help output when help is requested.
         /// </summary>
         public HelpBuilder Builder
         {
-            get => builder ??= new HelpBuilder(Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth);
+            get => builder ??= new HelpBuilder(MaxWidth);
             set => builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
