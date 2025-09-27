@@ -92,6 +92,9 @@ namespace DotMake.CommandLine
 
             var action = (SynchronousCommandLineAction)helpOption.Action;
 
+            //Note that currently there is a check in CliHelpBuilder.Write; it does not print help if ParseResult.Errors.Count > 0
+            //if in future forcing help is required then either errors can be cleared in  here
+            //or a custom force parameter can be passed
             action?.Invoke(parseResult);
         }
 

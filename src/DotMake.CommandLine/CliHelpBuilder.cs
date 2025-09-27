@@ -81,6 +81,12 @@ namespace DotMake.CommandLine
                 throw new ArgumentNullException(nameof(helpContext));
             }
 
+            //Important: After 2.0.0-rc.1.25451.107 property SynchronousCommandLineAction.ClearsParseErrors
+            //should be set to true for custom actions like Help and Version
+            //Otherwise Errors.Count was 1 for a command that required at least one argument.
+            //Note that this can also be called from CliContext.ShowHelp() to show help
+            //however still checking  Errors.Count here, if in future forcing help is required
+            //then either errors can be cleared in CliContext.ShowHelp() or a custom force parameter can be passed
             if (helpContext.Command.Hidden || helpContext.ParseResult.Errors.Count > 0)
             {
                 return;

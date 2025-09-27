@@ -21,9 +21,13 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Improved:** Updated to version `2.0.0-rc.1.25451.107` of System.CommandLine.
-        - **Added:** `MaxWidth`property to `CustomHelpAction`
-          and ensure correct `maxWidth` parameter in `CliHelpBuilder` constructor if not specified.
+        - **Fixed:** Help was no longer printed for subcommands with a required argument with v2.8.0.
+          This happened due to the update to `2.0.0-rc.1.25451.107` of System.CommandLine.
+          There is a new property `ClearsParseErrors` in `SynchronousCommandLineAction`
+          which from now on, should be overridden to return `true` for our custom actions like `CustomHelpAction` and `VersionOptionAction`.
+          Normally our `CliHelpBuilder` checks for `ParseResult.Errors.Count > 0` to avoid printing help when there is a parsing error.
+          So as `ClearsParseErrors` was not set to `true`, `CliHelpBuilder` was not printing help as it thought there was a parse error
+          i.e. `Required argument missing for command`, even though `-?` or `-h` was passed.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>

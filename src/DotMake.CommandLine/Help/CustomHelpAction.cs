@@ -70,5 +70,9 @@ namespace DotMake.CommandLine.Help
 
             return 0;
         }
+
+        //Important: After 2.0.0-rc.1.25451.107 this new property to should be set to true for custom actions like Help and Version
+        /// <inheritdoc />
+        public override bool ClearsParseErrors => true;
     }
 }
