@@ -101,7 +101,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"public {GeneratedClassName}()"))
                 {
-                    sb.AppendLine($"DefinitionType = typeof({definitionClass});");
+                    sb.AppendLine($"DefinitionType = typeof(global::{definitionClass});");
 
                     var parentDefinitionType = (Input.ParentSymbol != null) ? $"typeof({Input.ParentSymbol.ToReferenceString()})" : "null";
                     sb.AppendLine($"ParentDefinitionType = {parentDefinitionType};");
@@ -154,9 +154,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 /*
                 GetUninitializedObject causes IL2072 trimming warnings, so no longer use this,
                 Instead we will use Bind method to get cached definition instance and call GetCompletions method
-                using (sb.AppendBlockStart($"private {definitionClass} CreateUninitializedInstance()"))
+                using (sb.AppendBlockStart($"private global::{definitionClass} CreateUninitializedInstance()"))
                 {
-                    sb.AppendLine($"return ({definitionClass})");
+                    sb.AppendLine($"return (global::{definitionClass})");
                     sb.AppendLine("#if NET5_0_OR_GREATER");
                     sb.AppendIndent();
                     sb.AppendLine("System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(DefinitionType);");
@@ -176,7 +176,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"string propertyName, DotMake.CommandLine.CliBindingContext {varBindingContext}, {CompletionsNamespace}.CompletionContext completionContext)");
                     using (sb.AppendBlockStart())
                     {
-                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<{definitionClass}>(completionContext.ParseResult, true);");
+                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<global::{definitionClass}>(completionContext.ParseResult, true);");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the interface method with property name of option or argument");
@@ -261,22 +261,22 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             sb.AppendLine("return Microsoft.Extensions.DependencyInjection.ActivatorUtilities");
                             sb.AppendIndent();
                             sb.AppendIndent();
-                            sb.AppendLine($".CreateInstance<{definitionClass}>(serviceProvider);");
+                            sb.AppendLine($".CreateInstance<global::{definitionClass}>(serviceProvider);");
                             //in case serviceProvider is null (i.e. not set with SetServiceProvider)
                             //call Activator.CreateInstance which will throw exception if class has no default constructor
                             //but at least it avoids compile time error in generated code with new()
                             sb.AppendLine();
-                            sb.AppendLine($"return System.Activator.CreateInstance<{definitionClass}>();");
+                            sb.AppendLine($"return System.Activator.CreateInstance<global::{definitionClass}>();");
                         }
                         else
                             sb.AppendLine(memberHasRequiredModifier
-                                ? $"return System.Activator.CreateInstance<{definitionClass}>();"
-                                : $"return new {definitionClass}();");
+                                ? $"return System.Activator.CreateInstance<global::{definitionClass}>();"
+                                : $"return new global::{definitionClass}();");
                     }
                     var varParseResult = "parseResult";
                     using (sb.AppendBlockStart($"{varBindingContext}.BinderMap[DefinitionType] = (instance, {varParseResult}) =>", ";"))
                     {
-                        sb.AppendLine($"var {varDefinitionInstance} = ({definitionClass})instance;");
+                        sb.AppendLine($"var {varDefinitionInstance} = (global::{definitionClass})instance;");
 
                         sb.AppendLine();
                         sb.AppendLine("// Set the values for the command accessors");
@@ -322,7 +322,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                : $"{varCommand}.SetAction({varParseResult} =>",
                     ");"))
                     {
-                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<{definitionClass}>({varParseResult});");
+                        sb.AppendLine($"var {varDefinitionInstance} = {varBindingContext}.Bind<global::{definitionClass}>({varParseResult});");
                         sb.AppendLine();
 
                         sb.AppendLine("// Call the command handler");
@@ -361,7 +361,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 using (sb.AppendBlockStart("internal static void Initialize()"))
                 {
                     var varCommandBuilder = "commandBuilder";
-                    sb.AppendLine($"var {varCommandBuilder} = new {GeneratedClassFullName}();");
+                    sb.AppendLine($"var {varCommandBuilder} = new global::{GeneratedClassFullName}();");
 
                     sb.AppendLine();
                     sb.AppendLine("// Register this command builder so that it can be found by the definition class");
