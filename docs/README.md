@@ -124,9 +124,9 @@ if (result.ParseResult.Errors.Count > 0)
 }
 ```
 #### Summary
-- Mark the class with `[CliCommand]` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
-- Mark a property with `[CliOption]` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
-- Mark a property with `[CliArgument]` attribute to make it a CLI argument (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
+- Mark the class with `[CliCommand]` attribute to make it a CLI command (see [CliCommandAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+- Mark a property with `[CliOption]` attribute to make it a CLI option (see [CliOptionAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+- Mark a property with `[CliArgument]` attribute to make it a CLI argument (see [CliArgumentAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
 - Add a method with name `Run` or `RunAsync` to make it the handler for the CLI command. The method can have one of the following signatures: 
   
   - 
@@ -167,7 +167,7 @@ if (result.ParseResult.Errors.Count > 0)
   If no handler method is provided, then by default it will show help for the command.
   This can be also controlled manually by extension method `ShowHelp` in `CliContext`.
   Other extension methods `IsEmptyCommand`, `ShowValues` and `ShowHierarchy` are also useful.
-- Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
+- Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 - For best practice, create a subfolder named `Commands` in your project and put your command classes there 
   so that they are easy to locate and maintain in the future.
 
@@ -192,9 +192,9 @@ And that's it! You now have a fully working command-line app.
 #### Summary
 - Pass a delegate (a parenthesized lambda expression or a method reference) which has parameters that represent your options and arguments, to `Cli.Run`.
 - A parameter is by default considered as a CLI option but you can;
-  - Mark a parameter with `[CliArgument]` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
-  - Mark a parameter with `[CliOption]` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
-  - Mark the delegate itself with `[CliCommand]` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
+  - Mark a parameter with `[CliArgument]` attribute to make it a CLI argument and specify settings (see [CliArgumentAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info).
+  - Mark a parameter with `[CliOption]` attribute to specify CLI option settings (see [CliOptionAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info).
+  - Mark the delegate itself with `[CliCommand]` attribute to specify CLI command settings (see [CliCommandAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info).
   - Note that for being able to mark a parameter with an attribute in an anonymous lambda function, 
     if your target framework is below net6.0, you also need `<LangVersion>10.0</LangVersion>` tag (minimum) in your .csproj file.
 - Set a default value for a parameter if you want it to be optional (not required to be specified on the command-line).
@@ -849,7 +849,7 @@ option `Department` from an interface. Note that the property initializer for `D
 so that default value will be used.
 
 ---
-The properties for `[CliCommand]` attribute (see [CliCommandAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
+The properties for `[CliCommand]` attribute (see [CliCommandAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
 - Name
 - Description
 - Hidden
@@ -904,7 +904,7 @@ Only the last option can specify an argument.
 Note that if you have an explicit option named "-abc" then it will win over bundled options.
 
 ---
-The properties for `[CliOption]` attribute (see [CliOptionAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
+The properties for `[CliOption]` attribute (see [CliOptionAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliOptionAttribute.htm) docs for more info):
 - Name
 - Description
 - Hidden
@@ -963,7 +963,7 @@ Quiet
 ```
 
 ---
-The properties for `[CliArgument]` attribute (see [CliArgumentAttribute](https://dotmake.build/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
+The properties for `[CliArgument]` attribute (see [CliArgumentAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliArgumentAttribute.htm) docs for more info):
 - Name
 - Description
 - Hidden
@@ -1659,5 +1659,5 @@ TestApp.NugetAot-win-x64-trimmed
 ```
 
 ## Additional documentation
-- [DotMake Command-Line API docs](https://dotmake.build/api/)
+- [DotMake Command-Line API docs](https://dotmake.build/command-line/api/)
 - [Command-line syntax overview for System.CommandLine](https://learn.microsoft.com/en-us/dotnet/standard/commandline/syntax)
