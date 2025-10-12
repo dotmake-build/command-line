@@ -66,7 +66,7 @@ namespace DotMake.CommandLine
 
         /// <inheritdoc cref="CliParser.Parse(string[])" />
         /// <typeparam name="TDefinition"><inheritdoc cref="GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="args"></param>
+        /// <param name="args"><inheritdoc cref="CliParser.Parse(string[])" path="/param[@name='args']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
         ///     <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
@@ -80,7 +80,7 @@ namespace DotMake.CommandLine
 
         /// <inheritdoc cref="CliParser.Parse(string)" />
         /// <typeparam name="TDefinition"><inheritdoc cref="GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="commandLine"></param>
+        /// <param name="commandLine"><inheritdoc cref="CliParser.Parse(string)" path="/param[@name='commandLine']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
         ///     <code source="..\TestApp\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
@@ -95,7 +95,7 @@ namespace DotMake.CommandLine
 
         /// <inheritdoc cref="CliParser.Run(string[])" />
         /// <typeparam name="TDefinition"><inheritdoc cref="GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="args"></param>
+        /// <param name="args"><inheritdoc cref="CliParser.Run(string[])" path="/param[@name='args']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
         ///     <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
@@ -110,7 +110,7 @@ namespace DotMake.CommandLine
 
         /// <inheritdoc cref="CliParser.Run(string)" />
         /// <typeparam name="TDefinition"><inheritdoc cref="GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="commandLine"></param>
+        /// <param name="commandLine"><inheritdoc cref="CliParser.Run(string)" path="/param[@name='commandLine']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
         ///     <code source="..\TestApp\CliExamples.cs" region="CliRunString" language="cs" />
@@ -125,9 +125,9 @@ namespace DotMake.CommandLine
 
         /// <inheritdoc cref="CliParser.RunAsync(string[], CancellationToken)" />
         /// <typeparam name="TDefinition"><inheritdoc cref="GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="args"></param>
+        /// <param name="args"><inheritdoc cref="CliParser.RunAsync(string[], CancellationToken)" path="/param[@name='args']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken"><inheritdoc cref="CliParser.RunAsync(string[], CancellationToken)" path="/param[@name='cancellationToken']/node()" /></param>
         /// <example>
         ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
         ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
@@ -141,9 +141,9 @@ namespace DotMake.CommandLine
 
         /// <inheritdoc cref="CliParser.RunAsync(string, CancellationToken)" />
         /// <typeparam name="TDefinition"><inheritdoc cref="GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>
-        /// <param name="commandLine"></param>
+        /// <param name="commandLine"><inheritdoc cref="CliParser.RunAsync(string, CancellationToken)" path="/param[@name='commandLine']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken"><inheritdoc cref="CliParser.RunAsync(string, CancellationToken)" path="/param[@name='cancellationToken']/node()" /></param>
         /// <example>
         ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncString" language="cs" />
         ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />

@@ -561,8 +561,9 @@ public class RootWithNestedChildrenCliCommand
 ```
 
 Another way to create hierarchy between commands, especially if you want to use standalone classes,  
-is to 
-- Use `Children` property of `[CliCommand]` attribute to specify array of `typeof` child classes:
+is to;
+
+#### Use `Children` property of `[CliCommand]` attribute to specify array of `typeof` child classes:
 ```c#
 /*
     Command hierarchy in below example is:
@@ -631,10 +632,9 @@ public class ExternalLevel2SubCliCommand
         context.ShowValues();
     }
 }
-
 ```
 
-- Use `Parent` property of `[CliCommand]` attribute to specify `typeof` parent class:
+#### Or use `Parent` property of `[CliCommand]` attribute to specify `typeof` parent class:
 ```c#
 /*
     Command hierarchy in below example is:
@@ -699,7 +699,6 @@ public class ExternalLevel2WithParentSubCliCommand
         context.ShowValues();
     }
 }
-
 ```
 
 The class that `[CliCommand]` attribute is applied to,

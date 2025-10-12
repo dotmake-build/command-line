@@ -12,7 +12,7 @@ namespace DotMake.CommandLine.Binding
 {
     internal static class TypeExtensions
     {
-        /// <param name="type"></param>
+        /// <param name="type">The type.</param>
         /// <param name="nonGenericElementType">The element type to use for non-generic IEnumerable interfaces like IList (instead of object).</param>
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "We probably pass known and used types")]
         internal static Type? GetElementTypeIfEnumerable(this Type type, Type? nonGenericElementType)
