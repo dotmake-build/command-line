@@ -8,7 +8,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
     public class CliDirectiveOutput : OutputBase
     {
         public const string DirectiveClassName = "Directive";
-        public const string DirectiveClassNamespace = "System.CommandLine";
 
         public static readonly Dictionary<string, string> PropertyMappings = new()
         {
@@ -27,7 +26,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         {
             sb.AppendLine($"// Directive for '{Input.Symbol.Name}' property");
 
-            using (sb.AppendParamsBlockStart($"var {varName} = new {DirectiveClassNamespace}.{DirectiveClassName}"))
+            using (sb.AppendParamsBlockStart($"var {varName} = new {OutputNamespaces.SystemCommandLine}.{DirectiveClassName}"))
             {
                 if (Input.AttributeArguments.TryGetValue(nameof(CliDirectiveAttribute.Name), out var nameValue))
                     sb.AppendLine($"{varNamer}.GetDirectiveName(\"{Input.Symbol.Name}\", \"{nameValue}\")");

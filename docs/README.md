@@ -1,4 +1,4 @@
-![DotMake Command-Line Logo](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/logo-wide.png "DotMake Command-Line Logo")
+![DotMake Command-Line Logo](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/logo-wide.svg "DotMake Command-Line Logo")
 
 # DotMake Command-Line
 
@@ -37,7 +37,7 @@ PM> Install-Package DotMake.CommandLine
 ### Prerequisites
 
 - .NET 8.0 and later project or .NET Standard 2.0 and later project.  
-  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to NET 7.0 projects can reference our netstandard2.0 target (automatic in nuget).  
+  Note that .NET Framework 4.7.2+ or .NET Core 2.0 to .NET 7.0 projects can reference our netstandard2.0 target (automatic in nuget).  
   If your target framework is below net5.0, you also need `<LangVersion>9.0</LangVersion>` tag (minimum) in your .csproj file.
 - Visual Studio 2022 v17.3+ or .NET SDK 6.0.407+ (when building via `dotnet` cli).  
   Our incremental source generator requires performance features added first in these versions.
@@ -165,8 +165,8 @@ if (result.ParseResult.Errors.Count > 0)
 
   The signatures which return int value, sets the ExitCode of the app.
   If no handler method is provided, then by default it will show help for the command.
-  This can be also controlled manually by extension method `ShowHelp` in `CliContext`.
-  Other extension methods `IsEmptyCommand`, `ShowValues` and `ShowHierarchy` are also useful.
+  This can be also controlled manually by `ShowHelp()` method of `CliContext`.
+  Other methods `IsEmptyCommand()`, `IsEmpty()`, `ShowValues()` and `ShowHierarchy()` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_Cli.htm) docs for more info).
 - For best practice, create a subfolder named `Commands` in your project and put your command classes there 
   so that they are easy to locate and maintain in the future.
@@ -438,13 +438,17 @@ internal class LocalizedCliCommand
 
 If a command represents a group and not an action, you may want to show help. 
 If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
-You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp`.
+You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp()`.
 For testing a command, these methods are also useful:
-- `CliContext.IsEmptyCommand` gets value indicating whether current command is specified without any arguments or options.
+- `CliContext.IsEmptyCommand()` gets value indicating whether current command is specified without any arguments or options.
+  Note that this may return true even if any arguments or options were specified for parent commands.
+  because only arguments or options specified for the current command, are checked.
   Note that arguments and options should be optional, if they are required (no default values),
   then handler will not run and missing error message will be shown.
-- `CliContext.ShowValues` shows parsed values for current command and its arguments and options.
-- `CliContext.ShowHierarchy` shows hierarchy for all commands, it will start from the root command and show a tree.
+- `CliContext.IsEmpty()` gets a value indicating whether current command and all its parents are specified without 
+  any subcommands, directives, options or arguments.
+- `CliContext.ShowValues()` shows parsed values for current command and its arguments and options.
+- `CliContext.ShowHierarchy()` shows hierarchy for all commands, it will start from the root command and show a tree.
 
 See below example; root command does not have a handler method so it will always show help 
 and sub-command will show help if command is specified without any arguments or option, 
@@ -848,6 +852,43 @@ So in the above example, `InheritanceCliCommand` inherits options `Username`, `P
 option `Department` from an interface. Note that the property initializer for `Department` is in the derived class, 
 so that default value will be used.
 
+So you can use interfaces to group your options and inherit them in your cli commands. 
+`c#` allows inheriting only one base class but it allows inheriting multiple interfaces:
+
+```c#
+[CliCommand]
+public interface IOptionsGroup1
+{
+    [CliOption(Description = "Username of the identity performing the command")]
+    public string Username { get; set; }
+
+    [CliOption(Description = "Password of the identity performing the command")]
+    public string Password { get; set; }
+}
+
+public interface IOptionsGroup2
+{
+    [CliOption(Description = "Department of the identity performing the command (interface)")]
+    string Department { get; set; }
+}
+
+public class MyCliCommand : IOptionsGroup1, IOptionsGroup2
+{
+    public string Username { get; set; } = "admin";
+
+    public string Password { get; set; }
+
+    public string Department { get; set; } = "Accounting";
+}
+
+public class My2CliCommand : IOptionsGroup1
+{
+    public string Username { get; set; } = "admin";
+
+    public string Password { get; set; }
+}
+```
+
 ---
 The properties for `[CliCommand]` attribute (see [CliCommandAttribute](https://dotmake.build/command-line/api/html/T_DotMake_CommandLine_CliCommandAttribute.htm) docs for more info):
 - Name
@@ -1000,6 +1041,32 @@ An option/argument will be considered optional when
 - There is a property initializer, and it's not initialized with `null` or `null!` (SuppressNullableWarningExpression)
   (e.g. `public string Arg { get; set; } = "Default";`).
 - If it's forced via attribute property `Required` (e.g. `[CliArgument(Required = false)]`).
+
+When the default value for a property is not known/null, we make option/argument required by default. 
+For example for reference types like `string`, default value is `null` so it's marked required 
+but for value types like `bool` default value is `false` - non-null so it's not marked optional.
+
+```c#
+[CliOption]
+public string Opt1 { get; set; } // => Required because default value is null
+
+[CliOption]
+public bool Opt2 { get; set; } // => Optional because default value is non-null
+
+[CliOption]
+public bool? Opt3 { get; set; } // => Required because default value is null
+```
+
+You can put `Required = false` to the attribute to force it to be optional. 
+But in that case, you will need to deal with `null` values in your `Run`method:
+```c#
+[CliOption(Required = false)]
+public string Opt1 { get; set; } // => Optional because attribute has `Required = false`
+
+[CliOption(Required = false)]
+public bool? Opt3 { get; set; } // => Optional because attribute has `Required = false`
+```
+So this way, with `Required = false`, you can check for `null` to determine if an optional option was not provided at all.
 
 ---
 When you run,

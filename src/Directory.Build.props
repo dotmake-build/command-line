@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generateassemblyinfo -->
-    <VersionPrefix>2.8.1</VersionPrefix>
+    <VersionPrefix>2.8.2</VersionPrefix>
     <Product>DotMake Command-Line</Product>
     <Company>DotMake</Company>
     <!-- Copyright is also used for NuGet metadata -->
@@ -16,7 +16,7 @@
     <!-- NuGet Package Information -->
     <!-- https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
     <Authors>dotmake</Authors>
-    <PackageProjectUrl>https://dotmake.build</PackageProjectUrl>
+    <PackageProjectUrl>https://dotmake.build/command-line/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dotmake-build/command-line</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>

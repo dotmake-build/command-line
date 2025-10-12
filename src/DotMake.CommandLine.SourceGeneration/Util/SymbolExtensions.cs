@@ -8,7 +8,7 @@ namespace DotMake.CommandLine.SourceGeneration.Util
     {
         private static readonly SymbolDisplayFormat ReferenceFormat =
             new SymbolDisplayFormat(
-                globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.OmittedAsContaining,
+                globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
                 propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
                 genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
@@ -142,7 +142,8 @@ namespace DotMake.CommandLine.SourceGeneration.Util
         {
             return symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace
                 ? string.Empty
-                : symbol.ContainingNamespace.ToReferenceString();
+                //This will be used in "namespace" directives so don't use ToReferenceString() which now prefixes with "global::"
+                : symbol.ContainingNamespace.ToCompareString();
         }
 
         public static IEnumerable<INamedTypeSymbol> GetContainingTypes(this ISymbol symbol)

@@ -60,24 +60,30 @@ namespace DotMake.CommandLine
         /// <summary>
         /// Gets a value indicating whether current command is specified without any arguments or options.
         /// <para>
-        /// Note that arguments and options should be optional, if they are required (no default values),
-        /// then handler will not run and missing error message will be shown.
+        /// Note that this may return <see langword="true"/> even if any arguments or options were specified for parent commands.
+        /// because only arguments or options specified for the current command, are checked.
         /// </para>
-        /// </summary>
-        /// <returns><see langword="true"/> if current command has no arguments or options, <see langword="false"/> if not.</returns>
-        public bool IsEmptyCommand()
-        {
-            return (parseResult.CommandResult.Tokens.Count == 0);
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether current command is specified without any commands, directives, options or arguments.
         /// <para>
         /// Note that arguments and options should be optional, if they are required (no default values),
         /// then handler will not run and missing error message will be shown.
         /// </para>
         /// </summary>
-        /// <returns><see langword="true"/> if current command has no arguments or options, <see langword="false"/> if not.</returns>
+        /// <returns><see langword="true"/> if current command is specified without any arguments or options, <see langword="false"/> if not.</returns>
+        public bool IsEmptyCommand()
+        {
+            //For RootCommandResult, Tokens does not include directives but Children does
+            //So use !CommandResult.Children.Any() instead of CommandResult.Tokens.Count == 0
+            return (parseResult.CommandResult.Tokens.Count == 0);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether current command and all its parents are specified without any subcommands, directives, options or arguments.
+        /// <para>
+        /// Note that arguments and options should be optional, if they are required (no default values),
+        /// then handler will not run and missing error message will be shown.
+        /// </para>
+        /// </summary>
+        /// <returns><see langword="true"/> if current command and all its parents are specified without any subcommands, directives, options or arguments, <see langword="false"/> if not.</returns>
         public bool IsEmpty()
         {
             return (parseResult.Tokens.Count == 0);

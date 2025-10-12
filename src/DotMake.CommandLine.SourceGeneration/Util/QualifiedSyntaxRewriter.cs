@@ -20,7 +20,14 @@ namespace DotMake.CommandLine.SourceGeneration.Util
 
             var symbolInfo = semanticModel.GetSymbolInfo(node);
             if (symbolInfo.Symbol is null) return node; // give up
-            return SyntaxFactory.IdentifierName(symbolInfo.Symbol.ToReferenceString());
+
+            var identifierNameSyntax =  SyntaxFactory.IdentifierName(symbolInfo.Symbol.ToReferenceString());
+
+            //if inside interpolation string wrap it with () as types with global:: will cause error
+            //because : character needs to be escaped in interpolation strings
+            return (node.FirstAncestorOrSelf<InterpolationSyntax>() != null)
+                ? SyntaxFactory.ParenthesizedExpression(identifierNameSyntax)
+                : identifierNameSyntax;
         }
 
         public override SyntaxNode VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
@@ -28,7 +35,13 @@ namespace DotMake.CommandLine.SourceGeneration.Util
             if (node.Parent != null && node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
                 return node;
 
-            return ResolveMemberAccessSyntaxTree(node);
+            var memberAccessExpressionSyntax = ResolveMemberAccessSyntaxTree(node);
+
+            //if inside interpolation string wrap it with () as types with global:: will cause error
+            //because : character needs to be escaped in interpolation strings
+            return (node.FirstAncestorOrSelf<InterpolationSyntax>() != null)
+                ? SyntaxFactory.ParenthesizedExpression(memberAccessExpressionSyntax)
+                : memberAccessExpressionSyntax;
         }
 
         private MemberAccessExpressionSyntax ResolveMemberAccessSyntaxTree(MemberAccessExpressionSyntax node)

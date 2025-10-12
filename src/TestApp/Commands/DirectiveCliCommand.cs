@@ -32,6 +32,24 @@ namespace TestApp.Commands
                 Console.WriteLine($"Directive '{nameof(Vars)}' = {CliStringUtil.FormatValue(Vars)}");
             }
         }
+
+        [CliCommand(Description = "A sub cli command with directives")]
+        public class Level1CliCommand
+        {
+            public DirectiveCliCommand Parent { get; set; }
+
+            public void Run(CliContext context)
+            {
+                if (context.IsEmpty())
+                    context.ShowHelp();
+                else
+                {
+                    Console.WriteLine($"Directive '{nameof(Debug)}' = {CliStringUtil.FormatValue(Parent.Debug)}");
+                    Console.WriteLine($"Directive '{nameof(Directive2)}' = {CliStringUtil.FormatValue(Parent.Directive2)}");
+                    Console.WriteLine($"Directive '{nameof(Vars)}' = {CliStringUtil.FormatValue(Parent.Vars)}");
+                }
+            }
+        }
     }
 
     #endregion

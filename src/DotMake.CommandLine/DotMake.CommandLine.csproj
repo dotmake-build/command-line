@@ -21,13 +21,45 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Fixed:** Help was no longer printed for subcommands with a required argument with v2.8.0.
-          This happened due to the update to `2.0.0-rc.1.25451.107` of System.CommandLine.
-          There is a new property `ClearsParseErrors` in `SynchronousCommandLineAction`
-          which from now on, should be overridden to return `true` for our custom actions like `CustomHelpAction` and `VersionOptionAction`.
-          Normally our `CliHelpBuilder` checks for `ParseResult.Errors.Count > 0` to avoid printing help when there is a parsing error.
-          So as `ClearsParseErrors` was not set to `true`, `CliHelpBuilder` was not printing help as it thought there was a parse error
-          i.e. `Required argument missing for command`, even though `-?` or `-h` was passed.
+        - **Fixed:** All types in generated code will now be prefixed with global namespace `global::` to prevent
+          CS0234 errors (namespace and type conflict compile errors) which can happen when user names a namespace part and a class same.
+          Example code to replicate the problem (now fixed), note the `.TestApp`, `.System`, `.DotMake`
+          as the final part of the namespace which triggered the problem:
+          ```c#
+          using DotMake.CommandLine;
+
+          //Generated code should not fail to compile even if user uses some crazy namespaces
+
+          namespace TestApp.Commands.TestApp
+          {
+              [CliCommand]
+              public class TestAppCliCommand
+              {
+                  [CliArgument(Arity = CliArgumentArity.ZeroOrMore)]
+                  public string Arg { get; set; }
+              }
+          }
+
+          namespace TestApp.Commands.System
+          {
+              [CliCommand]
+              public class SystemCliCommand
+              {
+
+              }
+          }
+
+          namespace TestApp.Commands.DotMake
+          {
+              [CliCommand]
+              public class DotMakeCliCommand
+              {
+
+              }
+          }
+          ```
+          
+        - **Improved:** Documentation for `CliContext.IsEmptyCommand()` and `CliContext.IsEmpty()` to emphasize the difference.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>

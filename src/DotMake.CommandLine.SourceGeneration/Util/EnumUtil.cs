@@ -24,25 +24,46 @@ namespace DotMake.CommandLine.SourceGeneration.Util
                 });
         }
 
-        public static string ToFullName(TEnum value)
+        public static string ToFullName(TEnum value, bool withGlobal = true)
         {
             var fullName = string.Empty;
 
             if (Cache.TryGetValue(value, out var enumInfo))
             {
-                fullName = enumInfo.FullName;
+                fullName = withGlobal ? "global::" + enumInfo.FullName : enumInfo.FullName;
             }
             else if (IsFlagsEnum)
             {
                 var flags =
                     Cache.Values
                         .Where(x => !EqualityComparer<TEnum>.Default.Equals(x.Value, default) && value.HasFlag(x.Value))
-                        .Select(x => x.FullName);
+                        .Select(x => withGlobal ? "global::" + x.FullName : x.FullName);
 
                 fullName = string.Join(" | ", flags);
             }
 
             return fullName;
+        }
+
+        public static string ToName(TEnum value)
+        {
+            var name = string.Empty;
+
+            if (Cache.TryGetValue(value, out var enumInfo))
+            {
+                name = enumInfo.Name;
+            }
+            else if (IsFlagsEnum)
+            {
+                var flags =
+                    Cache.Values
+                        .Where(x => !EqualityComparer<TEnum>.Default.Equals(x.Value, default) && value.HasFlag(x.Value))
+                        .Select(x => x.Name);
+
+                name = string.Join(", ", flags);
+            }
+
+            return name;
         }
 
         public static IEnumerable<EnumInfo> Enumerate()

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Util;
 using Microsoft.CodeAnalysis;
@@ -11,7 +10,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
     public class CliOptionOutput : OutputBase
     {
         public const string OptionClassName = "Option";
-        public const string OptionClassNamespace = "System.CommandLine";
 
         public static readonly Dictionary<string, string> PropertyMappings = new()
         {
@@ -31,7 +29,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         {
             sb.AppendLine($"// Option for '{Input.Symbol.Name}' property");
 
-            using (sb.AppendParamsBlockStart($"var {varName} = new {OptionClassNamespace}.{OptionClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
+            using (sb.AppendParamsBlockStart($"var {varName} = new {OutputNamespaces.SystemCommandLine}.{OptionClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
                 if (Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue))
                     sb.AppendLine($"{varNamer}.GetOptionName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
@@ -58,8 +56,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                 sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
                             break;
                         case nameof(CliOptionAttribute.Arity):
-                            var arity = kvp.Value.ToCSharpString().Split('.').Last();
-                            sb.AppendLine($"{kvp.Key} = {CliArgumentOutput.ArgumentClassNamespace}.{CliArgumentOutput.ArgumentArityClassName}.{arity},");
+                            //Note that ArgumentArity from System.CommandLine is not an enum (a struct)
+                            //so we simply use same struct property names in our CliArgumentArity enum
+                            //this way we can convert to ArgumentArity by calling the same name on the struct
+                            var arityName = EnumUtil<CliArgumentArity>.ToName((CliArgumentArity)(kvp.Value.Value ?? 0));
+                            sb.AppendLine($"{kvp.Key} = {OutputNamespaces.SystemCommandLine}.{CliArgumentOutput.ArgumentArityClassName}.{arityName},");
                             break;
                     }
                 }
@@ -95,14 +96,14 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 sb.AppendLine($"{varName}.AcceptOnlyFromAmong(new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.ValidationRules), out var validationRulesTypedConstant))
-                sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationRulesTypedConstant.ToCSharpString()});");
+                sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {EnumUtil<CliValidationRules>.ToFullName((CliValidationRules)(validationRulesTypedConstant.Value ?? 0))});");
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.ValidationPattern), out var validationPatternTypedConstant))
             {
                 if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliOptionAttribute.ValidationMessage), out var validationMessageTypedConstant))
-                    sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()}, {validationMessageTypedConstant.ToCSharpString()});");
+                    sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()}, {validationMessageTypedConstant.ToCSharpString()});");
                 else
-                    sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
+                    sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
             }
 
             if (Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Alias), out var aliasValue))

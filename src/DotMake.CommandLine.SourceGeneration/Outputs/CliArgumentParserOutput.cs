@@ -27,7 +27,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     else if (Input.Converter.Name == ".ctor")
                     {
                         if (Input.Converter.Parameters[0].Type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IList_T)
-                            sb.AppendLine($"array => new {Input.Converter.ContainingType.ToReferenceString()}(System.Linq.Enumerable.ToList(({Input.ItemType.ToReferenceString()}[])array)),");
+                            sb.AppendLine($"array => new {Input.Converter.ContainingType.ToReferenceString()}({OutputNamespaces.System}.Linq.Enumerable.ToList(({Input.ItemType.ToReferenceString()}[])array)),");
                         else
                             sb.AppendLine($"array => new {Input.Converter.ContainingType.ToReferenceString()}(({Input.ItemType.ToReferenceString()}[])array),");
                     }

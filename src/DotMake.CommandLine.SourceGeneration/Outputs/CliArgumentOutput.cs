@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Util;
 using Microsoft.CodeAnalysis;
@@ -11,7 +10,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
     public class CliArgumentOutput : OutputBase
     {
         public const string ArgumentClassName = "Argument";
-        public const string ArgumentClassNamespace = "System.CommandLine";
         public const string ArgumentArityClassName = "ArgumentArity";
 
         public static readonly Dictionary<string, string> PropertyMappings = new()
@@ -31,7 +29,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
         {
             sb.AppendLine($"// Argument for '{Input.Symbol.Name}' property");
 
-            using (sb.AppendParamsBlockStart($"var {varName} = new {ArgumentClassNamespace}.{ArgumentClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
+            using (sb.AppendParamsBlockStart($"var {varName} = new {OutputNamespaces.SystemCommandLine}.{ArgumentClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
                 if (Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue))
                     sb.AppendLine($"{varNamer}.GetArgumentName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
@@ -56,8 +54,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                                 sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
                             break;
                         case nameof(CliArgumentAttribute.Arity):
-                            var arity = kvp.Value.ToCSharpString().Split('.').Last();
-                            sb.AppendLine($"{kvp.Key} = {ArgumentClassNamespace}.{ArgumentArityClassName}.{arity},");
+                            //Note that ArgumentArity from System.CommandLine is not an enum (a struct)
+                            //so we simply use same struct property names in our CliArgumentArity enum
+                            //this way we can convert to ArgumentArity by calling the same name on the struct
+                            var arityName = EnumUtil<CliArgumentArity>.ToName((CliArgumentArity)(kvp.Value.Value ?? 0));
+                            sb.AppendLine($"{kvp.Key} = {OutputNamespaces.SystemCommandLine}.{ArgumentArityClassName}.{arityName},");
                             break;
                     }
                 }
@@ -88,17 +89,17 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             }
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.AllowedValues), out var allowedValuesTypedConstant))
-                sb.AppendLine($"{ArgumentClassNamespace}.ArgumentValidation.AcceptOnlyFromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
+                sb.AppendLine($"{OutputNamespaces.SystemCommandLine}.ArgumentValidation.AcceptOnlyFromAmong({varName}, new[] {allowedValuesTypedConstant.ToCSharpString()});");
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.ValidationRules), out var validationRulesTypedConstant))
-                sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationRulesTypedConstant.ToCSharpString()});");
+                sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {EnumUtil<CliValidationRules>.ToFullName((CliValidationRules)(validationRulesTypedConstant.Value ?? 0))});");
 
             if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.ValidationPattern), out var validationPatternTypedConstant))
             {
                 if (Input.AttributeArguments.TryGetTypedConstant(nameof(CliArgumentAttribute.ValidationMessage), out var validationMessageTypedConstant))
-                    sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()}, {validationMessageTypedConstant.ToCSharpString()});");
+                    sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()}, {validationMessageTypedConstant.ToCSharpString()});");
                 else
-                    sb.AppendLine($"DotMake.CommandLine.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
+                    sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
             }
 
             //In ArgumentArity.Default, Arity is set to ZeroOrMore for IEnumerable if parent is command,
@@ -106,7 +107,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             if (Input.Required
                 && Input.ArgumentParser.ItemType != null //if it's a collection type
                 && !Input.AttributeArguments.ContainsKey(nameof(CliArgumentAttribute.Arity)))
-                sb.AppendLine($"{varName}.Arity = {ArgumentClassNamespace}.{ArgumentArityClassName}.OneOrMore;");
+                sb.AppendLine($"{varName}.Arity = {OutputNamespaces.SystemCommandLine}.{ArgumentArityClassName}.OneOrMore;");
 
             if (Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");

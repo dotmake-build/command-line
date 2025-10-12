@@ -5,7 +5,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 {
     public class CliCommandAsDelegateOutput : OutputBase
     {
-        public static readonly string CliCommandAsDelegateFullName = "DotMake.CommandLine.CliCommandAsDelegate";
+        public static readonly string CliCommandAsDelegateClassName = "CliCommandAsDelegate";
 
         public CliCommandAsDelegateOutput(CliCommandAsDelegateInput input)
             : base(input)
@@ -36,7 +36,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             else
                 sb.AppendLine($"[{CliCommandInput.AttributeFullName}]");
 
-            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {CliCommandAsDelegateFullName}"))
+            using (sb.AppendBlockStart($"public class {GeneratedClassName} : {OutputNamespaces.DotMakeCommandLine}.{CliCommandAsDelegateClassName}"))
             {
                 for (var index = 0; index < Input.ParameterInfos.Count; index++)
                 {
@@ -85,7 +85,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
 
                 sb.AppendLine();
-                sb.AppendLine("[System.Runtime.CompilerServices.ModuleInitializerAttribute]");
+                sb.AppendLine($"[{OutputNamespaces.System}.Runtime.CompilerServices.ModuleInitializerAttribute]");
                 using (sb.AppendBlockStart("internal static void Initialize()"))
                 {
                     sb.AppendLine("// Register this definition class so that it can be found by the command as delegate hash.");
