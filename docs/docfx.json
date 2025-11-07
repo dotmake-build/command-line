@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "DotMake.CommandLine/DotMake.CommandLine.csproj"
+          ]
+        }
+      ],
+      "dest": "api", 
+      "codeSourceBasePath": "../src/DotMake.CommandLine/", 
+      "memberLayout": "separatePages",
+      "categoryLayout": "nested",
+      //"namespaceLayout": "nested", 
+      //"outputFormat": "apiPage" //not working for custom templates
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**",
+          "apidocs/**"
+        ]
+      },
+      {
+        //Handle separately becuase we use different dest
+        "files": ["*.md"],
+        "src": "apidocs",
+        "dest": "api"
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }, 
+      {
+        "files": [
+          "logo-wide.svg",
+        ], 
+        "src": "../images",
+        "dest": "images"
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern",
+      //"docfx-plus"
+    ],
+    //"plugins": [], 
+    "globalMetadata": {
+      "_appName": "DotMake Command-Line",
+      "_appLogoPath": "images/logo-wide.svg",
+      //"_appLogoUrl": "./",
+      "_appFaviconPath": "images/favicon.ico", 
+      "_appIconLinks": [
+        {
+          "icon": "github",
+          "href": "https://github.com/dotmake-build/command-line",
+          "title": "GitHub"
+        }
+      ],
+      "_enableSearch": true,
+      "pdf": false
+    }
+  }
+}

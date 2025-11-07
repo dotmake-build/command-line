@@ -1,10 +1,11 @@
 @echo off
 
 set projectName=DotMake.CommandLine
-set srcFolder=..\src
-set publishFolder=..\docs\api
+set srcFolder=..\docs
+set publishFolder=..\docs\_site
 
-dotnet build %srcFolder%\HelpBuilder\%projectName%.shfbproj --configuration Release --output %publishFolder%
+dotnet tool update -g docfx
+docfx %srcFolder%\docfx.json --serve
 
 @echo off
 if %ERRORLEVEL% EQU 0 (

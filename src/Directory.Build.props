@@ -30,7 +30,7 @@
   <!-- Include default NuGet package custom files in projects except sandcastle help file builder projects -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.shfbproj'">
     <None Include="$(RepositoryRootPath)images\logo128.png" Pack="true" PackagePath="/icon.png" Visible="false" />
-    <None Include="$(RepositoryRootPath)docs\README.md" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(RepositoryRootPath)README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
 </Project>

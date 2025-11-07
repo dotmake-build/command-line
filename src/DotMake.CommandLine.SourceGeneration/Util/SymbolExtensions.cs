@@ -52,7 +52,7 @@ namespace DotMake.CommandLine.SourceGeneration.Util
             return symbol.ToDisplayString(CompareFormat);
         }
 
-        /// <param name="type"></param>
+        /// <param name="type">The type symbol.</param>
         /// <param name="nonGenericElementType">The element type to use for non-generic IEnumerable interfaces like IList (instead of object).</param>
         public static ITypeSymbol GetElementTypeIfEnumerable(this ITypeSymbol type, ITypeSymbol nonGenericElementType)
         {
