@@ -1,11 +1,10 @@
 @echo off
 
-set projectName=DotMake.CommandLine
 set srcFolder=..\docs
 set publishFolder=..\docs\_site
 
-dotnet tool update -g docfx
-docfx %srcFolder%\docfx.json --serve
+dotnet tool update -g docfx-plus
+docfx-plus %srcFolder%\docfx.json --serve
 
 @echo off
 if %ERRORLEVEL% EQU 0 (

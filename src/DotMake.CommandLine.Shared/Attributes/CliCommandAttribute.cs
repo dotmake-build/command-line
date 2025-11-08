@@ -75,13 +75,13 @@ namespace DotMake.CommandLine
     ///     <code source="../TestApp/Commands/RootWithNestedChildrenCliCommand.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
     ///     <code>
     ///         <code source="../TestApp/Commands/RootWithExternalChildrenCliCommand.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External\ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External\ExternalLevel2SubCliCommand.cs" region="ExternalLevel2SubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/External/ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/External/ExternalLevel2SubCliCommand.cs" region="ExternalLevel2SubCliCommand" language="cs" />
     ///     </code>
     ///     <code>
     ///         <code source="../TestApp/Commands/RootAsExternalParentCliCommand.cs" region="RootAsExternalParentCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External\ExternalLevel1WithParentSubCliCommand.cs" region="ExternalLevel1WithParentSubCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External\ExternalLevel2WithParentSubCliCommand.cs" region="ExternalLevel2WithParentSubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/External/ExternalLevel1WithParentSubCliCommand.cs" region="ExternalLevel1WithParentSubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/External/ExternalLevel2WithParentSubCliCommand.cs" region="ExternalLevel2WithParentSubCliCommand" language="cs" />
     ///     </code>
     ///     <code source="../TestApp/Commands/InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
     ///     <code source="../TestApp/Commands/LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />

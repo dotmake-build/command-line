@@ -54,7 +54,7 @@
     "template": [
       "default",
       "modern",
-      //"docfx-plus"
+      "docfx-plus"
     ],
     //"plugins": [], 
     "globalMetadata": {
