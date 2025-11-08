@@ -39,7 +39,7 @@ namespace DotMake.CommandLine
         /// Specifies that argument value(s) must be a legal URI.
         /// <para>
         /// Valid examples:
-        /// <code>
+        /// <code language="none">
         /// http://www.google.com
         /// ftp://ftp.is.co.za/rfc/rfc1808.txt 
         /// file:///c:/directory/filename
@@ -52,7 +52,7 @@ namespace DotMake.CommandLine
         /// Specifies that argument value(s) must be a legal URL.
         /// <para>
         /// Valid examples:
-        /// <code>
+        /// <code language="none">
         /// https://www.google.com
         /// http://www.google.com
         /// www.google.com

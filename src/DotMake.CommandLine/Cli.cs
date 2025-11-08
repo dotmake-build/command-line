@@ -8,24 +8,24 @@ namespace DotMake.CommandLine
     /// Provides methods for parsing command line input and running an indicated command.
     /// </summary>
     /// <example>
-    ///     <code id="gettingStartedDelegate" source="..\TestApp\CliExamples.cs" region="CliRunDelegate" language="cs" />
+    ///     <code id="gettingStartedDelegate" source="../TestApp/CliExamples.cs" region="CliRunDelegate" language="cs" />
     ///     <code id="gettingStartedClass">
-    ///         <code source="..\TestApp\Commands\RootCliCommand.cs" region="RootCliCommand" language="cs" />
-    ///         <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
-    ///         <code source="..\TestApp\CliExamples.cs" region="CliParse" language="cs" />
+    ///         <code source="../TestApp/Commands/RootCliCommand.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="CliRun" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="CliParse" language="cs" />
     ///     </code>
-    ///     <code id="gettingStartedClass2" source="..\TestApp\Commands\RootHelpOnEmptyCliCommand.cs" region="RootHelpOnEmptyCliCommand" language="cs" />
+    ///     <code id="gettingStartedClass2" source="../TestApp/Commands/RootHelpOnEmptyCliCommand.cs" region="RootHelpOnEmptyCliCommand" language="cs" />
     ///     <code>
-    ///         <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
-    ///         <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
-    ///         <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
-    ///         <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="CliRunWithReturn" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="CliRunAsync" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="CliParseWithResult" language="cs" />
     ///     </code>
-    ///     <code source="..\TestApp\CliExamples.cs" region="CliRunExceptions" language="cs" />
+    ///     <code source="../TestApp/CliExamples.cs" region="CliRunExceptions" language="cs" />
     ///     <code>
-    ///         <code source="..\TestApp.NugetDI\Program.cs" region="Namespace" language="cs" />
-    ///         <code source="..\TestApp.NugetDI\Program.cs" region="ConfigureServices" language="cs" />
-    ///         <code source="..\TestApp.NugetDI\Commands\RootCliCommand.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="../TestApp.NugetDI/Program.cs" region="Namespace" language="cs" />
+    ///         <code source="../TestApp.NugetDI/Program.cs" region="ConfigureServices" language="cs" />
+    ///         <code source="../TestApp.NugetDI/Commands\RootCliCommand.cs" region="RootCliCommand" language="cs" />
     ///     </code>
     /// </example>
     public static class Cli
@@ -69,7 +69,7 @@ namespace DotMake.CommandLine
         /// <param name="args"><inheritdoc cref="CliParser.Parse(string[])" path="/param[@name='args']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliParseWithResult" language="cs" />
         /// </example>
         public static CliResult Parse<TDefinition>(string[] args = null, CliSettings settings = null)
         {
@@ -83,7 +83,7 @@ namespace DotMake.CommandLine
         /// <param name="commandLine"><inheritdoc cref="CliParser.Parse(string)" path="/param[@name='commandLine']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliParseStringWithResult" language="cs" />
         /// </example>
         public static CliResult Parse<TDefinition>(string commandLine, CliSettings settings = null)
         {
@@ -98,8 +98,8 @@ namespace DotMake.CommandLine
         /// <param name="args"><inheritdoc cref="CliParser.Run(string[])" path="/param[@name='args']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRun" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunWithReturn" language="cs" />
         /// </example>
         public static int Run<TDefinition>(string[] args = null, CliSettings settings = null)
         {
@@ -113,8 +113,8 @@ namespace DotMake.CommandLine
         /// <param name="commandLine"><inheritdoc cref="CliParser.Run(string)" path="/param[@name='commandLine']/node()" /></param>
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunString" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunString" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
         /// </example>
         public static int Run<TDefinition>(string commandLine, CliSettings settings = null)
         {
@@ -129,8 +129,8 @@ namespace DotMake.CommandLine
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <param name="cancellationToken"><inheritdoc cref="CliParser.RunAsync(string[], CancellationToken)" path="/param[@name='cancellationToken']/node()" /></param>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsync" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
         /// </example>
         public static async Task<int> RunAsync<TDefinition>(string[] args = null, CliSettings settings = null, CancellationToken cancellationToken = default)
         {
@@ -145,8 +145,8 @@ namespace DotMake.CommandLine
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <param name="cancellationToken"><inheritdoc cref="CliParser.RunAsync(string, CancellationToken)" path="/param[@name='cancellationToken']/node()" /></param>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncString" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncString" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
         /// </example>
         public static async Task<int> RunAsync<TDefinition>(string commandLine, CliSettings settings = null, CancellationToken cancellationToken = default)
         {
@@ -174,8 +174,8 @@ namespace DotMake.CommandLine
         /// <param name="settings"><inheritdoc cref="GetParser{TDefinition}" path="/param[@name='settings']/node()" /></param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], CliSettings)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunDelegate" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunDelegateWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunDelegate" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunDelegateWithReturn" language="cs" />
         /// </example>
         public static int Run(Delegate cliCommandAsDelegate, CliSettings settings = null)
         {
@@ -193,8 +193,8 @@ namespace DotMake.CommandLine
         /// <param name="cancellationToken"><inheritdoc cref="RunAsync{TDefinition}(string[], CliSettings, CancellationToken)" path="/param[@name='cancellationToken']/node()" /></param>
         /// <returns><inheritdoc cref="Run{TDefinition}(string[], CliSettings)" path="/returns/node()" /></returns>
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncDelegate" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncDelegateWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncDelegate" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncDelegateWithReturn" language="cs" />
         /// </example>
         public static async Task<int> RunAsync(Delegate cliCommandAsDelegate, CliSettings settings = null, CancellationToken cancellationToken = default)
         {

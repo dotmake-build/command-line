@@ -45,7 +45,7 @@ namespace DotMake.CommandLine
     /// <para>The following directives are built in (can be enabled/disabled via <see cref="CliSettings"/>): <c>[diagram]</c>, <c>[suggest]</c>, <c>[env]</c></para>
     /// </summary>
     /// <example>
-    ///     <code source="..\TestApp\Commands\DirectiveCliCommand.cs" region="DirectiveCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/DirectiveCliCommand.cs" region="DirectiveCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliDirectiveAttribute : Attribute

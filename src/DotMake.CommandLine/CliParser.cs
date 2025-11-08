@@ -121,7 +121,7 @@ namespace DotMake.CommandLine
         /// <returns>A <see cref="CliResult" /> providing details about the parse operation and methods for binding.</returns>
         /*
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseWithResult" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliParseWithResult" language="cs" />
         /// </example>
         */
         public CliResult Parse(string[] args = null)
@@ -137,7 +137,7 @@ namespace DotMake.CommandLine
         /// <returns><inheritdoc cref="Parse(string[])" path="/returns/node()" /></returns>
         /*
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliParseStringWithResult" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliParseStringWithResult" language="cs" />
         /// </example>
         */
         public CliResult Parse(string commandLine)
@@ -154,8 +154,8 @@ namespace DotMake.CommandLine
         /// <returns>The exit code for the invocation.</returns>
         /*
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRun" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRun" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunWithReturn" language="cs" />
         /// </example>
         */
         public int Run(string[] args = null)
@@ -172,8 +172,8 @@ namespace DotMake.CommandLine
         /// <returns><inheritdoc cref="Run(string[])" path="/returns/node()" /></returns>
         /*
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunString" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunString" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunStringWithReturn" language="cs" />
         /// </example>
         */
         public int Run(string commandLine)
@@ -191,8 +191,8 @@ namespace DotMake.CommandLine
         /// <returns><inheritdoc cref="Run(string[])" path="/returns/node()" /></returns>
         /*
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsync" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsync" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncWithReturn" language="cs" />
         /// </example>
         */
         public async Task<int> RunAsync(string[] args = null, CancellationToken cancellationToken = default)
@@ -210,8 +210,8 @@ namespace DotMake.CommandLine
         /// <returns><inheritdoc cref="Run(string[])" path="/returns/node()" /></returns>
         /*
         /// <example>
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncString" language="cs" />
-        ///     <code source="..\TestApp\CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncString" language="cs" />
+        ///     <code source="../TestApp/CliExamples.cs" region="CliRunAsyncStringWithReturn" language="cs" />
         /// </example>
         */
         public async Task<int> RunAsync(string commandLine, CancellationToken cancellationToken = default)
