@@ -32,7 +32,9 @@ jobs:
         dotnet-version: 8.x
 
     - run: dotnet tool update -g docfx
-    - run: docfx docs/docfx.json
+    - run: docfx docfx.json
+      # use working-directory for docfx step otherwise codeSourceBasePath is not resolved correctly
+      working-directory: docs
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
