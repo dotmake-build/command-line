@@ -30,7 +30,7 @@
         ]
       },
       {
-        //Handle separately becuase we use different dest
+        //Handle separately because we use different dest
         "files": ["*.md"],
         "src": "apidocs",
         "dest": "api"
