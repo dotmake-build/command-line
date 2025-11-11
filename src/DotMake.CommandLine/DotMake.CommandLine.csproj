@@ -21,45 +21,11 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Fixed:** All types in generated code will now be prefixed with global namespace `global::` to prevent
-          CS0234 errors (namespace and type conflict compile errors) which can happen when user names a namespace part and a class same.
-          Example code to replicate the problem (now fixed), note the `.TestApp`, `.System`, `.DotMake`
-          as the final part of the namespace which triggered the problem:
-          ```c#
-          using DotMake.CommandLine;
-
-          //Generated code should not fail to compile even if user uses some crazy namespaces
-
-          namespace TestApp.Commands.TestApp
-          {
-              [CliCommand]
-              public class TestAppCliCommand
-              {
-                  [CliArgument(Arity = CliArgumentArity.ZeroOrMore)]
-                  public string Arg { get; set; }
-              }
-          }
-
-          namespace TestApp.Commands.System
-          {
-              [CliCommand]
-              public class SystemCliCommand
-              {
-
-              }
-          }
-
-          namespace TestApp.Commands.DotMake
-          {
-              [CliCommand]
-              public class DotMakeCliCommand
-              {
-
-              }
-          }
-          ```
+        - **Improved:** Updated to final version `2.0.0` of `System.CommandLine`.
           
-        - **Improved:** Documentation for `CliContext.IsEmptyCommand()` and `CliContext.IsEmpty()` to emphasize the difference.
+        - **Improved:** Remove `SourceRevisionId` (commit id) from `AssemblyInformationalVersion` (`<InformationalVersion>`)  
+          so that displayed app version and result of `--version` command is clean and concise.  
+          For example display `MyApp v2.0.0` instead of `MyApp v2.0.0+b0f34d51fccc69fd334253924abd8d6853fad7aa`.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -67,8 +33,8 @@
   <Import Project="..\DotMake.CommandLine.Shared\DotMake.CommandLine.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
-    <!-- use exact version match with [] for now as future beta versions can break API -->
-    <PackageReference Include="System.CommandLine" Version="[2.0.0-rc.1.25451.107]" />
+    <!-- update: use final 2.0.0 now, old: use exact version match with [] for now as future beta versions can break API -->
+    <PackageReference Include="System.CommandLine" Version="2.0.0" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.

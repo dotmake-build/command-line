@@ -124,17 +124,17 @@ namespace DotMake.CommandLine
         public virtual bool WriteSynopsisSection(HelpContext helpContext)
         {
             ConsoleExtensions.SetColor(theme.SynopsisColor, theme.DefaultColor);
-            helpContext.Output.Write(ExecutableInfo.Product);
-            if (!string.IsNullOrWhiteSpace(ExecutableInfo.Version))
-                helpContext.Output.Write(" v{0}", ExecutableInfo.Version);
+            helpContext.Output.Write(ExecutableInfo.AssemblyInfo.Product);
+            if (!string.IsNullOrWhiteSpace(ExecutableInfo.AssemblyInfo.Version))
+                helpContext.Output.Write(" v{0}", ExecutableInfo.AssemblyInfo.Version);
             helpContext.Output.WriteLine();
-            if (!string.IsNullOrWhiteSpace(ExecutableInfo.Copyright))
-                helpContext.Output.WriteLine(ExecutableInfo.Copyright);
+            if (!string.IsNullOrWhiteSpace(ExecutableInfo.AssemblyInfo.Copyright))
+                helpContext.Output.WriteLine(ExecutableInfo.AssemblyInfo.Copyright);
 
             var isRoot = (helpContext.Command.Parents.FirstOrDefault() == null);
             var name = isRoot ? string.Empty : helpContext.Command.Name;
             var description = helpContext.Command.Description
-                              ?? (isRoot ? ExecutableInfo.Description : string.Empty);
+                              ?? (isRoot ? ExecutableInfo.AssemblyInfo.Description : string.Empty);
             const string separator = ": ";
             
             var hasName = !string.IsNullOrWhiteSpace(name);
