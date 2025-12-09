@@ -23,7 +23,7 @@ namespace TestApp.Commands
 
         public void Run(CliContext context)
         {
-            if (context.IsEmpty())
+            if (!context.Result.HasTokens)
                 context.ShowHelp();
             else
             {
@@ -40,7 +40,7 @@ namespace TestApp.Commands
 
             public void Run(CliContext context)
             {
-                if (context.IsEmpty())
+                if (!context.Result.HasTokens)
                     context.ShowHelp();
                 else
                 {

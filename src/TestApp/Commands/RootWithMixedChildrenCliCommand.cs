@@ -30,7 +30,7 @@ namespace TestApp.Commands
 
         public void Run(CliContext context)
         {
-            if (context.IsEmptyCommand())
+            if (!context.Result.HasArgs)
                 context.ShowHierarchy();
             else
                 context.ShowValues();

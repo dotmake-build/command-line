@@ -81,7 +81,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     {
                         valueExpression = new QualifiedSyntaxRewriter(Input.SemanticModel)
                             .Visit(propertyDeclarationSyntax.Initializer.Value);
-
                     }
 
                     if (valueExpression != null)

@@ -21,11 +21,41 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Improved:** Updated to final version `2.0.0` of `System.CommandLine`.
-          
-        - **Improved:** Remove `SourceRevisionId` (commit id) from `AssemblyInformationalVersion` (`<InformationalVersion>`)  
-          so that displayed app version and result of `--version` command is clean and concise.  
-          For example display `MyApp v2.0.0` instead of `MyApp v2.0.0+b0f34d51fccc69fd334253924abd8d6853fad7aa`.
+        - **Improved:** Added new class `CliRunnableResult` which derives from `CliResult` and adds `Run` and `RunAsync` methods
+          running the handler for the called command.
+          Changed return type of `Cli.Parse` and `CliParser.Parse` methods from `CliResult` to `CliRunnableResult`
+          So now you can do:
+          ```
+          var result = Cli.Parse<RootCliCommand>();
+          return result.Run();
+
+          //or
+          var parser = Cli.GetParser<RootCliCommand>();
+          var result = parser.Parse(args);
+          return result.Run();     
+          ```
+        - **Changed:** Deprecated `CliContext.IsEmptyCommand()` and `CliContext.IsEmpty()`, use new properties
+          `!CliContext.Result.HasArgs` and `!CliContext.Result.HasTokens` instead.
+          These are better suited to be in `CliResult` and naming should better clarify the purpose.
+
+        - **Fixed:** `QualifiedSyntaxRewriter` to support fully qualify generic name syntax like `Array.Empty<CustomClass>()`.
+          Changed handling so that `IdentifierNameSyntax` anywhere is converted to fully qualified.
+
+        - **Fixed:** Calling `Cli.Ext.ConfigureServices` will reset existing service provider if it was already built or set,
+          so that changed service collection can take effect:
+          ```c#
+          var result = Cli.Parse<IStartupOptions>(args);
+          var startupOptions = result.Bind<IStartupOptions>();
+
+          //This works now, the existing service builder (caused by Cli.Parse) will be reset
+          Cli.Ext.ConfigureServices(services =>
+          {
+              services.AddSingleton(startupOptions);
+              services.AddSingleton<Dependency>();
+          });
+
+          await Cli.RunAsync<RootCommand>(args);          
+          ```
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>

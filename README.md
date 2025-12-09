@@ -166,7 +166,7 @@ if (result.ParseResult.Errors.Count > 0)
   The signatures which return int value, sets the ExitCode of the app.
   If no handler method is provided, then by default it will show help for the command.
   This can be also controlled manually by `ShowHelp()` method of `CliContext`.
-  Other methods `IsEmptyCommand()`, `IsEmpty()`, `ShowValues()` and `ShowHierarchy()` are also useful.
+  Other methods `ShowValues()` and `ShowHierarchy()` are also useful.
 - Call `Cli.Run<>` or`Cli.RunAsync<>` method with your class name to run your CLI app (see [Cli](https://dotmake.build/command-line/api/DotMake.CommandLine.Cli.html) docs for more info).
 - For best practice, create a subfolder named `Commands` in your project and put your command classes there 
   so that they are easy to locate and maintain in the future.
@@ -440,13 +440,12 @@ If a command represents a group and not an action, you may want to show help.
 If `Run` or `RunAsync` method is missing in a command class, then by default it will show help. 
 You can also manually trigger help in `Run` or `RunAsync` method of a command class via calling `CliContext.ShowHelp()`.
 For testing a command, these methods are also useful:
-- `CliContext.IsEmptyCommand()` gets value indicating whether current command is specified without any arguments or options.
-  Note that this may return true even if any arguments or options were specified for parent commands.
-  because only arguments or options specified for the current command, are checked.
+- `CliContext.Result.HasArgs` gets a value indicating whether called command is specified with any arguments or options.
+  Note that this may return `false` even if any arguments or options were specified for parent commands.
+  because only arguments or options specified for the called command, are checked.
   Note that arguments and options should be optional, if they are required (no default values),
   then handler will not run and missing error message will be shown.
-- `CliContext.IsEmpty()` gets a value indicating whether current command and all its parents are specified without 
-  any subcommands, directives, options or arguments.
+- `CliContext.Result.HasTokens` gets a value indicating whether root command is specified with any subcommands, directives, options or arguments.
 - `CliContext.ShowValues()` shows parsed values for current command and its arguments and options.
 - `CliContext.ShowHierarchy()` shows hierarchy for all commands, it will start from the root command and show a tree.
 
@@ -472,7 +471,7 @@ public class HelpCliCommand
 
       public void Run(CliContext context)
       {
-          if (context.IsEmptyCommand())
+          if (!context.Result.HasArgs)
               context.ShowHelp();
           else
               context.ShowValues();
@@ -522,7 +521,7 @@ public class RootWithNestedChildrenCliCommand
 
     public void Run(CliContext context)
     {
-        if (context.IsEmptyCommand())
+        if (!context.Result.HasArgs)
             context.ShowHierarchy();
         else
             context.ShowValues();
@@ -590,7 +589,7 @@ public class RootWithExternalChildrenCliCommand
 
     public void Run(CliContext context)
     {
-        if (context.IsEmptyCommand())
+        if (!context.Result.HasArgs)
             context.ShowHierarchy();
         else
             context.ShowValues();
@@ -657,7 +656,7 @@ public class RootAsExternalParentCliCommand
 
     public void Run(CliContext context)
     {
-        if (context.IsEmptyCommand())
+        if (!context.Result.HasArgs)
             context.ShowHierarchy();
         else
             context.ShowValues();
@@ -1367,7 +1366,7 @@ public class GetCompletionsCliCommand : ICliGetCompletions
 
     public void Run(CliContext context)
     {
-        if (context.IsEmptyCommand())
+        if (!context.Result.HasArgs)
             context.ShowHelp();
         else
             context.ShowValues();

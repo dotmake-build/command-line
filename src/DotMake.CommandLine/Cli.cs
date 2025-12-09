@@ -26,7 +26,7 @@ namespace DotMake.CommandLine
     ///     <code>
     ///         <code source="../TestApp.NugetDI/Program.cs" region="Namespace" language="cs" />
     ///         <code source="../TestApp.NugetDI/Program.cs" region="ConfigureServices" language="cs" />
-    ///         <code source="../TestApp.NugetDI/Commands\RootCliCommand.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="../TestApp.NugetDI/Commands/RootCliCommand.cs" region="RootCliCommand" language="cs" />
     ///     </code>
     /// </example>
     public static class Cli
@@ -70,7 +70,7 @@ namespace DotMake.CommandLine
         /// <example>
         ///     <code source="../TestApp/CliExamples.cs" region="CliParseWithResult" language="cs" />
         /// </example>
-        public static CliResult Parse<TDefinition>(string[] args = null, CliSettings settings = null)
+        public static CliRunnableResult Parse<TDefinition>(string[] args = null, CliSettings settings = null)
         {
             var parser = GetParser<TDefinition>(settings);
 
@@ -83,7 +83,7 @@ namespace DotMake.CommandLine
         /// <example>
         ///     <code source="../TestApp/CliExamples.cs" region="CliParseStringWithResult" language="cs" />
         /// </example>
-        public static CliResult Parse<TDefinition>(string commandLine, CliSettings settings = null)
+        public static CliRunnableResult Parse<TDefinition>(string commandLine, CliSettings settings = null)
         {
             var parser = GetParser<TDefinition>(settings);
 

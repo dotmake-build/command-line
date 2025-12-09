@@ -69,11 +69,10 @@ namespace DotMake.CommandLine
         /// </para>
         /// </summary>
         /// <returns><see langword="true"/> if current command is specified without any arguments or options, <see langword="false"/> if not.</returns>
+        [Obsolete("IsEmptyCommand() is deprecated, use !Result.HasArgs instead.")]
         public bool IsEmptyCommand()
         {
-            //For RootCommandResult, Tokens does not include directives but Children does
-            //So use !CommandResult.Children.Any() instead of CommandResult.Tokens.Count == 0
-            return (parseResult.CommandResult.Tokens.Count == 0);
+            return !Result.HasArgs;
         }
 
         /// <summary>
@@ -84,9 +83,10 @@ namespace DotMake.CommandLine
         /// </para>
         /// </summary>
         /// <returns><see langword="true"/> if current command and all its parents are specified without any subcommands, directives, options or arguments, <see langword="false"/> if not.</returns>
+        [Obsolete("IsEmpty() is deprecated, use !Result.HasTokens instead.")]
         public bool IsEmpty()
         {
-            return (parseResult.Tokens.Count == 0);
+            return Result.HasTokens;
         }
 
         /// <summary>

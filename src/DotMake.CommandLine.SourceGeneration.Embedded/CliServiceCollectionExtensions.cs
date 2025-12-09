@@ -17,11 +17,20 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Registers services into the <see cref="Cli"/>'s default service collection.
+        /// <para>
+        /// Note that calling this will reset existing service provider if it was already built or set,
+        /// so that changed service collection can take effect.
+        /// </para>
         /// </summary>
         /// <param name="ext">The CliExtensions instance to extend.</param>
         /// <param name="configure">An <see cref="Action{IServiceCollection}"/> to configure the <see cref="Cli"/>'s default service collection.</param>
         public static void ConfigureServices(this CliExtensions ext, Action<IServiceCollection> configure)
         {
+            //Reset existing service provider if it was already built
+            var serviceProvider = CliServiceProviderExtensions.GetServiceProvider(null);
+            if (serviceProvider != null)
+                CliServiceProviderExtensions.SetServiceProvider(null, null);
+            
             configure(ServiceCollection);
         }
 

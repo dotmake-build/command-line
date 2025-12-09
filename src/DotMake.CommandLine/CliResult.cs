@@ -22,6 +22,32 @@ namespace DotMake.CommandLine
         /// </summary>
         public ParseResult ParseResult { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether called command is specified with any arguments or options.
+        /// <para>
+        /// Note that this may return <see langword="false"/> even if any arguments or options were specified for parent commands.
+        /// because only arguments or options specified for the called command, are checked.
+        /// </para>
+        /// <para>
+        /// Note that arguments and options should be optional, if they are required (no default values),
+        /// then handler will not run and missing error message will be shown.
+        /// </para>
+        /// </summary>
+        /// <returns><see langword="true"/> if called command is specified with any arguments or options, <see langword="false"/> if not.</returns>
+        //For RootCommandResult, Tokens does not include directives but Children does
+        //So use !CommandResult.Children.Any() instead of CommandResult.Tokens.Count == 0
+        public bool HasArgs => (ParseResult.CommandResult.Tokens.Count > 0);
+
+        /// <summary>
+        /// Gets a value indicating whether root command is specified with any subcommands, directives, options or arguments.
+        /// <para>
+        /// Note that arguments and options should be optional, if they are required (no default values),
+        /// then handler will not run and missing error message will be shown.
+        /// </para>
+        /// </summary>
+        /// <returns><see langword="true"/> if root command is specified with any subcommands, directives, options or arguments, <see langword="false"/> if not.</returns>
+        public bool HasTokens => (ParseResult.Tokens.Count > 0);
+
 
         /// <inheritdoc cref="CliBindingContext.Create{TDefinition}" />
         public TDefinition Create<TDefinition>()
