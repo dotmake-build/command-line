@@ -2,6 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace DotMake.CommandLine
@@ -90,7 +91,52 @@ namespace DotMake.CommandLine
                     ValidateArgumentResult(result, validationResult => RegularExpression(validationResult, validationPattern, validationMessage))
                 );
         }
+        
+        /// <summary>
+        /// Adds a validator to <paramref name="command"/> that enforces mutual-exclusion for the provided options.
+        /// If <paramref name="required"/> is true, at least one option must be specified.
+        /// </summary>
+        public static void AddMutualValidator(this Command command, string groupName, bool required, params Option[] options)
+        {
+            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (options == null || options.Length < 2) return;
 
+            command.Validators.Add(result =>
+            {
+                var providedCount = options.Count(opt => result.GetResult(opt) is not null);
+
+                // Build display strings for error messages
+                var optionDisplays = options.Select(opt =>
+                    string.Join("|", (opt.Aliases ?? Array.Empty<string>())
+                        .Concat(new[] { opt.Name })
+                        .OrderBy(x => x.Length))
+                );
+                var joinedDisplays = string.Join(", ", optionDisplays);
+
+                if (required)
+                {
+                    if (providedCount == 0)
+                    {
+                        var resource = "You must specify exactly one option in required group '{0}': {1}";
+                        result.AddError(string.Format(resource, groupName, joinedDisplays));
+                    }
+                    else if (providedCount > 1)
+                    {
+                        var resource = "Options in required group '{0}' are mutually exclusive. You must specify exactly one of: {1}";
+                        result.AddError(string.Format(resource, groupName, joinedDisplays));
+                    }
+                }
+                else
+                {
+                    if (providedCount > 1)
+                    {
+                        var resource = "Options in group '{0}' are mutually exclusive. You must specify only one of: {1}";
+                        result.AddError(string.Format(resource, groupName, joinedDisplays));
+                    }
+                }
+            });
+        }
+        
         private class ValidationResult
         {
             public ValidationResult(string value)

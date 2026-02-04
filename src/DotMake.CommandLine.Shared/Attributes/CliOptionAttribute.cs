@@ -233,6 +233,11 @@ namespace DotMake.CommandLine
         /// </summary>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the group for mutually exclusive options.
+        /// </summary>
+        public string GroupName { get; set; }
+
         internal static CliOptionAttribute Default { get; } = new CliOptionAttribute();
     }
 }

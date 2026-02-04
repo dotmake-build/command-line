@@ -37,6 +37,10 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                 ShortFormAutoGenerate = (CliNameAutoGenerate)shortFormAutoGenerateValue;
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormPrefixConvention), out var shortFormPrefixValue))
                 ShortFormPrefixConvention = (CliNamePrefixConvention)shortFormPrefixValue;
+            if (AttributeArguments.TryGetValues(nameof(CliCommandAttribute.RequiredGroups), out var requiredGroupsValue))
+                  RequiredGroups = requiredGroupsValue.OfType<string>().ToArray();
+             else
+                RequiredGroups = Array.Empty<string>();
 
             ParentSymbol = (Parent != null)
                 ? Parent.Symbol //Nested class for sub-command
@@ -119,6 +123,11 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                     }
                 }
             }
+
+            // Build Mutual Option Groups
+            Groups = Options.Where(o => !string.IsNullOrEmpty(o.GroupName))
+                .GroupBy(o => o.GroupName!).
+                ToDictionary(g => g.Key, g => g.ToList());
 
             //Disable warning for missing handler, instead show help when no handler
             //if (Handler == null)
@@ -204,6 +213,11 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public IReadOnlyList<CliCommandAccessorInput> CommandAccessors => commandAccessors;
         private readonly List<CliCommandAccessorInput> commandAccessors = new();
+
+        public Dictionary<string, List<CliOptionInput>> Groups { get; }
+              = new(StringComparer.OrdinalIgnoreCase);
+
+        public IReadOnlyList<string> RequiredGroups { get; }
 
         public sealed override void Analyze(ISymbol symbol)
         {

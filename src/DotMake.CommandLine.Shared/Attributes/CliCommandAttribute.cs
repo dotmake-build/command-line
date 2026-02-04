@@ -234,7 +234,11 @@ namespace DotMake.CommandLine
         /// <para>Default is <see cref="CliNamePrefixConvention.SingleHyphen"/> (e.g. <c>-o</c>).</para>
         /// </summary>
         public CliNamePrefixConvention ShortFormPrefixConvention { get; set; } = CliNamePrefixConvention.SingleHyphen;
-        
+
+        /// <summary>
+        /// Gets or sets the list of the required mutually exclusive option groups.
+        /// </summary>
+        public string[] RequiredGroups { get; set; }
         internal static CliCommandAttribute Default { get; } = new();
     }
 }
