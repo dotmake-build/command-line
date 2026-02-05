@@ -39,7 +39,7 @@ Cli.Run<RootHelpOnEmptyCliCommand>(args);
 //Cli.Run<ShortFormCliCommand>(args);
 //Cli.Run<DirectiveCliCommand>(args);
 //Cli.Run<OrderedCliCommand>(args);
-
+//Cli.Run<MutualExclusiveCliCommand>(args);
 //Using Cli.RunAsync:
 //await Cli.RunAsync<RootWithNestedChildrenCliCommand>(args);
 //await Cli.RunAsync<RunAsyncCliCommand>(args);
