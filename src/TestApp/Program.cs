@@ -15,7 +15,7 @@ using TestApp.Commands.PrefixConvention;
 
 
 //Using Cli.Run with class:
-Cli.Run<RootHelpOnEmptyCliCommand>(args);
+//Cli.Run<RootHelpOnEmptyCliCommand>(args);
 //Cli.Run<RootCliCommand>(args);
 //Cli.Run<WriteFileCliCommand>(args);
 //Cli.Run<ArgumentConverterCliCommand>(args);
@@ -26,7 +26,7 @@ Cli.Run<RootHelpOnEmptyCliCommand>(args);
 //Cli.Run<RootAsExternalParentCliCommand>(args);
 //Cli.Run<RootWithMixedChildrenCliCommand>(args);
 //Cli.Run<InheritanceCliCommand>(args);
-//Cli.Run<LocalizedCliCommand>(args);
+Cli.Run<LocalizedCliCommand>(args);
 //Cli.Run<HelpCliCommand>(args);
 //Cli.Run<ValidationCliCommand>(args);
 //Cli.Run<InvalidCliCommand>(args);
