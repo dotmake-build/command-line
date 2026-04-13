@@ -1,9 +1,11 @@
-using System.Collections.Generic;
 using DotMake.CommandLine.SourceGeneration.Inputs;
 using DotMake.CommandLine.SourceGeneration.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DotMake.CommandLine.SourceGeneration.Outputs
 {
@@ -50,10 +52,25 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             if (!PropertyMappings.TryGetValue(kvp.Key, out var propertyName))
                                 propertyName = kvp.Key;
 
+                            string valueString;
                             if (Input.AttributeArguments.TryGetResourceProperty(kvp.Key, out var resourceProperty))
-                                sb.AppendLine($"{propertyName} = {resourceProperty.ToReferenceString()},");
+                                valueString = resourceProperty.ToReferenceString();
                             else
-                                sb.AppendLine($"{propertyName} = {kvp.Value.ToCSharpString()},");
+                                valueString = kvp.Value.ToCSharpString();
+
+                            // Append groupName to Description in help output
+                            if (kvp.Key == nameof(CliOptionAttribute.Description) && !string.IsNullOrEmpty(Input.GroupName))
+                            {
+                                var group = Input.GroupName;
+                                IReadOnlyList<string> parentRequiredGroups = Input.Parent?.RequiredGroups ?? Array.Empty<string>();
+                                var isRequiredGroup = parentRequiredGroups.Any(r => string.Equals(r, group, StringComparison.OrdinalIgnoreCase));
+                                var suffixLiteral = isRequiredGroup
+                                        ? $"\" [Group: '{group}', required]\""
+                                        : $"\" [Group: '{group}']\"";
+                                valueString = $"{valueString} + {suffixLiteral}";
+                            }
+
+                            sb.AppendLine($"{propertyName} = {valueString},");
                             break;
                         case nameof(CliOptionAttribute.Arity):
                             //Note that ArgumentArity from System.CommandLine is not an enum (a struct)

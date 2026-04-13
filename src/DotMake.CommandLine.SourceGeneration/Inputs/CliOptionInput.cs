@@ -37,6 +37,12 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
                                ? propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.NullLiteralExpression)
                                  || propertyDeclarationSyntax.Initializer.Value.IsKind(SyntaxKind.SuppressNullableWarningExpression)
                                : Symbol.Type.IsReferenceType || Symbol.IsRequired;
+
+            if (AttributeArguments.TryGetValue(nameof(CliOptionAttribute.GroupName), out var groupName))
+            {
+                GroupName = groupName as string;
+                Required = false;
+            }
         }
 
         public CliOptionInput(GeneratorAttributeSyntaxContext attributeSyntaxContext)
@@ -53,15 +59,15 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
 
         public CliCommandInput Parent { get; }
 
-
         public AttributeArguments AttributeArguments { get; }
 
         public int Order { get; }
 
         public bool Required { get; }
 
-
         public CliArgumentParserInput ArgumentParser { get; }
+
+        public string GroupName { get; private set; }
 
         public sealed override void Analyze(ISymbol symbol)
         {

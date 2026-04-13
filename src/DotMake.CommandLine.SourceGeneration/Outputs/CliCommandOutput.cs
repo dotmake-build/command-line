@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotMake.CommandLine.SourceGeneration.Inputs;
@@ -211,6 +212,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         sb.AppendLine($"{varRootCommand}?.Add({varDirective});");
                     }
 
+                    var optionVarMap = new Dictionary<CliOptionInput, string>();
                     for (var index = 0; index < optionsWithoutProblem.Length; index++)
                     {
                         sb.AppendLine();
@@ -218,9 +220,12 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         var cliOptionInput = optionsWithoutProblem[index];
                         var cliOptionOutput = new CliOptionOutput(cliOptionInput);
                         var varOption = $"option{index}";
+                        optionVarMap[cliOptionInput] = varOption;
                         cliOptionOutput.AppendCSharpCreateString(sb, varOption, varNamer, varBindingContext);
                         sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
+
+                    RenderValidators(sb, Input, optionVarMap, varCommand);
 
                     for (var index = 0; index < argumentsWithoutProblem.Length; index++)
                     {
@@ -424,6 +429,27 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             {
                 foreach (string alias in aliasesValues)
                     sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias}\");");
+            }
+        }
+
+        public void RenderValidators(CodeStringBuilder sb, CliCommandInput input, Dictionary<CliOptionInput, string> optionVarMap, string varCommand)
+        {
+            foreach (var kvp in input.Groups)
+            {
+                var groupName = kvp.Key;
+                var options = kvp.Value;
+                var isRequired = Input.RequiredGroups.Contains(groupName).ToString().ToLower();
+                var requiredHint = isRequired == "true" ? "required" : string.Empty;
+
+                sb.AppendLine();
+                sb.AppendLine($"// Validator for {requiredHint} mutually exclusive option group: '{groupName}'");
+
+                var optionVars = string.Join(", ", options.Select(o => optionVarMap[o]));
+
+                sb.AppendLine(
+                    $"global::DotMake.CommandLine.CliValidationExtensions.AddMutualValidator(" +
+                    $"{varCommand}, \"{groupName}\", {isRequired}, {optionVars});"
+                );
             }
         }
     }
