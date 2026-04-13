@@ -101,7 +101,13 @@ namespace DotMake.CommandLine.SourceGeneration.Util
                 {
                     var nameofArgument = invocationExpressionSyntax.ArgumentList.Arguments[0].Expression;
 
-                    if (semanticModel.GetSymbolInfo(nameofArgument).Symbol is IPropertySymbol propertySymbol
+                    // fix #71: Syntax node is not within syntax tree
+                    var correctModel = semanticModel.Compilation.GetSemanticModel(nameofArgument.SyntaxTree);
+
+                    SymbolInfo nameofInfo;
+                    nameofInfo = correctModel.GetSymbolInfo(nameofArgument);
+
+                    if (nameofInfo.Symbol is IPropertySymbol propertySymbol
                         && propertySymbol.Type.SpecialType == SpecialType.System_String)
                     {
                         var classAttributeData = propertySymbol.ContainingType.GetAttributes()
