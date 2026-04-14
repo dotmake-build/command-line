@@ -21,41 +21,67 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Improved:** Added new class `CliRunnableResult` which derives from `CliResult` and adds `Run` and `RunAsync` methods
-          running the handler for the called command.
-          Changed return type of `Cli.Parse` and `CliParser.Parse` methods from `CliResult` to `CliRunnableResult`
-          So now you can do:
-          ```
-          var result = Cli.Parse<RootCliCommand>();
-          return result.Run();
-
-          //or
-          var parser = Cli.GetParser<RootCliCommand>();
-          var result = parser.Parse(args);
-          return result.Run();     
-          ```
-        - **Changed:** Deprecated `CliContext.IsEmptyCommand()` and `CliContext.IsEmpty()`, use new properties
-          `!CliContext.Result.HasArgs` and `!CliContext.Result.HasTokens` instead.
-          These are better suited to be in `CliResult` and naming should better clarify the purpose.
-
-        - **Fixed:** `QualifiedSyntaxRewriter` to support fully qualify generic name syntax like `Array.Empty<CustomClass>()`.
-          Changed handling so that `IdentifierNameSyntax` anywhere is converted to fully qualified.
-
-        - **Fixed:** Calling `Cli.Ext.ConfigureServices` will reset existing service provider if it was already built or set,
-          so that changed service collection can take effect:
+        - **Improved:** Updated to version `2.0.5` of System.CommandLine.
+        
+        - **Added:** Mutually exclusive option groups.
+          To declare that options are mutually exclusive, assign them the same `Group` in `[CliOption]` attributes:
+          
           ```c#
-          var result = Cli.Parse<IStartupOptions>(args);
-          var startupOptions = result.Bind<IStartupOptions>();
-
-          //This works now, the existing service builder (caused by Cli.Parse) will be reset
-          Cli.Ext.ConfigureServices(services =>
+          [CliCommand(Description = "Display different file formats")]
+          public class FormatCommand
           {
-              services.AddSingleton(startupOptions);
-              services.AddSingleton<Dependency>();
-          });
+              [CliOption(Group = "Format", Description = "Output as XML")]
+              public bool Xml { get; set; }
 
-          await Cli.RunAsync<RootCommand>(args);          
-          ```
+              [CliOption(Group = "Format", Description = "Output as JSON")]
+              public bool Json { get; set; }  
+
+              [CliOption(Description = "Verbosity level", Required = false)]
+              public string Verbose { get; set; }
+
+              public void Run(CliContext context)
+              {
+                  context.ShowValues();
+              }
+          }
+        ```
+        
+        Sometimes you want to enforce that **exactly one option from a group must be specified**.
+        This is done by setting the `RequiredGroups` property in `[CliCommand]` attribute and listing the group names:
+        
+        ```c#
+        [CliCommand(RequiredGroups = new[] { "auth" })]
+        public class ReportCommand
+        {
+            // Group 1: Output format (mutually exclusive)
+            [CliOption(Group = "output-format")]
+            public bool Json { get; set; }
+
+            [CliOption(Group = "output-format")]
+            public bool Xml { get; set; }
+
+            // Group 2: Authentication (required group)
+            [CliOption(Group = "auth")]
+            public string ApiKey { get; set; }
+
+            [CliOption(Group = "auth")]
+            public string Token { get; set; }
+            
+            public void Run(CliContext context)
+            {
+                context.ShowValues();
+            }
+        }
+        ```
+
+        - **Fixed:** Localization did not work for inherited classes that existed in different files
+          due to `Syntax node is not within syntax tree` error.
+
+        - **Improved:** Show full informational version like `2.0.0+b0f34d51fccc69fd334253924abd8d6853fad7aa` and not
+          `2.0.0` when version is explicitly asked with `-v` or `--version` option.
+
+        - **Fixed:** Attempt to fix `CliNamer.AddTokenOrThrow` name conflicting errors when `Cli.Parse()` is called
+          in tests that re running in parallel. Also ensure subcommand names and aliases are properly checked for conflicts.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -64,7 +90,7 @@
 
   <ItemGroup>
     <!-- update: use final 2.0.0 now, old: use exact version match with [] for now as future beta versions can break API -->
-    <PackageReference Include="System.CommandLine" Version="2.0.0" />
+    <PackageReference Include="System.CommandLine" Version="[2.0.5,3.0.0)" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.

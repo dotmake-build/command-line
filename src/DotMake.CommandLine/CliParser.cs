@@ -276,7 +276,9 @@ namespace DotMake.CommandLine
         {
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.InvocationConfiguration.Output.WriteLine(ExecutableInfo.AssemblyInfo.Version);
+                parseResult.InvocationConfiguration.Output.WriteLine(
+                    ExecutableInfo.AssemblyInfo.InformationalVersion ?? ExecutableInfo.AssemblyInfo.Version
+                );
                 return 0;
             }
 

@@ -84,6 +84,8 @@ namespace DotMake.CommandLine
     ///         <code source="../TestApp/Commands/External/ExternalLevel2WithParentSubCliCommand.cs" region="ExternalLevel2WithParentSubCliCommand" language="cs" />
     ///     </code>
     ///     <code source="../TestApp/Commands/InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="FormatCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="ReportCommand" language="cs" />
     ///     <code source="../TestApp/Commands/LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
     ///     <code source="../TestApp/Commands/HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
     ///     <code source="../TestApp/Commands/ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
@@ -239,6 +241,7 @@ namespace DotMake.CommandLine
         /// Gets or sets the list of the required mutually exclusive option groups.
         /// </summary>
         public string[] RequiredGroups { get; set; }
+
         internal static CliCommandAttribute Default { get; } = new();
     }
 }

@@ -10,16 +10,20 @@ namespace DotMake.CommandLine.Util
             AssemblyName = assembly.GetName();
 
             var assemblyInformationalVersion = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            if (assemblyInformationalVersion != null)
+            if (assemblyInformationalVersion != null
+                && !string.IsNullOrWhiteSpace(assemblyInformationalVersion.InformationalVersion))
             {
-                var parts = assemblyInformationalVersion.InformationalVersion.Split('+');
+                InformationalVersion = assemblyInformationalVersion.InformationalVersion;
+
+                var parts = InformationalVersion.Split('+');
                 Version = parts[0].TrimStart('v');
                 SourceRevisionId = (parts.Length > 1) ?  parts[1].Trim() : "";
             }
             else
             {
                 var assemblyFileVersion = Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-                if (assemblyFileVersion != null)
+                if (assemblyFileVersion != null
+                    && !string.IsNullOrWhiteSpace(assemblyFileVersion.Version))
                     Version = assemblyFileVersion.Version;
                 else
                 {
@@ -44,6 +48,8 @@ namespace DotMake.CommandLine.Util
         public string Product { get; }
 
         public string Version { get; }
+
+        public string InformationalVersion { get; }
 
         public string SourceRevisionId { get; }
 

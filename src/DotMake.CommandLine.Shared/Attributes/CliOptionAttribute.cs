@@ -46,6 +46,9 @@ namespace DotMake.CommandLine
     ///     <code source="../TestApp/Commands/RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
     ///     <code source="../TestApp/Commands/ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
     ///     <code source="../TestApp/Commands/OptionBundlingCliCommand.cs" region="OptionBundlingCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="FormatCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="ReportCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
     ///     <code source="../TestApp/Commands/GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
@@ -191,6 +194,11 @@ namespace DotMake.CommandLine
         public string[] AllowedValues { get; set; }
 
         /// <summary>
+        /// Gets or sets the group for mutually exclusive options.
+        /// </summary>
+        public string Group { get; set; }
+
+        /// <summary>
         /// Gets or sets a set of validation rules used to determine if option's argument value(s) is valid.
         /// <para>
         /// When combining validation rules, use bitwise 'or' operator(| in C#):
@@ -232,11 +240,6 @@ namespace DotMake.CommandLine
         /// </para>
         /// </summary>
         public bool AllowMultipleArgumentsPerToken { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the group for mutually exclusive options.
-        /// </summary>
-        public string GroupName { get; set; }
 
         internal static CliOptionAttribute Default { get; } = new CliOptionAttribute();
     }

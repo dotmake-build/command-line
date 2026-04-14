@@ -103,9 +103,7 @@ namespace DotMake.CommandLine.SourceGeneration.Util
 
                     // fix #71: Syntax node is not within syntax tree
                     var correctModel = semanticModel.Compilation.GetSemanticModel(nameofArgument.SyntaxTree);
-
-                    SymbolInfo nameofInfo;
-                    nameofInfo = correctModel.GetSymbolInfo(nameofArgument);
+                    var nameofInfo = correctModel.GetSymbolInfo(nameofArgument);
 
                     if (nameofInfo.Symbol is IPropertySymbol propertySymbol
                         && propertySymbol.Type.SpecialType == SpecialType.System_String)

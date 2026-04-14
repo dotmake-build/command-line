@@ -96,7 +96,7 @@ namespace DotMake.CommandLine
         /// Adds a validator to <paramref name="command"/> that enforces mutual-exclusion for the provided options.
         /// If <paramref name="required"/> is true, at least one option must be specified.
         /// </summary>
-        public static void AddMutualValidator(this Command command, string groupName, bool required, params Option[] options)
+        public static void AddGroupValidator(this Command command, string group, bool required, params Option[] options)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
             if (options == null || options.Length < 2) return;
@@ -118,12 +118,12 @@ namespace DotMake.CommandLine
                     if (providedCount == 0)
                     {
                         var resource = "You must specify exactly one option in required group '{0}': {1}";
-                        result.AddError(string.Format(resource, groupName, joinedDisplays));
+                        result.AddError(string.Format(resource, group, joinedDisplays));
                     }
                     else if (providedCount > 1)
                     {
                         var resource = "Options in required group '{0}' are mutually exclusive. You must specify exactly one of: {1}";
-                        result.AddError(string.Format(resource, groupName, joinedDisplays));
+                        result.AddError(string.Format(resource, group, joinedDisplays));
                     }
                 }
                 else
@@ -131,7 +131,7 @@ namespace DotMake.CommandLine
                     if (providedCount > 1)
                     {
                         var resource = "Options in group '{0}' are mutually exclusive. You must specify only one of: {1}";
-                        result.AddError(string.Format(resource, groupName, joinedDisplays));
+                        result.AddError(string.Format(resource, group, joinedDisplays));
                     }
                 }
             });

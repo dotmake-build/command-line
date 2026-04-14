@@ -3,9 +3,7 @@ using DotMake.CommandLine.SourceGeneration.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DotMake.CommandLine.SourceGeneration.Outputs
 {
@@ -58,16 +56,15 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                             else
                                 valueString = kvp.Value.ToCSharpString();
 
-                            // Append groupName to Description in help output
-                            if (kvp.Key == nameof(CliOptionAttribute.Description) && !string.IsNullOrEmpty(Input.GroupName))
+                            // Append Group to Description in help output
+                            if (kvp.Key == nameof(CliOptionAttribute.Description) && !string.IsNullOrWhiteSpace(Input.Group))
                             {
-                                var group = Input.GroupName;
-                                IReadOnlyList<string> parentRequiredGroups = Input.Parent?.RequiredGroups ?? Array.Empty<string>();
-                                var isRequiredGroup = parentRequiredGroups.Any(r => string.Equals(r, group, StringComparison.OrdinalIgnoreCase));
-                                var suffixLiteral = isRequiredGroup
+                                var group = Input.Group;
+                                var groupRequired = Input.Parent?.RequiredGroups.Contains(group) ?? false;
+                                var groupSuffixLiteral = groupRequired
                                         ? $"\" [Group: '{group}', required]\""
                                         : $"\" [Group: '{group}']\"";
-                                valueString = $"{valueString} + {suffixLiteral}";
+                                valueString = $"{valueString} + {groupSuffixLiteral}";
                             }
 
                             sb.AppendLine($"{propertyName} = {valueString},");
@@ -133,7 +130,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias}\");");
             }
 
-            if (Input.Parent.HasGetCompletionsInterface)
+            if (Input.Parent != null && Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
                 sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", {varBindingContext}, completionContext));");
         }

@@ -356,14 +356,18 @@ namespace DotMake.CommandLine
             }
 
             if (parentNamer != null
-                && (tokenType == TokenType.CommandName || tokenType == TokenType.CommandAlias)
-                && parentNamer.usedTokens.TryGetValue(token, out var tuple2))
+                && (tokenType == TokenType.CommandName || tokenType == TokenType.CommandAlias))
             {
-                var existingTokenType = tuple2.Item1;
-                var existingSymbolName = tuple2.Item2;
-                throw new Exception(
-                    $"{tokenType} \"{token}\" for \"{symbolName}\" conflicts with parent {existingTokenType} for \"{existingSymbolName}\" !"
-                );
+                if (parentNamer.usedTokens.TryGetValue(token, out var tuple2))
+                {
+                    var existingTokenType = tuple2.Item1;
+                    var existingSymbolName = tuple2.Item2;
+                    throw new Exception(
+                        $"{tokenType} \"{token}\" for \"{symbolName}\" conflicts with parent {existingTokenType} for \"{existingSymbolName}\" !"
+                    );
+                }
+
+                parentNamer.usedTokens.Add(token, Tuple.Create(tokenType, symbolName));
             }
 
             usedTokens.Add(token, Tuple.Create(tokenType, symbolName));

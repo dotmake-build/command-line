@@ -38,9 +38,12 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             if (AttributeArguments.TryGetValue(nameof(CliCommandAttribute.ShortFormPrefixConvention), out var shortFormPrefixValue))
                 ShortFormPrefixConvention = (CliNamePrefixConvention)shortFormPrefixValue;
             if (AttributeArguments.TryGetValues(nameof(CliCommandAttribute.RequiredGroups), out var requiredGroupsValue))
-                  RequiredGroups = requiredGroupsValue.OfType<string>().ToArray();
-             else
-                RequiredGroups = Array.Empty<string>();
+                RequiredGroups = new HashSet<string>(
+                    requiredGroupsValue.OfType<string>()
+                        .Where(g => !string.IsNullOrWhiteSpace(g))
+                        .Select(g => g.Trim()),
+                    StringComparer.OrdinalIgnoreCase
+                );
 
             ParentSymbol = (Parent != null)
                 ? Parent.Symbol //Nested class for sub-command
@@ -125,9 +128,13 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
             }
 
             // Build Mutual Option Groups
-            Groups = Options.Where(o => !string.IsNullOrEmpty(o.GroupName))
-                .GroupBy(o => o.GroupName!).
-                ToDictionary(g => g.Key, g => g.ToList());
+            OptionGroups = Options
+                .Where(o => !string.IsNullOrWhiteSpace(o.Group))
+                .GroupBy(o => o.Group, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.ToList(),
+                    StringComparer.OrdinalIgnoreCase);
 
             //Disable warning for missing handler, instead show help when no handler
             //if (Handler == null)
@@ -193,6 +200,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         public CliNameAutoGenerate? ShortFormAutoGenerate { get; }
 
         public CliNamePrefixConvention? ShortFormPrefixConvention { get; }
+
+        public HashSet<string> RequiredGroups { get; } = new();
         
 
         public CliCommandHandlerInput Handler { get; }
@@ -214,10 +223,8 @@ namespace DotMake.CommandLine.SourceGeneration.Inputs
         public IReadOnlyList<CliCommandAccessorInput> CommandAccessors => commandAccessors;
         private readonly List<CliCommandAccessorInput> commandAccessors = new();
 
-        public Dictionary<string, List<CliOptionInput>> Groups { get; }
-              = new(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, List<CliOptionInput>> OptionGroups { get; } = new();
 
-        public IReadOnlyList<string> RequiredGroups { get; }
 
         public sealed override void Analyze(ISymbol symbol)
         {

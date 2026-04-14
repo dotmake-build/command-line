@@ -9,27 +9,30 @@ namespace TestApp.Commands
         [CliOption(Description = "Description for Option1")]
         public string Option1 { get; set; } = "DefaultForOption1";
 
-        [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
+        [CliOption(/*Alias = "o1",*/ Description = "Conflicting option")]
+        public string Option2 { get; set; }
 
         public void Run(CliContext context)
         {
             context.ShowValues();
         }
 
-        [CliCommand(Description = "A nested level 1 sub-command")]
-        public class SubCliCommand
+        [CliCommand(Alias = "c", Description = "A nested level 1 sub-command")]
+        public class InvalidSubCliCommand
         {
-            [CliOption(Description = "Description for Option1")]
-            public string Option1 { get; set; } = "DefaultForOption1";
-
-            [CliArgument(Description = "Description for Argument1")]
-            public string Argument1 { get; set; }
-
-            public void Run(CliContext context)
+            [CliCommand(Alias = "c", Description = "Conflicting sub-command")]
+            public class InvalidSub2Command
             {
-                context.ShowValues();
+
             }
         }
+
+        /*
+        [CliCommand(Description = "Conflicting sub-command")]
+        public class InvalidSubCommand
+        {
+
+        }
+        */
     }
 }

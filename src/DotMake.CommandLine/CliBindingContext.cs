@@ -30,6 +30,11 @@ namespace DotMake.CommandLine
         /// </summary>
         public Dictionary<Type, Action<object, ParseResult>> BinderMap { get; } = new();
 
+        /// <summary>
+        /// Map for looking up names by command builder instance, which are set by the source generator to be called from <see cref="Bind{TDefinition}"/> method.
+        /// </summary>
+        public Dictionary<object, CliNamer> NamerMap { get; } = new();
+
 
         /// <inheritdoc cref="Create" />
         /// <typeparam name="TDefinition"><inheritdoc cref="Cli.GetParser{TDefinition}" path="/typeparam[@name='TDefinition']/node()" /></typeparam>

@@ -60,12 +60,6 @@ namespace DotMake.CommandLine
         /// </summary>
         public CliNamePrefixConvention? ShortFormPrefixConvention { get; protected set; }
 
-        /// <summary>
-        /// Gets the namer for generating CLI names and aliases while tracking already used ones.
-        /// This will be available after <see cref="Build"/> call.
-        /// </summary>
-        public CliNamer Namer { get; protected set; }
-
 
         /// <summary>
         /// Gets the command builders that are nested/external children of this command builder.
@@ -160,19 +154,20 @@ namespace DotMake.CommandLine
         public Command BuildWithParent(CliBindingContext bindingContext, CliCommandBuilder parent)
         {
             if (parent == null) //if no parent, treat as single command build
-                return Build(bindingContext); 
+                return Build(bindingContext);
 
             //Should be before Build
             //Inherit settings from a parent command builder.
             //If a setting is not null in this command builder, then that will be used instead.
-            Namer = new CliNamer
+            bindingContext.NamerMap.TryGetValue(parent, out var parentNamer);
+            bindingContext.NamerMap[this] = new CliNamer
             (
                 NameAutoGenerate,
                 NameCasingConvention,
                 NamePrefixConvention,
                 ShortFormAutoGenerate,
                 ShortFormPrefixConvention,
-                parent.Namer //Use the parent namer to check names and aliases of sub-commands and cascade settings inheritance.
+                parentNamer //Use the parent namer to check names and aliases of sub-commands and cascade settings inheritance.
             );
 
             return DoBuild(bindingContext);
@@ -184,7 +179,7 @@ namespace DotMake.CommandLine
         /// <returns>A populated <see cref="Command"/> instance.</returns>
         public Command Build(CliBindingContext bindingContext)
         {
-            Namer = new CliNamer
+            bindingContext.NamerMap[this] = new CliNamer
             (
                 NameAutoGenerate,
                 NameCasingConvention,
