@@ -21,31 +21,24 @@ namespace DotMake.CommandLine
         /// <param name="baseTheme">The base theme to override.</param>
         public CliTheme(CliTheme baseTheme)
         {
-            DefaultColor = baseTheme.DefaultColor;
-            DefaultBgColor = baseTheme.DefaultBgColor;
-            SynopsisColor = baseTheme.SynopsisColor;
-            HeadingColor = baseTheme.HeadingColor;
+            DefaultStyle = baseTheme.DefaultStyle;
+            SynopsisStyle = baseTheme.SynopsisStyle;
+            HeadingStyle = baseTheme.HeadingStyle;
             HeadingCasing = baseTheme.HeadingCasing;
             HeadingNoColon = baseTheme.HeadingNoColon;
-            FirstColumnColor = baseTheme.FirstColumnColor;
-            SecondColumnColor = baseTheme.SecondColumnColor;
+            FirstColumnStyle = baseTheme.FirstColumnStyle;
+            SecondColumnStyle = baseTheme.SecondColumnStyle;
         }
 
         /// <summary>
-        /// Gets or sets the default color used by the app.
-        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Gray"/> on Windows and is equivalent to <c>(<see cref="ConsoleColor"/>)-1</c> (unset/unknown) on Unix-like platforms.</para>
+        /// Gets or sets the default style (color and text decoration) used by the app.
+        /// <para>Default is <see langword="null"/>, which means terminal's current style.</para>
         /// </summary>
-        public ConsoleColor? DefaultColor { get; init; }
+        public CliStyle DefaultStyle { get; init; } = new();
 
         /// <summary>
-        /// Gets or sets the default background color used by the app.
-        /// <para>Default is <see langword="null"/>, which is equivalent to <see cref="ConsoleColor.Black"/> on Windows and is equivalent to <c>(<see cref="ConsoleColor"/>)-1</c> (unset/unknown) on Unix-like platforms.</para>
-        /// </summary>
-        public ConsoleColor? DefaultBgColor { get; init; }
-
-        /// <summary>
-        /// Gets or sets the color used for the synopsis section in help output.
-        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultColor"/>.</para>
+        /// Gets or sets the style (color and text decoration) used for the synopsis section in help output.
+        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultStyle"/>.</para>
         /// <para>Synopsis section is similar to:</para>
         /// <code language="console">
         /// DotMake Command-Line TestApp v1.6.0
@@ -54,11 +47,11 @@ namespace DotMake.CommandLine
         /// A root cli command with nested children
         /// </code>
         /// </summary>
-        public ConsoleColor? SynopsisColor { get; init; }
+        public CliStyle? SynopsisStyle { get; init; }
 
         /// <summary>
-        /// Gets or sets the color used for a heading in help output.
-        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultColor"/>.</para>
+        /// Gets or sets the style (color and text decoration) used for a heading in help output.
+        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultStyle"/>.</para>
         /// <para>Heading is similar to:</para>
         /// <code language="console">
         /// Usage:
@@ -67,7 +60,7 @@ namespace DotMake.CommandLine
         /// Commands:
         /// </code>
         /// </summary>
-        public ConsoleColor? HeadingColor { get; init; }
+        public CliStyle? HeadingStyle { get; init; }
 
         /// <summary>
         /// Gets or sets the casing used for a heading in help output.
@@ -96,8 +89,8 @@ namespace DotMake.CommandLine
         public bool HeadingNoColon { get; init; }
 
         /// <summary>
-        /// Gets or sets the color used for a first column in help output.
-        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultColor"/>.</para>
+        /// Gets or sets the style (color and text decoration) used for a first column in help output.
+        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultStyle"/>.</para>
         /// <para>First column is similar to:</para>
         /// <code language="console">
         ///   &lt;argument-1&gt;
@@ -109,11 +102,11 @@ namespace DotMake.CommandLine
         ///   sub-command
         /// </code>
         /// </summary>
-        public ConsoleColor? FirstColumnColor { get; init; }
+        public CliStyle? FirstColumnStyle { get; init; }
 
         /// <summary>
-        /// Gets or sets the color used for a second column in help output.
-        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultColor"/>.</para>
+        /// Gets or sets the style (color and text decoration) used for a second column in help output.
+        /// <para>Default is <see langword="null"/> which also means <see cref="DefaultStyle"/>.</para>
         /// <para>Second column is similar to:</para>
         /// <code language="console">
         ///                       Description for Argument1 [required]
@@ -125,7 +118,7 @@ namespace DotMake.CommandLine
         ///                       A nested level 1 sub-command
         /// </code>
         /// </summary>
-        public ConsoleColor? SecondColumnColor { get; init; }
+        public CliStyle? SecondColumnStyle { get; init; }
 
         #region Static
 
@@ -135,55 +128,52 @@ namespace DotMake.CommandLine
         /// <summary>Gets the default theme.</summary>
         public static CliTheme Default { get; } = new()
         {
-            FirstColumnColor = ConsoleColor.White
+            FirstColumnStyle = new CliStyle().Decoration(CliDecoration.Bold)
         };
 
         /// <summary>Gets the Red theme.</summary>
         public static CliTheme Red { get; } = new()
         {
-            DefaultColor = ConsoleColor.White,
-            HeadingColor = ConsoleColor.Magenta,
-            FirstColumnColor = ConsoleColor.Red
+            HeadingStyle = new CliStyle().Foreground(ConsoleColor.Magenta),
+            FirstColumnStyle = new CliStyle().Foreground(ConsoleColor.Red)
         };
 
         /// <summary>Gets the Dark Red theme.</summary>
         public static CliTheme DarkRed { get; } = new()
         {
-            DefaultColor = ConsoleColor.Gray,
-            HeadingColor = ConsoleColor.DarkMagenta,
-            FirstColumnColor = ConsoleColor.DarkRed
+            DefaultStyle = new CliStyle().Decoration(CliDecoration.Dim),
+            HeadingStyle = new CliStyle().Foreground(ConsoleColor.DarkMagenta),
+            FirstColumnStyle = new CliStyle().Foreground(ConsoleColor.DarkRed)
         };
 
         /// <summary>Gets the Green theme.</summary>
         public static CliTheme Green { get; } = new()
         {
-            DefaultColor = ConsoleColor.White,
-            HeadingColor = ConsoleColor.Yellow,
-            FirstColumnColor = ConsoleColor.Green
+            HeadingStyle = new CliStyle().Foreground(ConsoleColor.Yellow),
+            FirstColumnStyle = new CliStyle().Foreground(ConsoleColor.Green)
         };
 
         /// <summary>Gets the Dark Green theme.</summary>
         public static CliTheme DarkGreen { get; } = new()
         {
-            DefaultColor = ConsoleColor.Gray,
-            HeadingColor = ConsoleColor.DarkYellow,
-            FirstColumnColor = ConsoleColor.DarkGreen
+            DefaultStyle = new CliStyle().Decoration(CliDecoration.Dim),
+            HeadingStyle = new CliStyle().Foreground(ConsoleColor.DarkYellow),
+            FirstColumnStyle = new CliStyle().Foreground(ConsoleColor.DarkGreen)
         };
 
         /// <summary>Gets the Blue theme.</summary>
         public static CliTheme Blue { get; } = new()
         {
-            DefaultColor = ConsoleColor.White,
-            HeadingColor = ConsoleColor.Cyan,
-            FirstColumnColor = ConsoleColor.Blue
+            HeadingStyle = new CliStyle().Foreground(ConsoleColor.Cyan),
+            FirstColumnStyle = new CliStyle().Foreground(ConsoleColor.Blue)
         };
 
         /// <summary>Gets the Dark Blue theme.</summary>
         public static CliTheme DarkBlue { get; } = new()
         {
-            DefaultColor = ConsoleColor.Gray,
-            HeadingColor = ConsoleColor.DarkCyan,
-            FirstColumnColor = ConsoleColor.DarkBlue
+            DefaultStyle = new CliStyle().Decoration(CliDecoration.Dim),
+            HeadingStyle = new CliStyle().Foreground(ConsoleColor.DarkCyan),
+            FirstColumnStyle = new CliStyle().Foreground(ConsoleColor.DarkBlue)
         };
 
         #endregion

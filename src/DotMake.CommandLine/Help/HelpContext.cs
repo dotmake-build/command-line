@@ -24,7 +24,7 @@ namespace DotMake.CommandLine.Help
         {
             HelpBuilder = helpBuilder ?? throw new ArgumentNullException(nameof(helpBuilder));
             Command = command ?? throw new ArgumentNullException(nameof(command));
-            Output = output ?? throw new ArgumentNullException(nameof(output));
+            Output = CliWriter.GetCached(output ?? throw new ArgumentNullException(nameof(output)));
             ParseResult = parseResult ?? new RootCommand().Parse(Array.Empty<string>());
         }
 
@@ -44,8 +44,16 @@ namespace DotMake.CommandLine.Help
         public Command Command { get; }
 
         /// <summary>
-        /// A text writer to write output to.
+        /// Gets the standard output stream wrapped by a CLI writer
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// <para>The standard output can be used to write non-error information during the current invocation.</para>
+        /// <para>
+        /// By default, <see cref="System.Console.Out" /> with encoding set to UTF8, is wrapped.
+        /// The underlying stream can be changed via <see cref="CliSettings.Output"/>.
+        /// </para>
         /// </summary>
-        public TextWriter Output { get; }
+        /// <returns>A <see cref="CliWriter" /> that wraps the standard output stream.</returns>
+        public CliWriter Output { get; }
     }
 }

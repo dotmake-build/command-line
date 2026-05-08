@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.IO;
 using System.Linq;
 using System.Text;
 using DotMake.CommandLine.Help;
@@ -123,7 +122,7 @@ namespace DotMake.CommandLine
         /// <returns><see langword="true"/> if section was written, <see langword="false"/> if section was skipped.</returns>
         public virtual bool WriteSynopsisSection(HelpContext helpContext)
         {
-            ConsoleExtensions.SetColor(theme.SynopsisColor, theme.DefaultColor);
+            helpContext.Output.SetStyle(theme.SynopsisStyle ?? theme.DefaultStyle);
             helpContext.Output.Write(ExecutableInfo.AssemblyInfo.Product);
             if (!string.IsNullOrWhiteSpace(ExecutableInfo.AssemblyInfo.Version))
                 helpContext.Output.Write(" v{0}", ExecutableInfo.AssemblyInfo.Version);
@@ -146,9 +145,10 @@ namespace DotMake.CommandLine
 
                 if (hasName)
                 {
-                    ConsoleExtensions.SetColor(theme.FirstColumnColor, theme.DefaultColor);
+                    helpContext.Output.SetStyle(theme.FirstColumnStyle ?? theme.DefaultStyle);
                     helpContext.Output.Write(name);
-                    ConsoleExtensions.SetColor(theme.SynopsisColor, theme.DefaultColor);
+
+                    helpContext.Output.SetStyle(theme.SynopsisStyle ?? theme.DefaultStyle);
                     if (!hasDescription)
                         helpContext.Output.WriteLine();
                 }
@@ -167,7 +167,7 @@ namespace DotMake.CommandLine
                 }
             }
 
-            ConsoleExtensions.SetColor(theme.DefaultColor);
+            helpContext.Output.SetStyle(theme.DefaultStyle);
 
             return true;
         }
@@ -331,16 +331,18 @@ namespace DotMake.CommandLine
 
 
 
-        private void WriteHeading(string heading, string description, TextWriter writer)
+        private void WriteHeading(string heading, string description, CliWriter writer)
         {
             if (!string.IsNullOrWhiteSpace(heading))
             {
                 heading = CliStringUtil.ToCase(heading, theme.HeadingCasing, keepSpaces: true);
                 if (theme.HeadingNoColon)
                     heading = heading.TrimEnd(':');
-                ConsoleExtensions.SetColor(theme.HeadingColor, theme.DefaultColor);
+
+                writer.SetStyle(theme.HeadingStyle ?? theme.DefaultStyle);
                 writer.WriteLine(heading);
-                ConsoleExtensions.SetColor(theme.DefaultColor);
+
+                writer.SetStyle(theme.DefaultStyle);
             }
 
             if (!string.IsNullOrWhiteSpace(description))
@@ -390,9 +392,10 @@ namespace DotMake.CommandLine
                 foreach (var (first, second) in ZipWithEmpty(firstColumnParts, secondColumnParts))
                 {
                     /*MODIFY*/
-                    ConsoleExtensions.SetColor(theme.FirstColumnColor, theme.DefaultColor);
+                    context.Output.SetStyle(theme.FirstColumnStyle ?? theme.DefaultStyle);
                     context.Output.Write($"{Indent}{first}");
-                    ConsoleExtensions.SetColor(theme.DefaultColor);
+
+                    context.Output.SetStyle(theme.DefaultStyle);
                     /*MODIFY*/
 
                     if (!string.IsNullOrWhiteSpace(second))
@@ -404,9 +407,10 @@ namespace DotMake.CommandLine
                             padding = new string(' ', padSize);
                         }
 
-                        ConsoleExtensions.SetColor(theme.SecondColumnColor, theme.DefaultColor);
+                        context.Output.SetStyle(theme.SecondColumnStyle ?? theme.DefaultStyle);
                         context.Output.Write($"{padding}{Indent}{second}");
-                        ConsoleExtensions.SetColor(theme.DefaultColor);
+
+                        context.Output.SetStyle(theme.DefaultStyle);
                     }
 
                     context.Output.WriteLine();

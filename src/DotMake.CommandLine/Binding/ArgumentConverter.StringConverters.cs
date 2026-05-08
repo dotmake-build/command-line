@@ -3,7 +3,7 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 
@@ -13,9 +13,9 @@ internal static partial class ArgumentConverter
 {
     internal delegate bool TryConvertString(string token, out object? value);
 
-    private static Dictionary<Type, TryConvertString>? stringConverters;
+    private static ConcurrentDictionary<Type, TryConvertString>? stringConverters;
 
-    internal static Dictionary<Type, TryConvertString> StringConverters
+    internal static ConcurrentDictionary<Type, TryConvertString> StringConverters
         => stringConverters ??= new()
     {
         [typeof(string)] = (string input, out object? value) =>

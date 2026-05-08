@@ -80,7 +80,7 @@ namespace DotMake.CommandLine
                         : Array.Empty<string>()
                 )
                 {
-                    Action = new VersionOptionAction()
+                    Action = new VersionOptionAction(settings.Theme)
                 };
                 rootCommand.Options.Add(versionOption);
 
@@ -274,11 +274,22 @@ namespace DotMake.CommandLine
 
         private sealed class VersionOptionAction : SynchronousCommandLineAction
         {
+            private readonly CliTheme theme;
+
+            public VersionOptionAction(CliTheme theme)
+            {
+                this.theme = theme;
+            }
+
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.InvocationConfiguration.Output.WriteLine(
+                var cliWriter = CliWriter.GetCached(parseResult.InvocationConfiguration.Output);
+
+                cliWriter.SetStyle(theme.DefaultStyle);
+                cliWriter.WriteLine(
                     ExecutableInfo.AssemblyInfo.InformationalVersion ?? ExecutableInfo.AssemblyInfo.Version
                 );
+
                 return 0;
             }
 

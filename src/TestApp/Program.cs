@@ -45,6 +45,7 @@ Cli.Run<RootHelpOnEmptyCliCommand>(args);
 //await Cli.RunAsync<RunAsyncWithReturnCliCommand>(args);
 
 //Using themes:
+//Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.NoColor });
 //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Red });
 //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.DarkRed });
 //Cli.Run<RootCliCommand>(args, new CliSettings { Theme = CliTheme.Green });

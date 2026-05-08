@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
 #pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
@@ -35,6 +37,30 @@ namespace DotMake.CommandLine
         /// <inheritdoc cref="CliExtensions" path="/summary/node()" />
         /// </summary>
         public static CliExtensions Ext { get; } = new CliExtensions();
+
+        /// <summary>
+        /// Gets the standard output stream wrapped by a CLI writer
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// <para>The standard output can be used to write non-error information during the current invocation.</para>
+        /// <para>
+        /// By default, <see cref="System.Console.Out" /> with encoding set to UTF8, is wrapped.
+        /// </para>
+        /// </summary>
+        /// <returns>A <see cref="CliWriter" /> that wraps the standard output stream.</returns>
+        public static CliWriter Output => CliWriter.GetCached(Console.Out);
+
+        /// <summary>
+        /// Gets the standard error output stream wrapped by a CLI writer
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// <para>The standard error can be used to write error information during the current invocation.</para>
+        /// <para>
+        /// By default, <see cref="System.Console.Error" /> is wrapped.
+        /// </para>
+        /// </summary>
+        /// <returns>A <see cref="CliWriter" /> that wraps the standard error output stream.</returns>
+        public static CliWriter Error => CliWriter.GetCached(Console.Error);
 
 
         /// <summary>

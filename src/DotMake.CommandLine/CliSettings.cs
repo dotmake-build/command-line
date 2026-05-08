@@ -82,17 +82,31 @@ namespace DotMake.CommandLine
 
         /// <summary>
         /// Gets or sets the standard output. Used by Help and other facilities that write non-error information.
-        /// <para>Default is <see langword="null" /> which means <see cref="P:System.Console.Out" /> with encoding set to UTF8, will be used.</para>
-        /// For testing purposes, it can be set to a new instance of <see cref="T:System.IO.StringWriter" />.
-        /// If you want to disable the output, please set it to <see cref="F:System.IO.TextWriter.Null" />.
+        /// <para>
+        /// Default is <see langword="null" /> which means <see cref="System.Console.Out" /> with encoding set to UTF8, will be used.
+        /// The underlying stream will be wrapped by a CLI writer in <see cref="CliContext.Output" /> and <see cref="Help.HelpContext.Output" />
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// </para>
+        /// <para>
+        /// For testing purposes, it can be set to a new instance of <see cref="System.IO.StringWriter" />.
+        /// If you want to disable the output, please set it to <see cref="System.IO.TextWriter.Null" />.
+        /// </para>
         /// </summary>
         public TextWriter Output { get; set; }
 
         /// <summary>
         /// Gets or sets the standard error. Used for printing error information like parse errors.
-        /// <para>Default is <see langword="null" /> which means <see cref="P:System.Console.Error" />, will be used.</para>
-        /// For testing purposes, it can be set to a new instance of <see cref="T:System.IO.StringWriter" />.
-        /// If you want to disable the output, please set it to <see cref="F:System.IO.TextWriter.Null" />.
+        /// <para>
+        /// Default is <see langword="null" /> which means <see cref="System.Console.Error" />, will be used.
+        /// The underlying stream will be wrapped by a CLI writer in <see cref="CliContext.Error" />
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// </para>
+        /// <para>
+        /// For testing purposes, it can be set to a new instance of <see cref="System.IO.StringWriter" />.
+        /// If you want to disable the output, please set it to <see cref="System.IO.TextWriter.Null" />.
+        /// </para>
         /// </summary>
         public TextWriter Error { get; set; }
 

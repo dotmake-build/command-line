@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34031.279
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11716.220 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotMake.CommandLine", "DotMake.CommandLine\DotMake.CommandLine.csproj", "{4B069137-2252-415C-9F2C-37BE08F316BB}"
 EndProject
@@ -18,6 +18,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp.NugetAot", "TestApp.NugetAot\TestApp.NugetAot.csproj", "{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp.NugetDI", "TestApp.NugetDI\TestApp.NugetDI.csproj", "{9B95C386-E77B-46FD-A2E5-1DC862D905B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotMake.CommandLine.Tests", "DotMake.CommandLine.Tests\DotMake.CommandLine.Tests.csproj", "{379F7DDB-AE00-460F-8514-442C30BFF2B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotMake.CommandLine.Tests.TUnit", "DotMake.CommandLine.Tests.TUnit\DotMake.CommandLine.Tests.TUnit.csproj", "{A16EFA54-34F8-AE92-994B-4CBBF986AEC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +51,14 @@ Global
 		{6BB51E16-D381-4BAE-ACB2-3A94ECDFD94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B95C386-E77B-46FD-A2E5-1DC862D905B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9B95C386-E77B-46FD-A2E5-1DC862D905B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{379F7DDB-AE00-460F-8514-442C30BFF2B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{379F7DDB-AE00-460F-8514-442C30BFF2B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{379F7DDB-AE00-460F-8514-442C30BFF2B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{379F7DDB-AE00-460F-8514-442C30BFF2B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A16EFA54-34F8-AE92-994B-4CBBF986AEC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A16EFA54-34F8-AE92-994B-4CBBF986AEC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A16EFA54-34F8-AE92-994B-4CBBF986AEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A16EFA54-34F8-AE92-994B-4CBBF986AEC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

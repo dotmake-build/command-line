@@ -4,11 +4,9 @@ using System.CommandLine;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using DotMake.CommandLine.Help;
-using DotMake.CommandLine.Util;
 
 namespace DotMake.CommandLine
 {
@@ -30,8 +28,8 @@ namespace DotMake.CommandLine
             Result = new CliResult(bindingContext, parseResult);
             this.parseResult = parseResult;
 
-            Output = parseResult.InvocationConfiguration.Output;
-            Error = parseResult.InvocationConfiguration.Error;
+            Output = CliWriter.GetCached(parseResult.InvocationConfiguration.Output);
+            Error = CliWriter.GetCached(parseResult.InvocationConfiguration.Error);
             CancellationToken = cancellationToken;
         }
 
@@ -41,16 +39,30 @@ namespace DotMake.CommandLine
         public CliResult Result { get; }
 
         /// <summary>
-        /// Gets the standard output, to which non-error information should be written during the current invocation.
-        /// By default, it's set to <see cref="P:System.Console.Out" />, it's changed via <see cref="CliSettings.Output"/>.
+        /// Gets the standard output stream wrapped by a CLI writer
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// <para>The standard output can be used to write non-error information during the current invocation.</para>
+        /// <para>
+        /// By default, <see cref="System.Console.Out" /> with encoding set to UTF8, is wrapped.
+        /// The underlying stream can be changed via <see cref="CliSettings.Output"/>.
+        /// </para>
         /// </summary>
-        public TextWriter Output { get; }
+        /// <returns>A <see cref="CliWriter" /> that wraps the standard output stream.</returns>
+        public CliWriter Output { get; }
 
         /// <summary>
-        /// Gets the standard error, to which error information should be written during the current invocation.
-        /// By default, it's set to <see cref="P:System.Console.Error" />, it's changed via <see cref="CliSettings.Error"/>.
+        /// Gets the standard error output stream wrapped by a CLI writer
+        /// that provides styled terminal output (color and text decoration),
+        /// using ANSI escape sequences when supported and console-native fallbacks otherwise.
+        /// <para>The standard error can be used to write error information during the current invocation.</para>
+        /// <para>
+        /// By default, <see cref="System.Console.Error" /> is wrapped.
+        /// The underlying stream can be changed via <see cref="CliSettings.Error"/>.
+        /// </para>
         /// </summary>
-        public TextWriter Error { get; }
+        /// <returns>A <see cref="CliWriter" /> that wraps the standard error output stream.</returns>
+        public CliWriter Error { get; }
 
         /// <summary>
         /// Gets the token to implement cancellation handling. Available for async command handlers.
@@ -165,7 +177,7 @@ namespace DotMake.CommandLine
                 Array.Reverse(charArray); //we reverse because we loop parents above reversely, so tree symbols are reverse
                 indent = new string(charArray);
 
-                Console.Write(indent + (isRoot ? "" : isLast ? "└╴" : "├╴"));
+                Output.Write(indent + (isRoot ? "" : isLast ? "└╴" : "├╴"));
 
                 /*
                 var level = command
@@ -173,18 +185,18 @@ namespace DotMake.CommandLine
                     .Count() - 1;
                 */
 
-                ConsoleExtensions.SetColor(theme.FirstColumnColor, theme.DefaultColor);
-                Console.Write($@"{command.Name}");
-                ConsoleExtensions.SetColor(theme.DefaultColor);
+                Output.SetStyle(theme.FirstColumnStyle ?? theme.DefaultStyle);
+                Output.Write($@"{command.Name}");
 
                 if (showLevel)
                 {
-                    ConsoleExtensions.SetColor(theme.SecondColumnColor, theme.DefaultColor);
-                    Console.Write($@" (level {level})");
-                    ConsoleExtensions.SetColor(theme.DefaultColor);
+                    Output.SetStyle(theme.SecondColumnStyle ?? theme.DefaultStyle);
+                    Output.Write($@" (level {level})");
                 }
-                
-                Console.WriteLine();
+
+                Output.SetStyle(theme.DefaultStyle);
+
+                Output.WriteLine();
             }
         }
 

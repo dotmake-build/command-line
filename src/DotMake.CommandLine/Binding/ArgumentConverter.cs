@@ -3,6 +3,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
@@ -15,7 +16,7 @@ namespace DotMake.CommandLine.Binding
 {
     internal static partial class ArgumentConverter
     {
-        internal static Dictionary<Type, Func<Array, object>> CollectionConverters = new Dictionary<Type, Func<Array, object>>();
+        internal static ConcurrentDictionary<Type, Func<Array, object>> CollectionConverters = new();
 
         internal static TryConvertArgument? GetConverter(Argument argument)
         {
@@ -218,16 +219,18 @@ namespace DotMake.CommandLine.Binding
 
             var collectionType = typeof(TCollection).GetNullableUnderlyingTypeOrSelf();
 
-            if (!CollectionConverters.ContainsKey(collectionType))
+            CollectionConverters.GetOrAdd(collectionType, _ =>
             {
+                //The local function is re-declared each time the block runs
                 object ConvertArray(Array array)
                 {
                     //Exceptions are handled in ConvertToken
                     return convertFromArray(array)!;
                 }
 
-                CollectionConverters.Add(collectionType, ConvertArray);
-            }
+
+                return ConvertArray;
+            });
         }
 
         internal static void RegisterStringConverter<TArgument>(Func<string, TArgument>? convertFromString)
@@ -237,8 +240,9 @@ namespace DotMake.CommandLine.Binding
 
             var itemType = typeof(TArgument).GetNullableUnderlyingTypeOrSelf();
 
-            if (!StringConverters.ContainsKey(itemType))
+            StringConverters.GetOrAdd(itemType, _ =>
             {
+                //The local function is re-declared each time the block runs
                 bool TryConvertString(string input, out object value)
                 {
                     //Exceptions are handled in ConvertTokens
@@ -246,8 +250,8 @@ namespace DotMake.CommandLine.Binding
                     return true;
                 }
 
-                StringConverters.Add(itemType, TryConvertString);
-            }
+                return TryConvertString;
+            });
         }
 
         internal static object? GetDefaultValue(Type type)
