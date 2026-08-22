@@ -25,7 +25,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             Input = input;
             ReferenceDependantInput = referenceDependantInput;
 
-            if (!referenceDependantInput.HasMsDependencyInjectionAbstractions
+            if (!referenceDependantInput.ReferencesMsDIAbstractions
                 && !Input.Symbol.InstanceConstructors.Any(c =>
                     c.Parameters.IsEmpty
                     && (c.DeclaredAccessibility == Accessibility.Public || c.DeclaredAccessibility == Accessibility.Internal)
@@ -273,9 +273,9 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"{varBindingContext}.CommandMap[{varCommand}] = DefinitionType;");
                     using (sb.AppendBlockStart($"{varBindingContext}.CreatorMap[DefinitionType] = () =>", ";"))
                     {
-                        if (ReferenceDependantInput.HasMsDependencyInjectionAbstractions || ReferenceDependantInput.HasMsDependencyInjection)
+                        if (ReferenceDependantInput.ReferencesMsDIAbstractions || ReferenceDependantInput.ReferencesMsDI)
                         {
-                            sb.AppendLine(ReferenceDependantInput.HasMsDependencyInjection
+                            sb.AppendLine(ReferenceDependantInput.ReferencesMsDI
                                 ? $"var serviceProvider = {OutputNamespaces.DotMakeCommandLine}.CliServiceCollectionExtensions.GetServiceProviderOrDefault(null);"
                                 : $"var serviceProvider = {OutputNamespaces.DotMakeCommandLine}.CliServiceProviderExtensions.GetServiceProvider(null);");
                             sb.AppendLine("if (serviceProvider != null)");

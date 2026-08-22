@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine;
+using System.Linq;
 
 namespace DotMake.CommandLine
 {
@@ -36,7 +37,8 @@ namespace DotMake.CommandLine
         /// <returns><see langword="true"/> if called command is specified with any arguments or options, <see langword="false"/> if not.</returns>
         //For RootCommandResult, Tokens does not include directives but Children does
         //So use !CommandResult.Children.Any() instead of CommandResult.Tokens.Count == 0
-        public bool HasArgs => (ParseResult.CommandResult.Tokens.Count > 0);
+        //Most reliable way is to check if any children is specified explicitly (not implicit - set by a default value)
+        public bool HasArgs => ParseResult.CommandResult.Children.Any(sr => sr.Tokens.Count > 0);
 
         /// <summary>
         /// Gets a value indicating whether root command is specified with any subcommands, directives, options or arguments.

@@ -308,18 +308,19 @@ namespace DotMake.CommandLine
         /// <inheritdoc cref="GetValue{T}(ParseResult, Directive)"/>
         public object GetValue(ParseResult parseResult, Directive directive)
         {
-            /*
             var result = parseResult.GetResult(directive);
             if (result != null)
             {
-                var value = result.GetValueOrDefault<object>();
-                if (value != null)
-                    return value;
+                if (result.Values.Count == 0)
+                    return true;
+
+                if (result.Values.Count == 1)
+                    return result.Values.First();
+
+                return result.Values.ToArray();
             }
 
-            return ArgumentConverter.GetDefaultValue(directive.GetArgument().ValueType);
-            */
-            return GetValue<object>(parseResult, directive);
+            return ArgumentConverter.GetDefaultValue(typeof(object));
         }
 
         /// <summary>

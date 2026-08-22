@@ -117,28 +117,107 @@ namespace DotMake.CommandLine
         }
 
         /// <summary>
-        /// Shows parsed values for current command and its arguments and options. Useful for testing a command.
+        /// Shows parsed values for current and parent commands and their arguments and options. Useful for testing a command.
         /// </summary>
         public void ShowValues()
         {
-            var command = parseResult.CommandResult.Command;
-            var isRoot = (command.Parents.FirstOrDefault() == null);
+            var theme = GetThemeOrDefault();
             var bindingContext = new CliBindingContext();
 
-            Output.WriteLine($"Command = \"{command.Name}\" [{(isRoot ? "Root command" : "Sub-command")}]");
-
-            foreach (var symbolResult in parseResult.CommandResult.Children)
+            var stack = new Stack<CommandResult>();
+            var currentCommandResult = parseResult.CommandResult;
+            while (currentCommandResult != null)
             {
-                if (symbolResult is ArgumentResult argumentResult)
+                stack.Push(currentCommandResult);
+                currentCommandResult = currentCommandResult.Parent as CommandResult;
+            }
+
+            var level = 0;
+            while (stack.Count > 0)
+            {
+                WriteCommandResult(stack.Pop(), new string(' ', level++));
+                Output.WriteLine();
+            }
+
+            void WriteCommandResult(CommandResult commandResult, string indent)
+            {
+                WriteRow(
+                    (commandResult.Parent == null) ? "Root Command" : "Sub Command",
+                    commandResult.Command.Name,
+                    indent
+                );
+                
+                //Currently CommandResult.Children does not include directive results so we manually search them in symbol tree
+                if (commandResult.Parent == null && commandResult.Command is RootCommand rootCommand)
                 {
-                    var value = bindingContext.GetValue(parseResult, argumentResult.Argument);
-                    Output.WriteLine($"Argument '{argumentResult.Argument.Name}' = {CliStringUtil.FormatValue(value)}");
+                    foreach (var directive in rootCommand.Directives)
+                    {
+                        var directiveResult = parseResult.GetResult(directive);
+                        if (directiveResult == null)
+                            continue;
+                        var value = bindingContext.GetValue(parseResult, directiveResult.Directive);
+                        WriteRow(
+                            $"Directive '{directiveResult.Directive.Name}'",
+                            CliStringUtil.FormatValue(value),
+                            indent
+                        );
+
+                    }
                 }
-                else if (symbolResult is OptionResult optionResult)
+
+                foreach (var symbolResult in commandResult.Children)
                 {
-                    var value = bindingContext.GetValue(parseResult, optionResult.Option);
-                    Output.WriteLine($"Option '{optionResult.Option.Name}' = {CliStringUtil.FormatValue(value)}");
+                    switch (symbolResult)
+                    {
+                        /*
+                        case DirectiveResult directiveResult:
+                        {
+                            var value = bindingContext.GetValue(parseResult, directiveResult.Directive);
+                            WriteRow(
+                                $"Directive '{directiveResult.Directive.Name}'",
+                                CliStringUtil.FormatValue(value),
+                                indent
+                            );
+                            break;
+                        }
+                        */
+                        case ArgumentResult argumentResult:
+                        {
+                            var value = bindingContext.GetValue(parseResult, argumentResult.Argument);
+                            WriteRow(
+                                $"Argument '{argumentResult.Argument.Name}'",
+                                CliStringUtil.FormatValue(value),
+                                indent
+                            );
+                            break;
+                        }
+                        case OptionResult optionResult:
+                        {
+                            var value = bindingContext.GetValue(parseResult, optionResult.Option);
+                            WriteRow(
+                                $"Option '{optionResult.Option.Name}'",
+                                CliStringUtil.FormatValue(value),
+                                indent
+                            );
+                            break;
+                        }
+                    }
                 }
+            }
+
+            void WriteRow(string name, string value, string indent)
+            {
+                Output.Write(indent);
+
+                Output.SetStyle(theme.FirstColumnStyle ?? theme.DefaultStyle);
+                Output.Write(name);
+                Output.Write(": ");
+
+                Output.SetStyle(theme.SecondColumnStyle ?? theme.DefaultStyle);
+                Output.Write(value);
+
+                Output.SetStyle(theme.DefaultStyle);
+                Output.WriteLine();
             }
         }
 

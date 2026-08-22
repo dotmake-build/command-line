@@ -265,7 +265,12 @@ namespace DotMake.CommandLine
                 */
                 for (var index = 0; index < args.Length; index++)
                 {
-                    args[index] = args[index].TrimEnd('"');
+                    var arg = args[index];
+
+                    //If there is a trailing double quote, remove it only if it's the only one (no matching starting double quote)
+                    if (arg.LastOrDefault() == '"'
+                        && arg.Count(c => c == '"') == 1)
+                        args[index] = args[index].TrimEnd('"');
                 }
             }
 

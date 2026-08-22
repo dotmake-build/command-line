@@ -21,47 +21,39 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Added:** Created `CliWriter` class which provides styled terminal output (color and text decoration),
-          using ANSI escape sequences when supported and console-native fallbacks otherwise.
-          `CliContext.Output`, `CliContext.Error`, `HelpContext.Output` properties will now return a `CliWriter`
-          instance so that user too can write styled output.
-          Also added `Cli.Output` and `Cli.Error` properties for global access.
-
-          `CliWriter` class currently provides these methods for styled output (on top of regular `TextWriter` methods):
-          ```c#
-          Write(CliStyle style, string value)
-          Write(CliStyle style, string format, params object[] arg)
-
-          WriteLine(CliStyle style, string value)
-          WriteLine(CliStyle style, string format, params object[] arg)
+        - **Improved:** Do not generate any source code if `DotMake.CommandLine.dll` is not actually referenced in the project.
+          This should at least fix the issue: by default analyzers/generators in Unity apply to every referenced child projects.
           
-          WriteLink(CliLink link, CliStyle style, string value)
-          WriteLink(CliLink link, CliStyle style, string format, params object[] arg)
-          WriteLink(CliLink link, string value)
-          WriteLink(CliLink link, string format, params object[] arg)
-
-          SetStyle(CliStyle style)
-          ResetStyle()
-
+          However for the main project which has the `<PackageReference Include="DotMake.CommandLine" />`,
+          the DLL is implicitly referenced and there is no feasible/performant way in source generator
+          to find if the DLL is actually used/consumed.
+          
+          First way: In `.csproj`, set this new property to `false` or `disable` to disable source generator (to `true` or `enable` for reverse):
+          ```xml
+          <PropertyGroup>
+            <DotMakeSourceGenerator>disable</DotMakeSourceGenerator>
+          </PropertyGroup>            
           ```
-          More methods for writing common Success, Warning, Error messages with default styles are planned to be added in future versions.
 
-          For custom use, you can also get get a cached `CliWriter` so that ANSI support detection is only done once per `Console.Out`:
-          ```c#
-          var cliWriter = CliWriter.GetCached(Console.Out);
+          Second Way: In `.csproj`, exclude compile assets to mimic no `DotMake.CommandLine.dll` reference:
+          ```xml
+          <PackageReference Include="DotMake.CommandLine" Version="3.6.0">
+            <ExcludeAssets>compile</ExcludeAssets>
+          </PackageReference>
           ```
+
+        - **Improved:** Updated to version `2.0.11` of System.CommandLine.
+
+        - **Improved:** `context.ShowValues()` will now show directives, and also parent commands and their options and arguments.
+          It will also use the theme colors for columns.
           
-        - **Improved:** `CliTheme` now uses new class `CliStyle` for its properties, which itself includes `Foreground`, `Background`
-          and `Decoration` properties.
-          Default themes from now on will not set `Foreground` or `Background` for `DefaultStyle` (main color),
-          for example `CliTheme.Default` will only use `CliDecoration.Bold` for `FirstColumnStyle` property instead of white color.
-          This is because detecting current terminal colors is impossible and for example on OSX terminal with dark mode,
-          text became invisible as we made assumptions (to fix color visibility) that on OSX terminal background color is usually white.
-          
-        - **Fixed:** `An item with the same key has already been added.` error when `Cli.RunAsync()` is called
-          in tests that re running in parallel (expecially with TUnit).
-          Ensured `ArgumentConverter.RegisterStringConverter()` and `ArgumentConverter.RegisterCollectionConverter()`
-          use `ConcurrentDictionary` and `GetOrAdd` for preventing multi-thread racing problems.
+        - **Fixed:** `context.Result.HasArgs` was not returning `true` when there was some argument/option with default value.
+
+        - **Fixed:** `CliParser.FixArgs()` should not blindly remove trailing escaped double quotes in `args`.
+          It should remove only if the double quote is the only one per `args` array element (no matching starting double quote).
+          So for example it should not be removed for this `-e "CompanyRegistrationNumber == \"24256790\""`
+          but it should be removed for `--source "C:\myfiles\"`.
+          This effects `Cli.Parse(string[])`, `Cli.Run(string[] args)` and `Cli.RunAsync(string[])` which uses `CliParser.FixArgs()`.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -70,7 +62,7 @@
 
   <ItemGroup>
     <!-- update: use final 2.0.0 now, old: use exact version match with [] for now as future beta versions can break API -->
-    <PackageReference Include="System.CommandLine" Version="[2.0.7,3.0.0)" />
+    <PackageReference Include="System.CommandLine" Version="[2.0.11,3.0.0)" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.

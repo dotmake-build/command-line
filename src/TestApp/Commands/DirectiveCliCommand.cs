@@ -1,5 +1,4 @@
 #pragma warning disable CS1591
-using System;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
@@ -21,16 +20,15 @@ namespace TestApp.Commands
         [CliDirective]
         public string[] Vars { get; set; }
 
+        [CliOption(Description = "Description for Option1")]
+        public string Option1 { get; set; } = "DefaultForOption1";
+
         public void Run(CliContext context)
         {
             if (!context.Result.HasTokens)
                 context.ShowHelp();
             else
-            {
-                Console.WriteLine($"Directive '{nameof(Debug)}' = {CliStringUtil.FormatValue(Debug)}");
-                Console.WriteLine($"Directive '{nameof(Directive2)}' = {CliStringUtil.FormatValue(Directive2)}");
-                Console.WriteLine($"Directive '{nameof(Vars)}' = {CliStringUtil.FormatValue(Vars)}");
-            }
+                context.ShowValues();
         }
 
         [CliCommand(Description = "A sub cli command with directives")]
@@ -43,11 +41,7 @@ namespace TestApp.Commands
                 if (!context.Result.HasTokens)
                     context.ShowHelp();
                 else
-                {
-                    Console.WriteLine($"Directive '{nameof(Debug)}' = {CliStringUtil.FormatValue(Parent.Debug)}");
-                    Console.WriteLine($"Directive '{nameof(Directive2)}' = {CliStringUtil.FormatValue(Parent.Directive2)}");
-                    Console.WriteLine($"Directive '{nameof(Vars)}' = {CliStringUtil.FormatValue(Parent.Vars)}");
-                }
+                    context.ShowValues();
             }
         }
     }

@@ -62,6 +62,10 @@ namespace DotMake.CommandLine.SourceGeneration
             {
                 //Console.Beep(1000, 200); // For testing, how many times the generator is hit
 
+                if (!cliReferenceDependantInput.UsesDotMakeCommandLine
+                    || CheckIfDisabled(analyzerConfigOptions))
+                    return;
+
                 if (!CheckLanguage(cliReferenceDependantInput.Language))
                 {
                     sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.ErrorUnsupportedLanguage, Location.None));
@@ -78,7 +82,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 //https://superuser.com/a/1560527
 
                 //For supporting ModuleInitializerAttribute in projects before net5.0 (net472, netstandard2.0)
-                if (!cliReferenceDependantInput.HasModuleInitializer)
+                if (!cliReferenceDependantInput.HasModuleInitializerAttribute)
                 {
                     var name = SymbolExtensions.GetName(CliReferenceDependantInput.ModuleInitializerAttributeFullName);
                     sourceProductionContext.AddSource(
@@ -88,7 +92,7 @@ namespace DotMake.CommandLine.SourceGeneration
                 }
 
                 //For supporting Required modifier before net7.0 (need LangVersion 11)
-                if (cliReferenceDependantInput.LanguageVersion > (int)LanguageVersion.CSharp10 && !cliReferenceDependantInput.HasRequiredMember)
+                if (cliReferenceDependantInput.LanguageVersion > (int)LanguageVersion.CSharp10 && !cliReferenceDependantInput.HasRequiredMemberAttribute)
                 {
                     var name = SymbolExtensions.GetName(CliReferenceDependantInput.RequiredMemberAttributeFullName);
                     sourceProductionContext.AddSource(
@@ -97,7 +101,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     );
                 }
 
-                if (cliReferenceDependantInput.HasMsDependencyInjectionAbstractions
+                if (cliReferenceDependantInput.ReferencesMsDIAbstractions
                     && !cliReferenceDependantInput.HasCliServiceProviderExtensions)
                 {
                     var name = SymbolExtensions.GetName(CliReferenceDependantInput.CliServiceProviderExtensionsFullName);
@@ -107,7 +111,7 @@ namespace DotMake.CommandLine.SourceGeneration
                     );
                 }
 
-                if (cliReferenceDependantInput.HasMsDependencyInjection
+                if (cliReferenceDependantInput.ReferencesMsDI
                     && !cliReferenceDependantInput.HasCliServiceCollectionExtensions)
                 {
                     var name = SymbolExtensions.GetName(CliReferenceDependantInput.CliServiceCollectionExtensionsFullName);
@@ -131,6 +135,10 @@ namespace DotMake.CommandLine.SourceGeneration
             try
             {
                 //Console.Beep(1000, 200); // For testing, how many times the generator is hit
+
+                if (!cliReferenceDependantInput.UsesDotMakeCommandLine
+                    || CheckIfDisabled(analyzerConfigOptions))
+                    return;
 
                 if (!CheckLanguage(cliCommandInput.Language)
                     || !CheckLanguageVersion(cliCommandInput.LanguageVersion))
@@ -172,6 +180,10 @@ namespace DotMake.CommandLine.SourceGeneration
             try
             {
                 //Console.Beep(1000, 200); // For testing, how many times the generator is hit
+
+                if (!cliReferenceDependantInput.UsesDotMakeCommandLine
+                    || CheckIfDisabled(analyzerConfigOptions))
+                    return;
 
                 if (cliCommandAsDelegateInput == null)
                     return;
@@ -217,6 +229,16 @@ namespace DotMake.CommandLine.SourceGeneration
 
                 sourceProductionContext.ReportDiagnosticSafe(diagnostic);
             }
+        }
+
+        private static bool CheckIfDisabled(AnalyzerConfigOptions analyzerConfigOptions)
+        {
+            //DotMakeSourceGenerator custom property is defined via
+            //<CompilerVisibleProperty Include="DotMakeSourceGenerator" /> in nuget.props
+            //so that user can add <DotMakeSourceGenerator>disable</DotMakeSourceGenerator> in .csproj
+            return analyzerConfigOptions.TryGetValue("build_property.DotMakeSourceGenerator", out var value)
+                   && (value.Trim().Equals("disable", StringComparison.OrdinalIgnoreCase)
+                       || value.Trim().Equals("false", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool CheckLanguage(string language)

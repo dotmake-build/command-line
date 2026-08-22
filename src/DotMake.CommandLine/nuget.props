@@ -10,4 +10,9 @@
     <SatelliteResourceLanguages Condition="'$(SatelliteResourceLanguages)' == ''">en</SatelliteResourceLanguages>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- This tells MSBuild to pass this specific property down to the analyzer engine -->
+    <CompilerVisibleProperty Include="DotMakeSourceGenerator" />
+  </ItemGroup>
+
 </Project>

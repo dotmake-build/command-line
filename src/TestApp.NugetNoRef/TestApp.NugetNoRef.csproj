@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net472</TargetFrameworks>
+    <LangVersion>11.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <Product>DotMake Command-Line TestApp.NugetNoRef</Product>
+
+    <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+
+    <!-- First way: Set this property to `false` or `disable` to disable source generator (`true` or `enable` for reverse) -->
+    <!--<DotMakeSourceGenerator>disable</DotMakeSourceGenerator>-->
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotMake.CommandLine" Version="$(Version)">
+      <!-- Second Way: Exclude compile assets to mimic no DotMake.CommandLine.dll reference -->
+      <ExcludeAssets>compile</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
