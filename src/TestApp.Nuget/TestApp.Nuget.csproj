@@ -30,10 +30,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="..\TestApp\Commands\Naming\NameAndAliasesCliCommand.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\TestApp\TestResources.resx">
       <Link>TestResources.resx</Link>
       <LogicalName>TestApp.TestResources.resources</LogicalName>
     </EmbeddedResource>
+    <Compile Update="..\TestApp\Commands\Naming\NameAndAliasCliCommand.cs" Link="NameAndAliasCliCommand.cs" />
     <Compile Update="..\TestApp\TestResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

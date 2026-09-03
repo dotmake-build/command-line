@@ -63,33 +63,27 @@ namespace DotMake.CommandLine
     /// </summary>
     /// <example>
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
-    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass2']" />
     ///     <code>
-    ///         <code source="../TestApp/Commands/RunAsyncCliCommand.cs" region="RunAsyncCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/RunAsyncWithReturnCliCommand.cs" region="RunAsyncWithReturnCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Async/RunAsyncCliCommand.cs" region="RunAsyncCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Async/RunAsyncWithReturnCliCommand.cs" region="RunAsyncWithReturnCliCommand" language="cs" />
     ///     </code>
-    ///     <code source="../TestApp/Commands/WriteFileCliCommand.cs" region="WriteFileCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/ArgumentConverterCliCommand.cs" region="ArgumentConverterCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/EnumerableCliCommand.cs" region="EnumerableCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/RootSnakeSlashCliCommand.cs" region="RootSnakeSlashCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/RootWithNestedChildrenCliCommand.cs" region="RootWithNestedChildrenCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Help/HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Help/LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Naming/SnakeSlashCliCommand.cs" region="SnakeSlashCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Hierarchy/NestedChildrenCliCommand.cs" region="NestedChildrenCliCommand" language="cs" />
     ///     <code>
-    ///         <code source="../TestApp/Commands/RootWithExternalChildrenCliCommand.cs" region="RootWithExternalChildrenCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External/ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External/ExternalLevel2SubCliCommand.cs" region="ExternalLevel2SubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Hierarchy/ExternalChildrenCliCommand.cs" region="ExternalChildrenCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Hierarchy/External/ExternalLevel1SubCliCommand.cs" region="ExternalLevel1SubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Hierarchy/External/ExternalLevel2SubCliCommand.cs" region="ExternalLevel2SubCliCommand" language="cs" />
     ///     </code>
     ///     <code>
-    ///         <code source="../TestApp/Commands/RootAsExternalParentCliCommand.cs" region="RootAsExternalParentCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External/ExternalLevel1WithParentSubCliCommand.cs" region="ExternalLevel1WithParentSubCliCommand" language="cs" />
-    ///         <code source="../TestApp/Commands/External/ExternalLevel2WithParentSubCliCommand.cs" region="ExternalLevel2WithParentSubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Hierarchy/ExternalParentCliCommand.cs" region="ExternalParentCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Hierarchy/External/ExternalLevel1WithParentSubCliCommand.cs" region="ExternalLevel1WithParentSubCliCommand" language="cs" />
+    ///         <code source="../TestApp/Commands/Hierarchy/External/ExternalLevel2WithParentSubCliCommand.cs" region="ExternalLevel2WithParentSubCliCommand" language="cs" />
     ///     </code>
-    ///     <code source="../TestApp/Commands/InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="FormatCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="ReportCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Hierarchy/ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Inheritance/InheritanceCliCommand.cs" region="InheritanceCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Misc/GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CliCommandAttribute : Attribute

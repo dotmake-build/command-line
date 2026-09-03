@@ -33,9 +33,9 @@ namespace TestApp.NugetDI.Commands
 
         public void Run()
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
+            Console.WriteLine($"Handler for '{GetType().FullName}' is run:");
+            Console.WriteLine($"Value for {nameof(Option1)} property is '{Option1}'");
+            Console.WriteLine($"Value for {nameof(Argument1)} property is '{Argument1}'");
             Console.WriteLine();
 
             Console.WriteLine($"Instance for {transientDisposable.Name} is available");

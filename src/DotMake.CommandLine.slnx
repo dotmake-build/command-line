@@ -2,8 +2,12 @@
   <Project Path="DotMake.CommandLine.Shared/DotMake.CommandLine.Shared.shproj" />
   <Project Path="DotMake.CommandLine.SourceGeneration.Embedded/DotMake.CommandLine.SourceGeneration.Embedded.csproj" />
   <Project Path="DotMake.CommandLine.SourceGeneration/DotMake.CommandLine.SourceGeneration.csproj" />
-  <Project Path="DotMake.CommandLine.Tests.TUnit/DotMake.CommandLine.Tests.TUnit.csproj" />
-  <Project Path="DotMake.CommandLine.Tests/DotMake.CommandLine.Tests.csproj" />
+  <Project Path="DotMake.CommandLine.Tests.TUnit/DotMake.CommandLine.Tests.TUnit.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
+  <Project Path="DotMake.CommandLine.Tests/DotMake.CommandLine.Tests.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
   <Project Path="DotMake.CommandLine/DotMake.CommandLine.csproj" />
   <Project Path="TestApp.Nuget/TestApp.Nuget.csproj">
     <Build Project="false" />

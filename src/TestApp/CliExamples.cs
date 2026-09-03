@@ -1,14 +1,39 @@
 #pragma warning disable CS1591
+// ReSharper disable LocalizableElement
 using System;
 using System.Threading.Tasks;
 using DotMake.CommandLine;
-using TestApp.Commands;
 
 namespace TestApp
 {
     // Example code that is referenced in xml comments (xmldocs) and rendered in generated API Docs (html site).
     public class CliExamples
     {
+        #region RootCliCommand
+
+        // Class-based model
+        // Create a simple class like this:
+
+        [CliCommand(Description = "A root cli command")]
+        public class RootCliCommand
+        {
+            [CliOption(Description = "Description for Option1")]
+            public string Option1 { get; set; } = "DefaultForOption1";
+
+            [CliArgument(Description = "Description for Argument1")]
+            public string Argument1 { get; set; }
+
+            public void Run()
+            {
+                Console.WriteLine($"Handler for '{GetType().FullName}' is run:");
+                Console.WriteLine($"Value for {nameof(Option1)} property is '{Option1}'");
+                Console.WriteLine($"Value for {nameof(Argument1)} property is '{Argument1}'");
+                Console.WriteLine();
+            }
+        }
+
+        #endregion
+
         public void CliRun(string[] args)
         {
             #region CliRun
@@ -174,17 +199,17 @@ namespace TestApp
             //In Program.cs, add this simple code:
             Cli.Run(([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
-                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+                Console.WriteLine($"Value for {nameof(argument1)} parameter is '{argument1}'");
+                Console.WriteLine($"Value for {nameof(option1)} parameter is '{option1}'");
             });
 
-            //Or:
+            //Or pass a method reference:
             Cli.Run(Method);
 
             void Method([CliArgument] string argument2, bool option2)
             {
-                Console.WriteLine($@"Value for {nameof(argument2)} parameter is '{argument2}'");
-                Console.WriteLine($@"Value for {nameof(option2)} parameter is '{option2}'");
+                Console.WriteLine($"Value for {nameof(argument2)} parameter is '{argument2}'");
+                Console.WriteLine($"Value for {nameof(option2)} parameter is '{option2}'");
             }
 
             #endregion
@@ -197,8 +222,8 @@ namespace TestApp
             //In Program.cs, add this simple code for returning exit code:
             return Cli.Run(([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
-                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+                Console.WriteLine($"Value for {nameof(argument1)} parameter is '{argument1}'");
+                Console.WriteLine($"Value for {nameof(option1)} parameter is '{option1}'");
 
                 return 0;
             });
@@ -213,8 +238,8 @@ namespace TestApp
             //In Program.cs, to go async, add this simple code:
             Cli.Run(async ([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
-                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+                Console.WriteLine($"Value for {nameof(argument1)} parameter is '{argument1}'");
+                Console.WriteLine($"Value for {nameof(option1)} parameter is '{option1}'");
 
                 await Task.Delay(1000);
             });
@@ -224,8 +249,8 @@ namespace TestApp
 
             async Task Method([CliArgument] string argument2, bool option2)
             {
-                Console.WriteLine($@"Value for {nameof(argument2)} parameter is '{argument2}'");
-                Console.WriteLine($@"Value for {nameof(option2)} parameter is '{option2}'");
+                Console.WriteLine($"Value for {nameof(argument2)} parameter is '{argument2}'");
+                Console.WriteLine($"Value for {nameof(option2)} parameter is '{option2}'");
 
                 await Task.Delay(1000);
             }
@@ -240,8 +265,8 @@ namespace TestApp
             //In Program.cs, to go async, add this simple code for returning exit code:
             return Cli.Run(async ([CliArgument] string argument1, bool option1) =>
             {
-                Console.WriteLine($@"Value for {nameof(argument1)} parameter is '{argument1}'");
-                Console.WriteLine($@"Value for {nameof(option1)} parameter is '{option1}'");
+                Console.WriteLine($"Value for {nameof(argument1)} parameter is '{argument1}'");
+                Console.WriteLine($"Value for {nameof(option1)} parameter is '{option1}'");
 
                 await Task.Delay(1000);
                 return 0;

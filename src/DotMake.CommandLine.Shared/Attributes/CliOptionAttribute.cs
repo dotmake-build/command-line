@@ -40,16 +40,19 @@ namespace DotMake.CommandLine
     /// </para>
     /// </summary>
     /// <example>
-    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedDelegate']" />
     ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass']" />
-    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedClass2']" />
-    ///     <code source="../TestApp/Commands/RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/ParentCommandAccessorCliCommand.cs" region="ParentCommandAccessorCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/OptionBundlingCliCommand.cs" region="OptionBundlingCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="FormatCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/MutualExclusiveCliCommand.cs" region="ReportCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
-    ///     <code source="../TestApp/Commands/GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
+    ///     <inheritdoc cref="Cli" path="/example/code[@id='gettingStartedDelegate']" />
+    ///     <code source="../TestApp/Commands/Help/LocalizedCliCommand.cs" region="LocalizedCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Binding/WriteFileCliCommand.cs" region="WriteFileCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Binding/ArgumentConverterCliCommand.cs" region="ArgumentConverterCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Binding/EnumerableCliCommand.cs" region="EnumerableCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Binding/ValidationCliCommand.cs" region="ValidationCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Binding/OrderedCliCommand.cs" region="OrderedCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Options/RecursiveOptionCliCommand.cs" region="RecursiveOptionCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Options/OptionBundlingCliCommand.cs" region="OptionBundlingCliCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Options/MutualExclusiveCliCommand.cs" region="FormatCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Options/MutualExclusiveCliCommand.cs" region="ReportCommand" language="cs" />
+    ///     <code source="../TestApp/Commands/Misc/GetCompletionsCliCommand.cs" region="GetCompletionsCliCommand" language="cs" />
     /// </example>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class CliOptionAttribute : Attribute

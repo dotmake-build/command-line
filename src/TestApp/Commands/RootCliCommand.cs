@@ -1,13 +1,13 @@
 #pragma warning disable CS1591
-using System;
 using DotMake.CommandLine;
 
 namespace TestApp.Commands
 {
     #region RootCliCommand
 
-    // Class-based model
-    // Create a simple class like this:
+    // A root cli command which shows help if command is empty, i.e. no arguments or options are passed.
+    // Arguments and options should be optional, if they are required (no default values),
+    // then handler will not run and missing error message will be shown.
 
     [CliCommand(Description = "A root cli command")]
     public class RootCliCommand
@@ -16,14 +16,14 @@ namespace TestApp.Commands
         public string Option1 { get; set; } = "DefaultForOption1";
 
         [CliArgument(Description = "Description for Argument1")]
-        public string Argument1 { get; set; }
+        public string Argument1 { get; set; } = "DefaultForArgument1";
 
-        public void Run()
+        public void Run(CliContext context)
         {
-            Console.WriteLine($@"Handler for '{GetType().FullName}' is run:");
-            Console.WriteLine($@"Value for {nameof(Option1)} property is '{Option1}'");
-            Console.WriteLine($@"Value for {nameof(Argument1)} property is '{Argument1}'");
-            Console.WriteLine();
+            if (!context.Result.HasArgs)
+                context.ShowHelp();
+            else
+                context.ShowValues();
         }
     }
 

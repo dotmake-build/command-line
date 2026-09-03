@@ -61,6 +61,7 @@ namespace TestApp.Commands.GeneratedCode
             )
             {
                 Description = "Description for Argument1",
+                DefaultValueFactory = _ => "DefaultForArgument1",
                 CustomParser = bindingContext.GetArgumentParser<string>
                 (
                     null
@@ -95,7 +96,7 @@ namespace TestApp.Commands.GeneratedCode
                 // Call the command handler
                 var cliContext = new global::DotMake.CommandLine.CliContext(bindingContext, parseResult);
                 var exitCode = 0;
-                definitionInstance.Run();
+                definitionInstance.Run(cliContext);
 
                 return exitCode;
             });

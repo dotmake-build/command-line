@@ -8,10 +8,8 @@
     <!-- Generated files output path, excluding from compile and cleaning before build, are all handled in Directory.Build.targets  -->
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
 
-    <PublishDir
-      Condition="'$(PublishTrimmed)' == 'true' AND '$(PublishAot)' != 'true' AND '$(PublishDir)' == ''">bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish-trimmed</PublishDir>
-    <PublishDir
-      Condition="'$(PublishAot)' == 'true' AND '$(PublishDir)' == ''">bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish-aot</PublishDir>
+    <PublishDir Condition="'$(PublishTrimmed)' == 'true' AND '$(PublishAot)' != 'true' AND '$(PublishDir)' == ''">bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish-trimmed</PublishDir>
+    <PublishDir Condition="'$(PublishAot)' == 'true' AND '$(PublishDir)' == ''">bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish-aot</PublishDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,10 +21,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="..\TestApp\Commands\Naming\NameAndAliasesCliCommand.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\TestApp\TestResources.resx">
       <Link>TestResources.resx</Link>
       <LogicalName>TestApp.TestResources.resources</LogicalName>
     </EmbeddedResource>
+    <Compile Update="..\TestApp\Commands\Naming\NameAndAliasCliCommand.cs" Link="NameAndAliasCliCommand.cs" />
     <Compile Update="..\TestApp\TestResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

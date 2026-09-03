@@ -54,23 +54,6 @@ namespace TestApp.Commands.GeneratedCode
             namer.AddShortFormAlias(option0, "Option1");
             command.Add(option0);
 
-            // Option for 'BaseOption' property
-            var option1 = new global::System.CommandLine.Option<string>
-            (
-                namer.GetOptionName("BaseOption")
-            )
-            {
-                Description = global::TestApp.TestResources.BaseOptionDescription,
-                Required = false,
-                DefaultValueFactory = _ => "DefaultForBaseOption",
-                CustomParser = bindingContext.GetArgumentParser<string>
-                (
-                    null
-                ),
-            };
-            namer.AddShortFormAlias(option1, "BaseOption");
-            command.Add(option1);
-
             // Argument for 'Argument1' property
             var argument0 = new global::System.CommandLine.Argument<string>
             (
@@ -100,7 +83,6 @@ namespace TestApp.Commands.GeneratedCode
 
                 // Set the parsed or default values for the options
                 definitionInstance.Option1 = bindingContext.GetValue(parseResult, option0);
-                definitionInstance.BaseOption = bindingContext.GetValue(parseResult, option1);
 
                 // Set the parsed or default values for the arguments
                 definitionInstance.Argument1 = bindingContext.GetValue(parseResult, argument0);

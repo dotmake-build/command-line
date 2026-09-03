@@ -11,13 +11,13 @@ namespace DotMake.CommandLine
     /// Provides methods for parsing command line input and running an indicated command.
     /// </summary>
     /// <example>
-    ///     <code id="gettingStartedDelegate" source="../TestApp/CliExamples.cs" region="CliRunDelegate" language="cs" />
     ///     <code id="gettingStartedClass">
-    ///         <code source="../TestApp/Commands/RootCliCommand.cs" region="RootCliCommand" language="cs" />
+    ///         <code source="../TestApp/CliExamples.cs" region="RootCliCommand" language="cs" />
     ///         <code source="../TestApp/CliExamples.cs" region="CliRun" language="cs" />
     ///         <code source="../TestApp/CliExamples.cs" region="CliParse" language="cs" />
     ///     </code>
-    ///     <code id="gettingStartedClass2" source="../TestApp/Commands/RootHelpOnEmptyCliCommand.cs" region="RootHelpOnEmptyCliCommand" language="cs" />
+    ///     <code id="gettingStartedDelegate" source="../TestApp/CliExamples.cs" region="CliRunDelegate" language="cs" />
+    ///     <code source="../TestApp/Commands/Help/HelpCliCommand.cs" region="HelpCliCommand" language="cs" />
     ///     <code>
     ///         <code source="../TestApp/CliExamples.cs" region="CliRunWithReturn" language="cs" />
     ///         <code source="../TestApp/CliExamples.cs" region="CliRunAsync" language="cs" />

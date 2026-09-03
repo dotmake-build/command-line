@@ -12,7 +12,7 @@ namespace TestApp.Commands.External.GeneratedCode
         public ExternalLevel2WithNestedSubCliCommandBuilder()
         {
             DefinitionType = typeof(global::TestApp.Commands.External.ExternalLevel2WithNestedSubCliCommand);
-            ParentDefinitionType = typeof(global::TestApp.Commands.RootWithMixedChildrenCliCommand.Level1SubCliCommand);
+            ParentDefinitionType = typeof(global::TestApp.Commands.MixedChildrenCliCommand.Level1SubCliCommand);
             ChildDefinitionTypes = null;
             NameAutoGenerate = null;
             NameCasingConvention = global::DotMake.CommandLine.CliNameCasingConvention.SnakeCase;
