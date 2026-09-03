@@ -1,1 +1,3 @@
-[!include [getting-started](../README.md)]
+---
+redirect_url: articles/
+---

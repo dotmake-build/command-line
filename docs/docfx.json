@@ -4,10 +4,8 @@
     {
       "src": [
         {
-          "src": "../src",
-          "files": [
-            "DotMake.CommandLine/DotMake.CommandLine.csproj"
-          ]
+          "files": "DotMake.CommandLine/DotMake.CommandLine.csproj",
+          "src": "../src"
         }
       ],
       "dest": "api", 
@@ -20,35 +18,25 @@
   ],
   "build": {
     "content": [
+      { "files": "*.{md,yml}" },
+      { "files": "articles/**/*.{md,yml}" },
+      { "files": "api/**/*.{md,yml}" },
       {
-        "files": [
-          "**/*.{md,yml}"
-        ],
-        "exclude": [
-          "_site/**",
-          "apidocs/**"
-        ]
-      },
-      {
-        //Handle separately because we use different dest
-        "files": ["*.md"],
-        "src": "apidocs",
+        //Handle separately because we use different src and dest
+        "files": "*.md",
+        "src": "api-md",
         "dest": "api"
       }
     ],
+    "overwrite": [
+      { "files": "overwrites/*.md" }
+    ],
     "resource": [
-      {
-        "files": [
-          "images/**"
-        ]
-      }, 
-      {
-        "files": [
-          "logo-wide.svg",
-        ], 
-        "src": "../images",
-        "dest": "images"
-      }
+      { "files": "images/**" }
+    ],
+    "xref": [
+      //This is only used for xref references in custom markdown files:
+      "https://learn.microsoft.com/en-us/dotnet/.xrefmap.json"
     ],
     "output": "_site",
     "template": [
@@ -56,21 +44,20 @@
       "modern",
       "docfx-plus"
     ],
-    //"plugins": [], 
     "globalMetadata": {
       "_appName": "DotMake Command-Line",
-      "_appLogoPath": "images/logo-wide.svg",
-      //"_appLogoUrl": "./",
-      "_appFaviconPath": "images/favicon.ico", 
+      "_appTitle": "DotMake Command-Line",
+      "_appLogoPath": "images/logo32.svg",
+      "_appFaviconPath": "images/favicon.ico",
+      "_appFooter": "Copyright © 2023-2026 DotMake",
+      "_enableSearch": true,
       "_appIconLinks": [
         {
           "icon": "github",
           "href": "https://github.com/dotmake-build/command-line",
           "title": "GitHub"
         }
-      ],
-      "_enableSearch": true,
-      "pdf": false
+      ]
     }
   }
 }

@@ -1,0 +1,29 @@
+- name: "Overview"
+  href: ~/.
+- name: "Getting started"
+  href: getting-started.md
+- name: "Help output"
+  href: help-output.md
+- name: "Model binding"
+  href: model-binding.md
+- name: "Dependency Injection"
+  href: dependency-injection.md
+- name: "CLI syntax"
+  expanded: true
+  items:
+  - name: "Commands"
+    href: commands.md
+  - name: "Options"
+    href: options.md
+  - name: "Arguments"
+    href: arguments.md
+  - name: "Directives"
+    href: directives.md
+  - name: "Response files"
+    href: response-files.md
+- name: "Completions"
+  href: completions.md
+- name: "Deployment"
+  href: deployment.md
+- name: API Reference
+  href: ../api/

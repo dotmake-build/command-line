@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 434.7 434.7">
+  <defs>
+    <radialGradient id="radial-gradient" cx="-2110.14" cy="756.35" fx="-2110.14" fy="756.35" r=".5" gradientTransform="translate(2785925.85 998375.27) scale(1320 -1320)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g id="Background">
+    <rect x="-225.15" y="-.3" width="660" height="435" style="fill: #1d328d;"/>
+  </g>
+  <g id="Gradient">
+    <rect x="-112.65" y="-435.3" width="1320" height="870" style="fill: url(#radial-gradient); isolation: isolate; opacity: .25;"/>
+  </g>
+  <g id="SvgjsG11446">
+    <path d="M187.13,232.2h-84.18c-8.83,0-16.11,7.27-16.11,16.11v84.18c0,8.83,7.27,16.11,16.11,16.11h84.18c8.83,0,16.11-7.27,16.11-16.11v-84.18c0-8.83-7.27-16.11-16.11-16.11Z" style="fill: #fff;"/>
+    <path d="M245.59,348.85h84.18c8.83,0,16.11-7.27,16.11-16.11v-84.18c0-8.83-7.27-16.11-16.11-16.11h-84.18c-8.83,0-16.11,7.27-16.11,16.11v83.92c-.26,9.09,7.01,16.37,16.11,16.37Z" style="fill: #fff;"/>
+    <path d="M203.24,105.68c0-8.83-7.27-16.11-16.11-16.11h-84.18c-8.83,0-16.11,7.27-16.11,16.11v84.18c0,8.83,7.27,16.11,16.11,16.11h84.18c8.83,0,16.11-7.27,16.11-16.11v-84.18h0Z" style="fill: #fff;"/>
+    <path d="M371.85,164.13v-84.18c0-8.83-7.27-16.11-16.11-16.11h-84.18c-8.83,0-16.11,7.27-16.11,16.11v84.18c0,8.83,7.27,16.11,16.11,16.11h84.18c8.83,0,16.11-7.27,16.11-16.11Z" style="fill: #fff;"/>
+  </g>
+</svg>

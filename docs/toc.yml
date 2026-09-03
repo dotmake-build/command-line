@@ -1,4 +1,5 @@
-- name: Overview
-  href: ~/.
-- name: API
+- name: Articles
+  href: articles/
+  topicHref: articles/
+- name: API Reference
   href: api/
