@@ -234,7 +234,7 @@ namespace DotMake.CommandLine.SourceGeneration
         private static bool CheckIfDisabled(AnalyzerConfigOptions analyzerConfigOptions)
         {
             //DotMakeSourceGenerator custom property is defined via
-            //<CompilerVisibleProperty Include="DotMakeSourceGenerator" /> in nuget.props
+            //<CompilerVisibleProperty Include="DotMakeSourceGenerator" /> in DotMake.CommandLine.nuget.props
             //so that user can add <DotMakeSourceGenerator>disable</DotMakeSourceGenerator> in .csproj
             return analyzerConfigOptions.TryGetValue("build_property.DotMakeSourceGenerator", out var value)
                    && (value.Trim().Equals("disable", StringComparison.OrdinalIgnoreCase)

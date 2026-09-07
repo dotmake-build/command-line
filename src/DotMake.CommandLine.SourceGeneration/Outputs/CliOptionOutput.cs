@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DotMake.CommandLine.SourceGeneration.Outputs
 {
@@ -25,16 +26,28 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliOptionInput Input { get; }
 
+        public void AppendNamerSymbol(CodeStringBuilder sb, string varNamer)
+        {
+            var specificName = Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue)
+                ? $"\"{nameValue}\""
+                : "null";
+            var specificShortAlias = Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Alias), out var aliasValue)
+                ? $"\"{aliasValue}\""
+                : "null";
+            var specificAliases = Input.AttributeArguments.TryGetValues(nameof(CliOptionAttribute.Aliases), out var aliasesValues)
+                ? $"new []{{ {string.Join(", ", aliasesValues.Select(alias => $"\"{alias}\""))} }}"
+                : "null";
+
+            sb.AppendLine($"{varNamer}.AddOptionSymbol(\"{Input.Symbol.Name}\", {specificName}, {specificShortAlias}, {specificAliases});");
+        }
+
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer, string varBindingContext)
         {
             sb.AppendLine($"// Option for '{Input.Symbol.Name}' property");
 
             using (sb.AppendParamsBlockStart($"var {varName} = new {OutputNamespaces.SystemCommandLine}.{OptionClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
-                if (Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Name), out var nameValue))
-                    sb.AppendLine($"{varNamer}.GetOptionName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
-                else
-                    sb.AppendLine($"{varNamer}.GetOptionName(\"{Input.Symbol.Name}\")");
+                sb.AppendLine($"{varNamer}.GetOptionName(\"{Input.Symbol.Name}\")");
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -119,16 +132,8 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddValidator({varName}, {validationPatternTypedConstant.ToCSharpString()});");
             }
 
-            if (Input.AttributeArguments.TryGetValue(nameof(CliOptionAttribute.Alias), out var aliasValue))
-                sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, \"{Input.Symbol.Name}\", \"{aliasValue}\");");
-            else
-                sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, \"{Input.Symbol.Name}\");");
-
-            if (Input.AttributeArguments.TryGetValues(nameof(CliOptionAttribute.Aliases), out var aliasesValues))
-            {
-                foreach (string alias in aliasesValues)
-                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias}\");");
-            }
+            using (sb.AppendBlockStart($"foreach (var alias in {varNamer}.GetOptionAliases(\"{Input.Symbol.Name}\"))", null, null, null))
+                sb.AppendLine($"{varName}.Aliases.Add(alias);");
 
             if (Input.Parent != null && Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");

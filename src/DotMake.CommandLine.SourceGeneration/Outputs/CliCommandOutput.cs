@@ -186,8 +186,20 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 sb.AppendLine("/// <inheritdoc />");
                 using (sb.AppendBlockStart($"protected override {OutputNamespaces.SystemCommandLine}.{CommandClassName} DoBuild({OutputNamespaces.DotMakeCommandLine}.CliBindingContext {varBindingContext})"))
                 {
+                    var directiveOutputs = directivesWithoutProblem.Select(d => new CliDirectiveOutput(d)).ToArray();
+                    var optionOutputs = optionsWithoutProblem.Select(o => new CliOptionOutput(o)).ToArray();
+                    var argumentOutputs = argumentsWithoutProblem.Select(a => new CliArgumentOutput(a)).ToArray();
+
                     var varNamer = "namer";
                     sb.AppendLine($"var {varNamer} = bindingContext.NamerMap[this];");
+                    AppendNamerSymbol(sb, varNamer);
+                    foreach (var directiveOutput in directiveOutputs)
+                        directiveOutput.AppendNamerSymbol(sb, varNamer);
+                    foreach (var optionOutput in optionOutputs)
+                        optionOutput.AppendNamerSymbol(sb, varNamer);
+                    foreach (var argumentOutput in argumentOutputs)
+                        argumentOutput.AppendNamerSymbol(sb, varNamer);
+                    sb.AppendLine($"{varNamer}.VerifyAndGenerateNames();");
                     sb.AppendLine();
 
                     var varCommand = "command";
@@ -203,26 +215,24 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                     sb.AppendLine($"var {varDefaultClass} = CreateUninitializedInstance();");
                     */
 
-                    for (var index = 0; index < directivesWithoutProblem.Length; index++)
+                    for (var index = 0; index < directiveOutputs.Length; index++)
                     {
                         sb.AppendLine();
 
-                        var cliDirectiveInput = directivesWithoutProblem[index];
-                        var cliDirectiveOutput = new CliDirectiveOutput(cliDirectiveInput);
+                        var cliDirectiveOutput = directiveOutputs[index];
                         var varDirective = $"directive{index}";
                         cliDirectiveOutput.AppendCSharpCreateString(sb, varDirective, varNamer);
                         sb.AppendLine($"{varRootCommand}?.Add({varDirective});");
                     }
 
                     var varOptionMap = new Dictionary<CliOptionInput, string>();
-                    for (var index = 0; index < optionsWithoutProblem.Length; index++)
+                    for (var index = 0; index < optionOutputs.Length; index++)
                     {
                         sb.AppendLine();
 
-                        var cliOptionInput = optionsWithoutProblem[index];
-                        var cliOptionOutput = new CliOptionOutput(cliOptionInput);
+                        var cliOptionOutput = optionOutputs[index];
                         var varOption = $"option{index}";
-                        varOptionMap[cliOptionInput] = varOption;
+                        varOptionMap[cliOptionOutput.Input] = varOption;
                         cliOptionOutput.AppendCSharpCreateString(sb, varOption, varNamer, varBindingContext);
                         sb.AppendLine($"{varCommand}.Add({varOption});");
                     }
@@ -246,12 +256,11 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                         sb.AppendLine($"{OutputNamespaces.DotMakeCommandLine}.CliValidationExtensions.AddGroupValidator({varCommand}, \"{group}\", {groupRequired.ToString().ToLowerInvariant()}, {varGroupOptions});");
                     }
 
-                    for (var index = 0; index < argumentsWithoutProblem.Length; index++)
+                    for (var index = 0; index < argumentOutputs.Length; index++)
                     {
                         sb.AppendLine();
 
-                        var cliArgumentInput = argumentsWithoutProblem[index];
-                        var cliArgumentOutput = new CliArgumentOutput(cliArgumentInput);
+                        var cliArgumentOutput = argumentOutputs[index];
                         var varArgument = $"argument{index}";
                         cliArgumentOutput.AppendCSharpCreateString(sb, varArgument, varNamer, varBindingContext);
                         sb.AppendLine($"{varCommand}.Add({varArgument});");
@@ -401,6 +410,21 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             }
         }
 
+        public void AppendNamerSymbol(CodeStringBuilder sb, string varNamer)
+        {
+            var specificName = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue)
+                ? $"\"{nameValue}\""
+                : "null";
+            var specificShortAlias = Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Alias), out var aliasValue)
+                ? $"\"{aliasValue}\""
+                : "null";
+            var specificAliases = Input.AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues)
+                ? $"new []{{ {string.Join(", ", aliasesValues.Select(alias => $"\"{alias}\""))} }}"
+                : "null";
+
+            sb.AppendLine($"{varNamer}.AddCommandSymbol(\"{Input.Symbol.Name}\", {specificName}, {specificShortAlias}, {specificAliases});");
+        }
+
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varRootName, string varNamer)
         {
             sb.AppendLine($"// Command for '{Input.Symbol.Name}' class");
@@ -412,10 +436,7 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 sb.AppendLine($"? new {OutputNamespaces.SystemCommandLine}.{RootCommandClassName}()");
                 using (sb.AppendParamsBlockStart($": new {OutputNamespaces.SystemCommandLine}.{CommandClassName}", ";"))
                 {
-                    if (Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Name), out var nameValue))
-                        sb.AppendLine($"{varNamer}.GetCommandName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
-                    else
-                        sb.AppendLine($"{varNamer}.GetCommandName(\"{Input.Symbol.Name}\")");
+                    sb.AppendLine($"{varNamer}.GetCommandName(\"{Input.Symbol.Name}\")");
                 }
             }
 
@@ -439,16 +460,8 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
                 }
             }
 
-            if (Input.AttributeArguments.TryGetValue(nameof(CliCommandAttribute.Alias), out var aliasValue))
-                sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, \"{Input.Symbol.Name}\", \"{aliasValue}\");");
-            else
-                sb.AppendLine($"{varNamer}.AddShortFormAlias({varName}, \"{Input.Symbol.Name}\");");
-
-            if (Input.AttributeArguments.TryGetValues(nameof(CliCommandAttribute.Aliases), out var aliasesValues))
-            {
-                foreach (string alias in aliasesValues)
-                    sb.AppendLine($"{varNamer}.AddAlias({varName}, \"{Input.Symbol.Name}\", \"{alias}\");");
-            }
+            using (sb.AppendBlockStart($"foreach (var alias in {varNamer}.GetCommandAliases(\"{Input.Symbol.Name}\"))", null, null, null))
+                sb.AppendLine($"{varName}.Aliases.Add(alias);");
         }
     }
 }

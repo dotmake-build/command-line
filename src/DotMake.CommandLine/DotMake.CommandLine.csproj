@@ -21,39 +21,28 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Improved:** Do not generate any source code if `DotMake.CommandLine.dll` is not actually referenced in the project.
-          This should at least fix the issue: by default analyzers/generators in Unity apply to every referenced child projects.
+        - **Improved:** Redesigned `CliNamer` class. From now on, auto generated short aliases for commands and options
+          will be single character only to be compatible with POSIX conventions
+          (to prevent confusion with argument bundling/clustering e.g. `-wp` meaning `-w` and `-p`).
+          This may be a BREAKING CHANGE in your CLI app so check your short aliases if you depended on auto-generation.
+
+          The new rules:
           
-          However for the main project which has the `<PackageReference Include="DotMake.CommandLine" />`,
-          the DLL is implicitly referenced and there is no feasible/performant way in source generator
-          to find if the DLL is actually used/consumed.
-          
-          First way: In `.csproj`, set this new property to `false` or `disable` to disable source generator (to `true` or `enable` for reverse):
-          ```xml
-          <PropertyGroup>
-            <DotMakeSourceGenerator>disable</DotMakeSourceGenerator>
-          </PropertyGroup>            
-          ```
+          First letter of the name will be used to create short form which is converted according to `[CliCommand].NameCasingConvention` property;  
+          if it conflicts, the case of the letter is changed;  
+          if it conflicts again, first letter of the next word in the name is tried and so on.  
+          (e.g. `Info` -> `i` or `I`, `ServerPort` -> `s` or `S` or `p` or `P`,  `Option1` -> `o` or `O`)  
+          No short form alias will be added if a non-conflicting one can not be found, user can manually set a specific alias for these missing ones.
+            
+          For options, single hyphen/dash prefix is added to the short form.  
+          (e.g. `Info` -> `-i` or `-I`, `ServerPort` -> `-s` or `-S` or `-p` or `-P`,  `Option1` -> `-o` or `-O`)  
+          This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
 
-          Second Way: In `.csproj`, exclude compile assets to mimic no `DotMake.CommandLine.dll` reference:
-          ```xml
-          <PackageReference Include="DotMake.CommandLine" Version="3.6.0">
-            <ExcludeAssets>compile</ExcludeAssets>
-          </PackageReference>
-          ```
+          More robust handling of conflicts in `CliNamer`, i.e. checks all conflicts at once and then throws an exception which
+          lists all errors.
 
-        - **Improved:** Updated to version `2.0.11` of System.CommandLine.
-
-        - **Improved:** `context.ShowValues()` will now show directives, and also parent commands and their options and arguments.
-          It will also use the theme colors for columns.
-          
-        - **Fixed:** `context.Result.HasArgs` was not returning `true` when there was some argument/option with default value.
-
-        - **Fixed:** `CliParser.FixArgs()` should not blindly remove trailing escaped double quotes in `args`.
-          It should remove only if the double quote is the only one per `args` array element (no matching starting double quote).
-          So for example it should not be removed for this `-e "CompanyRegistrationNumber == \"24256790\""`
-          but it should be removed for `--source "C:\myfiles\"`.
-          This effects `Cli.Parse(string[])`, `Cli.Run(string[] args)` and `Cli.RunAsync(string[])` which uses `CliParser.FixArgs()`.
+        - **Improved:** Strong name sign the DLLs for NuGet package. Signing will be done only when `DotMake.snk` exists,
+          it's not committed to this repository.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -105,7 +94,7 @@
       Package MSBuild .props file in the nuget package
       https://learn.microsoft.com/en-us/nuget/concepts/msbuild-props-and-targets
     -->
-    <None Include="nuget.props" Pack="true" PackagePath="build/$(PackageId).props" Visible="false" />
+    <None Include="..\.nuget\$(PackageId).nuget.props" Pack="true" PackagePath="build/$(PackageId).props" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

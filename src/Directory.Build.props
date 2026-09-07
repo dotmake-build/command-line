@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generateassemblyinfo -->
-    <VersionPrefix>3.6.0</VersionPrefix>
+    <VersionPrefix>3.7.0</VersionPrefix>
     <Product>DotMake Command-Line</Product>
     <Company>DotMake</Company>
     <!-- Copyright is also used for NuGet metadata -->
@@ -29,8 +29,13 @@
 
   <!-- Include default NuGet package custom files in projects except sandcastle help file builder projects -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.shfbproj'">
-    <None Include="$(RepositoryRootPath)images\logo128.png" Pack="true" PackagePath="/icon.png" Visible="false" />
-    <None Include="$(RepositoryRootPath)README.md" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)\.nuget\logo128.png" Pack="true" PackagePath="/icon.png" Visible="false" />
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
+
+  <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)\DotMake.snk') and '$(Configuration)' == 'Release'">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\DotMake.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 
 </Project>

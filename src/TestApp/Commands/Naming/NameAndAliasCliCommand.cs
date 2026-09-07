@@ -8,11 +8,17 @@ namespace TestApp.Commands
     // A root cli command to test names, aliases and short form aliases.
 
     [CliCommand(
-        //NameAutoGenerate = CliNameAutoGenerate.Options
-        //ShortFormAutoGenerate = CliNameAutoGenerate.Options | CliNameAutoGenerate.Arguments
+        //NameAutoGenerate = CliNameAutoGenerate.None, ShortFormAutoGenerate = CliNameAutoGenerate.None
+        //NameAutoGenerate = CliNameAutoGenerate.Options, ShortFormAutoGenerate = CliNameAutoGenerate.Commands 
     )]
     public class NameAndAliasCliCommand
     {
+        [CliOption]
+        public bool Version { get; set; }
+
+        [CliOption]
+        public bool Help { get; set; }
+
         [CliOption(Alias = "o2")]
         public string Oauth2GrantType { get; set; } = "";
 
@@ -32,7 +38,7 @@ namespace TestApp.Commands
         public string Option1 { get; set; } = "";
 
         [CliOption(Aliases = null)]
-        public string Option1Option { get; set; } = "";
+        public string Option1Option2 { get; set; } = "";
 
         [CliOption(Alias = "-o2o", Aliases = new[] { "/opt2", null })]
         public string Option2 { get; set; } = "";
@@ -44,7 +50,7 @@ namespace TestApp.Commands
         public string Argument1 { get; set; } = "";
 
         [CliArgument]
-        public string Argument1Argument { get; set; } = "";
+        public string Argument2Argument { get; set; } = "";
 
         [CliArgument]
         public string Option1Argument { get; set; } = "";

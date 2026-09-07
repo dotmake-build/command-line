@@ -15,8 +15,6 @@ Supports
 [AOT compilation](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot) and
 [dependency injection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)!
 
-[![Nuget](https://img.shields.io/nuget/v/DotMake.CommandLine?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/DotMake.CommandLine)
-
 ![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
 
 ![DotMake Command-Line Themes](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/themes.gif "DotMake Command-Line Themes")
@@ -224,39 +222,10 @@ And that's it! You now have a fully working command-line app.
 - Your delegate can be `async`.
 - Your delegate can have a return type `void` or `int` and if it's async `Task` or `Task<int>`.
 
-## Building
-
-We provide some `.cmd` batch scripts in `build` folder for easier building:
-```console
-1. Build TestApp.cmd
-2. Build Nuget Package.cmd
-3.1. Build TestApp.Nuget.cmd
-3.2. Build TestApp.NugetDI.cmd
-3.3. Build TestApp.NugetAot.cmd
-4. Build Api Docs WebSite.cmd         
-```
-
-Output results can be found in `publish` folder, for example:
-```console
-TestApp-net472
-TestApp-net8.0
-
-DotMake.CommandLine.2.5.6.nupkg
-
-TestApp.Nuget-net472
-TestApp.Nuget-net8.0
-
-TestApp.NugetDI-net472
-TestApp.NugetDI-net8.0
-
-TestApp.NugetAot-win-x64-native
-TestApp.NugetAot-win-x64-trimmed
-```
-
 ## Links
 
 - [DotMake Command-Line Documentation](https://dotmake.build/command-line/)
 - [DotMake Command-Line API Reference](https://dotmake.build/command-line/api/)
 - [Command-line syntax overview for System.CommandLine](https://learn.microsoft.com/en-us/dotnet/standard/commandline/syntax)
 - [Release Notes](https://github.com/dotmake-build/command-line/releases)
-- [NuGet Package](https://www.nuget.org/packages/DotMake.CommandLine)
+- [GitHub Repository](https://github.com/dotmake-build/command-line)

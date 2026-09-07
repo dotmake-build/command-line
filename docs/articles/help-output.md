@@ -6,21 +6,21 @@ When you run the app via
 
 You see this usage help:
 ```console
-DotMake Command-Line TestApp v2.5.0
-Copyright © 2023-2025 DotMake
+DotMake Command-Line TestApp v3.7.0
+Copyright © 2023-2026 DotMake
 
 A root cli command
 
 Usage:
-  TestApp <argument-1> [options]
+  TestApp [<argument-1>] [options]
 
 Arguments:
-  <argument-1>  Description for Argument1 [required]
+  <argument-1>  Description for Argument1 [default: DefaultForArgument1]
 
 Options:
-  -o1, --option-1  Description for Option1 [default: DefaultForOption1]
-  -?, -h, --help   Show help and usage information
-  -v, --version    Show version information
+  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
+  -?, -h, --help             Show help and usage information
+  -v, --version              Show version information
 ```
 
 Note the header:
@@ -45,7 +45,7 @@ By default, command/option/argument names are generated as follows;
       "Argument" or above command suffixes followed by "Argument", e.g. "CommandArgument" 
     
 - Then the names are converted to **kebab-case**.  
-  (e.g. `Info` -> `info`,`ServerPort` -> `server-port`,  `Option1` -> `option-1`)  
+  (e.g. `Info` -> `info`, `ServerPort` -> `server-port`,  `Option1` -> `option-1`)  
   This can be changed by setting `[CliCommand].NameCasingConvention` property  to one of the following values:
   - `CliNameCasingConvention.None`
   - `CliNameCasingConvention.LowerCase`
@@ -57,7 +57,7 @@ By default, command/option/argument names are generated as follows;
   - `CliNameCasingConvention.SnakeCase`
   
   For options, double hyphen/dash prefix is added to the name.   
-  (e.g. `Info` -> `--info`,`ServerPort` -> `--server-port`,  `Option1` -> `--option-1`)  
+  (e.g. `Info` -> `--info`, `ServerPort` -> `--server-port`,  `Option1` -> `--option-1`)  
   This can be changed by setting `[CliCommand].NamePrefixConvention` property (default: DoubleHyphen) 
   to one of the following values:
   - `CliNamePrefixConvention.None`
@@ -71,13 +71,15 @@ By default, command/option/argument names are generated as follows;
 
   Auto-generated names can be disabled for all or specific CLI symbol types via `[CliCommand].NameAutoGenerate`.
   
-- For commands and options, a short form alias is automatically added.
-  First letters of every word in the name will be used to create short form to reduce conflicts.
-  These first letters are converted according to `[CliCommand].NameCasingConvention` property.  
-  (e.g. `Info` -> `i`,`ServerPort` -> `sp`,  `Option1` -> `o1`)  
+- For commands and options, a short form alias is automatically added.  
+  First letter of the name will be used to create short form which is converted according to `[CliCommand].NameCasingConvention` property;  
+  if it conflicts, the case of the letter is changed;  
+  if it conflicts again, first letter of the next word in the name is tried and so on.  
+  (e.g. `Info` -> `i` or `I`, `ServerPort` -> `s` or `S` or `p` or `P`,  `Option1` -> `o` or `O`)  
+  No short form alias will be added if a non-conflicting one can not be found, user can manually set a specific alias for these missing ones.
     
   For options, single hyphen/dash prefix is added to the short form.  
-  (e.g. `Info` -> `-i`,`ServerPort` -> `-sp`,  `Option1` -> `-o1`)  
+  (e.g. `Info` -> `-i` or `-I`, `ServerPort` -> `-s` or `-S` or `-p` or `-P`,  `Option1` -> `-o` or `-O`)  
   This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
 
   When you set a specific alias via `[CliXXX].Alias` property, that will be used instead of a auto-generated short form alias.  
@@ -106,10 +108,10 @@ public class SnakeSlashCliCommand
 ```
 When you run the app via `TestApp.exe -?` or `dotnet run -- -?`, you see this usage help:
 ```console
-DotMake Command-Line TestApp v2.5.0
-Copyright © 2023-2025 DotMake
+DotMake Command-Line TestApp v3.7.0
+Copyright © 2023-2026 DotMake
 
-A cli command with snake_case convention
+A cli command with snake_case name casing and forward slash prefix conventions
 
 Usage:
   TestApp <argument_1> [options]
@@ -118,9 +120,9 @@ Arguments:
   <argument_1>  Description for Argument1 [required]
 
 Options:
-  /o1, /option_1  Description for Option1 [default: DefaultForOption1]
-  -?, -h, /help   Show help and usage information
-  /v, /version    Show version information
+  /o, /option_1 <option_1>  Description for Option1 [default: DefaultForOption1]
+  -?, -h, /help             Show help and usage information
+  /v, /version              Show version information
 ```
 Note how even the default options `version` and `help` use the new prefix convention `ForwardSlash`.
 By the way, as `help` is a special option, which allows user to discover your app, we still add short form aliases with other prefix to prevent confusion.

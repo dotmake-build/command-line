@@ -22,16 +22,22 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliDirectiveInput Input { get; }
 
+        public void AppendNamerSymbol(CodeStringBuilder sb, string varNamer)
+        {
+            var specificName = Input.AttributeArguments.TryGetValue(nameof(CliDirectiveAttribute.Name), out var nameValue)
+                ? $"\"{nameValue}\""
+                : "null";
+
+            sb.AppendLine($"{varNamer}.AddDirectiveSymbol(\"{Input.Symbol.Name}\", {specificName});");
+        }
+
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer)
         {
             sb.AppendLine($"// Directive for '{Input.Symbol.Name}' property");
 
             using (sb.AppendParamsBlockStart($"var {varName} = new {OutputNamespaces.SystemCommandLine}.{DirectiveClassName}"))
             {
-                if (Input.AttributeArguments.TryGetValue(nameof(CliDirectiveAttribute.Name), out var nameValue))
-                    sb.AppendLine($"{varNamer}.GetDirectiveName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
-                else
-                    sb.AppendLine($"{varNamer}.GetDirectiveName(\"{Input.Symbol.Name}\")");
+                sb.AppendLine($"{varNamer}.GetDirectiveName(\"{Input.Symbol.Name}\")");
             }
             using (sb.AppendBlockStart(null, ";"))
             {

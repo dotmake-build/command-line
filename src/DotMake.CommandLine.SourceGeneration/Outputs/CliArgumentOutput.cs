@@ -25,16 +25,22 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
 
         public new CliArgumentInput Input { get; }
 
+        public void AppendNamerSymbol(CodeStringBuilder sb, string varNamer)
+        {
+            var specificName = Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue)
+                ? $"\"{nameValue}\""
+                : "null";
+
+            sb.AppendLine($"{varNamer}.AddArgumentSymbol(\"{Input.Symbol.Name}\", {specificName});");
+        }
+
         public void AppendCSharpCreateString(CodeStringBuilder sb, string varName, string varNamer, string varBindingContext)
         {
             sb.AppendLine($"// Argument for '{Input.Symbol.Name}' property");
 
             using (sb.AppendParamsBlockStart($"var {varName} = new {OutputNamespaces.SystemCommandLine}.{ArgumentClassName}<{Input.Symbol.Type.ToReferenceString()}>"))
             {
-                if (Input.AttributeArguments.TryGetValue(nameof(CliArgumentAttribute.Name), out var nameValue))
-                    sb.AppendLine($"{varNamer}.GetArgumentName(\"{Input.Symbol.Name}\", \"{nameValue}\")");
-                else
-                    sb.AppendLine($"{varNamer}.GetArgumentName(\"{Input.Symbol.Name}\")");
+                sb.AppendLine($"{varNamer}.GetArgumentName(\"{Input.Symbol.Name}\")");
             }
             using (sb.AppendBlockStart(null, ";"))
             {
@@ -112,7 +118,6 @@ namespace DotMake.CommandLine.SourceGeneration.Outputs
             if (Input.Parent.HasGetCompletionsInterface)
                 //sb.AppendLine($"{varDefaultClass}.AddCompletions(\"{Input.Symbol.Name}\", {varName}.CompletionSources);");
                 sb.AppendLine($"{varName}.CompletionSources.Add(completionContext => GetCompletions(\"{Input.Symbol.Name}\", {varBindingContext}, completionContext));");
-
         }
     }
 }

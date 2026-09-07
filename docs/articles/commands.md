@@ -29,7 +29,7 @@ Just make sure you apply `[CliCommand]` attribute to the nested classes as well:
 */
 
 [CliCommand(Description = "A root cli command with nested children")]
-public class RootWithNestedChildrenCliCommand
+public class NestedChildrenCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
@@ -97,7 +97,7 @@ is to;
         typeof(ExternalLevel1SubCliCommand)
     }
 )]
-public class RootWithExternalChildrenCliCommand
+public class ExternalChildrenCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
@@ -164,7 +164,7 @@ public class ExternalLevel2SubCliCommand
 [CliCommand(
     Description = "A root cli command with external children"
 )]
-public class RootAsExternalParentCliCommand
+public class ExternalParentCliCommand
 {
     [CliOption(Description = "Description for Option1")]
     public string Option1 { get; set; } = "DefaultForOption1";
@@ -183,7 +183,7 @@ public class RootAsExternalParentCliCommand
 
 [CliCommand(
     Description = "An external level 1 sub-command",
-    Parent = typeof(RootAsExternalParentCliCommand)
+    Parent = typeof(ExternalParentCliCommand)
 )]
 public class ExternalLevel1WithParentSubCliCommand
 {

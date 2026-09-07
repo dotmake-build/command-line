@@ -66,8 +66,8 @@ public class GetCompletionsCliCommand : ICliGetCompletions
 The dynamic tab completion list created by this code also appears in help output:
 
 ```console
-DotMake Command-Line TestApp v2.5.0
-Copyright © 2023-2025 DotMake
+DotMake Command-Line TestApp v3.7.0
+Copyright © 2023-2026 DotMake
 
 A root cli command with completions for options and arguments
 
@@ -78,9 +78,9 @@ Arguments:
   <apple|banana|orange>  Description for FruitArgument [default: DefaultForFruitArgument]
 
 Options:
-  -d, --date                                                  Description for DateOption [default: 1.01.0001 00:00:00]
-  <22.04.2025|23.04.2025|24.04.2025|25.04.2025|26.04.2025|27
-  .04.2025|28.04.2025>
+  -d, --date                                                  Description for DateOption
+  <10.09.2026|11.09.2026|12.09.2026|13.09.2026|7.09.2026|8.0
+  9.2026|9.09.2026>
   -?, -h, --help                                              Show help and usage information
   -v, --version                                               Show version information
 ```
