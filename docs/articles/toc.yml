@@ -1,5 +1,5 @@
 - name: "Overview"
-  href: ~/.
+  href: index.md
 - name: "Getting started"
   href: getting-started.md
 - name: "Help output"

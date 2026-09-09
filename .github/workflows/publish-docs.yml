@@ -1,9 +1,17 @@
 # Your GitHub workflow file under .github/workflows/
-# Trigger the action on push to main
+
 on:
+  # Trigger the action when you create a release:
   release:
     types: [published]
-  workflow_dispatch:   # also allow manual trigger
+
+  # also allow manual trigger on GitHub Actions panel:
+  workflow_dispatch:
+
+  # or trigger the action on push to main:
+  #push:
+  #  branches:
+  #    - main
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -16,7 +24,7 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: false
-  
+
 jobs:
   publish-docs:
     environment:
@@ -32,17 +40,18 @@ jobs:
       with:
         dotnet-version: 10.x
 
+    # Install latest version of docfx-plus tool:
     - run: dotnet tool update -g docfx-plus
-    - run: docfx-plus docs/docfx.json
-      # use working-directory for docfx step otherwise codeSourceBasePath is not resolved correctly
-      # docfx-plus fixes this only required for docfx
-      # working-directory: docs
 
+    # Build docs in this repository via docfx-plus:
+    - run: docfx-plus docs/docfx.json
+
+    # Upload HTML output of the docs build:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v5
       with:
-        # Upload entire repository
         path: 'docs/_site'
+
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v5

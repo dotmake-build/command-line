@@ -33,7 +33,7 @@
           if it conflicts again, first letter of the next word in the name is tried and so on.  
           (e.g. `Info` -> `i` or `I`, `ServerPort` -> `s` or `S` or `p` or `P`,  `Option1` -> `o` or `O`)  
           No short form alias will be added if a non-conflicting one can not be found, user can manually set a specific alias for these missing ones.
-            
+
           For options, single hyphen/dash prefix is added to the short form.  
           (e.g. `Info` -> `-i` or `-I`, `ServerPort` -> `-s` or `-S` or `-p` or `-P`,  `Option1` -> `-o` or `-O`)  
           This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
