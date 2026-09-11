@@ -1,13 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set projectName=TestApp
+set projectName=TestApp.Nuget
 set srcFolder=..\src
 set publishFolder=..\publish
 set publishedCount=0
-
-::To force source-generator to reload the changed DLL
-dotnet build-server shutdown
 
 for %%f in (
   net472

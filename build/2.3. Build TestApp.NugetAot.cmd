@@ -1,25 +1,25 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set projectName=TestApp
+set projectName=TestApp.NugetAot
 set srcFolder=..\src
 set publishFolder=..\publish
 set publishedCount=0
 
-::To force source-generator to reload the changed DLL
-dotnet build-server shutdown
-
-for %%f in (
-  net472
-  net8.0
+for %%r in (
+  win-x64
 ) do (
   setlocal EnableDelayedExpansion
-  set outputFolder=%publishFolder%\%projectName%-%%f
+  set outputFolder=%publishFolder%\%projectName%-%%r-trimmed
   
-  dotnet clean %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --framework %%f --output !outputFolder!
+  dotnet publish %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --runtime %%r -p:PublishTrimmed=true;PublishSingleFile=true --output !outputFolder!
   if %ERRORLEVEL% neq 0 goto :Exit
+  set /a publishedCount+=1
+  set published[!publishedCount!]=Published "%projectName%" to "!outputFolder!" folder.
   
-  dotnet publish %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --framework %%f --output !outputFolder!
+  set outputFolder=%publishFolder%\%projectName%-%%r-native
+  
+  dotnet publish %srcFolder%\%projectName%\%projectName%.csproj --configuration Release --runtime %%r -p:PublishAot=true --output !outputFolder!
   if %ERRORLEVEL% neq 0 goto :Exit
   set /a publishedCount+=1
   set published[!publishedCount!]=Published "%projectName%" to "!outputFolder!" folder.

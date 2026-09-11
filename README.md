@@ -229,11 +229,11 @@ And that's it! You now have a fully working command-line app.
 We provide some `.cmd` batch scripts in `build` folder for easier building:
 ```console
 1. Build TestApp.cmd
-2. Build Nuget Package.cmd
-3.1. Build TestApp.Nuget.cmd
-3.2. Build TestApp.NugetDI.cmd
-3.3. Build TestApp.NugetAot.cmd
-4. Build Api Docs WebSite.cmd         
+2. Build Nuget Packages.cmd
+2.1. Build TestApp.Nuget.cmd
+2.2. Build TestApp.NugetDI.cmd
+2.3. Build TestApp.NugetAot.cmd
+3. Build Docs WebSite.cmd         
 ```
 
 Output results can be found in `publish` folder, for example:
@@ -241,7 +241,7 @@ Output results can be found in `publish` folder, for example:
 TestApp-net472
 TestApp-net8.0
 
-DotMake.CommandLine.2.5.6.nupkg
+DotMake.CommandLine.3.7.0.nupkg
 
 TestApp.Nuget-net472
 TestApp.Nuget-net8.0
@@ -251,6 +251,9 @@ TestApp.NugetDI-net8.0
 
 TestApp.NugetAot-win-x64-native
 TestApp.NugetAot-win-x64-trimmed
+
+Docs-WebSite
+Docs-Offline
 ```
 
 ## Links
