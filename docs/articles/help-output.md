@@ -18,9 +18,9 @@ Arguments:
   <argument-1>  Description for Argument1 [default: DefaultForArgument1]
 
 Options:
-  -o, --option-1 <option-1>  Description for Option1 [default: DefaultForOption1]
-  -?, -h, --help             Show help and usage information
-  -v, --version              Show version information
+  -o, --option-1  Description for Option1 [default: False]
+  -?, -h, --help  Show help and usage information
+  -v, --version   Show version information
 ```
 
 Note the header:

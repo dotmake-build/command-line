@@ -2,18 +2,23 @@
 
 # DotMake Command-Line
 
+Build modern .NET command-line applications quickly and easily using strongly-typed C#.
+
+DotMake.CommandLine lets you define commands, options, and arguments using
+classes, properties, and attributes. Its source generator handles the CLI
+plumbing at compile time — with no runtime reflection.
+
+Built on top of [System.CommandLine](https://github.com/dotnet/command-line-api), 
+DotMake.CommandLine provides an attribute-based, source-generated programming model for building CLIs in idiomatic C#.
 System.CommandLine is a very good parser but you need a lot of boilerplate code to get going and the API is hard to discover.
 This becomes complicated to newcomers and also you would have a lot of ugly code in your `Program.cs` to maintain. 
 What if you had an easy class-based layer combined with a good parser?
 
-DotMake.CommandLine is a library which provides declarative syntax for 
-[System.CommandLine](https://github.com/dotnet/command-line-api) 
-via attributes for easy, fast, strongly-typed (no reflection) usage. The library includes a source generator 
-which automagically converts your classes to CLI commands and properties to CLI options or CLI arguments. 
-Supports 
+DotMake.CommandLine supports 
 [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained), 
 [AOT compilation](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot) and
-[dependency injection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)!
+[dependency injection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)
+out of the box!
 
 ![DotMake Command-Line Intro](https://raw.githubusercontent.com/dotmake-build/command-line/master/images/intro.gif "DotMake Command-Line Intro")
 
@@ -27,10 +32,11 @@ In your project directory, via dotnet cli:
 ```console
 dotnet add package DotMake.CommandLine
 ```
-or in Visual Studio Package Manager Console:
-```console
-PM> Install-Package DotMake.CommandLine
+or in your `.csproj` project file:
+```xml
+<PackageReference Include="DotMake.CommandLine" Version="x.y.z" />
 ```
+where `x.y.z` can be replaced by ![NuGet Version](https://img.shields.io/nuget/v/DotMake.CommandLine?style=social&label=Latest)
 
 ### Prerequisites
 
@@ -49,41 +55,42 @@ because you can have sub-commands and command inheritance.
 
 ### Class-based model
 
-Create a CLI App with DotMake.Commandline in seconds!
+**Create a CLI App with DotMake.Commandline in seconds!**
 
-In `Program.cs`, add this simple code:
+In `Program.cs`, define your root command and run it with `Cli.Run`:
 ```c#
 using System;
 using DotMake.CommandLine;
 
-
-
-// Add this single line to run you app!
+// Run your CLI app:
 Cli.Run<RootCliCommand>(args);
 
-
-
-// Create a simple class like this to define your root command:
+// Define your root command:
 [CliCommand(Description = "A root cli command")]
 public class RootCliCommand
 {
-    [CliOption(Description = "Description for Option1")]
-    public string Option1 { get; set; } = "DefaultForOption1";
- 
     [CliArgument(Description = "Description for Argument1")]
-    public string Argument1 { get; set; }
+    public string Argument1 { get; set; } = "DefaultForArgument1";
+
+    [CliOption(Description = "Description for Option1")]
+    public bool Option1 { get; set; };
  
     public void Run()
     {
+        //When this method, i.e. your command's handler is run, the properties of your class 
+        //will be already populated and bound from values passed in the command-line.
+
         Console.WriteLine($"Handler for '{GetType().FullName}' is run:");
-        Console.WriteLine($"Value for {nameof(Option1)} property is '{Option1}'");
         Console.WriteLine($"Value for {nameof(Argument1)} property is '{Argument1}'");
+        Console.WriteLine($"Value for {nameof(Option1)} property is '{Option1}'");
         Console.WriteLine();
     }
 }
 ```
-And that's it! You now have a fully working command-line app.
-You just specify the name of your class which represents your root command to `Cli.Run<>` method and everything is wired.
+That's it! You now have a fully working command-line app.
+You just pass the name of your class which represents your root command and `args` to `Cli.Run<>` method and everything is wired.
+DotMake.CommandLine turns your class and its properties into a CLI command, options, and arguments at compile time 
+and parses `args` and binds values to your class properties at runtime.
 
 > `args` is the string array typically passed to a program. This is usually
 the special variable `args` available in `Program.cs` (new style with top-level statements)
@@ -95,6 +102,41 @@ If you want to go async, just use this:
 ```c#
 await Cli.RunAsync<RootCliCommand>(args);
 ```
+
+When you run the app via 
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net8.0`)
+- or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
+
+You see this usage help:
+```console
+DotMake Command-Line TestApp v3.7.0
+Copyright © 2023-2026 DotMake
+
+A root cli command
+
+Usage:
+  TestApp [<argument-1>] [options]
+
+Arguments:
+  <argument-1>  Description for Argument1 [default: DefaultForArgument1]
+
+Options:
+  -o, --option-1  Description for Option1 [default: False]
+  -?, -h, --help  Show help and usage information
+  -v, --version   Show version information
+```
+
+Note, how CLI header, command/directive/option/argument names, descriptions and default values are automatically populated.
+By default, it uses [POSIX conventions](https://learn.microsoft.com/en-us/dotnet/standard/commandline/design-guidance) for 
+transforming your class and property names but this can be changed/overridden via settings.
+DotMake.CommandLine will also smartly auto-generate short-from aliases for commands and options, for you
+(see [Help output](https://dotmake.build/command-line/articles/help-output.html) docs for more info).
+This way you can concentrate on the logic of your CLI App and let DotMake.CommandLine handle all the boilerplate.
+
+Defining sub-commands (multi command CLI App) or sharing options between different commands, is a breeze in DotMake.CommandLine
+(see [Commands](https://dotmake.build/command-line/articles/commands.html) docs for more info).
+
+
 To handle exceptions, you just use a try-catch block:
 ```c#
 try
@@ -126,6 +168,8 @@ if (result.ParseResult.Errors.Count > 0)
 
 }
 ```
+(see [Model binding](https://dotmake.build/command-line/articles/model-binding.html) docs for more info).
+
 #### Summary
 - Mark the class with `[CliCommand]` attribute to make it a CLI command 
   (see [CliCommandAttribute](https://dotmake.build/command-line/api/DotMake.CommandLine.CliCommandAttribute.html) 
