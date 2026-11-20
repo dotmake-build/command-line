@@ -44,7 +44,9 @@ jobs:
     - run: dotnet tool update -g docfx-plus
 
     # Build docs in this repository via docfx-plus:
-    - run: docfx-plus docs/docfx.json
+    - env:
+        LD_PRELOAD: /lib/x86_64-linux-gnu/libgcc_s.so.1  #Temp fix for harmony
+      run: docfx-plus docs/docfx.json
 
     # Upload HTML output of the docs build:
     - name: Upload artifact
