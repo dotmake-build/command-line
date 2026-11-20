@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace DotMake.CommandLine
@@ -38,7 +39,9 @@ namespace DotMake.CommandLine
         //For RootCommandResult, Tokens does not include directives but Children does
         //So use !CommandResult.Children.Any() instead of CommandResult.Tokens.Count == 0
         //Most reliable way is to check if any children is specified explicitly (not implicit - set by a default value)
-        public bool HasArgs => ParseResult.CommandResult.Children.Any(sr => sr.Tokens.Count > 0);
+        public bool HasArgs => ParseResult.CommandResult.Children.Any(
+            sr => sr.Tokens.Count > 0
+                  || sr is OptionResult { Implicit: false });
 
         /// <summary>
         /// Gets a value indicating whether root command is specified with any subcommands, directives, options or arguments.

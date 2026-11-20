@@ -1,7 +1,7 @@
 # Help output
 
 When you run the app via 
-- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net8.0`)
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net10.0`)
 - or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
 You see this usage help:

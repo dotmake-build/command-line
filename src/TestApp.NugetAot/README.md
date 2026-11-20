@@ -17,7 +17,7 @@ Used for testing trimming and AOT compilation.
   dotnet publish -c Release -r win-x64 -p:PublishTrimmed=true;PublishSingleFile=true
   ```
 
-- The output will be generated in `bin\Release\net8.0\win-x64\publish-trimmed` folder.
+- The output will be generated in `bin\Release\net10.0\win-x64\publish-trimmed` folder.
   We fix `$(PublishDir)` if not set, in .csproj file.
 
 ## Native AOT deployment
@@ -34,7 +34,7 @@ Used for testing trimming and AOT compilation.
   dotnet publish -c Release -r win-x64 -p:PublishAot=true
   ```
 
-- The output will be generated in `bin\Release\net8.0\win-x64\publish-aot` folder.
+- The output will be generated in `bin\Release\net10.0\win-x64\publish-aot` folder.
   We fix `$(PublishDir)` if not set, in .csproj file.
 
 Note that for AOT, you need to make sure to install the "Desktop development with C++" workload from

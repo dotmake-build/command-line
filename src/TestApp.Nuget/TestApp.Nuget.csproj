@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0;net472</TargetFrameworks>
+    <TargetFrameworks>net10.0;net472</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Product>DotMake Command-Line TestApp.Nuget</Product>
 

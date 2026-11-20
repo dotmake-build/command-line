@@ -106,7 +106,7 @@ await Cli.RunAsync<RootCliCommand>(args);
 ```
 
 When you run the app via 
-- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net8.0`)
+- `TestApp.exe -?` in project output path (e.g. in `TestApp\bin\Debug\net10.0`)
 - or `dotnet run -- -?` in project directory (e.g. in `TestApp`) (note the double hyphen/dash which allows `dotnet run` to pass arguments to our actual application)
 
 You see this usage help:
@@ -283,15 +283,15 @@ We provide some `.cmd` batch scripts in `build` folder for easier building:
 Output results can be found in `publish` folder, for example:
 ```console
 TestApp-net472
-TestApp-net8.0
+TestApp-net10.0
 
 DotMake.CommandLine.3.7.0.nupkg
 
 TestApp.Nuget-net472
-TestApp.Nuget-net8.0
+TestApp.Nuget-net10.0
 
 TestApp.NugetDI-net472
-TestApp.NugetDI-net8.0
+TestApp.NugetDI-net10.0
 
 TestApp.NugetAot-win-x64-native
 TestApp.NugetAot-win-x64-trimmed

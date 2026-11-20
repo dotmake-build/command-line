@@ -8,10 +8,10 @@ dotnet publish -c Release -r win-x64 -p:PublishTrimmed=true;PublishSingleFile=tr
 ```
 If you have multiple `TargetFrameworks` in the project use this:
 ```console
-dotnet publish -c Release -r win-x64 -f net8.0 -p:PublishTrimmed=true;PublishSingleFile=true;TargetFrameworks=net8.0
+dotnet publish -c Release -r win-x64 -f net10.0 -p:PublishTrimmed=true;PublishSingleFile=true;TargetFrameworks=net10.0
 ```
 
-The output will be generated in `bin\Release\net8.0\win-x64\publish` folder.
+The output will be generated in `bin\Release\net10.0\win-x64\publish` folder.
 You will get a trimmed and single executable file which does not require .NET runtime (e.g. a 12MB exe file).
 [More details on trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained).
 
@@ -23,10 +23,10 @@ dotnet publish -c Release -r win-x64 -p:PublishAot=true
 ```
 If you have multiple `TargetFrameworks` in the project use this:
 ```console
-dotnet publish -c Release -r win-x64 -f net8.0 -p:PublishAot=true;TargetFrameworks=net8.0
+dotnet publish -c Release -r win-x64 -f net10.0 -p:PublishAot=true;TargetFrameworks=net10.0
 ```
 
-The output will be generated in `bin\Release\net8.0\win-x64\publish` folder.
+The output will be generated in `bin\Release\net10.0\win-x64\publish` folder.
 You will get a native and single executable file for the platform, which runs blazingly fast (e.g. a 4MB exe file).
 
 Note that for AOT, you need to make sure to install the "Desktop development with C++" workload from

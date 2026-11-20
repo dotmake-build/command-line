@@ -59,7 +59,7 @@ public class DirectiveCliCommand
 Currently only `bool`, `string` and `string[]` types are supported for `[CliDirective]` properties.
 Here is sample usage and output:
 ```console
-src\TestApp\bin\Debug\net8.0>TestApp [debug] [directive-2:val1] [vars:val2] [vars:val3]
+src\TestApp\bin\Debug\net10.0>TestApp [debug] [directive-2:val1] [vars:val2] [vars:val3]
 Directive 'Debug' = true
 Directive 'Directive2' = "val1"
 Directive 'Vars' = ["val2", "val3"]

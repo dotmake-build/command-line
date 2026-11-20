@@ -11,7 +11,7 @@ dotnet build-server shutdown
 
 for %%f in (
   net472
-  net8.0
+  net10.0
 ) do (
   setlocal EnableDelayedExpansion
   set outputFolder=%publishFolder%\%projectName%-%%f

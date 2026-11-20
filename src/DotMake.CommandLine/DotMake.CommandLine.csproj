@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -21,28 +21,10 @@
     <PackageTags>command-line CLI console System.CommandLine declarative attributes parsing command argument option generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-        - **Improved:** Redesigned `CliNamer` class. From now on, auto generated short aliases for commands and options
-          will be single character only to be compatible with POSIX conventions
-          (to prevent confusion with argument bundling/clustering e.g. `-wp` meaning `-w` and `-p`).
-          This may be a BREAKING CHANGE in your CLI app so check your short aliases if you depended on auto-generation.
+        - **Improved:** Updated to version `3.0.0` of System.CommandLine.
 
-          The new rules:
-          
-          First letter of the name will be used to create short form which is converted according to `[CliCommand].NameCasingConvention` property;  
-          if it conflicts, the case of the letter is changed;  
-          if it conflicts again, first letter of the next word in the name is tried and so on.  
-          (e.g. `Info` -> `i` or `I`, `ServerPort` -> `s` or `S` or `p` or `P`,  `Option1` -> `o` or `O`)  
-          No short form alias will be added if a non-conflicting one can not be found, user can manually set a specific alias for these missing ones.
-
-          For options, single hyphen/dash prefix is added to the short form.  
-          (e.g. `Info` -> `-i` or `-I`, `ServerPort` -> `-s` or `-S` or `-p` or `-P`,  `Option1` -> `-o` or `-O`)  
-          This can be changed via `[CliCommand].ShortFormPrefixConvention` property (default: SingleHyphen).
-
-          More robust handling of conflicts in `CliNamer`, i.e. checks all conflicts at once and then throws an exception which
-          lists all errors.
-
-        - **Improved:** Strong name sign the DLLs for NuGet package. Signing will be done only when `DotMake.snk` exists,
-          it's not committed to this repository.
+        - **Fixed:** `context.Result.HasArgs` should take into account implicit options like `-o`
+          i.e when no argument is specified as in `-o true`.
       ]]>
      </PackageReleaseNotes>
   </PropertyGroup>
@@ -51,7 +33,7 @@
 
   <ItemGroup>
     <!-- update: use final 2.0.0 now, old: use exact version match with [] for now as future beta versions can break API -->
-    <PackageReference Include="System.CommandLine" Version="[2.0.11,3.0.0)" />
+    <PackageReference Include="System.CommandLine" Version="[3.0.0,4.0.0)" />
 
     <!--
       UPDATE: No longer using this as now 2.0.0-beta5.25306.1 is released to official nuget feed.
